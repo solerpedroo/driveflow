@@ -32,6 +32,9 @@ Future<void> initializeSupabase() async {
         ? SupabaseConfig.publishableKey
         : 'placeholder-anon-key-for-foundation',
     debug: kDebugMode,
+    authOptions: const FlutterAuthClientOptions(
+      authFlowType: AuthFlowType.pkce,
+    ),
   );
 }
 
