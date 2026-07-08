@@ -4,6 +4,8 @@ import '../../features/earnings/data/datasources/earnings_remote_datasource.dart
 import '../../features/earnings/data/mappers/earnings_mapper.dart';
 import '../../features/expenses/data/datasources/expenses_remote_datasource.dart';
 import '../../features/expenses/data/mappers/expenses_mapper.dart';
+import '../../features/vehicle/data/datasources/vehicle_remote_datasource.dart';
+import '../../features/vehicle/data/mappers/vehicle_mapper.dart';
 import '../storage/hive_boxes.dart';
 import '../storage/local_entity_cache.dart';
 import '../storage/pending_sync_operation.dart';
@@ -20,17 +22,20 @@ class SyncWorker {
     LocalEntityCache? cache,
     EarningsRemoteDataSource? earningsRemote,
     ExpensesRemoteDataSource? expensesRemote,
+    VehicleRemoteDataSource? vehiclesRemote,
   })  : _connectivity = connectivity ?? ConnectivityService(),
         _queue = queue ?? PendingSyncQueue(),
         _cache = cache ?? LocalEntityCache(),
         _earningsRemote = earningsRemote ?? EarningsRemoteDataSource(),
-        _expensesRemote = expensesRemote ?? ExpensesRemoteDataSource();
+        _expensesRemote = expensesRemote ?? ExpensesRemoteDataSource(),
+        _vehiclesRemote = vehiclesRemote ?? VehicleRemoteDataSource();
 
   final ConnectivityService _connectivity;
   final PendingSyncQueue _queue;
   final LocalEntityCache _cache;
   final EarningsRemoteDataSource _earningsRemote;
   final ExpensesRemoteDataSource _expensesRemote;
+  final VehicleRemoteDataSource _vehiclesRemote;
 
   final _statusController = StreamController<SyncStatus>.broadcast();
   StreamSubscription<bool>? _connectivitySub;
@@ -107,6 +112,8 @@ class SyncWorker {
         await _syncEarning(operation);
       case HiveBoxes.expenses:
         await _syncExpense(operation);
+      case HiveBoxes.vehicles:
+        await _syncVehicle(operation);
       default:
         await _queue.dequeue(operation.id);
     }
@@ -155,6 +162,33 @@ class SyncWorker {
       case SyncAction.delete:
         if (LocalIdGenerator.isLocal(operation.entityId)) return;
         await _expensesRemote.deleteExpense(operation.entityId);
+    }
+  }
+
+  Future<void> _syncVehicle(PendingSyncOperation operation) async {
+    switch (operation.action) {
+      case SyncAction.create:
+        final draft = VehicleMapper.draftFromJson(operation.payload);
+        final row = await _vehiclesRemote.createVehicle(draft: draft);
+        await _cache.replaceId(
+          HiveBoxes.vehicles,
+          oldId: operation.entityId,
+          newRow: row,
+        );
+      case SyncAction.update:
+        if (LocalIdGenerator.isLocal(operation.entityId)) return;
+        final draft = VehicleMapper.draftFromJson(operation.payload);
+        await _vehiclesRemote.updateVehicle(
+          id: operation.entityId,
+          draft: draft,
+        );
+      case SyncAction.delete:
+        if (LocalIdGenerator.isLocal(operation.entityId)) return;
+        final promoteId = operation.payload['promote_default_id'] as String?;
+        await _vehiclesRemote.deleteVehicle(operation.entityId);
+        if (promoteId != null) {
+          await _vehiclesRemote.setDefaultVehicle(promoteId);
+        }
     }
   }
 
