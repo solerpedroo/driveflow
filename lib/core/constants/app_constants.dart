@@ -79,10 +79,11 @@ abstract final class AppRoutes {
   static const maintenanceForm = '/maintenance/form';
   static const maintenanceHistory = '/maintenance/history';
   static const goals = '/goals';
+  static const aiChat = '/ai/chat';
 }
 
-/// Onda atual concluída (inclui dashboard agregado e relatórios exportáveis).
-const kCurrentWave = 7;
+/// Onda atual concluída (inclui assistente IA com Groq via Edge Function).
+const kCurrentWave = 8;
 
 /// Deep link OAuth Supabase (Google).
 const kOAuthRedirectUrl = 'io.supabase.driveflow://login-callback/';
