@@ -90,6 +90,7 @@ class ExpensesController extends Notifier<AsyncValue<void>> {
         date: draft.date,
         description: draft.description,
         receiptUrl: receiptUrl,
+        vehicleId: draft.vehicleId,
       );
       if (expenseId == null) {
         saved = await ref.read(createExpenseProvider)(resolvedDraft);
