@@ -10,8 +10,10 @@ import '../../../../core/utils/vehicle_scope_filter.dart';
 import '../domain/entities/analytics_enums.dart';
 import '../domain/entities/category_breakdown_slice.dart';
 import '../domain/entities/period_comparison_result.dart';
+import '../domain/entities/profit_forecast_result.dart';
 import '../domain/services/category_breakdown_calculator.dart';
 import '../domain/services/period_comparison_calculator.dart';
+import '../domain/services/profit_forecast_calculator.dart';
 import '../domain/services/profit_trend_calculator.dart';
 import '../../../../shared/domain/models/daily_profit_point.dart';
 
@@ -23,6 +25,45 @@ final analyticsComparisonReferenceProvider =
 
 final analyticsPeriodProvider =
     StateProvider<GoalPeriod>((ref) => GoalPeriod.monthly);
+
+final analyticsProfitForecastProvider =
+    Provider<AsyncValue<ProfitForecastResult>>((ref) {
+  final earningsAsync = ref.watch(earningsStreamProvider);
+  final expensesAsync = ref.watch(expensesStreamProvider);
+  final scopedVehicleId = ref.watch(scopedVehicleIdProvider);
+
+  if (earningsAsync.isLoading || expensesAsync.isLoading) {
+    return const AsyncLoading();
+  }
+
+  final error = earningsAsync.error ?? expensesAsync.error;
+  if (error != null) {
+    return AsyncError(
+      error,
+      earningsAsync.stackTrace ??
+          expensesAsync.stackTrace ??
+          StackTrace.current,
+    );
+  }
+
+  final earnings = _scoped(
+    items: earningsAsync.valueOrNull ?? const [],
+    vehicleId: scopedVehicleId,
+    vehicleIdOf: (e) => e.vehicleId,
+  );
+  final expenses = _scoped(
+    items: expensesAsync.valueOrNull ?? const [],
+    vehicleId: scopedVehicleId,
+    vehicleIdOf: (e) => e.vehicleId,
+  );
+
+  return AsyncData(
+    ProfitForecastCalculator.compute(
+      earnings: earnings,
+      expenses: expenses,
+    ),
+  );
+});
 
 List<T> _scoped<T>({
   required List<T> items,
