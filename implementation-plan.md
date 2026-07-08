@@ -25,7 +25,7 @@ Plano de implementação em **16 ondas** (0–15) para o DriveFlow (Flutter + Su
 | 9 | Offline-first Hive sync + Analytics/Crashlytics + 70% coverage + release prep | concluída |
 | 10 | Múltiplos veículos + seletor ativo + escopo por veículo | pendente |
 | 11 | OCR de comprovantes + preenchimento automático de despesas | pendente |
-| 12 | Gráficos avançados + comparação de períodos | pendente |
+| 12 | Gráficos avançados + comparação de períodos | concluída |
 | 13 | Lembretes inteligentes + insights de melhor horário | pendente |
 | 14 | Importação de extratos + previsão IA | pendente |
 | 15 | Refatoração de UI / Design System v2 | pendente |
