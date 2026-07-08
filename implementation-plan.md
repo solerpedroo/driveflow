@@ -19,7 +19,7 @@ Plano de implementação em 10 ondas para o DriveFlow (Flutter + Supabase + Groq
 | 5 | Maintenance CRUD + lembretes locais (RF12) | concluída |
 | 6 | Goals (diária/semanal/mensal/anual) + progresso visual | concluída |
 | 7 | Dashboard agregado + Reports com export PDF/CSV | concluída |
-| 8 | Edge Function Groq + AI chat UI + ai_history | pendente |
+| 8 | Edge Function Groq + AI chat UI + ai_history | concluída |
 | 9 | Offline-first Hive sync + Analytics/Crashlytics + 70% coverage + release prep | pendente |
 
 ---
