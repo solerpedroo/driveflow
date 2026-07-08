@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../vehicle/presentation/providers/vehicle_providers.dart';
+import '../../../../core/services/maintenance_notification_service.dart';
+import '../../../../core/services/predictive_maintenance_scheduler.dart';
 import '../../data/repositories/maintenance_repository_impl.dart';
 import '../../domain/entities/maintenance_entity.dart';
 import '../../domain/repositories/maintenance_repository.dart';
@@ -9,6 +11,15 @@ import '../../domain/usecases/maintenance_usecases.dart';
 
 final maintenanceRepositoryProvider = Provider<MaintenanceRepository>((ref) {
   return MaintenanceRepositoryImpl();
+});
+
+final predictiveMaintenanceSchedulerProvider =
+    Provider<PredictiveMaintenanceScheduler>((ref) {
+  final notifications = MaintenanceNotificationService.instance;
+  return PredictiveMaintenanceScheduler(
+    syncPredictiveReminder: notifications.syncPredictiveReminder,
+    cancelReminder: notifications.cancelReminder,
+  );
 });
 
 final maintenanceStreamProvider =
