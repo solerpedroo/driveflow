@@ -47,18 +47,19 @@ const kFuelTypes = FuelType.values;
 
 /// Tipos de manutenção veicular.
 enum MaintenanceType {
-  oil('oil', 'Óleo'),
-  tires('tires', 'Pneus'),
-  revision('revision', 'Revisão'),
-  filters('filters', 'Filtros'),
-  alignment('alignment', 'Alinhamento'),
-  battery('battery', 'Bateria'),
-  brakes('brakes', 'Freios');
+  oil('oil', 'Óleo', Icons.opacity_rounded),
+  tires('tires', 'Pneus', Icons.tire_repair_rounded),
+  revision('revision', 'Revisão', Icons.fact_check_outlined),
+  filters('filters', 'Filtros', Icons.air_rounded),
+  alignment('alignment', 'Alinhamento', Icons.straighten_rounded),
+  battery('battery', 'Bateria', Icons.battery_charging_full_rounded),
+  brakes('brakes', 'Freios', Icons.stop_circle_outlined);
 
-  const MaintenanceType(this.value, this.label);
+  const MaintenanceType(this.value, this.label, this.icon);
 
   final String value;
   final String label;
+  final IconData icon;
 }
 
 const kMaintenanceTypes = MaintenanceType.values;
@@ -75,10 +76,12 @@ abstract final class AppRoutes {
   static const expenseForm = '/expenses/form';
   static const fuelLog = '/fuel/log';
   static const fuelHistory = '/fuel/history';
+  static const maintenanceForm = '/maintenance/form';
+  static const maintenanceHistory = '/maintenance/history';
 }
 
-/// Onda atual concluída (foundation + auth + shell + ganhos/despesas + abastecimento).
-const kCurrentWave = 4;
+/// Onda atual concluída (inclui manutenção e lembretes locais).
+const kCurrentWave = 5;
 
 /// Deep link OAuth Supabase (Google).
 const kOAuthRedirectUrl = 'io.supabase.driveflow://login-callback/';
