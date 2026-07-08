@@ -11,6 +11,7 @@ import '../../../maintenance/presentation/providers/maintenance_providers.dart';
 import '../../../profile/presentation/providers/profile_providers.dart';
 import '../../../authentication/presentation/providers/auth_providers.dart';
 import '../../../vehicle/presentation/providers/vehicle_providers.dart';
+import '../../../vehicle/presentation/widgets/vehicle_scope_chip.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/theme_mode_provider.dart';
@@ -83,6 +84,15 @@ class DashboardScreen extends HookConsumerWidget {
                   ),
                 ),
               ],
+            ),
+          ),
+        ),
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(24, 12, 24, 0),
+          sliver: SliverToBoxAdapter(
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: VehicleScopeChip(),
             ),
           ),
         ),

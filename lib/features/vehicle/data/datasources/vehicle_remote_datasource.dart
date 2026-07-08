@@ -24,6 +24,7 @@ class VehicleRemoteDataSource {
         .from(VehicleSchema.table)
         .stream(primaryKey: [VehicleSchema.id])
         .eq(VehicleSchema.userId, userId)
+        .order(VehicleSchema.isDefault, ascending: false)
         .order(VehicleSchema.createdAt);
   }
 
@@ -35,6 +36,7 @@ class VehicleRemoteDataSource {
         .from(VehicleSchema.table)
         .select()
         .eq(VehicleSchema.userId, userId)
+        .order(VehicleSchema.isDefault, ascending: false)
         .order(VehicleSchema.createdAt);
 
     return List<Map<String, dynamic>>.from(rows);
@@ -49,6 +51,10 @@ class VehicleRemoteDataSource {
     }
 
     try {
+      if (draft.isDefault) {
+        await _clearDefaultForUser(userId);
+      }
+
       final row = await _client
           .from(VehicleSchema.table)
           .insert(VehicleMapper.toInsert(userId: userId, draft: draft))
@@ -64,7 +70,16 @@ class VehicleRemoteDataSource {
     required String id,
     required VehicleDraft draft,
   }) async {
+    final userId = _userId;
+    if (userId == null) {
+      throw const AuthFailure(message: 'Sessão expirada. Entre novamente.');
+    }
+
     try {
+      if (draft.isDefault) {
+        await _clearDefaultForUser(userId, exceptId: id);
+      }
+
       final row = await _client
           .from(VehicleSchema.table)
           .update(VehicleMapper.toUpdate(draft))
@@ -85,6 +100,23 @@ class VehicleRemoteDataSource {
     }
   }
 
+  Future<void> setDefaultVehicle(String id) async {
+    final userId = _userId;
+    if (userId == null) {
+      throw const AuthFailure(message: 'Sessão expirada. Entre novamente.');
+    }
+
+    try {
+      await _clearDefaultForUser(userId, exceptId: id);
+      await _client
+          .from(VehicleSchema.table)
+          .update({VehicleSchema.isDefault: true})
+          .eq(VehicleSchema.id, id);
+    } on PostgrestException catch (e) {
+      throw ServerFailure(message: e.message, cause: e);
+    }
+  }
+
   Future<void> updateOdometer({
     required String id,
     required double odometerKm,
@@ -97,5 +129,22 @@ class VehicleRemoteDataSource {
     } on PostgrestException catch (e) {
       throw ServerFailure(message: e.message, cause: e);
     }
+  }
+
+  Future<void> _clearDefaultForUser(
+    String userId, {
+    String? exceptId,
+  }) async {
+    var query = _client
+        .from(VehicleSchema.table)
+        .update({VehicleSchema.isDefault: false})
+        .eq(VehicleSchema.userId, userId)
+        .eq(VehicleSchema.isDefault, true);
+
+    if (exceptId != null) {
+      query = query.neq(VehicleSchema.id, exceptId);
+    }
+
+    await query;
   }
 }

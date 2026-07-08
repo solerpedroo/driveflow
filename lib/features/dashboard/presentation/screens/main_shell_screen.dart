@@ -5,6 +5,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../earnings/presentation/screens/earnings_screen.dart';
 import '../../../expenses/presentation/screens/expenses_screen.dart';
+import '../../../vehicle/domain/entities/vehicle_entity.dart';
 import '../../../vehicle/presentation/providers/vehicle_providers.dart';
 import '../../../vehicle/presentation/screens/vehicle_form_screen.dart';
 import '../../../../core/constants/driveflow_tab_count.dart';
@@ -39,13 +40,40 @@ class MainShellScreen extends HookConsumerWidget {
   }
 }
 
-/// Tela full-screen para editar veículo (push a partir do perfil).
-class EditVehicleScreen extends ConsumerWidget {
-  const EditVehicleScreen({super.key});
+/// Tela full-screen para adicionar veículo.
+class AddVehicleScreen extends ConsumerWidget {
+  const AddVehicleScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final vehicleAsync = ref.watch(activeVehicleProvider);
+    final vehicles = ref.watch(vehiclesListProvider).valueOrNull ?? const [];
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Adicionar veículo'),
+        backgroundColor: Colors.transparent,
+      ),
+      body: VehicleFormScreen(
+        title: 'Novo veículo',
+        subtitle:
+            'Cadastre outro carro para separar abastecimentos, manutenções e relatórios.',
+        submitLabel: 'Salvar veículo',
+        markAsDefault: vehicles.isEmpty,
+        onSaved: () => context.pop(),
+      ),
+    );
+  }
+}
+
+/// Tela full-screen para editar veículo (push a partir do perfil).
+class EditVehicleScreen extends ConsumerWidget {
+  const EditVehicleScreen({this.vehicleId, super.key});
+
+  final String? vehicleId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final vehiclesAsync = ref.watch(vehiclesListProvider);
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -53,10 +81,11 @@ class EditVehicleScreen extends ConsumerWidget {
         title: const Text('Editar veículo'),
         backgroundColor: Colors.transparent,
       ),
-      body: vehicleAsync.when(
+      body: vehiclesAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text('Erro: $e')),
-        data: (vehicle) {
+        data: (vehicles) {
+          final vehicle = _resolveVehicle(vehicles, vehicleId);
           if (vehicle == null) {
             return Center(
               child: Text(
@@ -74,6 +103,23 @@ class EditVehicleScreen extends ConsumerWidget {
           );
         },
       ),
+    );
+  }
+
+  static VehicleEntity? _resolveVehicle(
+    List<VehicleEntity> vehicles,
+    String? vehicleId,
+  ) {
+    if (vehicleId != null) {
+      for (final vehicle in vehicles) {
+        if (vehicle.id == vehicleId) return vehicle;
+      }
+      return null;
+    }
+    if (vehicles.isEmpty) return null;
+    return vehicles.firstWhere(
+      (v) => v.isDefault,
+      orElse: () => vehicles.first,
     );
   }
 }

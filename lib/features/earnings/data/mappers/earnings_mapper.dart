@@ -15,6 +15,7 @@ abstract final class EarningsMapper {
       workedHours: _toDouble(row[EarningsSchema.workedHours]) ?? 0,
       note: row[EarningsSchema.note] as String?,
       date: _toDateTime(row[EarningsSchema.date]) ?? DateTime.now(),
+      vehicleId: row[EarningsSchema.vehicleId] as String?,
       createdAt: _toDateTime(row[EarningsSchema.createdAt]),
       updatedAt: _toDateTime(row[EarningsSchema.updatedAt]),
     );
@@ -32,6 +33,7 @@ abstract final class EarningsMapper {
       EarningsSchema.workedHours: draft.workedHours,
       EarningsSchema.note: _nullableText(draft.note),
       EarningsSchema.date: draft.date.toUtc().toIso8601String(),
+      if (draft.vehicleId != null) EarningsSchema.vehicleId: draft.vehicleId,
     };
   }
 
@@ -43,6 +45,7 @@ abstract final class EarningsMapper {
       EarningsSchema.workedHours: draft.workedHours,
       EarningsSchema.note: _nullableText(draft.note),
       EarningsSchema.date: draft.date.toUtc().toIso8601String(),
+      if (draft.vehicleId != null) EarningsSchema.vehicleId: draft.vehicleId,
     };
   }
 
@@ -56,6 +59,7 @@ abstract final class EarningsMapper {
       EarningsSchema.workedHours: entity.workedHours,
       EarningsSchema.note: entity.note,
       EarningsSchema.date: entity.date.toUtc().toIso8601String(),
+      if (entity.vehicleId != null) EarningsSchema.vehicleId: entity.vehicleId,
       if (entity.createdAt != null)
         EarningsSchema.createdAt: entity.createdAt!.toUtc().toIso8601String(),
       if (entity.updatedAt != null)
@@ -71,6 +75,7 @@ abstract final class EarningsMapper {
       'worked_hours': draft.workedHours,
       'note': draft.note,
       'date': draft.date.toUtc().toIso8601String(),
+      if (draft.vehicleId != null) 'vehicle_id': draft.vehicleId,
     };
   }
 
@@ -82,6 +87,7 @@ abstract final class EarningsMapper {
       workedHours: _toDouble(json['worked_hours']) ?? 0,
       note: json['note'] as String?,
       date: _toDateTime(json['date']) ?? DateTime.now(),
+      vehicleId: json['vehicle_id'] as String?,
     );
   }
 

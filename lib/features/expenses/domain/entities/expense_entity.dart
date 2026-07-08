@@ -8,6 +8,7 @@ class ExpenseEntity {
     required this.category,
     required this.amount,
     required this.date,
+    this.vehicleId,
     this.description,
     this.receiptUrl,
     this.createdAt,
@@ -19,6 +20,7 @@ class ExpenseEntity {
   final ExpenseCategory category;
   final double amount;
   final DateTime date;
+  final String? vehicleId;
   final String? description;
   final String? receiptUrl;
   final DateTime? createdAt;
@@ -30,6 +32,7 @@ class ExpenseEntity {
     ExpenseCategory? category,
     double? amount,
     DateTime? date,
+    String? vehicleId,
     String? description,
     String? receiptUrl,
     DateTime? createdAt,
@@ -41,6 +44,7 @@ class ExpenseEntity {
       category: category ?? this.category,
       amount: amount ?? this.amount,
       date: date ?? this.date,
+      vehicleId: vehicleId ?? this.vehicleId,
       description: description ?? this.description,
       receiptUrl: receiptUrl ?? this.receiptUrl,
       createdAt: createdAt ?? this.createdAt,
@@ -55,6 +59,7 @@ class ExpenseDraft {
     required this.category,
     required this.amount,
     required this.date,
+    this.vehicleId,
     this.description,
     this.receiptUrl,
   });
@@ -62,6 +67,7 @@ class ExpenseDraft {
   final ExpenseCategory category;
   final double amount;
   final DateTime date;
+  final String? vehicleId;
   final String? description;
   final String? receiptUrl;
 }

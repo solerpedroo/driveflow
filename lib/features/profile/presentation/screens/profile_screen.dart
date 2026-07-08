@@ -11,6 +11,7 @@ import '../../../authentication/domain/entities/user_entity.dart';
 import '../../../authentication/presentation/providers/auth_providers.dart';
 import '../../../authentication/presentation/widgets/auth_primary_button.dart';
 import '../../../authentication/presentation/widgets/auth_text_field.dart';
+import '../../../vehicle/domain/entities/vehicle_entity.dart';
 import '../../../vehicle/presentation/providers/vehicle_providers.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -27,8 +28,9 @@ class ProfileScreen extends HookConsumerWidget {
     final theme = Theme.of(context);
     final user = ref.watch(userProfileProvider).valueOrNull ??
         ref.watch(authStateProvider).valueOrNull;
-    final vehicle = ref.watch(activeVehicleProvider).valueOrNull;
+    final vehiclesAsync = ref.watch(vehiclesListProvider);
     final mutation = ref.watch(profileControllerProvider);
+    final vehicleMutation = ref.watch(vehicleControllerProvider);
     final nameController = useTextEditingController(text: user?.name ?? '');
     final editingName = useState(false);
 
@@ -132,60 +134,104 @@ class ProfileScreen extends HookConsumerWidget {
         SliverPadding(
           padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
           sliver: SliverToBoxAdapter(
-            child: Text('Veículo', style: theme.textTheme.titleMedium),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text('Veículos', style: theme.textTheme.titleMedium),
+                ),
+                TextButton.icon(
+                  onPressed: vehicleMutation.isLoading
+                      ? null
+                      : () => context.push(AppRoutes.addVehicle),
+                  icon: const Icon(Icons.add_circle_outline),
+                  label: const Text('Adicionar'),
+                ),
+              ],
+            ),
+          ),
+        ),
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(24, 12, 24, 0),
+          sliver: vehiclesAsync.when(
+            loading: () => const SliverToBoxAdapter(
+              child: Center(child: CircularProgressIndicator()),
+            ),
+            error: (e, _) => SliverToBoxAdapter(child: Text('Erro: $e')),
+            data: (vehicles) {
+              if (vehicles.isEmpty) {
+                return SliverToBoxAdapter(
+                  child: DriveFlowGlassCard(
+                    child: Text(
+                      'Nenhum veículo cadastrado.',
+                      style: theme.textTheme.bodyMedium,
+                    ),
+                  ),
+                );
+              }
+
+              return SliverList.separated(
+                itemCount: vehicles.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 12),
+                itemBuilder: (context, index) {
+                  final vehicle = vehicles[index];
+                  return Padding(
+                    padding: EdgeInsets.only(
+                      bottom: index == vehicles.length - 1 ? 0 : 0,
+                    ),
+                    child: _VehicleCard(
+                      vehicle: vehicle,
+                      isBusy: vehicleMutation.isLoading,
+                      onEdit: () => context.push(
+                        '${AppRoutes.editVehicle}?id=${vehicle.id}',
+                      ),
+                      onSetDefault: vehicle.isDefault
+                          ? null
+                          : () => ref
+                              .read(vehicleControllerProvider.notifier)
+                              .setDefault(vehicle.id),
+                      onDelete: vehicles.length <= 1
+                          ? null
+                          : () => _confirmDelete(context, ref, vehicle),
+                    ),
+                  );
+                },
+              );
+            },
+          ),
+        ),
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+          sliver: SliverToBoxAdapter(
+            child: Text('Atalhos', style: theme.textTheme.titleMedium),
           ),
         ),
         SliverPadding(
           padding: const EdgeInsets.fromLTRB(24, 12, 24, 0),
           sliver: SliverToBoxAdapter(
             child: DriveFlowGlassCard(
-              child: vehicle == null
-                  ? Text(
-                      'Nenhum veículo cadastrado.',
-                      style: theme.textTheme.bodyMedium,
-                    )
-                  : Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(vehicle.displayName,
-                            style: theme.textTheme.titleMedium),
-                        const SizedBox(height: 4),
-                        Text(
-                          '${vehicle.year} · ${vehicle.fuelLabel}'
-                          '${vehicle.plate != null ? ' · ${vehicle.plate}' : ''}',
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: AppColors.secondaryLabel(theme),
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        FilledButton.tonalIcon(
-                          onPressed: () =>
-                              context.push(AppRoutes.editVehicle),
-                          icon: const Icon(Icons.directions_car_outlined),
-                          label: const Text('Editar veículo'),
-                        ),
-                        const SizedBox(height: 8),
-                        FilledButton.tonalIcon(
-                          onPressed: () =>
-                              context.push(AppRoutes.fuelHistory),
-                          icon: const Icon(Icons.local_gas_station_outlined),
-                          label: const Text('Abastecimentos'),
-                        ),
-                        const SizedBox(height: 8),
-                        FilledButton.tonalIcon(
-                          onPressed: () =>
-                              context.push(AppRoutes.maintenanceHistory),
-                          icon: const Icon(Icons.build_circle_outlined),
-                          label: const Text('Manutenções'),
-                        ),
-                        const SizedBox(height: 8),
-                        FilledButton.tonalIcon(
-                          onPressed: () => context.push(AppRoutes.goals),
-                          icon: const Icon(Icons.flag_outlined),
-                          label: const Text('Metas'),
-                        ),
-                      ],
-                    ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  FilledButton.tonalIcon(
+                    onPressed: () => context.push(AppRoutes.fuelHistory),
+                    icon: const Icon(Icons.local_gas_station_outlined),
+                    label: const Text('Abastecimentos'),
+                  ),
+                  const SizedBox(height: 8),
+                  FilledButton.tonalIcon(
+                    onPressed: () =>
+                        context.push(AppRoutes.maintenanceHistory),
+                    icon: const Icon(Icons.build_circle_outlined),
+                    label: const Text('Manutenções'),
+                  ),
+                  const SizedBox(height: 8),
+                  FilledButton.tonalIcon(
+                    onPressed: () => context.push(AppRoutes.goals),
+                    icon: const Icon(Icons.flag_outlined),
+                    label: const Text('Metas'),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -236,6 +282,114 @@ class ProfileScreen extends HookConsumerWidget {
           ),
         ),
       ],
+    );
+  }
+
+  Future<void> _confirmDelete(
+    BuildContext context,
+    WidgetRef ref,
+    VehicleEntity vehicle,
+  ) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Excluir veículo'),
+        content: Text(
+          'Remover ${vehicle.displayName}? Abastecimentos e manutenções vinculados também serão apagados.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Excluir'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      await ref.read(vehicleControllerProvider.notifier).delete(vehicle.id);
+    }
+  }
+}
+
+class _VehicleCard extends StatelessWidget {
+  const _VehicleCard({
+    required this.vehicle,
+    required this.isBusy,
+    required this.onEdit,
+    this.onSetDefault,
+    this.onDelete,
+  });
+
+  final VehicleEntity vehicle;
+  final bool isBusy;
+  final VoidCallback onEdit;
+  final VoidCallback? onSetDefault;
+  final VoidCallback? onDelete;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return DriveFlowGlassCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(vehicle.displayName,
+                    style: theme.textTheme.titleMedium),
+              ),
+              if (vehicle.isDefault)
+                Chip(
+                  label: const Text('Padrão'),
+                  visualDensity: VisualDensity.compact,
+                  backgroundColor:
+                      AppColors.electricTeal.withValues(alpha: 0.15),
+                ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            '${vehicle.year} · ${vehicle.fuelLabel}'
+            '${vehicle.plate != null ? ' · ${vehicle.plate}' : ''}'
+            ' · ${vehicle.odometerKm.toStringAsFixed(0)} km',
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: AppColors.secondaryLabel(theme),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              FilledButton.tonalIcon(
+                onPressed: isBusy ? null : onEdit,
+                icon: const Icon(Icons.edit_outlined),
+                label: const Text('Editar'),
+              ),
+              if (onSetDefault != null)
+                OutlinedButton(
+                  onPressed: isBusy ? null : onSetDefault,
+                  child: const Text('Tornar padrão'),
+                ),
+              if (onDelete != null)
+                TextButton(
+                  onPressed: isBusy ? null : onDelete,
+                  child: Text(
+                    'Excluir',
+                    style: TextStyle(color: theme.colorScheme.error),
+                  ),
+                ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

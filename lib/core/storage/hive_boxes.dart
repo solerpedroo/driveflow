@@ -5,6 +5,8 @@ abstract final class HiveBoxes {
   static const fuelLogs = 'fuel_logs';
   static const maintenance = 'maintenance';
   static const goals = 'goals';
+  static const vehicles = 'vehicles';
+  static const appState = 'app_state';
   static const pendingSyncQueue = 'pending_sync_queue';
 
   static const all = [
@@ -13,6 +15,8 @@ abstract final class HiveBoxes {
     fuelLogs,
     maintenance,
     goals,
+    vehicles,
+    appState,
     pendingSyncQueue,
   ];
 }

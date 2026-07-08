@@ -191,6 +191,16 @@ flutter test --coverage
 # Meta: ≥ 70% em lib/features/*/domain e lib/features/*/data
 ```
 
+## Onda 10 — entregue
+
+- [x] Migration 002: `nickname`, `is_default`, `vehicle_id` em ganhos/despesas
+- [x] CRUD de N veículos com veículo padrão e exclusão segura
+- [x] Seletor de veículo (chip + bottom sheet) no Dashboard e Relatórios
+- [x] `scopedVehicleIdProvider` filtra ganhos/despesas por veículo
+- [x] Cache Hive + fila offline para veículos (`SyncWorker`)
+- [x] Lista de veículos no Perfil com adicionar/editar/excluir/tornar padrão
+- [x] Testes: mapper, `VehicleDefaultResolver`, `VehicleScopeFilter`
+
 ---
 
 ## Licença

@@ -45,3 +45,20 @@ class DeleteVehicle {
 
   Future<void> call(String id) => _repository.deleteVehicle(id);
 }
+
+class SetDefaultVehicle {
+  const SetDefaultVehicle(this._repository);
+
+  final VehicleRepository _repository;
+
+  Future<void> call(String id) => _repository.setDefaultVehicle(id);
+}
+
+class SetActiveVehicle {
+  const SetActiveVehicle(this._repository);
+
+  final VehicleRepository _repository;
+
+  Future<void> call(String? vehicleId) =>
+      _repository.setActiveVehicleId(vehicleId);
+}
