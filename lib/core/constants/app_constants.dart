@@ -71,6 +71,7 @@ abstract final class AppRoutes {
   static const register = '/register';
   static const home = '/';
   static const vehicleOnboarding = '/onboarding/vehicle';
+  static const addVehicle = '/vehicle/add';
   static const editVehicle = '/vehicle/edit';
   static const earningForm = '/earnings/form';
   static const expenseForm = '/expenses/form';
@@ -82,8 +83,8 @@ abstract final class AppRoutes {
   static const aiChat = '/ai/chat';
 }
 
-/// Onda atual concluída (MVP v1.0 — offline-first + observabilidade).
-const kCurrentWave = 9;
+/// Onda atual concluída (v1.5 — múltiplos veículos).
+const kCurrentWave = 10;
 
 /// Deep link OAuth Supabase (Google).
 const kOAuthRedirectUrl = 'io.supabase.driveflow://login-callback/';
