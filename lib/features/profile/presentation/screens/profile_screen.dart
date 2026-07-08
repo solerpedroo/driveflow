@@ -226,6 +226,18 @@ class ProfileScreen extends HookConsumerWidget {
                   ),
                   const SizedBox(height: 8),
                   FilledButton.tonalIcon(
+                    onPressed: () => context.push(AppRoutes.analytics),
+                    icon: const Icon(Icons.bar_chart_outlined),
+                    label: const Text('Análises'),
+                  ),
+                  const SizedBox(height: 8),
+                  FilledButton.tonalIcon(
+                    onPressed: () => context.push(AppRoutes.insights),
+                    icon: const Icon(Icons.auto_awesome_outlined),
+                    label: const Text('Insights'),
+                  ),
+                  const SizedBox(height: 8),
+                  FilledButton.tonalIcon(
                     onPressed: () => context.push(AppRoutes.goals),
                     icon: const Icon(Icons.flag_outlined),
                     label: const Text('Metas'),
