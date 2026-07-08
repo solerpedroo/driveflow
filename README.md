@@ -123,6 +123,15 @@ dart run build_runner build --delete-conflicting-outputs
 - [x] Streams Supabase em tempo real + rotas de formulário
 - [x] Testes: mappers, filtros, validação BRL, formulário de ganho
 
+## Onda 4 — entregue
+
+- [x] CRUD de abastecimentos (`fuel_logs`) com cálculo automático km/L e custo/km
+- [x] Média rolling de consumo nos últimos abastecimentos
+- [x] Sync automático com `expenses` categoria Combustível
+- [x] Atualização do odômetro do veículo ao salvar
+- [x] Histórico + formulário acessíveis via Perfil e card no Dashboard
+- [x] Testes: fórmulas de métricas, mapper e linker de despesa
+
 ---
 
 ## Licença
