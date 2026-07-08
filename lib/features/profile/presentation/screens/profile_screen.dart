@@ -190,6 +190,41 @@ class ProfileScreen extends HookConsumerWidget {
           ),
         ),
         SliverPadding(
+          padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+          sliver: SliverToBoxAdapter(
+            child: Text('Assistente', style: theme.textTheme.titleMedium),
+          ),
+        ),
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(24, 12, 24, 0),
+          sliver: SliverToBoxAdapter(
+            child: DriveFlowGlassCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'DriveFlow IA',
+                    style: theme.textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Pergunte sobre lucro, metas, combustível e manutenção com seus dados reais.',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: AppColors.secondaryLabel(theme),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  FilledButton.tonalIcon(
+                    onPressed: () => context.push(AppRoutes.aiChat),
+                    icon: const Icon(Icons.auto_awesome_outlined),
+                    label: const Text('Abrir assistente'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        SliverPadding(
           padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
           sliver: SliverToBoxAdapter(
             child: TextButton.icon(
