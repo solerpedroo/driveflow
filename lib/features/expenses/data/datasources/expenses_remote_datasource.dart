@@ -16,6 +16,8 @@ class ExpensesRemoteDataSource {
 
   String? get _userId => _client.auth.currentUser?.id;
 
+  String? get currentUserId => _userId;
+
   Stream<List<Map<String, dynamic>>> watchExpenses() {
     final userId = _userId;
     if (userId == null) return Stream.value(const []);
