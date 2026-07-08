@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../../authentication/presentation/providers/auth_providers.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/theme_mode_provider.dart';
@@ -19,6 +20,7 @@ class FoundationScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final user = ref.watch(authStateProvider).valueOrNull;
     final pulse = useAnimationController(
       duration: const Duration(milliseconds: 2200),
     )..repeat(reverse: true);
@@ -46,6 +48,24 @@ class FoundationScreen extends HookConsumerWidget {
                   child: Row(
                     children: [
                       const Expanded(child: DriveFlowBrandLogo(size: LogoSize.medium)),
+                      if (user != null)
+                        Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: Chip(
+                            avatar: CircleAvatar(
+                              backgroundColor:
+                                  AppColors.electricTeal.withValues(alpha: 0.2),
+                              child: Text(
+                                user.displayName.characters.first.toUpperCase(),
+                                style: const TextStyle(
+                                  color: AppColors.electricTeal,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            label: Text(user.displayName),
+                          ),
+                        ),
                       IconButton.filledTonal(
                         tooltip: 'Alternar tema',
                         onPressed: () =>
@@ -79,7 +99,7 @@ class FoundationScreen extends HookConsumerWidget {
                         ),
                         const SizedBox(height: 12),
                         Text(
-                          'Onda $kFoundationWave concluída',
+                          'Olá, ${user?.displayName ?? 'motorista'}! Onda $kFoundationWave concluída — auth ativa.',
                           style: theme.textTheme.headlineSmall,
                         ),
                         const SizedBox(height: 8),
@@ -171,10 +191,23 @@ class FoundationScreen extends HookConsumerWidget {
               SliverPadding(
                 padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
                 sliver: SliverToBoxAdapter(
-                  child: FilledButton.icon(
-                    onPressed: () {},
-                    icon: const Icon(Icons.rocket_launch_rounded),
-                    label: const Text('Próximo: Autenticação (Onda 1)'),
+                  child: Column(
+                    children: [
+                      FilledButton.icon(
+                        onPressed: () {},
+                        icon: const Icon(Icons.rocket_launch_rounded),
+                        label: const Text('Próximo: Shell + Veículo (Onda 2)'),
+                      ),
+                      if (user != null) ...[
+                        const SizedBox(height: 12),
+                        TextButton.icon(
+                          onPressed: () =>
+                              ref.read(authControllerProvider.notifier).signOut(),
+                          icon: const Icon(Icons.logout_rounded),
+                          label: const Text('Sair'),
+                        ),
+                      ],
+                    ],
                   ),
                 ),
               ),
