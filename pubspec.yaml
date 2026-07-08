@@ -37,6 +37,7 @@ dependencies:
   shared_preferences: ^2.5.3
   supabase_flutter: ^2.9.0
   timezone: ^0.10.0
+  file_picker: ^8.1.7
 
 dev_dependencies:
   build_runner: ^2.4.15
