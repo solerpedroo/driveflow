@@ -234,6 +234,18 @@ flutter test --coverage
 
 ---
 
+## Onda 14 — entregue
+
+- [x] Feature `import`: parsers CSV (Nubank/Inter/genérico) e OFX básico
+- [x] `ImportDeduplicator` e preview com checkboxes em `/import/statement`
+- [x] Importação em lote via repositórios (fila offline)
+- [x] Edge Function `ai-forecast` + card Projeção em Analytics
+- [x] `ProfitForecastCalculator` local (fallback determinístico)
+- [x] IA: sugestão de previsão mensal; migration `ai_history.type`
+- [x] Testes: parsers, deduplicação e calculadora de previsão
+
+---
+
 ## Licença
 
 Projeto privado — todos os direitos reservados.
