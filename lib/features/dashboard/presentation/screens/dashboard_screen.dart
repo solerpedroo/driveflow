@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../goals/domain/entities/goal_entity.dart';
+import '../../../goals/domain/services/goal_progress_calculator.dart';
 import '../../../goals/presentation/providers/goals_providers.dart';
 import '../../../fuel/presentation/providers/fuel_providers.dart';
 import '../../../maintenance/presentation/providers/maintenance_providers.dart';
@@ -15,11 +16,16 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/theme_mode_provider.dart';
 import '../../../maintenance/domain/entities/maintenance_entity.dart';
 import '../../../../core/utils/currency_formatter.dart';
+import '../../../../core/utils/duration_formatter.dart';
 import '../../../../shared/widgets/driveflow_brand_logo.dart';
 import '../../../../shared/widgets/driveflow_glass_card.dart';
 import '../../../../shared/widgets/driveflow_metric_chip.dart';
+import '../providers/dashboard_providers.dart';
+import '../widgets/dashboard_today_card.dart';
+import '../widgets/month_summary_card.dart';
+import '../widgets/weekly_profit_chart.dart';
 
-/// Dashboard — aba inicial do shell (métricas placeholder).
+/// Dashboard — visão consolidada do motorista.
 class DashboardScreen extends HookConsumerWidget {
   const DashboardScreen({super.key});
 
@@ -31,8 +37,10 @@ class DashboardScreen extends HookConsumerWidget {
         ref.watch(authStateProvider).valueOrNull;
     final vehicle = ref.watch(activeVehicleProvider).valueOrNull;
     final lastFuel = ref.watch(lastFuelLogProvider).valueOrNull;
-    final maintenanceAlerts = ref.watch(maintenanceAlertsProvider).valueOrNull ?? const [];
+    final maintenanceAlerts =
+        ref.watch(maintenanceAlertsProvider).valueOrNull ?? const [];
     final dailyGoal = ref.watch(goalProgressProvider(GoalPeriod.daily));
+    final dashboardAsync = ref.watch(dashboardSnapshotProvider);
     final pulse = useAnimationController(
       duration: const Duration(milliseconds: 2200),
     )..repeat(reverse: true);
@@ -116,6 +124,51 @@ class DashboardScreen extends HookConsumerWidget {
                   ),
                 ],
               ),
+            ),
+          ),
+        ),
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+          sliver: SliverToBoxAdapter(
+            child: dashboardAsync.when(
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (e, _) => Text('Erro ao carregar dashboard: $e'),
+              data: (snapshot) => dailyGoal.when(
+                data: (goal) => DashboardTodayCard(
+                  summary: snapshot.today,
+                  goalProgress: goal,
+                ),
+                loading: () => const LinearProgressIndicator(),
+                error: (_, __) => DashboardTodayCard(
+                  summary: snapshot.today,
+                  goalProgress: GoalProgressCalculator.calculate(
+                    period: GoalPeriod.daily,
+                    goals: null,
+                    earningsTotal: snapshot.today.revenue,
+                    expensesTotal: snapshot.today.expenses,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+          sliver: SliverToBoxAdapter(
+            child: dashboardAsync.when(
+              loading: () => const SizedBox.shrink(),
+              error: (_, __) => const SizedBox.shrink(),
+              data: (snapshot) => WeeklyProfitChart(points: snapshot.weekProfits),
+            ),
+          ),
+        ),
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+          sliver: SliverToBoxAdapter(
+            child: dashboardAsync.when(
+              loading: () => const SizedBox.shrink(),
+              error: (_, __) => const SizedBox.shrink(),
+              data: (snapshot) => MonthSummaryCard(summary: snapshot.month),
             ),
           ),
         ),
@@ -226,54 +279,70 @@ class DashboardScreen extends HookConsumerWidget {
         SliverPadding(
           padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
           sliver: SliverToBoxAdapter(
-            child: Text('Prévia de métricas', style: theme.textTheme.titleMedium),
+            child: Text('Métricas de hoje', style: theme.textTheme.titleMedium),
           ),
         ),
         SliverPadding(
           padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
-          sliver: SliverGrid(
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              mainAxisSpacing: 10,
-              crossAxisSpacing: 10,
-              childAspectRatio: 1.65,
+          sliver: SliverToBoxAdapter(
+            child: dashboardAsync.when(
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (_, __) => const SizedBox.shrink(),
+              data: (snapshot) {
+                final today = snapshot.today;
+                return GridView.count(
+                  crossAxisCount: 2,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  mainAxisSpacing: 10,
+                  crossAxisSpacing: 10,
+                  childAspectRatio: 1.65,
+                  children: [
+                    DriveFlowMetricChip(
+                      label: 'Lucro hoje',
+                      value: CurrencyFormatter.formatSigned(today.profit),
+                      accentColor: today.profit >= 0
+                          ? AppColors.profitGreen
+                          : AppColors.expenseCoral,
+                      icon: Icons.trending_up_rounded,
+                    ),
+                    DriveFlowMetricChip(
+                      label: 'Custo / km',
+                      value: today.avgCostPerKm != null
+                          ? CurrencyFormatter.format(today.avgCostPerKm!)
+                          : '—',
+                      accentColor: AppColors.expenseCoral,
+                      icon: Icons.route_rounded,
+                    ),
+                    DriveFlowMetricChip(
+                      label: 'Horas',
+                      value: DurationFormatter.formatWorkedHours(
+                        today.workedHours,
+                      ),
+                      accentColor: AppColors.infoBlue,
+                      icon: Icons.schedule_rounded,
+                    ),
+                    DriveFlowMetricChip(
+                      label: 'Meta diária',
+                      value: dailyGoal.when(
+                        data: (p) => p.progressLabel,
+                        loading: () => '…',
+                        error: (_, __) => '—',
+                      ),
+                      accentColor: dailyGoal.when(
+                        data: (p) => p.isComplete
+                            ? AppColors.profitGreen
+                            : AppColors.warningAmber,
+                        loading: () => AppColors.warningAmber,
+                        error: (_, __) => AppColors.warningAmber,
+                      ),
+                      icon: Icons.flag_rounded,
+                      onTap: () => context.push(AppRoutes.goals),
+                    ),
+                  ],
+                );
+              },
             ),
-            delegate: SliverChildListDelegate.fixed([
-              const DriveFlowMetricChip(
-                label: 'Lucro hoje',
-                value: 'R\$ 248,50',
-                accentColor: AppColors.profitGreen,
-                icon: Icons.trending_up_rounded,
-              ),
-              const DriveFlowMetricChip(
-                label: 'Custo / km',
-                value: 'R\$ 0,42',
-                accentColor: AppColors.expenseCoral,
-                icon: Icons.route_rounded,
-              ),
-              const DriveFlowMetricChip(
-                label: 'Horas',
-                value: '6h 20m',
-                accentColor: AppColors.infoBlue,
-                icon: Icons.schedule_rounded,
-              ),
-              DriveFlowMetricChip(
-                label: 'Meta diária',
-                value: dailyGoal.when(
-                  data: (p) => p.progressLabel,
-                  loading: () => '…',
-                  error: (_, __) => '—',
-                ),
-                accentColor: dailyGoal.when(
-                  data: (p) =>
-                      p.isComplete ? AppColors.profitGreen : AppColors.warningAmber,
-                  loading: () => AppColors.warningAmber,
-                  error: (_, __) => AppColors.warningAmber,
-                ),
-                icon: Icons.flag_rounded,
-                onTap: () => context.push(AppRoutes.goals),
-              ),
-            ]),
           ),
         ),
       ],
