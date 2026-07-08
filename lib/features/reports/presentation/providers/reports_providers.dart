@@ -7,6 +7,7 @@ import '../../../expenses/domain/entities/expense_entity.dart';
 import '../../../expenses/presentation/providers/expenses_providers.dart';
 import '../../../fuel/presentation/providers/fuel_providers.dart';
 import '../../../goals/domain/entities/goal_entity.dart';
+import '../../../../core/services/analytics_service.dart';
 import '../../../../shared/domain/services/profit_calculator.dart';
 import '../../domain/entities/report_snapshot.dart';
 import '../../domain/services/report_exporter.dart';
@@ -90,6 +91,7 @@ class ReportsController extends Notifier<AsyncValue<void>> {
         earnings: earnings,
         expenses: expenses,
       );
+      DriveFlowAnalytics.logEvent('report_exported', {'format': 'pdf'});
     });
     return !state.hasError;
   }
@@ -105,6 +107,7 @@ class ReportsController extends Notifier<AsyncValue<void>> {
         earnings: earnings,
         expenses: expenses,
       );
+      DriveFlowAnalytics.logEvent('report_exported', {'format': 'csv'});
     });
     return !state.hasError;
   }
