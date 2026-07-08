@@ -3,6 +3,8 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../../goals/domain/entities/goal_entity.dart';
+import '../../../goals/presentation/providers/goals_providers.dart';
 import '../../../fuel/presentation/providers/fuel_providers.dart';
 import '../../../maintenance/presentation/providers/maintenance_providers.dart';
 import '../../../profile/presentation/providers/profile_providers.dart';
@@ -30,6 +32,7 @@ class DashboardScreen extends HookConsumerWidget {
     final vehicle = ref.watch(activeVehicleProvider).valueOrNull;
     final lastFuel = ref.watch(lastFuelLogProvider).valueOrNull;
     final maintenanceAlerts = ref.watch(maintenanceAlertsProvider).valueOrNull ?? const [];
+    final dailyGoal = ref.watch(goalProgressProvider(GoalPeriod.daily));
     final pulse = useAnimationController(
       duration: const Duration(milliseconds: 2200),
     )..repeat(reverse: true);
@@ -254,11 +257,21 @@ class DashboardScreen extends HookConsumerWidget {
                 accentColor: AppColors.infoBlue,
                 icon: Icons.schedule_rounded,
               ),
-              const DriveFlowMetricChip(
+              DriveFlowMetricChip(
                 label: 'Meta diária',
-                value: '72%',
-                accentColor: AppColors.warningAmber,
+                value: dailyGoal.when(
+                  data: (p) => p.progressLabel,
+                  loading: () => '…',
+                  error: (_, __) => '—',
+                ),
+                accentColor: dailyGoal.when(
+                  data: (p) =>
+                      p.isComplete ? AppColors.profitGreen : AppColors.warningAmber,
+                  loading: () => AppColors.warningAmber,
+                  error: (_, __) => AppColors.warningAmber,
+                ),
                 icon: Icons.flag_rounded,
+                onTap: () => context.push(AppRoutes.goals),
               ),
             ]),
           ),
