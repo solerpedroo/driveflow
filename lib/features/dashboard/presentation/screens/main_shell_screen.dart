@@ -3,6 +3,8 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../../earnings/presentation/screens/earnings_screen.dart';
+import '../../../expenses/presentation/screens/expenses_screen.dart';
 import '../../../vehicle/presentation/providers/vehicle_providers.dart';
 import '../../../vehicle/presentation/screens/vehicle_form_screen.dart';
 import '../../../../core/constants/driveflow_tab_count.dart';
@@ -22,20 +24,8 @@ class MainShellScreen extends HookConsumerWidget {
     final tabBodies = useMemoized(
       () => const [
         DashboardScreen(),
-        DriveFlowTabPlaceholder(
-          title: 'Ganhos',
-          description:
-              'Registre corridas por plataforma, valor e horas trabalhadas.',
-          icon: Icons.payments_outlined,
-          waveLabel: 'Onda 3 — Ganhos e despesas',
-        ),
-        DriveFlowTabPlaceholder(
-          title: 'Despesas',
-          description:
-              'Controle pedágios, combustível, manutenção e outros custos.',
-          icon: Icons.receipt_long_outlined,
-          waveLabel: 'Onda 3 — Ganhos e despesas',
-        ),
+        EarningsScreen(),
+        ExpensesScreen(),
         DriveFlowTabPlaceholder(
           title: 'Relatórios',
           description:
