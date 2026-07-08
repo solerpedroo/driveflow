@@ -46,6 +46,45 @@ abstract final class EarningsMapper {
     };
   }
 
+  static Map<String, dynamic> toRow(EarningEntity entity) {
+    return {
+      EarningsSchema.id: entity.id,
+      EarningsSchema.userId: entity.userId,
+      EarningsSchema.platform: entity.platform.value,
+      EarningsSchema.amount: entity.amount,
+      EarningsSchema.rides: entity.rides,
+      EarningsSchema.workedHours: entity.workedHours,
+      EarningsSchema.note: entity.note,
+      EarningsSchema.date: entity.date.toUtc().toIso8601String(),
+      if (entity.createdAt != null)
+        EarningsSchema.createdAt: entity.createdAt!.toUtc().toIso8601String(),
+      if (entity.updatedAt != null)
+        EarningsSchema.updatedAt: entity.updatedAt!.toUtc().toIso8601String(),
+    };
+  }
+
+  static Map<String, dynamic> draftToJson(EarningDraft draft) {
+    return {
+      'platform': draft.platform.value,
+      'amount': draft.amount,
+      'rides': draft.rides,
+      'worked_hours': draft.workedHours,
+      'note': draft.note,
+      'date': draft.date.toUtc().toIso8601String(),
+    };
+  }
+
+  static EarningDraft draftFromJson(Map<String, dynamic> json) {
+    return EarningDraft(
+      platform: RidePlatform.fromValue(json['platform'] as String? ?? 'other'),
+      amount: _toDouble(json['amount']) ?? 0,
+      rides: (json['rides'] as num?)?.toInt() ?? 0,
+      workedHours: _toDouble(json['worked_hours']) ?? 0,
+      note: json['note'] as String?,
+      date: _toDateTime(json['date']) ?? DateTime.now(),
+    );
+  }
+
   static String? _nullableText(String? value) {
     final trimmed = value?.trim();
     if (trimmed == null || trimmed.isEmpty) return null;
