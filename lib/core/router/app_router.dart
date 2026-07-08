@@ -8,6 +8,10 @@ import '../../features/authentication/presentation/screens/login_screen.dart';
 import '../../features/authentication/presentation/screens/register_screen.dart';
 import '../../features/authentication/presentation/screens/splash_screen.dart';
 import '../../features/dashboard/presentation/screens/main_shell_screen.dart';
+import '../../features/earnings/domain/entities/earning_entity.dart';
+import '../../features/earnings/presentation/screens/earning_form_screen.dart';
+import '../../features/expenses/domain/entities/expense_entity.dart';
+import '../../features/expenses/presentation/screens/expense_form_screen.dart';
 import '../../features/vehicle/presentation/providers/vehicle_providers.dart';
 import '../../features/vehicle/presentation/screens/vehicle_onboarding_screen.dart';
 
@@ -149,6 +153,26 @@ final routerProvider = Provider<GoRouter>((ref) {
         pageBuilder: (context, state) => _fadePage(
           key: state.pageKey,
           child: const EditVehicleScreen(),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.earningForm,
+        name: 'earningForm',
+        pageBuilder: (context, state) => _fadePage(
+          key: state.pageKey,
+          child: EarningFormScreen(
+            earning: state.extra as EarningEntity?,
+          ),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.expenseForm,
+        name: 'expenseForm',
+        pageBuilder: (context, state) => _fadePage(
+          key: state.pageKey,
+          child: ExpenseFormScreen(
+            expense: state.extra as ExpenseEntity?,
+          ),
         ),
       ),
     ],
