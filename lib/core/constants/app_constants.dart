@@ -73,10 +73,12 @@ abstract final class AppRoutes {
   static const editVehicle = '/vehicle/edit';
   static const earningForm = '/earnings/form';
   static const expenseForm = '/expenses/form';
+  static const fuelLog = '/fuel/log';
+  static const fuelHistory = '/fuel/history';
 }
 
-/// Onda atual concluída (foundation + auth + shell + ganhos/despesas).
-const kCurrentWave = 3;
+/// Onda atual concluída (foundation + auth + shell + ganhos/despesas + abastecimento).
+const kCurrentWave = 4;
 
 /// Deep link OAuth Supabase (Google).
 const kOAuthRedirectUrl = 'io.supabase.driveflow://login-callback/';
