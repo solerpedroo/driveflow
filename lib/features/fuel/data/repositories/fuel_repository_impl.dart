@@ -1,3 +1,6 @@
+import '../../../../core/storage/cached_remote_watch.dart';
+import '../../../../core/storage/hive_boxes.dart';
+import '../../../../core/storage/local_entity_cache.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../expenses/data/datasources/expenses_remote_datasource.dart';
 import '../../../expenses/data/schema/expenses_schema.dart';
@@ -16,22 +19,36 @@ class FuelRepositoryImpl implements FuelRepository {
     FuelRemoteDataSource? remote,
     ExpensesRemoteDataSource? expenses,
     VehicleRepositoryImpl? vehicles,
+    LocalEntityCache? cache,
   })  : _remote = remote ?? FuelRemoteDataSource(),
         _expenses = expenses ?? ExpensesRemoteDataSource(),
-        _vehicles = vehicles ?? VehicleRepositoryImpl();
+        _vehicles = vehicles ?? VehicleRepositoryImpl(),
+        _cache = cache ?? LocalEntityCache();
 
   final FuelRemoteDataSource _remote;
   final ExpensesRemoteDataSource _expenses;
   final VehicleRepositoryImpl _vehicles;
+  final LocalEntityCache _cache;
 
   @override
   Stream<List<FuelLogEntity>> watchFuelLogs({required String vehicleId}) {
-    return _remote.watchFuelLogs().map(
-          (rows) => rows
-              .where((row) => row[FuelLogSchema.vehicleId] == vehicleId)
-              .map(FuelLogMapper.fromRow)
-              .toList(growable: false),
-        );
+    return watchCachedRemote(
+      remote: _remote.watchFuelLogs(),
+      loadLocal: () => _loadLocal(vehicleId),
+      mapRows: (rows) => rows
+          .where((row) => row[FuelLogSchema.vehicleId] == vehicleId)
+          .map(FuelLogMapper.fromRow)
+          .toList(growable: false),
+      persistRemote: (rows) => _cache.replaceAll(HiveBoxes.fuelLogs, rows),
+    );
+  }
+
+  Future<List<FuelLogEntity>> _loadLocal(String vehicleId) async {
+    final rows = await _cache.readAll(HiveBoxes.fuelLogs);
+    return rows
+        .where((row) => row[FuelLogSchema.vehicleId] == vehicleId)
+        .map(FuelLogMapper.fromRow)
+        .toList(growable: false);
   }
 
   @override
