@@ -13,6 +13,7 @@ class DriveFlowApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeModeProvider);
+    final router = ref.watch(routerProvider);
 
     return MaterialApp.router(
       title: 'DriveFlow',
@@ -20,7 +21,7 @@ class DriveFlowApp extends ConsumerWidget {
       themeMode: themeMode,
       theme: buildDriveFlowLightTheme(),
       darkTheme: buildDriveFlowDarkTheme(),
-      routerConfig: appRouter,
+      routerConfig: router,
       locale: const Locale('pt', 'BR'),
       supportedLocales: const [Locale('pt', 'BR')],
       localizationsDelegates: const [
