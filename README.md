@@ -114,6 +114,15 @@ dart run build_runner build --delete-conflicting-outputs
 - [x] Redirect GoRouter: auth → onboarding veículo → shell
 - [x] Testes: `vehicle_mapper`, shell tab switching, validação odômetro
 
+## Onda 3 — entregue
+
+- [x] CRUD de ganhos (plataforma, valor, corridas, horas, data, observação)
+- [x] CRUD de despesas com categorias e upload de comprovante (`receipts`)
+- [x] Filtros por período (hoje/semana/mês) e plataforma nos ganhos
+- [x] Listagem de despesas agrupada por categoria
+- [x] Streams Supabase em tempo real + rotas de formulário
+- [x] Testes: mappers, filtros, validação BRL, formulário de ganho
+
 ---
 
 ## Licença
