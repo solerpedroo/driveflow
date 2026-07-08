@@ -47,6 +47,11 @@ void main() {
       expect(Validators.password('12345678'), isNull);
     });
 
+    test('brlAmount rejects invalid value', () {
+      expect(Validators.brlAmount(''), isNotNull);
+      expect(Validators.brlAmount('R\$ 10,00'), isNull);
+    });
+
     test('odometer rejects value below previous', () {
       expect(Validators.odometer('40000', previous: 45000), isNotNull);
       expect(Validators.odometer('46000', previous: 45000), isNull);
