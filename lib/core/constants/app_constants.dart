@@ -82,8 +82,8 @@ abstract final class AppRoutes {
   static const aiChat = '/ai/chat';
 }
 
-/// Onda atual concluída (inclui assistente IA com Groq via Edge Function).
-const kCurrentWave = 8;
+/// Onda atual concluída (MVP v1.0 — offline-first + observabilidade).
+const kCurrentWave = 9;
 
 /// Deep link OAuth Supabase (Google).
 const kOAuthRedirectUrl = 'io.supabase.driveflow://login-callback/';
