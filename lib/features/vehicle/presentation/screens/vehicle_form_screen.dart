@@ -19,6 +19,7 @@ class VehicleFormScreen extends HookConsumerWidget {
     this.subtitle =
         'Cadastre o carro que você usa nas corridas. Esses dados alimentam consumo e custos.',
     this.submitLabel = 'Salvar veículo',
+    this.markAsDefault = false,
     this.onSaved,
     super.key,
   });
@@ -27,6 +28,7 @@ class VehicleFormScreen extends HookConsumerWidget {
   final String title;
   final String subtitle;
   final String submitLabel;
+  final bool markAsDefault;
   final VoidCallback? onSaved;
 
   @override
@@ -35,6 +37,8 @@ class VehicleFormScreen extends HookConsumerWidget {
     final formKey = useMemoized(GlobalKey<FormState>.new);
     final brandController = useTextEditingController(text: vehicle?.brand ?? '');
     final modelController = useTextEditingController(text: vehicle?.model ?? '');
+    final nicknameController =
+        useTextEditingController(text: vehicle?.nickname ?? '');
     final yearController = useTextEditingController(
       text: vehicle?.year.toString() ?? DateTime.now().year.toString(),
     );
@@ -49,7 +53,10 @@ class VehicleFormScreen extends HookConsumerWidget {
       text: vehicle?.odometerKm.toStringAsFixed(0) ?? '',
     );
     final selectedFuel = useState(vehicle?.fuel ?? FuelType.flex);
+    final isDefault = useState(vehicle?.isDefault ?? markAsDefault);
     final mutation = ref.watch(vehicleControllerProvider);
+    final vehicleCount =
+        ref.watch(vehiclesListProvider).valueOrNull?.length ?? 0;
 
     Future<void> submit() async {
       if (!(formKey.currentState?.validate() ?? false)) return;
@@ -59,12 +66,14 @@ class VehicleFormScreen extends HookConsumerWidget {
         brand: brandController.text,
         model: modelController.text,
         year: year,
+        nickname: nicknameController.text,
         plate: plateController.text,
         fuel: selectedFuel.value,
         tankLiters: _parseOptionalDouble(tankController.text),
         avgConsumptionKmPerLiter:
             _parseOptionalDouble(consumptionController.text),
         odometerKm: _parseRequiredDouble(odometerController.text),
+        isDefault: isDefault.value,
       );
 
       final saved = await ref.read(vehicleControllerProvider.notifier).save(
@@ -133,6 +142,13 @@ class VehicleFormScreen extends HookConsumerWidget {
                   ),
                   const SizedBox(height: 12),
                   AuthTextField(
+                    controller: nicknameController,
+                    label: 'Apelido (opcional)',
+                    hint: 'Ex.: Carro do trabalho',
+                    textInputAction: TextInputAction.next,
+                  ),
+                  const SizedBox(height: 12),
+                  AuthTextField(
                     controller: plateController,
                     label: 'Placa (opcional)',
                     hint: 'ABC1D23',
@@ -188,6 +204,18 @@ class VehicleFormScreen extends HookConsumerWidget {
                     textInputAction: TextInputAction.done,
                     onFieldSubmitted: (_) => submit(),
                   ),
+                  if (vehicleCount > 0 || vehicle != null) ...[
+                    const SizedBox(height: 16),
+                    SwitchListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: const Text('Veículo padrão'),
+                      subtitle: const Text(
+                        'Usado como fallback e para novos registros.',
+                      ),
+                      value: isDefault.value,
+                      onChanged: (value) => isDefault.value = value,
+                    ),
+                  ],
                 ],
               ),
             ),
