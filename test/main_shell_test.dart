@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:driveflow/core/presentation/providers/sync_providers.dart';
+import 'package:driveflow/core/services/sync_status.dart';
 import 'package:driveflow/core/theme/app_theme.dart';
 import 'package:driveflow/features/authentication/domain/entities/user_entity.dart';
 import 'package:driveflow/features/authentication/presentation/providers/auth_providers.dart';
@@ -60,6 +62,9 @@ void main() {
             ),
           ),
           vehiclesStreamProvider.overrideWith((ref) => Stream.value(const [])),
+          isOnlineProvider.overrideWith((ref) => Stream.value(true)),
+          syncStatusProvider.overrideWith((ref) => Stream.value(SyncStatus.idle)),
+          pendingSyncCountProvider.overrideWith((ref) => Future.value(0)),
         ],
         child: MaterialApp(
           theme: buildDriveFlowDarkTheme(),
