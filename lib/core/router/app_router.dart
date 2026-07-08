@@ -3,12 +3,33 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../constants/app_constants.dart';
-import 'go_router_refresh_stream.dart';
 import '../../features/authentication/presentation/providers/auth_providers.dart';
 import '../../features/authentication/presentation/screens/login_screen.dart';
 import '../../features/authentication/presentation/screens/register_screen.dart';
 import '../../features/authentication/presentation/screens/splash_screen.dart';
-import '../../features/dashboard/presentation/screens/foundation_screen.dart';
+import '../../features/dashboard/presentation/screens/main_shell_screen.dart';
+import '../../features/vehicle/presentation/providers/vehicle_providers.dart';
+import '../../features/vehicle/presentation/screens/vehicle_onboarding_screen.dart';
+
+/// Notifica GoRouter quando auth ou veículos mudam.
+class AppRouterRefresh extends ChangeNotifier {
+  AppRouterRefresh(this._ref) {
+    _authSub = _ref.listen(authStateProvider, (_, __) => notifyListeners());
+    _vehicleSub =
+        _ref.listen(vehiclesStreamProvider, (_, __) => notifyListeners());
+  }
+
+  final Ref _ref;
+  late final ProviderSubscription<AsyncValue<dynamic>> _authSub;
+  late final ProviderSubscription<AsyncValue<dynamic>> _vehicleSub;
+
+  @override
+  void dispose() {
+    _authSub.close();
+    _vehicleSub.close();
+    super.dispose();
+  }
+}
 
 CustomTransitionPage<void> _fadePage({
   required LocalKey key,
@@ -28,9 +49,7 @@ CustomTransitionPage<void> _fadePage({
 }
 
 final routerProvider = Provider<GoRouter>((ref) {
-  final refresh = GoRouterRefreshStream(
-    ref.watch(authRefreshStreamProvider),
-  );
+  final refresh = AppRouterRefresh(ref);
   ref.onDispose(refresh.dispose);
 
   return GoRouter(
@@ -39,12 +58,15 @@ final routerProvider = Provider<GoRouter>((ref) {
     refreshListenable: refresh,
     redirect: (context, state) {
       final authAsync = ref.read(authStateProvider);
+      final vehiclesAsync = ref.read(vehiclesStreamProvider);
       final location = state.matchedLocation;
 
       final isSplash = location == AppRoutes.splash;
       final isLogin = location == AppRoutes.login;
       final isRegister = location == AppRoutes.register;
       final isAuthRoute = isLogin || isRegister;
+      final isOnboarding = location == AppRoutes.vehicleOnboarding;
+      final isEditVehicle = location == AppRoutes.editVehicle;
 
       if (authAsync.isLoading) {
         return isSplash ? null : AppRoutes.splash;
@@ -56,8 +78,26 @@ final routerProvider = Provider<GoRouter>((ref) {
         return AppRoutes.login;
       }
 
+      if (vehiclesAsync.isLoading) {
+        return isSplash ? null : AppRoutes.splash;
+      }
+
+      final hasVehicle = vehiclesAsync.valueOrNull?.isNotEmpty ?? false;
+
       if (isAuthRoute || isSplash) {
+        return hasVehicle ? AppRoutes.home : AppRoutes.vehicleOnboarding;
+      }
+
+      if (!hasVehicle && !isOnboarding) {
+        return AppRoutes.vehicleOnboarding;
+      }
+
+      if (hasVehicle && isOnboarding) {
         return AppRoutes.home;
+      }
+
+      if (!hasVehicle && isEditVehicle) {
+        return AppRoutes.vehicleOnboarding;
       }
 
       return null;
@@ -88,11 +128,27 @@ final routerProvider = Provider<GoRouter>((ref) {
         ),
       ),
       GoRoute(
+        path: AppRoutes.vehicleOnboarding,
+        name: 'vehicleOnboarding',
+        pageBuilder: (context, state) => _fadePage(
+          key: state.pageKey,
+          child: const VehicleOnboardingScreen(),
+        ),
+      ),
+      GoRoute(
         path: AppRoutes.home,
         name: 'home',
         pageBuilder: (context, state) => _fadePage(
           key: state.pageKey,
-          child: const FoundationScreen(),
+          child: const MainShellScreen(),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.editVehicle,
+        name: 'editVehicle',
+        pageBuilder: (context, state) => _fadePage(
+          key: state.pageKey,
+          child: const EditVehicleScreen(),
         ),
       ),
     ],
