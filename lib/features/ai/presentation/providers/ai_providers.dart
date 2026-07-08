@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/services/analytics_service.dart';
 import '../../../earnings/presentation/providers/earnings_providers.dart';
 import '../../../expenses/presentation/providers/expenses_providers.dart';
 import '../../../fuel/presentation/providers/fuel_providers.dart';
@@ -56,6 +57,7 @@ class AiChatController extends Notifier<AsyncValue<void>> {
     AiMessageEntity? message;
     state = await AsyncValue.guard(() async {
       message = await ref.read(askAiProvider)(trimmed);
+      DriveFlowAnalytics.logEvent('ai_question');
     });
     if (state.hasError) return null;
     return message;
