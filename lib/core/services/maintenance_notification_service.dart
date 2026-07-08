@@ -3,6 +3,7 @@ import 'package:timezone/data/latest_all.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
 
 import '../../features/maintenance/domain/entities/maintenance_entity.dart';
+import '../../features/insights/domain/entities/maintenance_prediction.dart';
 
 /// Agenda lembretes locais de manutenção veicular.
 class MaintenanceNotificationService {
@@ -45,20 +46,49 @@ class MaintenanceNotificationService {
     final dueDate = record.nextDueDate;
     if (dueDate == null) return;
 
-    final scheduled = tz.TZDateTime(
-      tz.local,
-      dueDate.year,
-      dueDate.month,
-      dueDate.day,
-      9,
+    await _scheduleAt(
+      id: id,
+      record: record,
+      scheduled: _atNineAm(dueDate),
+      bodySuffix: null,
     );
+  }
 
+  /// Reagenda lembrete com data prevista pelo modelo preditivo.
+  Future<void> syncPredictiveReminder({
+    required MaintenanceEntity record,
+    required DateTime predictedDueDate,
+    required PredictionConfidence confidence,
+  }) async {
+    final id = notificationIdFor(record.id);
+    await cancelReminder(record.id);
+
+    final scheduled = _atNineAm(predictedDueDate);
     if (scheduled.isBefore(tz.TZDateTime.now(tz.local))) return;
+
+    await _scheduleAt(
+      id: id,
+      record: record,
+      scheduled: scheduled,
+      bodySuffix: 'Previsão (${confidence.label}).',
+    );
+  }
+
+  Future<void> _scheduleAt({
+    required int id,
+    required MaintenanceEntity record,
+    required tz.TZDateTime scheduled,
+    String? bodySuffix,
+  }) async {
+    if (scheduled.isBefore(tz.TZDateTime.now(tz.local))) return;
+
+    var body = _bodyFor(record);
+    if (bodySuffix != null) body = '$body $bodySuffix';
 
     await _plugin.zonedSchedule(
       id,
       'Manutenção: ${record.type.label}',
-      _bodyFor(record),
+      body,
       scheduled,
       const NotificationDetails(
         android: AndroidNotificationDetails(
@@ -73,6 +103,16 @@ class MaintenanceNotificationService {
       androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
+    );
+  }
+
+  tz.TZDateTime _atNineAm(DateTime dueDate) {
+    return tz.TZDateTime(
+      tz.local,
+      dueDate.year,
+      dueDate.month,
+      dueDate.day,
+      9,
     );
   }
 
