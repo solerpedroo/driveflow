@@ -16,7 +16,7 @@ Plano de implementação em 10 ondas para o DriveFlow (Flutter + Supabase + Groq
 | 2 | Main shell (5 abas) + vehicle CRUD + onboarding obrigatório | concluída |
 | 3 | Earnings + Expenses CRUD com upload de comprovantes | concluída |
 | 4 | Fuel logs com cálculos km/L, custo/km e sync com expenses | concluída |
-| 5 | Maintenance CRUD + lembretes locais (RF12) | pendente |
+| 5 | Maintenance CRUD + lembretes locais (RF12) | concluída |
 | 6 | Goals (diária/semanal/mensal/anual) + progresso visual | pendente |
 | 7 | Dashboard agregado + Reports com export PDF/CSV | pendente |
 | 8 | Edge Function Groq + AI chat UI + ai_history | pendente |
