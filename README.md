@@ -97,6 +97,15 @@ dart run build_runner build --delete-conflicting-outputs
 - [x] Utils (BRL, datas, validators)
 - [x] Testes unitários e widget
 
+## Onda 1 — entregue
+
+- [x] Login e-mail/senha + cadastro
+- [x] Google OAuth (PKCE + deep link)
+- [x] Auth guards no GoRouter (splash → login → home)
+- [x] Sync automático de `profiles`
+- [x] Backup de refresh token (`flutter_secure_storage`)
+- [x] Testes: mapper, login screen, smoke app
+
 ---
 
 ## Licença
