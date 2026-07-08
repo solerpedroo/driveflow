@@ -14,6 +14,7 @@ abstract final class ExpensesMapper {
       description: row[ExpensesSchema.description] as String?,
       receiptUrl: row[ExpensesSchema.receiptUrl] as String?,
       date: _toDateTime(row[ExpensesSchema.date]) ?? DateTime.now(),
+      vehicleId: row[ExpensesSchema.vehicleId] as String?,
       createdAt: _toDateTime(row[ExpensesSchema.createdAt]),
       updatedAt: _toDateTime(row[ExpensesSchema.updatedAt]),
     );
@@ -30,6 +31,7 @@ abstract final class ExpensesMapper {
       ExpensesSchema.description: _nullableText(draft.description),
       ExpensesSchema.receiptUrl: draft.receiptUrl,
       ExpensesSchema.date: draft.date.toUtc().toIso8601String(),
+      if (draft.vehicleId != null) ExpensesSchema.vehicleId: draft.vehicleId,
     };
   }
 
@@ -40,6 +42,7 @@ abstract final class ExpensesMapper {
       ExpensesSchema.description: _nullableText(draft.description),
       ExpensesSchema.receiptUrl: draft.receiptUrl,
       ExpensesSchema.date: draft.date.toUtc().toIso8601String(),
+      if (draft.vehicleId != null) ExpensesSchema.vehicleId: draft.vehicleId,
     };
   }
 
@@ -52,6 +55,7 @@ abstract final class ExpensesMapper {
       ExpensesSchema.description: entity.description,
       ExpensesSchema.receiptUrl: entity.receiptUrl,
       ExpensesSchema.date: entity.date.toUtc().toIso8601String(),
+      if (entity.vehicleId != null) ExpensesSchema.vehicleId: entity.vehicleId,
       if (entity.createdAt != null)
         ExpensesSchema.createdAt: entity.createdAt!.toUtc().toIso8601String(),
       if (entity.updatedAt != null)
@@ -66,6 +70,7 @@ abstract final class ExpensesMapper {
       'description': draft.description,
       'receipt_url': draft.receiptUrl,
       'date': draft.date.toUtc().toIso8601String(),
+      if (draft.vehicleId != null) 'vehicle_id': draft.vehicleId,
     };
   }
 
@@ -78,6 +83,7 @@ abstract final class ExpensesMapper {
       description: json['description'] as String?,
       receiptUrl: json['receipt_url'] as String?,
       date: _toDateTime(json['date']) ?? DateTime.now(),
+      vehicleId: json['vehicle_id'] as String?,
     );
   }
 
