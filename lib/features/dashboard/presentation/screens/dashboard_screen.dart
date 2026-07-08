@@ -4,12 +4,14 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../fuel/presentation/providers/fuel_providers.dart';
+import '../../../maintenance/presentation/providers/maintenance_providers.dart';
 import '../../../profile/presentation/providers/profile_providers.dart';
 import '../../../authentication/presentation/providers/auth_providers.dart';
 import '../../../vehicle/presentation/providers/vehicle_providers.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/theme_mode_provider.dart';
+import '../../../maintenance/domain/entities/maintenance_entity.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../shared/widgets/driveflow_brand_logo.dart';
 import '../../../../shared/widgets/driveflow_glass_card.dart';
@@ -27,6 +29,7 @@ class DashboardScreen extends HookConsumerWidget {
         ref.watch(authStateProvider).valueOrNull;
     final vehicle = ref.watch(activeVehicleProvider).valueOrNull;
     final lastFuel = ref.watch(lastFuelLogProvider).valueOrNull;
+    final maintenanceAlerts = ref.watch(maintenanceAlertsProvider).valueOrNull ?? const [];
     final pulse = useAnimationController(
       duration: const Duration(milliseconds: 2200),
     )..repeat(reverse: true);
@@ -174,6 +177,49 @@ class DashboardScreen extends HookConsumerWidget {
             ),
           ),
         ),
+        if (maintenanceAlerts.isNotEmpty)
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+            sliver: SliverToBoxAdapter(
+              child: DriveFlowGlassCard(
+                onTap: () => context.push(AppRoutes.maintenanceHistory),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.build_circle_outlined,
+                            color: AppColors.warningAmber),
+                        const SizedBox(width: 8),
+                        Text('Manutenção pendente',
+                            style: theme.textTheme.titleMedium),
+                        const Spacer(),
+                        Badge(
+                          label: Text('${maintenanceAlerts.length}'),
+                          backgroundColor: AppColors.expenseCoral,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      maintenanceAlerts.first.record.type.label,
+                      style: theme.textTheme.bodyLarge,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      maintenanceAlerts.first.status.label,
+                      style: theme.textTheme.labelLarge?.copyWith(
+                        color: maintenanceAlerts.first.status ==
+                                MaintenanceDueStatus.overdue
+                            ? AppColors.expenseCoral
+                            : AppColors.warningAmber,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
         SliverPadding(
           padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
           sliver: SliverToBoxAdapter(
