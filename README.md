@@ -132,6 +132,15 @@ dart run build_runner build --delete-conflicting-outputs
 - [x] Histórico + formulário acessíveis via Perfil e card no Dashboard
 - [x] Testes: fórmulas de métricas, mapper e linker de despesa
 
+## Onda 5 — entregue
+
+- [x] CRUD de manutenções por veículo (tipo, custo, data, próximo km/data)
+- [x] `MaintenanceDueChecker` com status em dia / próximo / atrasado
+- [x] Lembretes locais via `flutter_local_notifications` na data de vencimento
+- [x] Badge de alerta no Dashboard quando há manutenção pendente
+- [x] Acesso via Perfil e rotas `/maintenance/form` e `/maintenance/history`
+- [x] Testes: lógica de vencimento e mapper
+
 ---
 
 ## Licença
