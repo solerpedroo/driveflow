@@ -1,6 +1,8 @@
 # DriveFlow — implementation-plan.md
 
-Plano de implementação em 10 ondas para o DriveFlow (Flutter + Supabase + Groq), partindo de repositório vazio, combinando Clean Architecture feature-first do escopo com os padrões de organização do projeto MesclaInvest (screens/widgets/services separados, shell de navegação, mappers, test hooks).
+Plano de implementação em **16 ondas** (0–15) para o DriveFlow (Flutter + Supabase + Groq), partindo de repositório vazio, combinando Clean Architecture feature-first do escopo com os padrões de organização do projeto MesclaInvest (screens/widgets/services separados, shell de navegação, mappers, test hooks).
+
+**Fases:** ondas **0–9** = MVP v1.0 · ondas **10–14** = features pós-MVP (v1.5 → v2.0) · onda **15** = refatoração de UI / Design System v2.
 
 **Repositório:** `driveflow`  
 **Referência:** `ES-PI3-2026-T2-G03` (MesclaInvest)
@@ -20,7 +22,13 @@ Plano de implementação em 10 ondas para o DriveFlow (Flutter + Supabase + Groq
 | 6 | Goals (diária/semanal/mensal/anual) + progresso visual | concluída |
 | 7 | Dashboard agregado + Reports com export PDF/CSV | concluída |
 | 8 | Edge Function Groq + AI chat UI + ai_history | concluída |
-| 9 | Offline-first Hive sync + Analytics/Crashlytics + 70% coverage + release prep | pendente |
+| 9 | Offline-first Hive sync + Analytics/Crashlytics + 70% coverage + release prep | concluída |
+| 10 | Múltiplos veículos + seletor ativo + escopo por veículo | pendente |
+| 11 | OCR de comprovantes + preenchimento automático de despesas | pendente |
+| 12 | Gráficos avançados + comparação de períodos | pendente |
+| 13 | Lembretes inteligentes + insights de melhor horário | pendente |
+| 14 | Importação de extratos + previsão IA | pendente |
+| 15 | Refatoração de UI / Design System v2 | pendente |
 
 ---
 
@@ -125,6 +133,12 @@ flowchart TD
     W7[Onda7_Dashboard_Reports]
     W8[Onda8_AI]
     W9[Onda9_Offline_QA_Release]
+    W10[Onda10_MultiVehicle]
+    W11[Onda11_ReceiptOCR]
+    W12[Onda12_AdvancedCharts]
+    W13[Onda13_SmartInsights]
+    W14[Onda14_Import_Forecast]
+    W15[Onda15_UI_Refactor]
 
     W0 --> W1
     W1 --> W2
@@ -141,6 +155,21 @@ flowchart TD
     W4 --> W8
     W5 --> W8
     W6 --> W8
+    W9 --> W10
+    W10 --> W11
+    W10 --> W12
+    W7 --> W12
+    W5 --> W13
+    W7 --> W13
+    W8 --> W13
+    W3 --> W14
+    W8 --> W14
+    W12 --> W14
+    W10 --> W15
+    W11 --> W15
+    W12 --> W15
+    W13 --> W15
+    W14 --> W15
 ```
 
 ---
@@ -572,6 +601,319 @@ sequenceDiagram
 
 ---
 
+## Onda 10 — Múltiplos veículos
+
+**Objetivo:** Suportar mais de um veículo por usuário com seletor ativo e dados escopados — base para v1.5.
+
+> O schema MVP já prevê `vehicle_id` em `fuel_logs` e `maintenance`; esta onda generaliza o escopo e remove a limitação de 1 veículo em `activeVehicleProvider`.
+
+### Migration 002 (`supabase/migrations/002_multi_vehicle.sql`)
+
+- `vehicles`: colunas `nickname text`, `is_default boolean default false`
+- Constraint: no máximo 1 `is_default = true` por `user_id` (partial unique index)
+- `earnings` / `expenses`: coluna opcional `vehicle_id uuid references vehicles` (nullable para registros legados)
+- Índices: `vehicles_user_id_default_idx`, `earnings_vehicle_id_date_idx`
+
+### Feature `vehicle` (extensão)
+
+| Camada | Entregas |
+|---|---|
+| Domain | `SetActiveVehicle`, `ListUserVehicles`, `DeleteVehicle` (com reassign de default) |
+| Data | `VehiclesLocalDataSource` (Hive box `vehicles`), sync na fila existente |
+| Presentation | `vehicle_picker_sheet.dart`, chip no AppBar do shell, lista em Perfil |
+
+### Providers e escopo
+
+- `vehiclesListProvider` — todos os veículos do usuário
+- `activeVehicleProvider` — veículo selecionado (persistido em Hive + `profiles` metadata opcional)
+- `scopedVehicleIdProvider` — injetado em fuel, maintenance, dashboard e reports
+- Onboarding: permite pular se já houver veículo; fluxo "adicionar veículo" separado do primeiro cadastro
+
+### Impacto cross-feature
+
+- **Fuel / Maintenance:** já filtram por `vehicle_id` — passam a usar veículo ativo
+- **Dashboard / Reports:** filtro "Todos" vs veículo específico; odômetro e alertas por veículo
+- **Goals:** mantém meta por usuário (MVP v1.5); nota no plano para meta por veículo em v2.1
+
+### Testes
+
+- Unit: reassign de default, delete com fallback, mapper com `nickname`
+- Widget: seletor troca dados exibidos no dashboard
+
+### Critérios de conclusão
+
+- CRUD de N veículos com 1 default
+- Troca de veículo ativo reflete fuel, maintenance, dashboard e relatórios em < 500 ms
+- Offline: veículo ativo e lista cacheados; sync ao reconectar
+
+---
+
+## Onda 11 — OCR de comprovantes
+
+**Objetivo:** Reduzir fricção no cadastro de despesas via leitura automática de comprovantes (v1.5).
+
+### Feature `receipt_ocr` (sub-feature de `expenses`)
+
+```
+features/expenses/
+├── domain/services/receipt_ocr_parser.dart   # normaliza texto → campos
+├── data/datasources/receipt_ocr_datasource.dart
+└── presentation/widgets/receipt_scan_review_sheet.dart
+```
+
+### Pipeline OCR
+
+1. `image_picker` / câmera → imagem local
+2. **Opção A (preferida offline):** `google_mlkit_text_recognition` no device
+3. **Opção B (fallback cloud):** Edge Function `receipt-ocr` com vision API (somente se ML Kit falhar)
+4. `ReceiptOcrParser` extrai: valor BRL, data, estabelecimento (heurísticas + regex pt_BR)
+5. UI de revisão: usuário confirma/edita antes de `CreateExpense`
+
+### Campos auto-preenchidos
+
+- `amount`, `date`, `description` (nome do estabelecimento)
+- `category` sugerida por palavras-chave (combustível, pedágio, alimentação…)
+- `receipt_url` — upload após confirmação (fluxo existente)
+
+### UX
+
+- Botão "Escanear comprovante" no `expense_form_screen.dart`
+- Preview da imagem + campos destacados com confidence baixa
+- Analytics: `receipt_ocr_scanned`, `receipt_ocr_confirmed`, `receipt_ocr_discarded`
+
+### Testes
+
+- Unit: parser com fixtures de texto OCR (nota fiscal, cupom posto, recibo genérico)
+- Widget: fluxo scan → revisão → salvar com mock datasource
+
+### Critérios de conclusão
+
+- ≥ 80% de acerto em valor e data em cupons de teste do time
+- Nenhuma despesa salva sem confirmação explícita do usuário
+- Funciona offline com ML Kit (sem enviar imagem à nuvem por padrão)
+
+---
+
+## Onda 12 — Gráficos avançados e comparação de períodos
+
+**Objetivo:** Análises visuais além do gráfico semanal do MVP — tendências, distribuição e benchmarks temporais (v1.5 / v2.0).
+
+### Feature `analytics` (nova) + extensões em `dashboard` e `reports`
+
+```
+features/analytics/
+├── domain/services/period_comparison_calculator.dart
+├── domain/services/category_breakdown_calculator.dart
+├── presentation/widgets/
+│   ├── profit_trend_chart.dart      # linha 30/90 dias
+│   ├── expense_pie_chart.dart       # despesa por categoria
+│   └── period_comparison_card.dart  # mês atual vs anterior
+└── presentation/screens/analytics_screen.dart
+```
+
+### Gráficos (`fl_chart`)
+
+| Gráfico | Dados | Local |
+|---|---|---|
+| Linha de lucro | lucro diário, 30/90 dias | Analytics + Dashboard (expandível) |
+| Pizza despesas | % por categoria no período | Relatórios + Analytics |
+| Barras comparativas | período A vs B (receita, despesa, lucro) | Analytics |
+| Heatmap horário | ganho médio por hora/dia da semana | Analytics (prep Onda 13) |
+
+### `PeriodComparisonCalculator`
+
+- Entrada: `DateRangePeriod` atual + período de referência (anterior, mesmo mês ano passado)
+- Saída: delta absoluto e % para receita, despesa, lucro, lucro/hora, lucro/km
+- Reutiliza `ProfitCalculator` e `DashboardAggregator`
+
+### Navegação
+
+- Dashboard: link "Ver análises" → `/analytics`
+- Relatórios: seção "Comparar períodos" com seletor customizado
+
+### Performance
+
+- Agregações server-side opcionais via RPC Supabase (`get_period_summary`) se volume > 10k rows
+- Cache Hive por `(userId, period, vehicleId)` com TTL 15 min
+
+### Testes
+
+- Unit: comparação períodos, breakdown por categoria, edge cases (período vazio)
+- Widget: `period_comparison_card` com dados mock
+
+### Critérios de conclusão
+
+- 4 tipos de gráfico renderizam com dados reais em < 1,5 s
+- Comparação mês atual vs anterior correta em cenários de teste
+- Export PDF/CSV inclui seção de comparação (extensão do gerador existente)
+
+---
+
+## Onda 13 — Lembretes inteligentes e insights operacionais
+
+**Objetivo:** Manutenção preditiva e recomendações de horário de trabalho com base nos dados reais do motorista (v1.5 / v2.0).
+
+### Feature `insights` (nova) + extensões em `maintenance` e `dashboard`
+
+### Lembretes inteligentes de manutenção
+
+- `MaintenancePredictor` — estima `next_due_km` e `next_due_date` usando:
+  - média de km/dia (odômetro + histórico fuel)
+  - tipo de manutenção e intervalos sugeridos (tabela local de defaults)
+- Notificações locais reagendadas quando padrão de uso muda
+- Badge no Dashboard: "Óleo em ~5 dias" com confidence
+
+### Melhor horário para trabalhar
+
+- `EarningsHeatmapBuilder` — agrega ganhos por `(dia_semana, hora)` dos últimos 60 dias
+- Card no Dashboard: top 3 janelas de maior lucro/hora
+- Sugestões rápidas na IA: "Qual meu melhor horário?" com dados do heatmap
+
+### Edge Function (opcional) `insights-summary`
+
+- Pré-computa heatmap e previsões de manutenção server-side para usuários com muito histórico
+- Rate limit; fallback 100% local se offline
+
+### UI
+
+- `/insights` acessível via Dashboard e Perfil
+- Cards: melhor horário, manutenção prevista, projeção de meta semanal
+
+### Testes
+
+- Unit: `MaintenancePredictor`, heatmap com fixtures, tolerância de km/dia
+- Widget: card de melhor horário com semantics
+
+### Critérios de conclusão
+
+- Previsão de manutenção dentro de ±15% do vencimento real em simulações
+- Heatmap reflete corretamente dados de ganhos com hora registrada
+- Notificações reagendam após novo abastecimento que altera média km/dia
+
+---
+
+## Onda 14 — Importação de extratos e previsão IA
+
+**Objetivo:** Entrada em massa de transações e projeções financeiras assistidas por IA (v2.0).
+
+### Feature `import` (nova)
+
+```
+features/import/
+├── domain/services/csv_statement_parser.dart
+├── domain/services/import_deduplicator.dart
+├── data/datasources/import_remote_datasource.dart
+└── presentation/screens/import_statement_screen.dart
+```
+
+### Importação de extratos
+
+- Formatos: CSV (Nubank, Inter, genérico), OFX básico
+- Mapeamento de colunas: data, descrição, valor, tipo (crédito/débito)
+- Preview em tabela com checkboxes; categorização sugerida (regras + IA leve)
+- `ImportDeduplicator` — evita duplicatas por `(date, amount, description hash)`
+- Bulk insert via fila offline existente (`pending_sync_queue`)
+
+### Previsão IA
+
+- Extensão Edge Function `ai-chat` ou função dedicada `ai-forecast`:
+  - entrada: séries de lucro 90 dias, metas, sazonalidade
+  - saída: projeção 7/30 dias, cenário otimista/pessimista, texto em PT-BR
+- UI: card "Projeção" em Analytics + pergunta sugerida no chat
+- Persistência opcional em `ai_history` com `type = forecast`
+
+### Segurança
+
+- Arquivos CSV processados apenas em memória; não persistir extrato bruto no servidor
+- Validação de tamanho (máx. 5 MB) e linhas (máx. 2 000)
+
+### Testes
+
+- Unit: parsers CSV/OFX, deduplicação, projeção com fixtures
+- Integration: import 100 linhas → fila sync → Supabase
+
+### Critérios de conclusão
+
+- Importar CSV de teste com ≥ 95% de linhas mapeadas corretamente
+- Previsão IA retorna números coerentes com histórico mock
+- Import offline enfileira e sincroniza ao reconectar
+
+---
+
+## Onda 15 — Refatoração de UI / Design System v2
+
+**Objetivo:** Consolidar a interface pós-features (ondas 10–14) em um design system coeso, acessível e fácil de manter — **sem novas features de negócio**.
+
+> Executar **após** as ondas 10–14 para evitar retrabalho em telas que ainda mudam de escopo.
+
+### Design tokens (`core/theme/`)
+
+| Arquivo | Conteúdo |
+|---|---|
+| `app_spacing.dart` | escala 4/8/12/16/24/32/48 |
+| `app_radius.dart` | `sm/md/lg/xl` (12/16/20/28) |
+| `app_motion.dart` | durações, curvas, `DriveFlowMotion` |
+| `app_elevation.dart` | sombras glass + M3 |
+| `app_semantic_colors.dart` | success/warning/error/info além de `app_colors` |
+
+### Biblioteca de componentes (`shared/widgets/design_system/`)
+
+Migrar e padronizar widgets existentes `driveflow_*`:
+
+| Componente | Substitui / unifica |
+|---|---|
+| `df_button.dart` | `auth_primary_button`, FABs ad hoc |
+| `df_text_field.dart` | `auth_text_field`, inputs de formulário |
+| `df_card.dart` | `driveflow_glass_card`, cards inline |
+| `df_chip.dart` | `driveflow_metric_chip`, filtros |
+| `df_empty_state.dart` | `driveflow_empty_state` |
+| `df_skeleton.dart` | `driveflow_list_skeleton` |
+| `df_section_header.dart` | títulos repetidos em screens |
+| `df_bottom_sheet.dart` | sheets de picker, OCR review, vehicle picker |
+
+Prefixo interno `Df*` nos novos primitives; wrappers `driveflow_*` mantidos como aliases deprecated até remoção em v2.1.
+
+### Refatoração de screens
+
+- Extrair widgets de screens > 250 linhas para `*_screen_widgets.dart` ou `widgets/`
+- Alvos prioritários: `dashboard_screen`, `earnings_screen`, `expenses_screen`, `reports_screen`, `ai_chat_screen`
+- Formulários: layout compartilhado `df_form_scaffold.dart` (app bar, scroll, ações fixas)
+
+### Acessibilidade e polish
+
+- Auditoria WCAG AA → corrigir contrastes em chips e gráficos
+- `Semantics` em todos os gráficos (`fl_chart` wrappers)
+- Touch targets ≥ 48 dp em ações secundárias
+- Suporte a `textScaleFactor` 1.3 sem overflow (testes widget)
+- Reduzir rebuilds: `const` constructors, `RepaintBoundary` em charts
+
+### Internacionalização (prep)
+
+- Extrair strings para `lib/l10n/app_pt.arb` (sem segundo idioma ainda)
+- Datas e moeda já usam `intl` — alinhar mensagens de erro/auth
+
+### Navegação e shell
+
+- Unificar padrão de `SliverAppBar` / título em todas as abas
+- Animações de entrada consistentes via `app_motion.dart`
+- Dark mode: revisar gradientes `AppColors.ambientGradient` e bordas glass
+
+### Testes e critérios
+
+- Golden tests para `df_button`, `df_card`, `df_empty_state` (light + dark)
+- Widget: smoke de cada aba após migração de componentes
+- `flutter analyze` sem deprecations nos wrappers antigos
+- Nenhuma regressão visual nas 5 abas + fluxos OCR/import/analytics
+
+### Critérios de conclusão
+
+- ≥ 90% das telas usam tokens (`spacing`, `radius`, `motion`) — sem magic numbers novos
+- Biblioteca `design_system/` documentada no README (tabela de componentes)
+- Screens prioritárias abaixo de 200 linhas cada
+- Acessibilidade: checklist WCAG AA do escopo atendido
+
+---
+
 ## Mapa de requisitos funcionais → ondas
 
 | RF | Descrição | Onda |
@@ -587,8 +929,17 @@ sequenceDiagram
 | RF09 | Dashboard | 7 |
 | RF10 | Relatórios | 7 |
 | RF11 | IA | 8 |
-| RF12 | Notificações manutenção | 5 |
+| RF12 | Notificações manutenção | 5 (+ 13 lembretes inteligentes) |
 | RF13 | Backup Supabase | 0–9 (RLS + sync) |
+| RF14 | Múltiplos veículos | 10 |
+| RF15 | OCR comprovantes | 11 |
+| RF16 | Gráficos avançados | 12 |
+| RF17 | Comparação de períodos | 12 |
+| RF18 | Lembretes inteligentes | 13 |
+| RF19 | Melhor horário / insights | 13 |
+| RF20 | Importação extratos | 14 |
+| RF21 | Previsão IA | 14 |
+| RNF-UI | Design System v2 + acessibilidade | 15 |
 
 ---
 
@@ -621,20 +972,35 @@ GROQ_MODEL=llama-3.3-70b-versatile
 
 ---
 
-## Roadmap pós-MVP (referência, fora das ondas)
+## Roadmap pós-MVP (referência)
 
-- **v1.5:** OCR comprovantes, gráficos avançados, múltiplos veículos, lembretes inteligentes
-- **v2.0:** Importação extratos, previsão IA, melhor horário, comparação períodos
-- **v3.0:** Comunidade, parceiros, painel web
+| Versão | Escopo | Ondas |
+|---|---|---|
+| **v1.5** | OCR, gráficos avançados, múltiplos veículos, lembretes inteligentes | 10–13 |
+| **v2.0** | Importação extratos, previsão IA, melhor horário, comparação períodos | 12–14 |
+| **v2.1** | Metas por veículo, remoção aliases `driveflow_*` deprecated | pós-15 |
+| **v3.0** | Comunidade, parceiros, painel web | fora do plano atual |
 
 ---
 
 ## Ordem de execução recomendada
+
+### MVP v1.0 (ondas 0–9)
 
 Executar ondas **sequencialmente** (0 → 9). Dentro de cada onda, paralelizar quando possível:
 
 - **Onda 3:** earnings e expenses em paralelo (devs diferentes)
 - **Onda 7:** dashboard e reports em paralelo após aggregators prontos
 - **Onda 9:** offline sync e testes podem avançar em paralelo
+
+### Pós-MVP (ondas 10–15)
+
+Executar **10 → 11 → 12 → 13 → 14 → 15** (a onda 15 é estritamente refatoração de UI e deve ser a última).
+
+Paralelização permitida:
+
+- **Onda 12 + 13:** após Onda 10 — analytics (gráficos) e insights (heatmap) em devs diferentes
+- **Onda 14:** pode iniciar parser CSV em paralelo com Onda 13; previsão IA depende de Onda 8 + agregadores da 12
+- **Onda 15:** somente após 10–14 mergeadas na branch principal
 
 Cada onda termina com: `flutter analyze` + testes da onda + demo funcional antes de avançar.
