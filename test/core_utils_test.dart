@@ -46,5 +46,10 @@ void main() {
       expect(Validators.password('123'), isNotNull);
       expect(Validators.password('12345678'), isNull);
     });
+
+    test('odometer rejects value below previous', () {
+      expect(Validators.odometer('40000', previous: 45000), isNotNull);
+      expect(Validators.odometer('46000', previous: 45000), isNull);
+    });
   });
 }
