@@ -14,4 +14,10 @@ abstract interface class VehicleRepository {
   });
 
   Future<void> deleteVehicle(String id);
+
+  Future<void> setDefaultVehicle(String id);
+
+  Future<void> setActiveVehicleId(String? vehicleId);
+
+  String? readActiveVehicleId();
 }
