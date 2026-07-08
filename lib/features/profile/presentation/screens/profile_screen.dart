@@ -178,6 +178,12 @@ class ProfileScreen extends HookConsumerWidget {
                           icon: const Icon(Icons.build_circle_outlined),
                           label: const Text('Manutenções'),
                         ),
+                        const SizedBox(height: 8),
+                        FilledButton.tonalIcon(
+                          onPressed: () => context.push(AppRoutes.goals),
+                          icon: const Icon(Icons.flag_outlined),
+                          label: const Text('Metas'),
+                        ),
                       ],
                     ),
             ),
