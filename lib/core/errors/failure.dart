@@ -1,3 +1,5 @@
+import 'package:supabase_flutter/supabase_flutter.dart';
+
 /// Falhas de domínio/dados com mensagens amigáveis ao usuário.
 sealed class Failure implements Exception {
   const Failure({required this.message, this.cause});
@@ -20,6 +22,29 @@ final class AuthFailure extends Failure {
   const AuthFailure({required super.message, super.cause});
 
   static String messageForError(Object error) {
+    if (error is AuthException) {
+      final code = error.code?.toLowerCase() ?? '';
+      final message = error.message.toLowerCase();
+      if (code.contains('invalid_credentials') ||
+          message.contains('invalid login credentials')) {
+        return 'E-mail ou senha incorretos.';
+      }
+      if (code.contains('user_already_exists') ||
+          message.contains('user already registered')) {
+        return 'Este e-mail já está cadastrado.';
+      }
+      if (message.contains('email not confirmed')) {
+        return 'Confirme seu e-mail antes de entrar.';
+      }
+      if (code.contains('weak_password') || message.contains('weak password')) {
+        return 'Senha fraca. Use pelo menos 8 caracteres.';
+      }
+      if (code.contains('over_request_rate_limit') ||
+          message.contains('too many requests')) {
+        return 'Muitas tentativas. Aguarde um momento.';
+      }
+    }
+
     final text = error.toString().toLowerCase();
     if (text.contains('invalid login credentials')) {
       return 'E-mail ou senha incorretos.';
