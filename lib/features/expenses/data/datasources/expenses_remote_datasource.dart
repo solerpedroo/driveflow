@@ -106,4 +106,38 @@ class ExpensesRemoteDataSource {
       throw ServerFailure(message: e.message, cause: e);
     }
   }
+
+  Future<Map<String, dynamic>?> findByDescriptionContains(String needle) async {
+    final userId = _userId;
+    if (userId == null) return null;
+
+    final rows = await _client
+        .from(ExpensesSchema.table)
+        .select()
+        .eq(ExpensesSchema.userId, userId)
+        .ilike(ExpensesSchema.description, '%$needle%')
+        .limit(1);
+
+    if (rows.isEmpty) return null;
+    return rows.first as Map<String, dynamic>;
+  }
+
+  Future<void> deleteByDescriptionContains(String needle) async {
+    final row = await findByDescriptionContains(needle);
+    if (row == null) return;
+    await deleteExpense(row[ExpensesSchema.id] as String);
+  }
+
+  Future<void> updateByDescriptionContains(
+    String needle, {
+    required Map<String, dynamic> values,
+  }) async {
+    final row = await findByDescriptionContains(needle);
+    if (row == null) return;
+
+    await _client
+        .from(ExpensesSchema.table)
+        .update(values)
+        .eq(ExpensesSchema.id, row[ExpensesSchema.id] as String);
+  }
 }
