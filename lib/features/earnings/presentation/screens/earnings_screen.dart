@@ -7,7 +7,9 @@ import '../../../../core/constants/ride_platforms.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/date_utils.dart';
+import '../../../../shared/widgets/driveflow_empty_state.dart';
 import '../../../../shared/widgets/driveflow_glass_card.dart';
+import '../../../../shared/widgets/driveflow_list_skeleton.dart';
 import '../../../../shared/widgets/driveflow_period_filter.dart';
 import '../../domain/entities/earning_entity.dart';
 import '../providers/earnings_providers.dart';
@@ -26,8 +28,13 @@ class EarningsScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: CustomScrollView(
-        slivers: [
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await ref.read(earningsRepositoryProvider).fetchEarnings();
+        },
+        child: CustomScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          slivers: [
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
             sliver: SliverToBoxAdapter(
@@ -107,7 +114,7 @@ class EarningsScreen extends ConsumerWidget {
           ),
           earningsAsync.when(
             loading: () => const SliverFillRemaining(
-              child: Center(child: CircularProgressIndicator()),
+              child: DriveFlowListSkeleton(),
             ),
             error: (e, _) => SliverFillRemaining(
               child: Center(child: Text('Erro: $e')),
@@ -116,13 +123,10 @@ class EarningsScreen extends ConsumerWidget {
               if (earnings.isEmpty) {
                 return SliverFillRemaining(
                   hasScrollBody: false,
-                  child: Center(
-                    child: Text(
-                      'Nenhum ganho neste período.',
-                      style: theme.textTheme.bodyLarge?.copyWith(
-                        color: AppColors.secondaryLabel(theme),
-                      ),
-                    ),
+                  child: DriveFlowEmptyState(
+                    icon: Icons.payments_outlined,
+                    title: 'Nenhum ganho neste período',
+                    subtitle: 'Toque em + Ganho para registrar sua primeira corrida.',
                   ),
                 );
               }
@@ -139,6 +143,7 @@ class EarningsScreen extends ConsumerWidget {
             },
           ),
         ],
+        ),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => context.push(AppRoutes.earningForm),
