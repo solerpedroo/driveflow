@@ -1,3 +1,5 @@
+import 'currency_formatter.dart';
+
 /// Validadores reutilizáveis em formulários.
 abstract final class Validators {
   static String? email(String? value) {
@@ -37,6 +39,17 @@ abstract final class Validators {
     );
     if (parsed == null || parsed <= 0) {
       return '$fieldName inválido';
+    }
+    return null;
+  }
+
+  static String? brlAmount(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Valor obrigatório';
+    }
+    final parsed = CurrencyFormatter.tryParse(value);
+    if (parsed == null || parsed <= 0) {
+      return 'Valor inválido';
     }
     return null;
   }
