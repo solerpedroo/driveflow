@@ -15,6 +15,7 @@ import '../../features/expenses/presentation/screens/expense_form_screen.dart';
 import '../../features/fuel/domain/entities/fuel_log_entity.dart';
 import '../../features/fuel/presentation/screens/fuel_history_screen.dart';
 import '../../features/fuel/presentation/screens/fuel_log_screen.dart';
+import '../../features/ai/presentation/screens/ai_chat_screen.dart';
 import '../../features/goals/presentation/screens/goals_screen.dart';
 import '../../features/maintenance/domain/entities/maintenance_entity.dart';
 import '../../features/maintenance/presentation/screens/maintenance_form_screen.dart';
@@ -224,6 +225,14 @@ final routerProvider = Provider<GoRouter>((ref) {
         pageBuilder: (context, state) => _fadePage(
           key: state.pageKey,
           child: const GoalsScreen(),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.aiChat,
+        name: 'aiChat',
+        pageBuilder: (context, state) => _fadePage(
+          key: state.pageKey,
+          child: const AiChatScreen(),
         ),
       ),
     ],
