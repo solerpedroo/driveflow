@@ -84,4 +84,18 @@ class VehicleRemoteDataSource {
       throw ServerFailure(message: e.message, cause: e);
     }
   }
+
+  Future<void> updateOdometer({
+    required String id,
+    required double odometerKm,
+  }) async {
+    try {
+      await _client
+          .from(VehicleSchema.table)
+          .update({VehicleSchema.odometer: odometerKm})
+          .eq(VehicleSchema.id, id);
+    } on PostgrestException catch (e) {
+      throw ServerFailure(message: e.message, cause: e);
+    }
+  }
 }
