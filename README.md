@@ -106,6 +106,14 @@ dart run build_runner build --delete-conflicting-outputs
 - [x] Backup de refresh token (`flutter_secure_storage`)
 - [x] Testes: mapper, login screen, smoke app
 
+## Onda 2 — entregue
+
+- [x] Shell principal com 5 abas (Dashboard, Ganhos, Despesas, Relatórios, Perfil)
+- [x] CRUD de veículo + onboarding obrigatório sem veículo
+- [x] Perfil: editar nome, upload de avatar (`avatars` bucket)
+- [x] Redirect GoRouter: auth → onboarding veículo → shell
+- [x] Testes: `vehicle_mapper`, shell tab switching, validação odômetro
+
 ---
 
 ## Licença
