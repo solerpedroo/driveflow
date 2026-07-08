@@ -173,6 +173,24 @@ supabase secrets set GROQ_API_KEY=sua_chave_groq
 supabase functions deploy ai-chat
 ```
 
+## Onda 9 — entregue
+
+- [x] Hive offline-first: boxes `earnings`, `expenses`, `fuel_logs`, `maintenance`, `goals`, `pending_sync_queue`
+- [x] Write-through + fila de sync com retry exponencial (`SyncWorker`)
+- [x] CRUD offline para ganhos e despesas; leitura cache para combustível, manutenção e metas
+- [x] Banner offline / sincronizando no shell principal
+- [x] Analytics (`earning_added`, `ai_question`, `report_exported`) + crash reporting (`runZonedGuarded`)
+- [x] Pull-to-refresh, empty states ilustrados e skeleton loaders nas listas
+- [x] Documentação: [docs/SUPABASE_ER.md](docs/SUPABASE_ER.md), [docs/RELEASE.md](docs/RELEASE.md)
+- [x] Testes: storage offline, mappers draft round-trip, shell com overrides de sync
+
+### Coverage
+
+```bash
+flutter test --coverage
+# Meta: ≥ 70% em lib/features/*/domain e lib/features/*/data
+```
+
 ---
 
 ## Licença
