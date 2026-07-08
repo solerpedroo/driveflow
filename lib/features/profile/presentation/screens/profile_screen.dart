@@ -171,6 +171,13 @@ class ProfileScreen extends HookConsumerWidget {
                           icon: const Icon(Icons.local_gas_station_outlined),
                           label: const Text('Abastecimentos'),
                         ),
+                        const SizedBox(height: 8),
+                        FilledButton.tonalIcon(
+                          onPressed: () =>
+                              context.push(AppRoutes.maintenanceHistory),
+                          icon: const Icon(Icons.build_circle_outlined),
+                          label: const Text('Manutenções'),
+                        ),
                       ],
                     ),
             ),
