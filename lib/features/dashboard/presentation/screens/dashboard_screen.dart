@@ -3,6 +3,8 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../../insights/presentation/providers/insights_providers.dart';
+import '../../../insights/presentation/widgets/dashboard_insights_summary.dart';
 import '../../../goals/domain/entities/goal_entity.dart';
 import '../../../goals/domain/services/goal_progress_calculator.dart';
 import '../../../goals/presentation/providers/goals_providers.dart';
@@ -42,6 +44,8 @@ class DashboardScreen extends HookConsumerWidget {
         ref.watch(maintenanceAlertsProvider).valueOrNull ?? const [];
     final dailyGoal = ref.watch(goalProgressProvider(GoalPeriod.daily));
     final dashboardAsync = ref.watch(dashboardSnapshotProvider);
+    final topSlots = ref.watch(topEarningSlotsProvider).valueOrNull ?? const [];
+    final topPrediction = ref.watch(topMaintenancePredictionProvider).valueOrNull;
     final pulse = useAnimationController(
       duration: const Duration(milliseconds: 2200),
     )..repeat(reverse: true);
@@ -140,13 +144,37 @@ class DashboardScreen extends HookConsumerWidget {
         SliverPadding(
           padding: const EdgeInsets.fromLTRB(24, 12, 24, 0),
           sliver: SliverToBoxAdapter(
-            child: FilledButton.tonalIcon(
-              onPressed: () => context.push(AppRoutes.analytics),
-              icon: const Icon(Icons.insights_outlined),
-              label: const Text('Ver análises avançadas'),
+            child: Row(
+              children: [
+                Expanded(
+                  child: FilledButton.tonalIcon(
+                    onPressed: () => context.push(AppRoutes.analytics),
+                    icon: const Icon(Icons.insights_outlined),
+                    label: const Text('Análises'),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: FilledButton.tonalIcon(
+                    onPressed: () => context.push(AppRoutes.insights),
+                    icon: const Icon(Icons.auto_awesome_outlined),
+                    label: const Text('Insights'),
+                  ),
+                ),
+              ],
             ),
           ),
         ),
+        if (topSlots.isNotEmpty || topPrediction != null)
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+            sliver: SliverToBoxAdapter(
+              child: DashboardInsightsSummary(
+                topSlots: topSlots,
+                topPrediction: topPrediction,
+              ),
+            ),
+          ),
         SliverPadding(
           padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
           sliver: SliverToBoxAdapter(
