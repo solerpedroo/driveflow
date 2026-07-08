@@ -81,8 +81,8 @@ abstract final class AppRoutes {
   static const goals = '/goals';
 }
 
-/// Onda atual concluída (inclui metas financeiras com progresso visual).
-const kCurrentWave = 6;
+/// Onda atual concluída (inclui dashboard agregado e relatórios exportáveis).
+const kCurrentWave = 7;
 
 /// Deep link OAuth Supabase (Google).
 const kOAuthRedirectUrl = 'io.supabase.driveflow://login-callback/';
