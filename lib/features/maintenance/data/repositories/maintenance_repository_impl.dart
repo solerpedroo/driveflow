@@ -1,3 +1,6 @@
+import '../../../../core/storage/cached_remote_watch.dart';
+import '../../../../core/storage/hive_boxes.dart';
+import '../../../../core/storage/local_entity_cache.dart';
 import '../../../../core/services/maintenance_notification_service.dart';
 import '../../domain/entities/maintenance_entity.dart';
 import '../../domain/repositories/maintenance_repository.dart';
@@ -9,23 +12,37 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
   MaintenanceRepositoryImpl({
     MaintenanceRemoteDataSource? remote,
     MaintenanceNotificationService? notifications,
+    LocalEntityCache? cache,
   })  : _remote = remote ?? MaintenanceRemoteDataSource(),
         _notifications =
-            notifications ?? MaintenanceNotificationService.instance;
+            notifications ?? MaintenanceNotificationService.instance,
+        _cache = cache ?? LocalEntityCache();
 
   final MaintenanceRemoteDataSource _remote;
   final MaintenanceNotificationService _notifications;
+  final LocalEntityCache _cache;
 
   @override
   Stream<List<MaintenanceEntity>> watchMaintenance({
     required String vehicleId,
   }) {
-    return _remote.watchMaintenance().map(
-          (rows) => rows
-              .where((row) => row[MaintenanceSchema.vehicleId] == vehicleId)
-              .map(MaintenanceMapper.fromRow)
-              .toList(growable: false),
-        );
+    return watchCachedRemote(
+      remote: _remote.watchMaintenance(),
+      loadLocal: () => _loadLocal(vehicleId),
+      mapRows: (rows) => rows
+          .where((row) => row[MaintenanceSchema.vehicleId] == vehicleId)
+          .map(MaintenanceMapper.fromRow)
+          .toList(growable: false),
+      persistRemote: (rows) => _cache.replaceAll(HiveBoxes.maintenance, rows),
+    );
+  }
+
+  Future<List<MaintenanceEntity>> _loadLocal(String vehicleId) async {
+    final rows = await _cache.readAll(HiveBoxes.maintenance);
+    return rows
+        .where((row) => row[MaintenanceSchema.vehicleId] == vehicleId)
+        .map(MaintenanceMapper.fromRow)
+        .toList(growable: false);
   }
 
   @override
