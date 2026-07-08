@@ -4,6 +4,9 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/duration_formatter.dart';
+import '../../../analytics/presentation/providers/analytics_providers.dart';
+import '../../../analytics/presentation/widgets/expense_pie_chart.dart';
+import '../../../analytics/presentation/widgets/period_comparison_card.dart';
 import '../../../goals/domain/entities/goal_entity.dart';
 import '../../../vehicle/presentation/widgets/vehicle_scope_chip.dart';
 import '../../../../shared/widgets/driveflow_glass_card.dart';
@@ -18,6 +21,8 @@ class ReportsScreen extends ConsumerWidget {
     final theme = Theme.of(context);
     final period = ref.watch(reportPeriodProvider);
     final reportAsync = ref.watch(reportSnapshotProvider);
+    final comparisonAsync = ref.watch(reportComparisonProvider);
+    final breakdownAsync = ref.watch(reportCategoryBreakdownProvider);
     final exportState = ref.watch(reportsControllerProvider);
 
     return CustomScrollView(
@@ -129,6 +134,26 @@ class ReportsScreen extends ConsumerWidget {
                   ),
                 );
               },
+            ),
+          ),
+        ),
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+          sliver: SliverToBoxAdapter(
+            child: comparisonAsync.when(
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (e, _) => Text('Erro: $e'),
+              data: (comparison) => PeriodComparisonCard(comparison: comparison),
+            ),
+          ),
+        ),
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+          sliver: SliverToBoxAdapter(
+            child: breakdownAsync.when(
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (e, _) => Text('Erro: $e'),
+              data: (slices) => ExpensePieChart(slices: slices),
             ),
           ),
         ),
