@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../../core/constants/driveflow_tab_count.dart';
 import '../../core/theme/app_colors.dart';
 import 'driveflow_bottom_nav_bar.dart' show DriveFlowBottomNavBar, kDriveFlowTabSwitchDuration;
+import 'driveflow_connectivity_banner.dart';
 
 /// Shell pós-login com bottom nav e abas vivas (Stack animado).
 class DriveFlowMainShell extends StatelessWidget {
@@ -39,6 +40,7 @@ class DriveFlowMainShell extends StatelessWidget {
           child: SafeArea(
             child: Column(
               children: [
+                const DriveFlowConnectivityBanner(),
                 Expanded(
                   child: Stack(
                     fit: StackFit.expand,
