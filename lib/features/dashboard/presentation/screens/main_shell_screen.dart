@@ -8,10 +8,10 @@ import '../../../expenses/presentation/screens/expenses_screen.dart';
 import '../../../vehicle/presentation/providers/vehicle_providers.dart';
 import '../../../vehicle/presentation/screens/vehicle_form_screen.dart';
 import '../../../../core/constants/driveflow_tab_count.dart';
+import '../../../reports/presentation/screens/reports_screen.dart';
 import '../../../dashboard/presentation/screens/dashboard_screen.dart';
 import '../../../profile/presentation/screens/profile_screen.dart';
 import '../../../../shared/widgets/driveflow_main_shell.dart';
-import '../../../../shared/widgets/driveflow_tab_placeholder.dart';
 
 /// Shell principal pós-login com 5 abas.
 class MainShellScreen extends HookConsumerWidget {
@@ -26,13 +26,7 @@ class MainShellScreen extends HookConsumerWidget {
         DashboardScreen(),
         EarningsScreen(),
         ExpensesScreen(),
-        DriveFlowTabPlaceholder(
-          title: 'Relatórios',
-          description:
-              'Exporte PDF/CSV e acompanhe lucro, custo/km e metas.',
-          icon: Icons.bar_chart_rounded,
-          waveLabel: 'Onda 7 — Dashboard e relatórios',
-        ),
+        ReportsScreen(),
         ProfileScreen(),
       ],
     );
