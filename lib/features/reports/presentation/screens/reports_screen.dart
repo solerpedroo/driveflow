@@ -5,6 +5,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/duration_formatter.dart';
 import '../../../goals/domain/entities/goal_entity.dart';
+import '../../../vehicle/presentation/widgets/vehicle_scope_chip.dart';
 import '../../../../shared/widgets/driveflow_glass_card.dart';
 import '../providers/reports_providers.dart';
 
@@ -25,6 +26,15 @@ class ReportsScreen extends ConsumerWidget {
           padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
           sliver: SliverToBoxAdapter(
             child: Text('Relatórios', style: theme.textTheme.headlineSmall),
+          ),
+        ),
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(24, 12, 24, 0),
+          sliver: SliverToBoxAdapter(
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: VehicleScopeChip(),
+            ),
           ),
         ),
         SliverPadding(
