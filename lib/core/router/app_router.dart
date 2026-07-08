@@ -15,6 +15,9 @@ import '../../features/expenses/presentation/screens/expense_form_screen.dart';
 import '../../features/fuel/domain/entities/fuel_log_entity.dart';
 import '../../features/fuel/presentation/screens/fuel_history_screen.dart';
 import '../../features/fuel/presentation/screens/fuel_log_screen.dart';
+import '../../features/maintenance/domain/entities/maintenance_entity.dart';
+import '../../features/maintenance/presentation/screens/maintenance_form_screen.dart';
+import '../../features/maintenance/presentation/screens/maintenance_history_screen.dart';
 import '../../features/vehicle/presentation/providers/vehicle_providers.dart';
 import '../../features/vehicle/presentation/screens/vehicle_onboarding_screen.dart';
 
@@ -194,6 +197,24 @@ final routerProvider = Provider<GoRouter>((ref) {
         pageBuilder: (context, state) => _fadePage(
           key: state.pageKey,
           child: const FuelHistoryScreen(),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.maintenanceForm,
+        name: 'maintenanceForm',
+        pageBuilder: (context, state) => _fadePage(
+          key: state.pageKey,
+          child: MaintenanceFormScreen(
+            record: state.extra as MaintenanceEntity?,
+          ),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.maintenanceHistory,
+        name: 'maintenanceHistory',
+        pageBuilder: (context, state) => _fadePage(
+          key: state.pageKey,
+          child: const MaintenanceHistoryScreen(),
         ),
       ),
     ],
