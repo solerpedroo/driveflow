@@ -12,7 +12,7 @@ Plano de implementação em 10 ondas para o DriveFlow (Flutter + Supabase + Groq
 | Onda | Descrição | Status |
 |------|-----------|--------|
 | 0 | Scaffold Flutter + Supabase migrations/RLS + theme/router base | concluída |
-| 1 | Authentication (email + Google) + auth gate + profiles sync | pendente |
+| 1 | Authentication (email + Google) + auth gate + profiles sync | concluída |
 | 2 | Main shell (5 abas) + vehicle CRUD + onboarding obrigatório | pendente |
 | 3 | Earnings + Expenses CRUD com upload de comprovantes | pendente |
 | 4 | Fuel logs com cálculos km/L, custo/km e sync com expenses | pendente |
