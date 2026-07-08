@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../maintenance/presentation/providers/maintenance_providers.dart';
 import '../../../vehicle/presentation/providers/vehicle_providers.dart';
 import '../../data/repositories/fuel_repository_impl.dart';
 import '../../domain/entities/fuel_log_entity.dart';
@@ -8,7 +9,10 @@ import '../../domain/services/fuel_metrics_calculator.dart';
 import '../../domain/usecases/fuel_usecases.dart';
 
 final fuelRepositoryProvider = Provider<FuelRepository>((ref) {
-  return FuelRepositoryImpl();
+  return FuelRepositoryImpl(
+    maintenance: ref.watch(maintenanceRepositoryProvider),
+    predictiveScheduler: ref.watch(predictiveMaintenanceSchedulerProvider),
+  );
 });
 
 final fuelLogsStreamProvider =
