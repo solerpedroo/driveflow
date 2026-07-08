@@ -1,0 +1,215 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+
+import '../../../../core/constants/app_constants.dart';
+import '../../../../core/utils/currency_formatter.dart';
+import '../../../../core/utils/validators.dart';
+import '../../../authentication/presentation/widgets/auth_primary_button.dart';
+import '../../../authentication/presentation/widgets/auth_text_field.dart';
+import '../../../vehicle/presentation/providers/vehicle_providers.dart';
+import '../../domain/entities/fuel_log_entity.dart';
+import '../providers/fuel_providers.dart';
+import '../../../../shared/widgets/driveflow_glass_card.dart';
+
+/// Formulário de registro de abastecimento.
+class FuelLogScreen extends HookConsumerWidget {
+  const FuelLogScreen({this.fuelLog, super.key});
+
+  final FuelLogEntity? fuelLog;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final vehicle = ref.watch(activeVehicleProvider).valueOrNull;
+    final formKey = useMemoized(GlobalKey<FormState>.new);
+    final isEditing = fuelLog != null;
+
+    final stationController =
+        useTextEditingController(text: fuelLog?.station ?? '');
+    final priceController = useTextEditingController(
+      text: fuelLog != null
+          ? fuelLog!.pricePerLiter.toStringAsFixed(3)
+          : '',
+    );
+    final litersController = useTextEditingController(
+      text: fuelLog != null ? fuelLog!.liters.toStringAsFixed(2) : '',
+    );
+    final totalController = useTextEditingController(
+      text: fuelLog != null ? CurrencyFormatter.format(fuelLog!.totalAmount) : '',
+    );
+    final odometerController = useTextEditingController(
+      text: fuelLog?.odometerKm.toStringAsFixed(0) ??
+          vehicle?.odometerKm.toStringAsFixed(0) ??
+          '',
+    );
+    final selectedFuel = useState(fuelLog?.fuelType ?? vehicle?.fuel ?? FuelType.flex);
+    final mutation = ref.watch(fuelControllerProvider);
+
+    void syncTotal() {
+      final price = double.tryParse(priceController.text.replaceAll(',', '.'));
+      final liters = double.tryParse(litersController.text.replaceAll(',', '.'));
+      if (price != null && liters != null) {
+        totalController.text = CurrencyFormatter.format(price * liters);
+      }
+    }
+
+    useEffect(() {
+      priceController.addListener(syncTotal);
+      litersController.addListener(syncTotal);
+      return () {
+        priceController.removeListener(syncTotal);
+        litersController.removeListener(syncTotal);
+      };
+    }, [priceController, litersController]);
+
+    Future<void> submit() async {
+      if (vehicle == null) return;
+      if (!(formKey.currentState?.validate() ?? false)) return;
+
+      final price = double.parse(priceController.text.trim().replaceAll(',', '.'));
+      final liters = double.parse(litersController.text.trim().replaceAll(',', '.'));
+      final total = CurrencyFormatter.tryParse(totalController.text) ?? price * liters;
+      final odometer = double.parse(
+        odometerController.text.trim().replaceAll('.', '').replaceAll(',', '.'),
+      );
+
+      final draft = FuelLogDraft(
+        vehicleId: vehicle.id,
+        fuelType: selectedFuel.value,
+        pricePerLiter: price,
+        liters: liters,
+        totalAmount: total,
+        odometerKm: odometer,
+        station: stationController.text,
+      );
+
+      final saved = await ref.read(fuelControllerProvider.notifier).save(
+            fuelLogId: fuelLog?.id,
+            draft: draft,
+          );
+      if (saved != null && context.mounted) context.pop();
+    }
+
+    if (vehicle == null) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Abastecimento')),
+        body: const Center(child: Text('Cadastre um veículo primeiro.')),
+      );
+    }
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(isEditing ? 'Editar abastecimento' : 'Novo abastecimento'),
+        backgroundColor: Colors.transparent,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(24, 8, 24, 32),
+        child: Form(
+          key: formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              DriveFlowGlassCard(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      vehicle.displayName,
+                      style: theme.textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 16),
+                    AuthTextField(
+                      controller: stationController,
+                      label: 'Posto (opcional)',
+                      hint: 'Shell, Ipiranga...',
+                    ),
+                    const SizedBox(height: 12),
+                    Text('Combustível', style: theme.textTheme.labelLarge),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: kFuelTypes.map((fuel) {
+                        return FilterChip(
+                          label: Text(fuel.label),
+                          selected: selectedFuel.value == fuel,
+                          onSelected: (_) => selectedFuel.value = fuel,
+                        );
+                      }).toList(growable: false),
+                    ),
+                    const SizedBox(height: 12),
+                    AuthTextField(
+                      controller: priceController,
+                      label: 'Preço por litro (R\$)',
+                      hint: '5.89',
+                      keyboardType:
+                          const TextInputType.numberWithOptions(decimal: true),
+                      validator: (v) =>
+                          Validators.positiveNumber(v, fieldName: 'Preço'),
+                    ),
+                    const SizedBox(height: 12),
+                    AuthTextField(
+                      controller: litersController,
+                      label: 'Litros',
+                      hint: '42.5',
+                      keyboardType:
+                          const TextInputType.numberWithOptions(decimal: true),
+                      validator: (v) =>
+                          Validators.positiveNumber(v, fieldName: 'Litros'),
+                    ),
+                    const SizedBox(height: 12),
+                    AuthTextField(
+                      controller: totalController,
+                      label: 'Valor total (R\$)',
+                      hint: 'R\$ 250,00',
+                      keyboardType:
+                          const TextInputType.numberWithOptions(decimal: true),
+                      validator: Validators.brlAmount,
+                    ),
+                    const SizedBox(height: 12),
+                    AuthTextField(
+                      controller: odometerController,
+                      label: 'Odômetro (km)',
+                      hint: '45000',
+                      keyboardType:
+                          const TextInputType.numberWithOptions(decimal: true),
+                      validator: (v) {
+                        if (isEditing) {
+                          return Validators.positiveNumber(
+                            v,
+                            fieldName: 'Odômetro',
+                          );
+                        }
+                        return Validators.odometer(
+                          v,
+                          previous: vehicle.odometerKm,
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              if (mutation.hasError) ...[
+                const SizedBox(height: 12),
+                Text(
+                  mutation.error.toString(),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.error,
+                  ),
+                ),
+              ],
+              const SizedBox(height: 20),
+              AuthPrimaryButton(
+                label: isEditing ? 'Salvar alterações' : 'Registrar abastecimento',
+                isLoading: mutation.isLoading,
+                onPressed: submit,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
