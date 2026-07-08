@@ -13,6 +13,7 @@ import '../../../../core/services/analytics_service.dart';
 import '../../../../shared/domain/services/profit_calculator.dart';
 import '../../domain/entities/report_snapshot.dart';
 import '../../domain/services/report_exporter.dart';
+import '../../../analytics/presentation/providers/analytics_providers.dart';
 
 final reportPeriodProvider =
     StateProvider<GoalPeriod>((ref) => GoalPeriod.monthly);
@@ -112,10 +113,12 @@ class ReportsController extends Notifier<AsyncValue<void>> {
       final snapshot = ref.read(reportSnapshotProvider).requireValue;
       final earnings = ref.read(reportEarningsProvider).requireValue;
       final expenses = ref.read(reportExpensesProvider).requireValue;
+      final comparison = ref.read(reportComparisonProvider).valueOrNull;
       await ReportExporter.sharePdf(
         snapshot: snapshot,
         earnings: earnings,
         expenses: expenses,
+        comparison: comparison,
       );
       DriveFlowAnalytics.logEvent('report_exported', {'format': 'pdf'});
     });
@@ -128,10 +131,12 @@ class ReportsController extends Notifier<AsyncValue<void>> {
       final snapshot = ref.read(reportSnapshotProvider).requireValue;
       final earnings = ref.read(reportEarningsProvider).requireValue;
       final expenses = ref.read(reportExpensesProvider).requireValue;
+      final comparison = ref.read(reportComparisonProvider).valueOrNull;
       await ReportExporter.shareCsv(
         snapshot: snapshot,
         earnings: earnings,
         expenses: expenses,
+        comparison: comparison,
       );
       DriveFlowAnalytics.logEvent('report_exported', {'format': 'csv'});
     });

@@ -138,6 +138,16 @@ class DashboardScreen extends HookConsumerWidget {
           ),
         ),
         SliverPadding(
+          padding: const EdgeInsets.fromLTRB(24, 12, 24, 0),
+          sliver: SliverToBoxAdapter(
+            child: FilledButton.tonalIcon(
+              onPressed: () => context.push(AppRoutes.analytics),
+              icon: const Icon(Icons.insights_outlined),
+              label: const Text('Ver análises avançadas'),
+            ),
+          ),
+        ),
+        SliverPadding(
           padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
           sliver: SliverToBoxAdapter(
             child: dashboardAsync.when(
