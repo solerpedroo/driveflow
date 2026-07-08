@@ -6,8 +6,10 @@ abstract final class AiHistorySchema {
   static const question = 'question';
   static const answer = 'answer';
   static const createdAt = 'created_at';
+  static const type = 'type';
 }
 
 abstract final class AiFunctions {
   static const aiChat = 'ai-chat';
+  static const aiForecast = 'ai-forecast';
 }
