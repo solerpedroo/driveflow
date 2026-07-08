@@ -141,6 +141,14 @@ dart run build_runner build --delete-conflicting-outputs
 - [x] Acesso via Perfil e rotas `/maintenance/form` e `/maintenance/history`
 - [x] Testes: lógica de vencimento e mapper
 
+## Onda 6 — entregue
+
+- [x] Metas diária, semanal, mensal e anual (upsert 1 row por usuário)
+- [x] `GoalProgressCalculator` compara lucro real (ganhos − despesas) vs meta
+- [x] Tela `/goals` com cards de progresso linear e formulário de configuração
+- [x] Chip "Meta diária" no Dashboard com dados reais e atalho para metas
+- [x] Testes: percentual, projeção "faltam R$ X" e meta não configurada
+
 ---
 
 ## Licença
