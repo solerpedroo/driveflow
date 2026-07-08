@@ -12,6 +12,9 @@ import '../../features/earnings/domain/entities/earning_entity.dart';
 import '../../features/earnings/presentation/screens/earning_form_screen.dart';
 import '../../features/expenses/domain/entities/expense_entity.dart';
 import '../../features/expenses/presentation/screens/expense_form_screen.dart';
+import '../../features/fuel/domain/entities/fuel_log_entity.dart';
+import '../../features/fuel/presentation/screens/fuel_history_screen.dart';
+import '../../features/fuel/presentation/screens/fuel_log_screen.dart';
 import '../../features/vehicle/presentation/providers/vehicle_providers.dart';
 import '../../features/vehicle/presentation/screens/vehicle_onboarding_screen.dart';
 
@@ -173,6 +176,24 @@ final routerProvider = Provider<GoRouter>((ref) {
           child: ExpenseFormScreen(
             expense: state.extra as ExpenseEntity?,
           ),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.fuelLog,
+        name: 'fuelLog',
+        pageBuilder: (context, state) => _fadePage(
+          key: state.pageKey,
+          child: FuelLogScreen(
+            fuelLog: state.extra as FuelLogEntity?,
+          ),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.fuelHistory,
+        name: 'fuelHistory',
+        pageBuilder: (context, state) => _fadePage(
+          key: state.pageKey,
+          child: const FuelHistoryScreen(),
         ),
       ),
     ],
