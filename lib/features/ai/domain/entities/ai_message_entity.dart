@@ -24,5 +24,6 @@ abstract final class AiQuickSuggestions {
     'Quais foram meus maiores gastos?',
     'Preciso fazer alguma manutenção?',
     'Qual meu melhor horário?',
+    'Qual a previsão de lucro para este mês?',
   ];
 }
