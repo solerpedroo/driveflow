@@ -78,7 +78,8 @@ final routerProvider = Provider<GoRouter>((ref) {
       final isRegister = location == AppRoutes.register;
       final isAuthRoute = isLogin || isRegister;
       final isOnboarding = location == AppRoutes.vehicleOnboarding;
-      final isEditVehicle = location == AppRoutes.editVehicle;
+      final isAddVehicle = location == AppRoutes.addVehicle;
+      final isEditVehicle = location.startsWith(AppRoutes.editVehicle);
 
       if (authAsync.isLoading) {
         return isSplash ? null : AppRoutes.splash;
@@ -100,7 +101,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         return hasVehicle ? AppRoutes.home : AppRoutes.vehicleOnboarding;
       }
 
-      if (!hasVehicle && !isOnboarding) {
+      if (!hasVehicle && !isOnboarding && !isAddVehicle) {
         return AppRoutes.vehicleOnboarding;
       }
 
@@ -108,7 +109,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         return AppRoutes.home;
       }
 
-      if (!hasVehicle && isEditVehicle) {
+      if (!hasVehicle && (isEditVehicle || isAddVehicle)) {
         return AppRoutes.vehicleOnboarding;
       }
 
@@ -156,11 +157,21 @@ final routerProvider = Provider<GoRouter>((ref) {
         ),
       ),
       GoRoute(
+        path: AppRoutes.addVehicle,
+        name: 'addVehicle',
+        pageBuilder: (context, state) => _fadePage(
+          key: state.pageKey,
+          child: const AddVehicleScreen(),
+        ),
+      ),
+      GoRoute(
         path: AppRoutes.editVehicle,
         name: 'editVehicle',
         pageBuilder: (context, state) => _fadePage(
           key: state.pageKey,
-          child: const EditVehicleScreen(),
+          child: EditVehicleScreen(
+            vehicleId: state.uri.queryParameters['id'],
+          ),
         ),
       ),
       GoRoute(
