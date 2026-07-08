@@ -1,0 +1,75 @@
+import 'package:flutter/material.dart';
+
+/// Categorias de despesa do motorista.
+enum ExpenseCategory {
+  fuel('fuel', 'Combustível', Icons.local_gas_station_rounded),
+  toll('toll', 'Pedágio', Icons.toll_rounded),
+  food('food', 'Alimentação', Icons.restaurant_rounded),
+  wash('wash', 'Lavagem', Icons.local_car_wash_rounded),
+  mechanic('mechanic', 'Mecânico', Icons.build_circle_rounded),
+  parking('parking', 'Estacionamento', Icons.local_parking_rounded),
+  fine('fine', 'Multas', Icons.gavel_rounded),
+  insurance('insurance', 'Seguro', Icons.shield_rounded),
+  ipva('ipva', 'IPVA', Icons.receipt_long_rounded),
+  other('other', 'Outros', Icons.more_horiz_rounded);
+
+  const ExpenseCategory(this.value, this.label, this.icon);
+
+  final String value;
+  final String label;
+  final IconData icon;
+
+  static ExpenseCategory fromValue(String value) {
+    return ExpenseCategory.values.firstWhere(
+      (c) => c.value == value,
+      orElse: () => ExpenseCategory.other,
+    );
+  }
+}
+
+const kExpenseCategories = ExpenseCategory.values;
+
+/// Tipos de combustível para veículo/abastecimento.
+enum FuelType {
+  gasoline('gasoline', 'Gasolina'),
+  ethanol('ethanol', 'Etanol'),
+  flex('flex', 'Flex'),
+  diesel('diesel', 'Diesel'),
+  gnv('gnv', 'GNV');
+
+  const FuelType(this.value, this.label);
+
+  final String value;
+  final String label;
+}
+
+const kFuelTypes = FuelType.values;
+
+/// Tipos de manutenção veicular.
+enum MaintenanceType {
+  oil('oil', 'Óleo'),
+  tires('tires', 'Pneus'),
+  revision('revision', 'Revisão'),
+  filters('filters', 'Filtros'),
+  alignment('alignment', 'Alinhamento'),
+  battery('battery', 'Bateria'),
+  brakes('brakes', 'Freios');
+
+  const MaintenanceType(this.value, this.label);
+
+  final String value;
+  final String label;
+}
+
+const kMaintenanceTypes = MaintenanceType.values;
+
+/// Chaves de rotas GoRouter.
+abstract final class AppRoutes {
+  static const splash = '/splash';
+  static const home = '/';
+}
+
+/// Nome do app e versão foundation.
+const kAppName = 'DriveFlow';
+const kAppTagline = 'Lucro claro. Decisão inteligente.';
+const kFoundationWave = 0;
