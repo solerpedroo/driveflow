@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/date_range_period.dart';
 import '../../../../core/constants/ride_platforms.dart';
+import '../../../../core/presentation/providers/sync_providers.dart';
 import '../../../../core/utils/transaction_filters.dart';
 import '../../data/repositories/earnings_repository_impl.dart';
 import '../../domain/entities/earning_entity.dart';
@@ -9,7 +10,12 @@ import '../../domain/repositories/earnings_repository.dart';
 import '../../domain/usecases/earnings_usecases.dart';
 
 final earningsRepositoryProvider = Provider<EarningsRepository>((ref) {
-  return EarningsRepositoryImpl();
+  return EarningsRepositoryImpl(
+    cache: ref.watch(localEntityCacheProvider),
+    syncQueue: ref.watch(pendingSyncQueueProvider),
+    connectivity: ref.watch(connectivityServiceProvider),
+    syncWorker: ref.watch(syncWorkerProvider),
+  );
 });
 
 final earningsStreamProvider = StreamProvider<List<EarningEntity>>((ref) {
