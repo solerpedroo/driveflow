@@ -157,6 +157,22 @@ dart run build_runner build --delete-conflicting-outputs
 - [x] Exportação PDF e CSV branded via `share_plus`
 - [x] Testes: agregações, lucro/hora, lucro/km e widget do card "Hoje"
 
+## Onda 8 — entregue
+
+- [x] Edge Function `ai-chat` com Groq, contexto dos últimos 90 dias e rate limit
+- [x] JWT validado na função; `GROQ_API_KEY` apenas no servidor
+- [x] Chat UI com bolhas, sugestões rápidas e histórico via `ai_history`
+- [x] `AiContextBuilder` para preview local do contexto
+- [x] Acesso via Perfil → Assistente DriveFlow (`/ai/chat`)
+- [x] Testes: montagem de contexto e formatação de prompt
+
+### Configurar IA (Supabase)
+
+```bash
+supabase secrets set GROQ_API_KEY=sua_chave_groq
+supabase functions deploy ai-chat
+```
+
 ---
 
 ## Licença
