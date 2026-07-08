@@ -14,11 +14,14 @@ import '../../../../core/utils/date_utils.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../authentication/presentation/widgets/auth_primary_button.dart';
 import '../../../authentication/presentation/widgets/auth_text_field.dart';
+import '../../../vehicle/presentation/providers/vehicle_providers.dart';
 import '../../domain/entities/expense_entity.dart';
 import '../providers/expenses_providers.dart';
+import '../providers/receipt_ocr_providers.dart';
+import '../widgets/receipt_scan_review_sheet.dart';
 import '../../../../shared/widgets/driveflow_glass_card.dart';
 
-/// Formulário de criação/edição de despesa com comprovante.
+/// Formulário de criação/edição de despesa com comprovante e OCR.
 class ExpenseFormScreen extends HookConsumerWidget {
   const ExpenseFormScreen({this.expense, super.key});
 
@@ -41,6 +44,7 @@ class ExpenseFormScreen extends HookConsumerWidget {
     final receiptFile = useState<File?>(null);
     final existingReceiptUrl = expense?.receiptUrl;
     final mutation = ref.watch(expensesControllerProvider);
+    final ocrState = ref.watch(receiptOcrControllerProvider);
 
     Future<void> pickDate() async {
       final picked = await showDatePicker(
@@ -62,11 +66,64 @@ class ExpenseFormScreen extends HookConsumerWidget {
       if (picked != null) receiptFile.value = File(picked.path);
     }
 
+    Future<void> scanReceipt(ImageSource source) async {
+      final picked = await ImagePicker().pickImage(
+        source: source,
+        maxWidth: 2000,
+        imageQuality: 90,
+      );
+      if (picked == null) return;
+
+      final file = File(picked.path);
+      final scan = await ref.read(receiptOcrControllerProvider.notifier).scan(file);
+      if (!context.mounted || scan == null) return;
+
+      final confirmed = await showReceiptScanReviewSheet(
+        context: context,
+        scan: scan,
+        imageFile: file,
+      );
+      if (confirmed == null || !context.mounted) return;
+
+      amountController.text = CurrencyFormatter.format(confirmed.amount);
+      descriptionController.text = confirmed.description ?? '';
+      selectedCategory.value = confirmed.category;
+      selectedDate.value = confirmed.date;
+      receiptFile.value = confirmed.imageFile;
+    }
+
+    Future<void> showScanSourcePicker() async {
+      final source = await showModalBottomSheet<ImageSource>(
+        context: context,
+        showDragHandle: true,
+        builder: (context) => SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.photo_camera_outlined),
+                title: const Text('Tirar foto'),
+                onTap: () => Navigator.pop(context, ImageSource.camera),
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_library_outlined),
+                title: const Text('Escolher da galeria'),
+                onTap: () => Navigator.pop(context, ImageSource.gallery),
+              ),
+            ],
+          ),
+        ),
+      );
+      if (source != null) await scanReceipt(source);
+    }
+
     Future<void> submit() async {
       if (!(formKey.currentState?.validate() ?? false)) return;
 
       final amount = CurrencyFormatter.tryParse(amountController.text);
       if (amount == null) return;
+
+      final scopedVehicleId = ref.read(scopedVehicleIdProvider);
 
       final draft = ExpenseDraft(
         category: selectedCategory.value,
@@ -74,6 +131,7 @@ class ExpenseFormScreen extends HookConsumerWidget {
         date: selectedDate.value,
         description: descriptionController.text,
         receiptUrl: existingReceiptUrl,
+        vehicleId: scopedVehicleId ?? ref.read(activeVehicleProvider).valueOrNull?.id,
       );
 
       final saved =
@@ -97,6 +155,24 @@ class ExpenseFormScreen extends HookConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              if (!isEditing) ...[
+                FilledButton.tonalIcon(
+                  onPressed: ocrState.isLoading ? null : showScanSourcePicker,
+                  icon: ocrState.isLoading
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.document_scanner_outlined),
+                  label: Text(
+                    ocrState.isLoading
+                        ? 'Lendo comprovante…'
+                        : 'Escanear comprovante',
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
               DriveFlowGlassCard(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
