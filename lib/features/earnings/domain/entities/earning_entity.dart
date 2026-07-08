@@ -10,6 +10,7 @@ class EarningEntity {
     required this.rides,
     required this.workedHours,
     required this.date,
+    this.vehicleId,
     this.note,
     this.createdAt,
     this.updatedAt,
@@ -22,6 +23,7 @@ class EarningEntity {
   final int rides;
   final double workedHours;
   final DateTime date;
+  final String? vehicleId;
   final String? note;
   final DateTime? createdAt;
   final DateTime? updatedAt;
@@ -34,6 +36,7 @@ class EarningEntity {
     int? rides,
     double? workedHours,
     DateTime? date,
+    String? vehicleId,
     String? note,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -46,6 +49,7 @@ class EarningEntity {
       rides: rides ?? this.rides,
       workedHours: workedHours ?? this.workedHours,
       date: date ?? this.date,
+      vehicleId: vehicleId ?? this.vehicleId,
       note: note ?? this.note,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -61,6 +65,7 @@ class EarningDraft {
     required this.rides,
     required this.workedHours,
     required this.date,
+    this.vehicleId,
     this.note,
   });
 
@@ -69,5 +74,6 @@ class EarningDraft {
   final int rides;
   final double workedHours;
   final DateTime date;
+  final String? vehicleId;
   final String? note;
 }
