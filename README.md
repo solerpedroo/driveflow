@@ -201,6 +201,15 @@ flutter test --coverage
 - [x] Lista de veículos no Perfil com adicionar/editar/excluir/tornar padrão
 - [x] Testes: mapper, `VehicleDefaultResolver`, `VehicleScopeFilter`
 
+## Onda 11 — entregue
+
+- [x] OCR on-device com `google_mlkit_text_recognition` (sem envio à nuvem)
+- [x] `ReceiptOcrParser` extrai valor BRL, data, estabelecimento e categoria sugerida
+- [x] Bottom sheet de revisão obrigatória antes de preencher o formulário
+- [x] Botão "Escanear comprovante" (câmera ou galeria) em `ExpenseFormScreen`
+- [x] Analytics: `receipt_ocr_scanned`, `receipt_ocr_confirmed`, `receipt_ocr_discarded`
+- [x] Testes: parser com fixtures de posto/cupom e sugestão de categoria
+
 ---
 
 ## Licença
