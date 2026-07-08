@@ -66,8 +66,13 @@ const kMaintenanceTypes = MaintenanceType.values;
 /// Chaves de rotas GoRouter.
 abstract final class AppRoutes {
   static const splash = '/splash';
+  static const login = '/login';
+  static const register = '/register';
   static const home = '/';
 }
+
+/// Deep link OAuth Supabase (Google).
+const kOAuthRedirectUrl = 'io.supabase.driveflow://login-callback/';
 
 /// Nome do app e versão foundation.
 const kAppName = 'DriveFlow';
