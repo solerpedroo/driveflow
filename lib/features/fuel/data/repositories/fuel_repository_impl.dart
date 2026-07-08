@@ -6,6 +6,9 @@ import '../../../expenses/data/datasources/expenses_remote_datasource.dart';
 import '../../../expenses/data/schema/expenses_schema.dart';
 import '../../../expenses/domain/entities/expense_entity.dart';
 import '../../../vehicle/data/repositories/vehicle_repository_impl.dart';
+import '../../../../core/services/predictive_maintenance_scheduler.dart';
+import '../../../maintenance/data/repositories/maintenance_repository_impl.dart';
+import '../../../maintenance/domain/repositories/maintenance_repository.dart';
 import '../../domain/entities/fuel_log_entity.dart';
 import '../../domain/repositories/fuel_repository.dart';
 import '../../domain/services/fuel_expense_linker.dart';
@@ -20,15 +23,21 @@ class FuelRepositoryImpl implements FuelRepository {
     ExpensesRemoteDataSource? expenses,
     VehicleRepositoryImpl? vehicles,
     LocalEntityCache? cache,
+    MaintenanceRepository? maintenance,
+    PredictiveMaintenanceScheduler? predictiveScheduler,
   })  : _remote = remote ?? FuelRemoteDataSource(),
         _expenses = expenses ?? ExpensesRemoteDataSource(),
         _vehicles = vehicles ?? VehicleRepositoryImpl(),
-        _cache = cache ?? LocalEntityCache();
+        _cache = cache ?? LocalEntityCache(),
+        _maintenance = maintenance ?? MaintenanceRepositoryImpl(),
+        _predictiveScheduler = predictiveScheduler;
 
   final FuelRemoteDataSource _remote;
   final ExpensesRemoteDataSource _expenses;
   final VehicleRepositoryImpl _vehicles;
   final LocalEntityCache _cache;
+  final MaintenanceRepository _maintenance;
+  final PredictiveMaintenanceScheduler? _predictiveScheduler;
 
   @override
   Stream<List<FuelLogEntity>> watchFuelLogs({required String vehicleId}) {
@@ -70,6 +79,10 @@ class FuelRepositoryImpl implements FuelRepository {
       id: draft.vehicleId,
       odometerKm: draft.odometerKm,
     );
+    await _reschedulePredictiveReminders(
+      vehicleId: draft.vehicleId,
+      odometerKm: draft.odometerKm,
+    );
 
     return entity;
   }
@@ -92,6 +105,10 @@ class FuelRepositoryImpl implements FuelRepository {
     await _syncExpense(entity);
     await _vehicles.updateOdometer(
       id: draft.vehicleId,
+      odometerKm: draft.odometerKm,
+    );
+    await _reschedulePredictiveReminders(
+      vehicleId: draft.vehicleId,
       odometerKm: draft.odometerKm,
     );
 
@@ -169,5 +186,21 @@ class FuelRepositoryImpl implements FuelRepository {
         },
       );
     }
+  }
+
+  Future<void> _reschedulePredictiveReminders({
+    required String vehicleId,
+    required double odometerKm,
+  }) async {
+    final scheduler = _predictiveScheduler;
+    if (scheduler == null) return;
+
+    final maintenance = await _maintenance.fetchMaintenance(vehicleId: vehicleId);
+    final fuelLogs = await fetchFuelLogs(vehicleId: vehicleId);
+    await scheduler.reschedule(
+      records: maintenance,
+      fuelLogs: fuelLogs,
+      currentOdometerKm: odometerKm,
+    );
   }
 }
