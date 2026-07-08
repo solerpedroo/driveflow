@@ -3,15 +3,20 @@ import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/presentation/providers/sync_providers.dart';
 import '../../../../core/constants/date_range_period.dart';
 import '../../../../core/utils/transaction_filters.dart';
 import '../../data/repositories/expenses_repository_impl.dart';
 import '../../domain/entities/expense_entity.dart';
-import '../../domain/repositories/expenses_repository.dart';
 import '../../domain/usecases/expenses_usecases.dart';
 
 final expensesRepositoryProvider = Provider<ExpensesRepositoryImpl>((ref) {
-  return ExpensesRepositoryImpl();
+  return ExpensesRepositoryImpl(
+    cache: ref.watch(localEntityCacheProvider),
+    syncQueue: ref.watch(pendingSyncQueueProvider),
+    connectivity: ref.watch(connectivityServiceProvider),
+    syncWorker: ref.watch(syncWorkerProvider),
+  );
 });
 
 final expensesStreamProvider = StreamProvider<List<ExpenseEntity>>((ref) {
