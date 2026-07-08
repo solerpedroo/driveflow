@@ -226,6 +226,12 @@ class ProfileScreen extends HookConsumerWidget {
                   ),
                   const SizedBox(height: 8),
                   FilledButton.tonalIcon(
+                    onPressed: () => context.push(AppRoutes.importStatement),
+                    icon: const Icon(Icons.upload_file_outlined),
+                    label: const Text('Importar extrato'),
+                  ),
+                  const SizedBox(height: 8),
+                  FilledButton.tonalIcon(
                     onPressed: () => context.push(AppRoutes.analytics),
                     icon: const Icon(Icons.bar_chart_outlined),
                     label: const Text('Análises'),
