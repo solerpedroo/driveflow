@@ -39,4 +39,10 @@ class VehicleRepositoryImpl implements VehicleRepository {
 
   @override
   Future<void> deleteVehicle(String id) => _remote.deleteVehicle(id);
+
+  Future<void> updateOdometer({
+    required String id,
+    required double odometerKm,
+  }) =>
+      _remote.updateOdometer(id: id, odometerKm: odometerKm);
 }
