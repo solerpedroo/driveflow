@@ -149,6 +149,14 @@ dart run build_runner build --delete-conflicting-outputs
 - [x] Chip "Meta diária" no Dashboard com dados reais e atalho para metas
 - [x] Testes: percentual, projeção "faltam R$ X" e meta não configurada
 
+## Onda 7 — entregue
+
+- [x] `ProfitCalculator` e `DashboardAggregator` consolidam ganhos, despesas e combustível
+- [x] Dashboard com card "Hoje", gráfico semanal de lucro e resumo do mês
+- [x] Aba Relatórios com filtros diário/semanal/mensal/anual e indicadores completos
+- [x] Exportação PDF e CSV branded via `share_plus`
+- [x] Testes: agregações, lucro/hora, lucro/km e widget do card "Hoje"
+
 ---
 
 ## Licença
