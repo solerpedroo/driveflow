@@ -164,6 +164,13 @@ class ProfileScreen extends HookConsumerWidget {
                           icon: const Icon(Icons.directions_car_outlined),
                           label: const Text('Editar veículo'),
                         ),
+                        const SizedBox(height: 8),
+                        FilledButton.tonalIcon(
+                          onPressed: () =>
+                              context.push(AppRoutes.fuelHistory),
+                          icon: const Icon(Icons.local_gas_station_outlined),
+                          label: const Text('Abastecimentos'),
+                        ),
                       ],
                     ),
             ),
