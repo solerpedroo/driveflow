@@ -6,7 +6,9 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/date_utils.dart';
+import '../../../../shared/widgets/driveflow_empty_state.dart';
 import '../../../../shared/widgets/driveflow_glass_card.dart';
+import '../../../../shared/widgets/driveflow_list_skeleton.dart';
 import '../../../../shared/widgets/driveflow_period_filter.dart';
 import '../../domain/entities/expense_entity.dart';
 import '../providers/expenses_providers.dart';
@@ -24,8 +26,13 @@ class ExpensesScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: CustomScrollView(
-        slivers: [
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await ref.read(expensesRepositoryProvider).fetchExpenses();
+        },
+        child: CustomScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          slivers: [
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
             sliver: SliverToBoxAdapter(
@@ -78,7 +85,7 @@ class ExpensesScreen extends ConsumerWidget {
           ),
           groupedAsync.when(
             loading: () => const SliverFillRemaining(
-              child: Center(child: CircularProgressIndicator()),
+              child: DriveFlowListSkeleton(),
             ),
             error: (e, _) => SliverFillRemaining(
               child: Center(child: Text('Erro: $e')),
@@ -87,13 +94,10 @@ class ExpensesScreen extends ConsumerWidget {
               if (grouped.isEmpty) {
                 return SliverFillRemaining(
                   hasScrollBody: false,
-                  child: Center(
-                    child: Text(
-                      'Nenhuma despesa neste período.',
-                      style: theme.textTheme.bodyLarge?.copyWith(
-                        color: AppColors.secondaryLabel(theme),
-                      ),
-                    ),
+                  child: DriveFlowEmptyState(
+                    icon: Icons.receipt_long_outlined,
+                    title: 'Nenhuma despesa neste período',
+                    subtitle: 'Registre combustível, pedágio e outros custos.',
                   ),
                 );
               }
@@ -154,6 +158,7 @@ class ExpensesScreen extends ConsumerWidget {
             },
           ),
         ],
+        ),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => context.push(AppRoutes.expenseForm),
