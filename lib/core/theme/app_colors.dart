@@ -95,4 +95,18 @@ abstract final class AppColors {
     }
     return textSecondaryLight;
   }
+
+  static Color bottomNavInactive(ThemeData theme) {
+    if (theme.brightness == Brightness.dark) {
+      return textSecondary;
+    }
+    return textSecondaryLight;
+  }
+
+  static Color bottomNavBarShell(ThemeData theme) {
+    if (theme.brightness == Brightness.dark) {
+      return slate.withValues(alpha: 0.92);
+    }
+    return lightSurface;
+  }
 }
