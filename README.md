@@ -210,6 +210,16 @@ flutter test --coverage
 - [x] Analytics: `receipt_ocr_scanned`, `receipt_ocr_confirmed`, `receipt_ocr_discarded`
 - [x] Testes: parser com fixtures de posto/cupom e sugestão de categoria
 
+## Onda 12 — entregue
+
+- [x] Feature `analytics`: tendência 30/90 dias, pizza de despesas, comparativo de períodos
+- [x] `PeriodComparisonCalculator` e `CategoryBreakdownCalculator`
+- [x] Tela `/analytics` com gráficos `fl_chart` e filtros de período/referência
+- [x] Dashboard: atalho "Ver análises avançadas"
+- [x] Relatórios: card comparativo + pizza por categoria
+- [x] Export PDF/CSV inclui seção de comparativo
+- [x] Testes: calculadoras analytics e widget `PeriodComparisonCard`
+
 ---
 
 ## Licença
