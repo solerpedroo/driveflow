@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/utils/vehicle_scope_filter.dart';
+import '../../../earnings/domain/entities/earning_entity.dart';
+import '../../../expenses/domain/entities/expense_entity.dart';
 import '../../../earnings/presentation/providers/earnings_providers.dart';
 import '../../../expenses/presentation/providers/expenses_providers.dart';
 import '../../../fuel/presentation/providers/fuel_providers.dart';
@@ -122,12 +124,12 @@ final weeklyGoalProjectionProvider =
   }
 
   final earnings = _scoped(
-    items: earningsAsync.valueOrNull ?? const [],
+    items: earningsAsync.valueOrNull ?? const <EarningEntity>[],
     vehicleId: scopedVehicleId,
     vehicleIdOf: (e) => e.vehicleId,
   );
   final expenses = _scoped(
-    items: expensesAsync.valueOrNull ?? const [],
+    items: expensesAsync.valueOrNull ?? const <ExpenseEntity>[],
     vehicleId: scopedVehicleId,
     vehicleIdOf: (e) => e.vehicleId,
   );
