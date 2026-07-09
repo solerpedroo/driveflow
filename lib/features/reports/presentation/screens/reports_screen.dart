@@ -5,7 +5,7 @@ import '../../../analytics/presentation/widgets/expense_pie_chart.dart';
 import '../../../analytics/presentation/widgets/period_comparison_card.dart';
 import '../../../goals/domain/entities/goal_entity.dart';
 import '../../../vehicle/presentation/widgets/vehicle_scope_chip.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../../../../shared/widgets/design_system/df_segmented_control.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../shared/widgets/design_system/df_section_header.dart';
 import '../../../analytics/presentation/providers/analytics_providers.dart';
@@ -53,22 +53,12 @@ class ReportsScreen extends ConsumerWidget {
           sliver: SliverToBoxAdapter(
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
-              child: Row(
-                children: GoalPeriod.values.map((item) {
-                  final selected = item == period;
-                  return Padding(
-                    padding: const EdgeInsets.only(right: AppSpacing.sm),
-                    child: FilterChip(
-                      label: Text(item.label),
-                      selected: selected,
-                      selectedColor:
-                          AppColors.electricTeal.withValues(alpha: 0.2),
-                      checkmarkColor: AppColors.electricTeal,
-                      onSelected: (_) =>
-                          ref.read(reportPeriodProvider.notifier).state = item,
-                    ),
-                  );
-                }).toList(growable: false),
+              child: DfSegmentedControl<GoalPeriod>(
+                segments: GoalPeriod.values,
+                selected: period,
+                labelBuilder: (p) => p.label,
+                onChanged: (p) =>
+                    ref.read(reportPeriodProvider.notifier).state = p,
               ),
             ),
           ),
