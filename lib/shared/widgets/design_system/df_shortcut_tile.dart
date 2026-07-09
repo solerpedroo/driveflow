@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/utils/df_haptics.dart';
 import '../../../core/theme/app_motion.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
@@ -38,7 +39,10 @@ class _DfShortcutTileState extends State<DfShortcutTile> {
         onTapDown: (_) => setState(() => _pressed = true),
         onTapUp: (_) => setState(() => _pressed = false),
         onTapCancel: () => setState(() => _pressed = false),
-        onTap: widget.onTap,
+        onTap: () {
+          DfHaptics.light();
+          widget.onTap();
+        },
         child: AnimatedScale(
           scale: _pressed ? 0.96 : 1.0,
           duration: DriveFlowMotion.fast,
