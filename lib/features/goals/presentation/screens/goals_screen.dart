@@ -11,7 +11,7 @@ import '../../domain/entities/goal_entity.dart';
 import '../providers/goals_providers.dart';
 import '../widgets/goal_progress_card.dart';
 import '../widgets/goals_story_header.dart';
-import '../../../../shared/widgets/driveflow_glass_card.dart';
+import '../../../../shared/widgets/design_system/df_card.dart';
 
 /// Tela de configuração e acompanhamento de metas financeiras.
 class GoalsScreen extends HookConsumerWidget {
@@ -102,7 +102,7 @@ class GoalsScreen extends HookConsumerWidget {
             ),
           ),
           const SizedBox(height: 16),
-          DriveFlowGlassCard(
+          DfCard(
             child: Form(
               key: formKey,
               child: Column(
