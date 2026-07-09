@@ -11,6 +11,9 @@ import '../../../authentication/presentation/widgets/auth_text_field.dart';
 import '../../../vehicle/presentation/providers/vehicle_providers.dart';
 import '../../domain/entities/fuel_log_entity.dart';
 import '../providers/fuel_providers.dart';
+import '../../../../shared/widgets/design_system/df_filter_pill.dart';
+import '../../../../shared/widgets/design_system/df_empty_state.dart';
+import '../../../../shared/widgets/design_system/df_filter_pill.dart';
 import '../../../../shared/widgets/design_system/df_card.dart';
 
 /// Formulário de registro de abastecimento.
@@ -94,8 +97,16 @@ class FuelLogScreen extends HookConsumerWidget {
 
     if (vehicle == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Abastecimento')),
-        body: const Center(child: Text('Cadastre um veículo primeiro.')),
+        appBar: AppBar(
+          title: const Text('Abastecimento'),
+          backgroundColor: Colors.transparent,
+        ),
+        body: const DfEmptyState(
+          variant: DfEmptyStateVariant.illustrated,
+          icon: Icons.directions_car_outlined,
+          title: 'Cadastre um veículo primeiro',
+          subtitle: 'Vá em Perfil → Adicionar veículo para registrar abastecimentos.',
+        ),
       );
     }
 
@@ -132,10 +143,10 @@ class FuelLogScreen extends HookConsumerWidget {
                       spacing: 8,
                       runSpacing: 8,
                       children: kFuelTypes.map((fuel) {
-                        return FilterChip(
-                          label: Text(fuel.label),
+                        return DfFilterPill(
+                          label: fuel.label,
                           selected: selectedFuel.value == fuel,
-                          onSelected: (_) => selectedFuel.value = fuel,
+                          onSelected: () => selectedFuel.value = fuel,
                         );
                       }).toList(growable: false),
                     ),
