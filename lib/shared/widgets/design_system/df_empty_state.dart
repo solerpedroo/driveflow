@@ -4,7 +4,9 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import 'df_button.dart';
 
-/// Estado vazio padronizado do Design System v2 — com CTA narrativo opcional.
+enum DfEmptyStateVariant { standard, illustrated }
+
+/// Estado vazio premium — orb gradiente + CTA narrativo.
 class DfEmptyState extends StatelessWidget {
   const DfEmptyState({
     required this.title,
@@ -13,6 +15,7 @@ class DfEmptyState extends StatelessWidget {
     this.icon = Icons.inbox_outlined,
     this.actionLabel,
     this.onAction,
+    this.variant = DfEmptyStateVariant.standard,
   });
 
   final String title;
@@ -20,6 +23,7 @@ class DfEmptyState extends StatelessWidget {
   final IconData icon;
   final String? actionLabel;
   final VoidCallback? onAction;
+  final DfEmptyStateVariant variant;
 
   @override
   Widget build(BuildContext context) {
@@ -33,16 +37,21 @@ class DfEmptyState extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                icon,
-                size: 56,
-                color: AppColors.secondaryLabel(theme).withValues(alpha: 0.6),
-              ),
+              if (variant == DfEmptyStateVariant.illustrated)
+                _IllustratedOrb(icon: icon)
+              else
+                Icon(
+                  icon,
+                  size: 56,
+                  color: AppColors.secondaryLabel(theme).withValues(alpha: 0.6),
+                ),
               const SizedBox(height: AppSpacing.lg),
               Text(
                 title,
                 textAlign: TextAlign.center,
-                style: theme.textTheme.titleMedium,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
               ),
               if (subtitle != null) ...[
                 const SizedBox(height: AppSpacing.sm),
@@ -51,6 +60,7 @@ class DfEmptyState extends StatelessWidget {
                   textAlign: TextAlign.center,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: AppColors.secondaryLabel(theme),
+                    height: 1.45,
                   ),
                 ),
               ],
@@ -59,7 +69,7 @@ class DfEmptyState extends StatelessWidget {
                 DfButton(
                   label: actionLabel!,
                   onPressed: onAction,
-                  variant: DfButtonVariant.tonal,
+                  variant: DfButtonVariant.gradient,
                   expand: false,
                 ),
               ],
@@ -67,6 +77,37 @@ class DfEmptyState extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _IllustratedOrb extends StatelessWidget {
+  const _IllustratedOrb({required this.icon});
+
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 88,
+      height: 88,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: RadialGradient(
+          colors: [
+            AppColors.skyBlue.withValues(alpha: 0.28),
+            AppColors.skyBlue.withValues(alpha: 0.04),
+          ],
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.skyBlue.withValues(alpha: 0.22),
+            blurRadius: 28,
+            spreadRadius: 2,
+          ),
+        ],
+      ),
+      child: Icon(icon, size: 40, color: AppColors.skyBlue),
     );
   }
 }
