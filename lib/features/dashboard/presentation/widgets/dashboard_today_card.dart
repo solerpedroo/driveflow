@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/duration_formatter.dart';
 import '../../../goals/domain/services/goal_progress_calculator.dart';
 import '../../../../shared/domain/models/period_summary.dart';
 import '../../../../shared/widgets/design_system/df_card.dart';
 
-/// Card "Hoje" com ganhos, gastos, lucro, horas, km, corridas e meta.
+/// Card premium "Hoje" — ganhos, gastos, lucro e stats inline.
 class DashboardTodayCard extends StatelessWidget {
   const DashboardTodayCard({
     required this.summary,
@@ -25,11 +26,17 @@ class DashboardTodayCard extends StatelessWidget {
         summary.profit >= 0 ? AppColors.profitGreen : AppColors.expenseCoral;
 
     return DfCard(
+      variant: DfCardVariant.elevated,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Hoje', style: theme.textTheme.titleLarge),
-          const SizedBox(height: 12),
+          Text(
+            'Hoje',
+            style: theme.textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.md),
           _MetricRow(
             label: 'Ganhos',
             value: CurrencyFormatter.format(summary.revenue),
@@ -48,13 +55,14 @@ class DashboardTodayCard extends StatelessWidget {
           ),
           const Divider(height: 24),
           Wrap(
-            spacing: 16,
-            runSpacing: 8,
+            spacing: 12,
+            runSpacing: 10,
             children: [
               _InlineStat(
                 icon: Icons.schedule_rounded,
                 label: 'Horas',
                 value: DurationFormatter.formatWorkedHours(summary.workedHours),
+                color: AppColors.infoBlue,
               ),
               _InlineStat(
                 icon: Icons.route_rounded,
@@ -62,16 +70,19 @@ class DashboardTodayCard extends StatelessWidget {
                 value: summary.kmDriven > 0
                     ? summary.kmDriven.toStringAsFixed(0)
                     : '—',
+                color: AppColors.skyBlue,
               ),
               _InlineStat(
                 icon: Icons.local_taxi_rounded,
                 label: 'Corridas',
                 value: '${summary.rides}',
+                color: AppColors.profitGreen,
               ),
               _InlineStat(
                 icon: Icons.flag_rounded,
                 label: 'Meta',
                 value: goalProgress.progressLabel,
+                color: AppColors.warningAmber,
               ),
             ],
           ),
@@ -116,7 +127,8 @@ class _MetricRow extends StatelessWidget {
                     : theme.textTheme.bodyLarge)
                 ?.copyWith(
               color: color,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w800,
+              fontFeatures: const [FontFeature.tabularFigures()],
             ),
           ),
         ],
@@ -130,27 +142,40 @@ class _InlineStat extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.value,
+    required this.color,
   });
 
   final IconData icon;
   final String label;
   final String value;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Semantics(
-      label: '$label: $value',
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 16, color: AppColors.electricTeal),
-          const SizedBox(width: 6),
-          Text(
-            '$label $value',
-            style: theme.textTheme.labelLarge,
-          ),
-        ],
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: color.withValues(alpha: 0.16)),
+      ),
+      child: Semantics(
+        label: '$label: $value',
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 16, color: color),
+            const SizedBox(width: 6),
+            Text(
+              '$label $value',
+              style: theme.textTheme.labelLarge?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
