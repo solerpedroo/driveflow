@@ -1146,6 +1146,28 @@ Substituir `electricTeal` como cor de marca por tons de azul-claro. Verde perman
 
 ---
 
+## Onda 22 — Forms polish & final cleanup
+
+**Objetivo:** Eliminar últimos `FilterChip` em formulários, remover `DriveFlowEmptyState` deprecated e padronizar empty states em fuel/maintenance.
+
+### Escopo
+
+| Área | Mudança |
+|---|---|
+| `DfFilterPill` | Suporte a `icon` e `accentColor` para categorias/tipos |
+| Formulários | Ganhos, despesas, combustível, veículo, manutenção, OCR review |
+| Cleanup | `driveflow_empty_state.dart` removido |
+| Empty states | Fuel/maintenance history + forms sem veículo ilustrados |
+| Despesas | Botão OCR migrado para `DfButton` tonal |
+
+### Critérios de conclusão
+
+- Zero `FilterChip` no projeto (exceto comentários)
+- Zero wrappers deprecated `driveflow_*` de empty/glass
+- Formulários e históricos com pills e empty states premium
+
+---
+
 ## Mapa de requisitos funcionais → ondas
 
 | RF | Descrição | Onda |
@@ -1178,6 +1200,7 @@ Substituir `electricTeal` como cor de marca por tons de azul-claro. Verde perman
 | RNF-Outlier | Outlier premium polish — glass, haptics, charts | 19 |
 | RNF-Glass | Glass migration + analytics polish | 20 |
 | RNF-Insights | Insights polish + deprecated cleanup | 21 |
+| RNF-Forms | Forms polish + final FilterChip cleanup | 22 |
 
 ---
 

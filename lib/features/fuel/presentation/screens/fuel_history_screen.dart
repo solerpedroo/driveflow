@@ -6,6 +6,7 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/date_utils.dart';
+import '../../../../shared/widgets/design_system/df_empty_state.dart';
 import '../../../../shared/widgets/design_system/df_card.dart';
 import '../../domain/entities/fuel_log_entity.dart';
 import '../providers/fuel_providers.dart';
@@ -61,15 +62,13 @@ class FuelHistoryScreen extends ConsumerWidget {
                   ),
                 ),
               if (logs.isEmpty)
-                SliverFillRemaining(
+                const SliverFillRemaining(
                   hasScrollBody: false,
-                  child: Center(
-                    child: Text(
-                      'Nenhum abastecimento registrado.',
-                      style: theme.textTheme.bodyLarge?.copyWith(
-                        color: AppColors.secondaryLabel(theme),
-                      ),
-                    ),
+                  child: DfEmptyState(
+                    variant: DfEmptyStateVariant.illustrated,
+                    icon: Icons.local_gas_station_outlined,
+                    title: 'Nenhum abastecimento registrado',
+                    subtitle: 'Toque em Abastecer para registrar o primeiro.',
                   ),
                 )
               else

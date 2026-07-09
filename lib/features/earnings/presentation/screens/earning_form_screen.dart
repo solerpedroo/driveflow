@@ -11,6 +11,7 @@ import '../../../authentication/presentation/widgets/auth_primary_button.dart';
 import '../../../authentication/presentation/widgets/auth_text_field.dart';
 import '../../domain/entities/earning_entity.dart';
 import '../providers/earnings_providers.dart';
+import '../../../../shared/widgets/design_system/df_filter_pill.dart';
 import '../../../../shared/widgets/design_system/df_card.dart';
 
 /// Formulário de criação/edição de ganho.
@@ -94,10 +95,11 @@ class EarningFormScreen extends HookConsumerWidget {
                       spacing: 8,
                       runSpacing: 8,
                       children: kRidePlatforms.map((platform) {
-                        return FilterChip(
-                          label: Text(platform.label),
+                        return DfFilterPill(
+                          label: platform.label,
                           selected: selectedPlatform.value == platform,
-                          onSelected: (_) => selectedPlatform.value = platform,
+                          onSelected: () =>
+                              selectedPlatform.value = platform,
                         );
                       }).toList(growable: false),
                     ),

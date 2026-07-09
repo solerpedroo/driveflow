@@ -6,6 +6,7 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/date_utils.dart';
+import '../../../../shared/widgets/design_system/df_empty_state.dart';
 import '../../../../shared/widgets/design_system/df_card.dart';
 import '../../../vehicle/presentation/providers/vehicle_providers.dart';
 import '../../domain/entities/maintenance_entity.dart';
@@ -33,13 +34,11 @@ class MaintenanceHistoryScreen extends ConsumerWidget {
         error: (e, _) => Center(child: Text('Erro: $e')),
         data: (records) {
           if (records.isEmpty) {
-            return Center(
-              child: Text(
-                'Nenhuma manutenção registrada.',
-                style: theme.textTheme.bodyLarge?.copyWith(
-                  color: AppColors.secondaryLabel(theme),
-                ),
-              ),
+            return const DfEmptyState(
+              variant: DfEmptyStateVariant.illustrated,
+              icon: Icons.build_circle_outlined,
+              title: 'Nenhuma manutenção registrada',
+              subtitle: 'Toque em Manutenção para registrar a primeira.',
             );
           }
 
