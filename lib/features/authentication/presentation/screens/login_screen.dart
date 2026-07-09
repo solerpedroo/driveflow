@@ -14,6 +14,7 @@ import '../../../../shared/widgets/design_system/df_button.dart';
 import '../../../../shared/widgets/design_system/df_staggered_entrance.dart';
 import '../../../../shared/widgets/design_system/df_text_field.dart';
 import '../providers/auth_providers.dart';
+import '../widgets/auth_benefits_strip.dart';
 import '../widgets/auth_hero_layout.dart';
 
 /// Login premium — layout editorial FitCal com CTA gradiente.
@@ -69,6 +70,7 @@ class LoginScreen extends HookConsumerWidget {
       headline: 'Controle seu\nlucro diário',
       subtitle:
           'Acompanhe ganhos, despesas e metas com a precisão de um app premium.',
+      middleChild: const AuthBenefitsStrip(),
       formChild: Form(
         key: formKey,
         child: DfStaggeredEntrance(
