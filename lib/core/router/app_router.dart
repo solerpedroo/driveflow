@@ -26,6 +26,7 @@ import '../../features/maintenance/domain/entities/maintenance_entity.dart';
 import '../../features/maintenance/presentation/screens/maintenance_form_screen.dart';
 import '../../features/maintenance/presentation/screens/maintenance_history_screen.dart';
 import '../../features/vehicle/presentation/providers/vehicle_providers.dart';
+import '../../features/subscription/presentation/screens/paywall_screen.dart';
 import '../../features/vehicle/presentation/screens/vehicle_onboarding_screen.dart';
 
 /// Notifica GoRouter quando auth ou veículos mudam.
@@ -275,6 +276,15 @@ final routerProvider = Provider<GoRouter>((ref) {
         pageBuilder: (context, state) => _fadePage(
           key: state.pageKey,
           child: const AiChatScreen(),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.paywall,
+        name: 'paywall',
+        pageBuilder: (context, state) => driveFlowAuthSlidePage(
+          key: state.pageKey,
+          child: const PaywallScreen(),
+          slideFromRight: true,
         ),
       ),
     ],
