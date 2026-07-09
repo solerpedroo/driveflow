@@ -15,6 +15,7 @@ import '../../../../shared/widgets/design_system/df_password_checklist.dart';
 import '../../../../shared/widgets/design_system/df_staggered_entrance.dart';
 import '../../../../shared/widgets/design_system/df_text_field.dart';
 import '../providers/auth_providers.dart';
+import '../widgets/auth_benefits_strip.dart';
 import '../widgets/auth_hero_layout.dart';
 
 /// Cadastro premium — hero editorial + checklist animado de senha.
@@ -76,6 +77,7 @@ class RegisterScreen extends HookConsumerWidget {
       headline: 'Crie sua\nconta DriveFlow',
       subtitle:
           'Comece a controlar lucro, custos e metas com uma experiência de alto nível.',
+      middleChild: const AuthBenefitsStrip(),
       leading: IconButton(
         icon: const Icon(Icons.arrow_back_rounded),
         onPressed: isLoading ? null : () => context.go(AppRoutes.login),
