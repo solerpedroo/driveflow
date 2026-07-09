@@ -2,7 +2,7 @@
 
 Plano de implementação em **16 ondas** (0–15) para o DriveFlow (Flutter + Supabase + Groq), partindo de repositório vazio, combinando Clean Architecture feature-first do escopo com os padrões de organização do projeto MesclaInvest (screens/widgets/services separados, shell de navegação, mappers, test hooks).
 
-**Fases:** ondas **0–9** = MVP v1.0 · ondas **10–14** = features pós-MVP (v1.5 → v2.0) · onda **15** = refatoração de UI / Design System v2 · onda **16** = UI Excellence (paleta azul-claro, motion, auth polish).
+**Fases:** ondas **0–9** = MVP v1.0 · ondas **10–14** = features pós-MVP (v1.5 → v2.0) · onda **15** = refatoração de UI / Design System v2 · onda **16** = UI Excellence · onda **17** = Premium UI FitCal/FitFolio tier.
 
 **Repositório:** `driveflow`  
 **Referência:** `ES-PI3-2026-T2-G03` (MesclaInvest)
@@ -29,7 +29,8 @@ Plano de implementação em **16 ondas** (0–15) para o DriveFlow (Flutter + Su
 | 13 | Lembretes inteligentes + insights de melhor horário | concluída |
 | 14 | Importação de extratos + previsão IA | concluída |
 | 15 | Refatoração de UI / Design System v2 | concluída |
-| 16 | UI Excellence — paleta azul-claro, tipografia premium, motion auth | em andamento |
+| 16 | UI Excellence — paleta azul-claro, tipografia premium, motion auth | concluída |
+| 17 | Premium UI — FitCal/FitFolio tier (hero ring, mesh, editorial auth) | em andamento |
 
 ---
 
@@ -977,6 +978,49 @@ Substituir `electricTeal` como cor de marca por tons de azul-claro. Verde perman
 
 ---
 
+## Onda 17 — Premium UI (referência FitCal / FitFolio)
+
+**Objetivo:** Elevar DriveFlow ao patamar "outlier" de apps como **FitCal** (anel circular de métricas, dashboard limpo) e **FitFolio** (carrossel de atalhos, social-grade polish).
+
+**Referências:** [FitFolio](https://apps.apple.com/br/app/fitfolio-app/id6745530812) · [FitCal](https://apps.apple.com/br/app/fitcal-calorie-counter/id6739812257)
+
+### Padrões visuais adotados
+
+| FitCal / FitFolio | DriveFlow |
+|---|---|
+| Calorie ring circular | `DfProgressRing` — anel de meta diária de lucro |
+| Hero metric central | `DfHeroMetric` — lucro do dia em displayLarge |
+| Macro pills (protein/carbs/fat) | Pills de Ganhos / Gastos no hero |
+| Quick actions carousel | `DfShortcutTile` — carrossel horizontal (IA, Metas, etc.) |
+| Editorial onboarding | `AuthHeroLayout` — headline grande + form card elevado |
+| Mesh gradient background | `AppGradients.meshGlows` — fundo multi-radial animado |
+| Gradient CTA buttons | `DfButtonVariant.gradient` com press-scale |
+
+### Componentes novos
+
+- `app_gradients.dart` — tokens de gradiente premium
+- `df_progress_ring.dart` — anel animado com CustomPainter
+- `df_hero_metric.dart` — tipografia editorial para métricas
+- `df_shortcut_tile.dart` — tiles de atalho com press-scale
+- `auth_hero_layout.dart` — shell auth editorial
+- `dashboard_hero_section.dart` — hero ring + macros do dia
+
+### Dashboard redesign
+
+- Header: saudação contextual ("Boa noite, João") + avatar
+- Hero: anel de progresso da meta + lucro central
+- Atalhos: carrossel horizontal (5 ações)
+- Cards secundários migrados para `DfCard`
+
+### Critérios de conclusão
+
+- Dashboard com hero ring visível na aba Início
+- Auth com layout editorial (headline + card elevado)
+- Bottom nav com labels sentence-case e animação de chip
+- `flutter analyze` limpo + testes existentes passando
+
+---
+
 ## Mapa de requisitos funcionais → ondas
 
 | RF | Descrição | Onda |
@@ -1004,6 +1048,7 @@ Substituir `electricTeal` como cor de marca por tons de azul-claro. Verde perman
 | RF21 | Previsão IA | 14 |
 | RNF-UI | Design System v2 + acessibilidade | 15 |
 | RNF-UI+ | UI Excellence — paleta, tipografia, motion auth | 16 |
+| RNF-UI++ | Premium UI FitCal/FitFolio tier | 17 |
 
 ---
 
