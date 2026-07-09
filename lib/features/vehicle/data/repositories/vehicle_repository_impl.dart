@@ -183,6 +183,32 @@ class VehicleRepositoryImpl implements VehicleRepository {
   @override
   String? readActiveVehicleId() => ActiveVehicleStorage.readActiveVehicleId();
 
+  @override
+  Future<void> updateOdometer({
+    required String id,
+    required double odometerKm,
+  }) async {
+    if (await _connectivity.isOnline) {
+      try {
+        await _remote.updateOdometer(id: id, odometerKm: odometerKm);
+      } on Object {
+        if (await _connectivity.isOnline) rethrow;
+      }
+    }
+
+    final rows = await _local.readAll();
+    for (final row in rows) {
+      if (row[VehicleSchema.id] == id) {
+        await _cache.upsert(HiveBoxes.vehicles, {
+          ...row,
+          VehicleSchema.odometer: odometerKm,
+          VehicleSchema.updatedAt: DateTime.now().toUtc().toIso8601String(),
+        });
+        break;
+      }
+    }
+  }
+
   Future<List<VehicleEntity>> _loadLocal() async {
     final rows = await _local.readAll();
     return rows.map(VehicleMapper.fromRow).toList(growable: false);
