@@ -2,7 +2,7 @@
 
 Plano de implementação em **16 ondas** (0–15) para o DriveFlow (Flutter + Supabase + Groq), partindo de repositório vazio, combinando Clean Architecture feature-first do escopo com os padrões de organização do projeto MesclaInvest (screens/widgets/services separados, shell de navegação, mappers, test hooks).
 
-**Fases:** ondas **0–9** = MVP v1.0 · ondas **10–14** = features pós-MVP (v1.5 → v2.0) · onda **15** = refatoração de UI / Design System v2 · onda **16** = UI Excellence · onda **17** = Premium UI FitCal/FitFolio tier.
+**Fases:** ondas **0–9** = MVP v1.0 · ondas **10–14** = features pós-MVP · onda **15–17** = Design System + Premium UI · onda **18** = Product Storytelling & upsell.
 
 **Repositório:** `driveflow`  
 **Referência:** `ES-PI3-2026-T2-G03` (MesclaInvest)
@@ -30,7 +30,8 @@ Plano de implementação em **16 ondas** (0–15) para o DriveFlow (Flutter + Su
 | 14 | Importação de extratos + previsão IA | concluída |
 | 15 | Refatoração de UI / Design System v2 | concluída |
 | 16 | UI Excellence — paleta azul-claro, tipografia premium, motion auth | concluída |
-| 17 | Premium UI — FitCal/FitFolio tier (hero ring, mesh, editorial auth) | em andamento |
+| 17 | Premium UI — FitCal/FitFolio tier (hero ring, mesh, editorial auth) | concluída |
+| 18 | Product Storytelling — narrativa, métricas de valor, upsell Pro | em andamento |
 
 ---
 
@@ -1021,6 +1022,37 @@ Substituir `electricTeal` como cor de marca por tons de azul-claro. Verde perman
 
 ---
 
+## Onda 18 — Product Storytelling & upsell Pro
+
+**Objetivo:** UI que **vende o produto** — storytelling com números reais, narrativa de valor e caminho claro para assinatura Pro.
+
+### Princípios narrativos
+
+| Princípio | Implementação |
+|---|---|
+| Vender com números | `StoryMetrics` gera copy dinâmico a partir de lucro, meta e média semanal |
+| Prova social | Faixa "12.400+ motoristas" + depoimento no dashboard |
+| Upsell contextual | `DashboardUpgradeBanner` + `ProfilePlanCard` + `PaywallScreen` |
+| Empty states que ensinam | `DfEmptyState` com CTA + subtítulo de valor |
+| IA como copiloto | `AiChatStoryHero` com resposta de exemplo e upsell Pro |
+
+### Componentes
+
+- `product_story.dart` — copy centralizado
+- `story_metrics.dart` — narrativas dinâmicas
+- `DfStoryCard` / `DfValueBanner` — cards narrativos
+- `PaywallScreen` — paywall storytelling (UI-only, billing futuro)
+
+### Critérios de conclusão
+
+- Dashboard com subtítulo dinâmico no hero + carrossel de métricas narrativas
+- Auth com benefícios + prova social
+- Splash com 3 slides de valor
+- Perfil com plano Pro + estatísticas de impacto
+- Paywall acessível via banner e perfil
+
+---
+
 ## Mapa de requisitos funcionais → ondas
 
 | RF | Descrição | Onda |
@@ -1049,6 +1081,7 @@ Substituir `electricTeal` como cor de marca por tons de azul-claro. Verde perman
 | RNF-UI | Design System v2 + acessibilidade | 15 |
 | RNF-UI+ | UI Excellence — paleta, tipografia, motion auth | 16 |
 | RNF-UI++ | Premium UI FitCal/FitFolio tier | 17 |
+| RNF-Story | Product storytelling & upsell Pro | 18 |
 
 ---
 

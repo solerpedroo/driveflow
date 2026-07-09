@@ -10,6 +10,7 @@ import '../../../authentication/presentation/widgets/auth_text_field.dart';
 import '../../domain/entities/goal_entity.dart';
 import '../providers/goals_providers.dart';
 import '../widgets/goal_progress_card.dart';
+import '../widgets/goals_story_header.dart';
 import '../../../../shared/widgets/driveflow_glass_card.dart';
 
 /// Tela de configuração e acompanhamento de metas financeiras.
@@ -74,6 +75,8 @@ class GoalsScreen extends HookConsumerWidget {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
         children: [
+          const GoalsStoryHeader(),
+          const SizedBox(height: 20),
           Text('Progresso', style: theme.textTheme.titleMedium),
           const SizedBox(height: 12),
           progressAsync.when(

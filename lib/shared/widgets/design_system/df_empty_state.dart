@@ -2,19 +2,24 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
+import 'df_button.dart';
 
-/// Estado vazio padronizado do Design System v2.
+/// Estado vazio padronizado do Design System v2 — com CTA narrativo opcional.
 class DfEmptyState extends StatelessWidget {
   const DfEmptyState({
     required this.title,
     super.key,
     this.subtitle,
     this.icon = Icons.inbox_outlined,
+    this.actionLabel,
+    this.onAction,
   });
 
   final String title;
   final String? subtitle;
   final IconData icon;
+  final String? actionLabel;
+  final VoidCallback? onAction;
 
   @override
   Widget build(BuildContext context) {
@@ -47,6 +52,15 @@ class DfEmptyState extends StatelessWidget {
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: AppColors.secondaryLabel(theme),
                   ),
+                ),
+              ],
+              if (actionLabel != null && onAction != null) ...[
+                const SizedBox(height: AppSpacing.lg),
+                DfButton(
+                  label: actionLabel!,
+                  onPressed: onAction,
+                  variant: DfButtonVariant.tonal,
+                  expand: false,
                 ),
               ],
             ],
