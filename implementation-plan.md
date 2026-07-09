@@ -1096,6 +1096,29 @@ Substituir `electricTeal` como cor de marca por tons de azul-claro. Verde perman
 
 ---
 
+## Onda 20 — Glass migration & analytics polish
+
+**Objetivo:** Eliminar `DriveFlowGlassCard` deprecated, polir gráficos de analytics e completar micro-interações no dashboard.
+
+### Escopo
+
+| Área | Mudança |
+|---|---|
+| Migração glass | 19 arquivos migrados de `DriveFlowGlassCard` → `DfCard` |
+| Analytics charts | `ProfitTrendChart`, `ExpensePieChart`, `PeriodComparisonBarChart` com animação, gradiente e haptics |
+| Analytics screen | `FilterChip` → `DfSegmentedControl` em tendência, período e referência |
+| Dashboard tiles | `DfStoryCard` com press-scale + haptic; atalhos com cores por ação |
+| Forecast card | `DfButton` tonal + `DfCardVariant.elevated` |
+
+### Critérios de conclusão
+
+- Zero usos de `DriveFlowGlassCard` fora do wrapper deprecated
+- Gráficos de analytics com animação de entrada e tooltip tátil
+- Tela de análises com segmented controls premium
+- Story cards e shortcut tiles com feedback háptico
+
+---
+
 ## Mapa de requisitos funcionais → ondas
 
 | RF | Descrição | Onda |
@@ -1126,6 +1149,7 @@ Substituir `electricTeal` como cor de marca por tons de azul-claro. Verde perman
 | RNF-UI++ | Premium UI FitCal/FitFolio tier | 17 |
 | RNF-Story | Product storytelling & upsell Pro | 18 |
 | RNF-Outlier | Outlier premium polish — glass, haptics, charts | 19 |
+| RNF-Glass | Glass migration + analytics polish | 20 |
 
 ---
 

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/currency_formatter.dart';
-import '../../../../shared/widgets/driveflow_glass_card.dart';
+import '../../../../shared/widgets/design_system/df_card.dart';
 import '../../domain/entities/earning_time_slot.dart';
 
 /// Card com as melhores janelas de lucro/hora.
@@ -20,7 +20,7 @@ class BestTimeSlotsCard extends StatelessWidget {
 
     return Semantics(
       label: 'Melhores horários para trabalhar',
-      child: DriveFlowGlassCard(
+      child: DfCard(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

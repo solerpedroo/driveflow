@@ -5,7 +5,7 @@ import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/duration_formatter.dart';
 import '../../../goals/domain/services/goal_progress_calculator.dart';
 import '../../../../shared/domain/models/period_summary.dart';
-import '../../../../shared/widgets/driveflow_glass_card.dart';
+import '../../../../shared/widgets/design_system/df_card.dart';
 
 /// Card "Hoje" com ganhos, gastos, lucro, horas, km, corridas e meta.
 class DashboardTodayCard extends StatelessWidget {
@@ -24,7 +24,7 @@ class DashboardTodayCard extends StatelessWidget {
     final profitColor =
         summary.profit >= 0 ? AppColors.profitGreen : AppColors.expenseCoral;
 
-    return DriveFlowGlassCard(
+    return DfCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

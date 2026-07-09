@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/currency_formatter.dart';
-import '../../../../shared/widgets/driveflow_glass_card.dart';
+import '../../../../shared/widgets/design_system/df_card.dart';
 import '../../domain/entities/earning_time_slot.dart';
 import '../../domain/entities/maintenance_prediction.dart';
 
@@ -23,7 +23,7 @@ class DashboardInsightsSummary extends StatelessWidget {
     final hasContent = topSlots.isNotEmpty || topPrediction != null;
     if (!hasContent) return const SizedBox.shrink();
 
-    return DriveFlowGlassCard(
+    return DfCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import '../../../goals/domain/entities/goal_entity.dart';
 import '../../../vehicle/presentation/widgets/vehicle_scope_chip.dart';
 import '../../domain/entities/analytics_enums.dart';
 import '../../../ai/presentation/providers/ai_providers.dart';
+import '../../../goals/domain/entities/goal_entity.dart';
 import '../providers/analytics_providers.dart';
 import '../widgets/expense_pie_chart.dart';
 import '../widgets/period_comparison_bar_chart.dart';
 import '../widgets/period_comparison_card.dart';
 import '../widgets/profit_forecast_card.dart';
 import '../widgets/profit_trend_chart.dart';
+import '../../../../shared/widgets/design_system/df_segmented_control.dart';
 
 /// Tela de análises avançadas — tendências, pizza e comparação de períodos.
 class AnalyticsScreen extends ConsumerWidget {
@@ -30,6 +31,7 @@ class AnalyticsScreen extends ConsumerWidget {
     final comparisonAsync = ref.watch(analyticsComparisonProvider);
 
     return Scaffold(
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         title: const Text('Análises'),
         backgroundColor: Colors.transparent,
@@ -56,20 +58,12 @@ class AnalyticsScreen extends ConsumerWidget {
             sliver: SliverToBoxAdapter(
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: TrendWindow.values.map((window) {
-                    final selected = window == trendWindow;
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: FilterChip(
-                        label: Text(window.label),
-                        selected: selected,
-                        onSelected: (_) => ref
-                            .read(analyticsTrendWindowProvider.notifier)
-                            .state = window,
-                      ),
-                    );
-                  }).toList(growable: false),
+                child: DfSegmentedControl<TrendWindow>(
+                  segments: TrendWindow.values,
+                  selected: trendWindow,
+                  labelBuilder: (w) => w.label,
+                  onChanged: (w) =>
+                      ref.read(analyticsTrendWindowProvider.notifier).state = w,
                 ),
               ),
             ),
@@ -115,20 +109,12 @@ class AnalyticsScreen extends ConsumerWidget {
             sliver: SliverToBoxAdapter(
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: GoalPeriod.values.map((item) {
-                    final selected = item == period;
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: FilterChip(
-                        label: Text(item.label),
-                        selected: selected,
-                        onSelected: (_) => ref
-                            .read(analyticsPeriodProvider.notifier)
-                            .state = item,
-                      ),
-                    );
-                  }).toList(growable: false),
+                child: DfSegmentedControl<GoalPeriod>(
+                  segments: GoalPeriod.values,
+                  selected: period,
+                  labelBuilder: (p) => p.label,
+                  onChanged: (p) =>
+                      ref.read(analyticsPeriodProvider.notifier).state = p,
                 ),
               ),
             ),
@@ -138,20 +124,13 @@ class AnalyticsScreen extends ConsumerWidget {
             sliver: SliverToBoxAdapter(
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: ComparisonReference.values.map((item) {
-                    final selected = item == reference;
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: FilterChip(
-                        label: Text(item.label),
-                        selected: selected,
-                        onSelected: (_) => ref
-                            .read(analyticsComparisonReferenceProvider.notifier)
-                            .state = item,
-                      ),
-                    );
-                  }).toList(growable: false),
+                child: DfSegmentedControl<ComparisonReference>(
+                  segments: ComparisonReference.values,
+                  selected: reference,
+                  labelBuilder: (r) => r.label,
+                  onChanged: (r) => ref
+                      .read(analyticsComparisonReferenceProvider.notifier)
+                      .state = r,
                 ),
               ),
             ),

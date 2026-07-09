@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
-import '../../../../shared/widgets/driveflow_glass_card.dart';
+import '../../../../shared/widgets/design_system/df_card.dart';
 import '../../domain/entities/maintenance_prediction.dart';
 
 /// Card de manutenção prevista com badge de confiança.
@@ -17,7 +17,7 @@ class MaintenancePredictionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return DriveFlowGlassCard(
+    return DfCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

@@ -6,7 +6,7 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/date_utils.dart';
-import '../../../../shared/widgets/driveflow_glass_card.dart';
+import '../../../../shared/widgets/design_system/df_card.dart';
 import '../../domain/entities/fuel_log_entity.dart';
 import '../providers/fuel_providers.dart';
 
@@ -36,7 +36,7 @@ class FuelHistoryScreen extends ConsumerWidget {
                 SliverPadding(
                   padding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
                   sliver: SliverToBoxAdapter(
-                    child: DriveFlowGlassCard(
+                    child: DfCard(
                       child: Row(
                         children: [
                           const Icon(Icons.speed_rounded,
@@ -108,7 +108,7 @@ class _FuelLogTile extends ConsumerWidget {
         ? log.station!
         : log.fuelType.label;
 
-    return DriveFlowGlassCard(
+    return DfCard(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),

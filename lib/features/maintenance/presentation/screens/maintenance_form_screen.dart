@@ -12,7 +12,7 @@ import '../../../authentication/presentation/widgets/auth_text_field.dart';
 import '../../../vehicle/presentation/providers/vehicle_providers.dart';
 import '../../domain/entities/maintenance_entity.dart';
 import '../providers/maintenance_providers.dart';
-import '../../../../shared/widgets/driveflow_glass_card.dart';
+import '../../../../shared/widgets/design_system/df_card.dart';
 
 /// Formulário de registro/edição de manutenção.
 class MaintenanceFormScreen extends HookConsumerWidget {
@@ -111,7 +111,7 @@ class MaintenanceFormScreen extends HookConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              DriveFlowGlassCard(
+              DfCard(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

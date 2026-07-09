@@ -7,7 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../authentication/presentation/widgets/auth_primary_button.dart';
-import '../../../../shared/widgets/driveflow_glass_card.dart';
+import '../../../../shared/widgets/design_system/df_card.dart';
 import '../../domain/services/import_file_validator.dart';
 import '../providers/import_providers.dart';
 import '../widgets/import_preview_table.dart';
@@ -90,7 +90,7 @@ class ImportStatementScreen extends HookConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            DriveFlowGlassCard(
+            DfCard(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

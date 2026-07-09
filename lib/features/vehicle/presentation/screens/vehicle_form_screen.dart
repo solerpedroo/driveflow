@@ -5,7 +5,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/validators.dart';
-import '../../../../shared/widgets/driveflow_glass_card.dart';
+import '../../../../shared/widgets/design_system/df_card.dart';
 import '../../../authentication/presentation/widgets/auth_primary_button.dart';
 import '../../../authentication/presentation/widgets/auth_text_field.dart';
 import '../../domain/entities/vehicle_entity.dart';
@@ -102,7 +102,7 @@ class VehicleFormScreen extends HookConsumerWidget {
               ),
             ),
             const SizedBox(height: 24),
-            DriveFlowGlassCard(
+            DfCard(
               child: Column(
                 children: [
                   AuthTextField(
