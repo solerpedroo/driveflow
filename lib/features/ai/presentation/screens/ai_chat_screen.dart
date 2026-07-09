@@ -4,6 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../providers/ai_providers.dart';
+import '../widgets/ai_chat_composer.dart';
 import '../widgets/ai_chat_story_hero.dart';
 import '../widgets/ai_message_bubble.dart';
 import '../widgets/ai_suggestion_chips.dart';
@@ -104,41 +105,10 @@ class AiChatScreen extends HookConsumerWidget {
               },
             ),
           ),
-          SafeArea(
-            top: false,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: controller,
-                      minLines: 1,
-                      maxLines: 4,
-                      maxLength: 2000,
-                      textInputAction: TextInputAction.send,
-                      decoration: const InputDecoration(
-                        hintText: 'Faça uma pergunta...',
-                        border: OutlineInputBorder(),
-                      ),
-                      onSubmitted: (_) => submit(),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  FilledButton(
-                    onPressed: mutation.isLoading ? null : () => submit(),
-                    child: mutation.isLoading
-                        ? const SizedBox(
-                            width: 18,
-                            height: 18,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Icon(Icons.send_rounded),
-                  ),
-                ],
-              ),
-            ),
+          AiChatComposer(
+            controller: controller,
+            isLoading: mutation.isLoading,
+            onSubmit: () => submit(),
           ),
         ],
       ),
