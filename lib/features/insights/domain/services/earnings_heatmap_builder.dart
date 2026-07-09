@@ -32,7 +32,7 @@ abstract final class EarningsHeatmapBuilder {
         );
       } else {
         _distributeDateOnly(
-          buckets,
+          buckets: buckets,
           weekday: earning.date.weekday,
           profit: profit,
           hours: hours,
