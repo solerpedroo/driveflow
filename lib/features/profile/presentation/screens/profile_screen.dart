@@ -17,7 +17,11 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../shared/widgets/driveflow_glass_card.dart';
+import '../../../dashboard/presentation/providers/dashboard_providers.dart';
+import '../../../earnings/presentation/providers/earnings_providers.dart';
 import '../providers/profile_providers.dart';
+import '../widgets/profile_plan_card.dart';
+import '../widgets/profile_value_stats_card.dart';
 
 /// Aba Perfil — dados do motorista e atalhos.
 class ProfileScreen extends HookConsumerWidget {
@@ -29,6 +33,8 @@ class ProfileScreen extends HookConsumerWidget {
     final user = ref.watch(userProfileProvider).valueOrNull ??
         ref.watch(authStateProvider).valueOrNull;
     final vehiclesAsync = ref.watch(vehiclesListProvider);
+    final monthAsync = ref.watch(dashboardMonthProvider);
+    final earningsAsync = ref.watch(earningsStreamProvider);
     final mutation = ref.watch(profileControllerProvider);
     final vehicleMutation = ref.watch(vehicleControllerProvider);
     final nameController = useTextEditingController(text: user?.name ?? '');
@@ -75,6 +81,26 @@ class ProfileScreen extends HookConsumerWidget {
         ),
         SliverPadding(
           padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
+          sliver: SliverToBoxAdapter(child: const ProfilePlanCard()),
+        ),
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+          sliver: SliverToBoxAdapter(
+            child: monthAsync.when(
+              loading: () => const SizedBox.shrink(),
+              error: (_, __) => const SizedBox.shrink(),
+              data: (month) {
+                final rides = earningsAsync.valueOrNull?.length ?? 0;
+                return ProfileValueStatsCard(
+                  month: month,
+                  totalRides: rides,
+                );
+              },
+            ),
+          ),
+        ),
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
           sliver: SliverToBoxAdapter(
             child: DriveFlowGlassCard(
               child: Column(
