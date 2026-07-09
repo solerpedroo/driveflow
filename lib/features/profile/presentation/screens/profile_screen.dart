@@ -16,7 +16,9 @@ import '../../../vehicle/presentation/providers/vehicle_providers.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/validators.dart';
+import '../../../../shared/widgets/design_system/df_button.dart';
 import '../../../../shared/widgets/design_system/df_card.dart';
+import '../../../../shared/widgets/design_system/df_empty_state.dart';
 import '../../../../shared/widgets/design_system/df_settings_row.dart';
 import '../../../dashboard/presentation/providers/dashboard_providers.dart';
 import '../../../earnings/presentation/providers/earnings_providers.dart';
@@ -138,10 +140,12 @@ class ProfileScreen extends HookConsumerWidget {
                       ),
                     ],
                     const SizedBox(height: 12),
-                    OutlinedButton.icon(
+                    DfButton(
+                      label: 'Editar nome',
+                      icon: Icons.edit_outlined,
+                      variant: DfButtonVariant.outlined,
                       onPressed: () => editingName.value = true,
-                      icon: const Icon(Icons.edit_outlined),
-                      label: const Text('Editar nome'),
+                      expand: false,
                     ),
                   ],
                   if (mutation.hasError) ...[
@@ -166,12 +170,14 @@ class ProfileScreen extends HookConsumerWidget {
                 Expanded(
                   child: Text('Veículos', style: theme.textTheme.titleMedium),
                 ),
-                TextButton.icon(
+                DfButton(
+                  label: 'Adicionar',
+                  icon: Icons.add_circle_outline,
+                  variant: DfButtonVariant.tonal,
                   onPressed: vehicleMutation.isLoading
                       ? null
                       : () => context.push(AppRoutes.addVehicle),
-                  icon: const Icon(Icons.add_circle_outline),
-                  label: const Text('Adicionar'),
+                  expand: false,
                 ),
               ],
             ),
@@ -188,9 +194,11 @@ class ProfileScreen extends HookConsumerWidget {
               if (vehicles.isEmpty) {
                 return SliverToBoxAdapter(
                   child: DfCard(
-                    child: Text(
-                      'Nenhum veículo cadastrado.',
-                      style: theme.textTheme.bodyMedium,
+                    child: const DfEmptyState(
+                      variant: DfEmptyStateVariant.illustrated,
+                      icon: Icons.directions_car_outlined,
+                      title: 'Nenhum veículo cadastrado',
+                      subtitle: 'Adicione seu carro para calcular custos e metas.',
                     ),
                   ),
                 );
@@ -364,11 +372,12 @@ class ProfileScreen extends HookConsumerWidget {
         SliverPadding(
           padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
           sliver: SliverToBoxAdapter(
-            child: TextButton.icon(
+            child: DfButton(
+              label: 'Sair da conta',
+              icon: Icons.logout_rounded,
+              variant: DfButtonVariant.outlined,
               onPressed: () =>
                   ref.read(authControllerProvider.notifier).signOut(),
-              icon: const Icon(Icons.logout_rounded),
-              label: const Text('Sair da conta'),
             ),
           ),
         ),
@@ -437,11 +446,19 @@ class _VehicleCard extends StatelessWidget {
                     style: theme.textTheme.titleMedium),
               ),
               if (vehicle.isDefault)
-                Chip(
-                  label: const Text('Padrão'),
-                  visualDensity: VisualDensity.compact,
-                  backgroundColor:
-                      AppColors.electricTeal.withValues(alpha: 0.15),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: AppColors.skyBlue.withValues(alpha: 0.14),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    'Padrão',
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: AppColors.skyBlue,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
                 ),
             ],
           ),
@@ -459,23 +476,26 @@ class _VehicleCard extends StatelessWidget {
             spacing: 8,
             runSpacing: 8,
             children: [
-              FilledButton.tonalIcon(
+              DfButton(
+                label: 'Editar',
+                icon: Icons.edit_outlined,
+                variant: DfButtonVariant.tonal,
                 onPressed: isBusy ? null : onEdit,
-                icon: const Icon(Icons.edit_outlined),
-                label: const Text('Editar'),
+                expand: false,
               ),
               if (onSetDefault != null)
-                OutlinedButton(
+                DfButton(
+                  label: 'Tornar padrão',
+                  variant: DfButtonVariant.outlined,
                   onPressed: isBusy ? null : onSetDefault,
-                  child: const Text('Tornar padrão'),
+                  expand: false,
                 ),
               if (onDelete != null)
-                TextButton(
+                DfButton(
+                  label: 'Excluir',
+                  variant: DfButtonVariant.outlined,
                   onPressed: isBusy ? null : onDelete,
-                  child: Text(
-                    'Excluir',
-                    style: TextStyle(color: theme.colorScheme.error),
-                  ),
+                  expand: false,
                 ),
             ],
           ),
@@ -505,20 +525,36 @@ class _AvatarSection extends StatelessWidget {
       children: [
         Stack(
           children: [
-            CircleAvatar(
-              radius: 44,
-              backgroundColor: AppColors.electricTeal.withValues(alpha: 0.15),
-              backgroundImage:
-                  photoUrl != null ? CachedNetworkImageProvider(photoUrl) : null,
-              child: photoUrl == null
-                  ? Text(
-                      user?.displayName.characters.first.toUpperCase() ?? '?',
-                      style: theme.textTheme.headlineMedium?.copyWith(
-                        color: AppColors.electricTeal,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    )
-                  : null,
+            Container(
+              padding: const EdgeInsets.all(3),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: const LinearGradient(
+                  colors: [AppColors.skyBlue, AppColors.skyBlueSoft],
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.skyBlue.withValues(alpha: 0.35),
+                    blurRadius: 14,
+                  ),
+                ],
+              ),
+              child: CircleAvatar(
+                radius: 44,
+                backgroundColor: AppColors.skyBlue.withValues(alpha: 0.12),
+                backgroundImage: photoUrl != null
+                    ? CachedNetworkImageProvider(photoUrl)
+                    : null,
+                child: photoUrl == null
+                    ? Text(
+                        user?.displayName.characters.first.toUpperCase() ?? '?',
+                        style: theme.textTheme.headlineMedium?.copyWith(
+                          color: AppColors.skyBlue,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      )
+                    : null,
+              ),
             ),
             if (isLoading)
               const Positioned.fill(
@@ -527,10 +563,12 @@ class _AvatarSection extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 12),
-        TextButton.icon(
+        DfButton(
+          label: 'Alterar foto',
+          icon: Icons.photo_camera_outlined,
+          variant: DfButtonVariant.outlined,
           onPressed: isLoading ? null : onPick,
-          icon: const Icon(Icons.photo_camera_outlined),
-          label: const Text('Alterar foto'),
+          expand: false,
         ),
       ],
     );
