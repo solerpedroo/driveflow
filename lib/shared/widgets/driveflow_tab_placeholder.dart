@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_colors.dart';
-import '../../../../shared/widgets/driveflow_glass_card.dart';
+import '../../core/theme/app_colors.dart';
+import 'design_system/df_card.dart';
 
 /// Placeholder para abas ainda não implementadas (Ondas 3+).
 class DriveFlowTabPlaceholder extends StatelessWidget {
@@ -33,7 +33,7 @@ class DriveFlowTabPlaceholder extends StatelessWidget {
         SliverPadding(
           padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
           sliver: SliverToBoxAdapter(
-            child: DriveFlowGlassCard(
+            child: DfCard(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
