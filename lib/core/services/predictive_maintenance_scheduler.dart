@@ -1,7 +1,7 @@
-import '../../../fuel/domain/entities/fuel_log_entity.dart';
-import '../../../maintenance/domain/entities/maintenance_entity.dart';
-import '../entities/maintenance_prediction.dart';
-import 'maintenance_predictor.dart';
+import '../../features/fuel/domain/entities/fuel_log_entity.dart';
+import '../../features/insights/domain/entities/maintenance_prediction.dart';
+import '../../features/insights/domain/services/maintenance_predictor.dart';
+import '../../features/maintenance/domain/entities/maintenance_entity.dart';
 
 /// Reagenda lembretes preditivos após mudança no padrão de uso.
 class PredictiveMaintenanceScheduler {
