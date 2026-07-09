@@ -36,6 +36,11 @@ class DriveFlowConnectivityBanner extends ConsumerWidget {
       icon = Icons.sync_rounded;
       background = AppColors.profitGreen.withValues(alpha: 0.12);
       foreground = AppColors.profitGreen;
+    } else if (syncStatus == SyncStatus.failed) {
+      message = 'Falha ao sincronizar — tente novamente online';
+      icon = Icons.error_outline_rounded;
+      background = AppColors.expenseCoral.withValues(alpha: 0.12);
+      foreground = AppColors.expenseCoral;
     } else if (pending > 0) {
       message = '$pending alteração(ões) na fila';
       icon = Icons.cloud_queue_rounded;
