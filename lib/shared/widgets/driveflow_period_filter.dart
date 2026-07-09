@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/constants/date_range_period.dart';
-import '../design_system/df_segmented_control.dart';
+import 'design_system/df_segmented_control.dart';
 
 /// Filtro de período premium — DfSegmentedControl.
 class DriveFlowPeriodFilter extends StatelessWidget {
