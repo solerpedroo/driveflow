@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/currency_formatter.dart';
-import '../../../../shared/widgets/driveflow_glass_card.dart';
+import '../../../../shared/widgets/design_system/df_card.dart';
 import '../../domain/entities/weekly_goal_projection.dart';
 
 /// Card de projeção da meta semanal.
@@ -18,7 +18,7 @@ class WeeklyGoalProjectionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return DriveFlowGlassCard(
+    return DfCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
