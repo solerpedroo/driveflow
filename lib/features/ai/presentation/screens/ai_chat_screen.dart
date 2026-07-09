@@ -4,6 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../providers/ai_providers.dart';
+import '../widgets/ai_chat_story_hero.dart';
 import '../widgets/ai_message_bubble.dart';
 import '../widgets/ai_suggestion_chips.dart';
 
@@ -62,19 +63,7 @@ class AiChatScreen extends HookConsumerWidget {
               error: (e, _) => Center(child: Text('Erro: $e')),
               data: (history) {
                 if (history.isEmpty && !mutation.isLoading) {
-                  return Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(24),
-                      child: Text(
-                        'Pergunte sobre lucro, metas, combustível ou manutenção. '
-                        'Suas respostas usam seus dados reais.',
-                        textAlign: TextAlign.center,
-                        style: theme.textTheme.bodyLarge?.copyWith(
-                          color: AppColors.secondaryLabel(theme),
-                        ),
-                      ),
-                    ),
-                  );
+                  return const AiChatStoryHero();
                 }
 
                 return ListView.builder(
