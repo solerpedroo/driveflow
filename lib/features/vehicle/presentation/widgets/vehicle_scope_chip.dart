@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_radius.dart';
+import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/utils/df_haptics.dart';
 import '../../domain/entities/vehicle_entity.dart';
 import '../providers/vehicle_providers.dart';
 import 'vehicle_picker_sheet.dart';
 
-/// Chip de escopo de veículo — exibe seleção atual e abre o seletor.
+/// Chip premium de escopo de veículo — glass pill com haptic.
 class VehicleScopeChip extends ConsumerWidget {
   const VehicleScopeChip({super.key});
 
@@ -23,13 +26,61 @@ class VehicleScopeChip extends ConsumerWidget {
       active: active,
     );
 
-    return ActionChip(
-      avatar: const Icon(Icons.directions_car_filled_outlined, size: 18),
-      label: Text(label),
-      labelStyle: theme.textTheme.labelLarge,
-      backgroundColor: AppColors.electricTeal.withValues(alpha: 0.12),
-      side: BorderSide(color: AppColors.electricTeal.withValues(alpha: 0.35)),
-      onPressed: () => showVehiclePickerSheet(context),
+    return Semantics(
+      button: true,
+      label: 'Veículo: $label',
+      child: GestureDetector(
+        onTap: () {
+          DfHaptics.light();
+          showVehiclePickerSheet(context);
+        },
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: AppColors.skyBlue.withValues(alpha: 0.12),
+            borderRadius: AppRadius.lgAll,
+            border: Border.all(
+              color: AppColors.skyBlue.withValues(alpha: 0.28),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.skyBlue.withValues(alpha: 0.12),
+                blurRadius: 10,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.md,
+              vertical: AppSpacing.sm,
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  Icons.directions_car_filled_outlined,
+                  size: 18,
+                  color: AppColors.skyBlue,
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                Text(
+                  label,
+                  style: theme.textTheme.labelLarge?.copyWith(
+                    color: AppColors.skyBlue,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(width: 4),
+                Icon(
+                  Icons.expand_more_rounded,
+                  size: 18,
+                  color: AppColors.skyBlue.withValues(alpha: 0.7),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 

@@ -1168,6 +1168,30 @@ Substituir `electricTeal` como cor de marca por tons de azul-claro. Verde perman
 
 ---
 
+## Onda 23 — Final outlier polish
+
+**Objetivo:** Fechar 100% da padronização visual — zero botões Material genéricos nas telas de produto.
+
+### Escopo
+
+| Área | Mudança |
+|---|---|
+| Perfil | Avatar com anel glow, `DfButton` em todas as ações, empty state veículos |
+| Import | Hero narrativo, preview tátil premium, `DfButton` + `DfFilterPill` |
+| Relatórios | Export PDF/CSV com `DfButton` gradient/tonal |
+| Dashboard | `DashboardTodayCard` elevated com stats em pills coloridas |
+| Veículo scope | Chip glass premium com haptic |
+| IA | Sugestões com `DfFilterPill` |
+| Foundation | `DfButton` + tech pills premium |
+
+### Critérios de conclusão
+
+- Zero `FilterChip`, `ActionChip`, `FilledButton.tonalIcon`, `OutlinedButton.icon` nas features
+- Import, perfil e relatórios no mesmo tier visual do dashboard
+- Design system unificado end-to-end
+
+---
+
 ## Mapa de requisitos funcionais → ondas
 
 | RF | Descrição | Onda |
@@ -1201,6 +1225,7 @@ Substituir `electricTeal` como cor de marca por tons de azul-claro. Verde perman
 | RNF-Glass | Glass migration + analytics polish | 20 |
 | RNF-Insights | Insights polish + deprecated cleanup | 21 |
 | RNF-Forms | Forms polish + final FilterChip cleanup | 22 |
+| RNF-Final | Final outlier polish — 100% design system | 23 |
 
 ---
 

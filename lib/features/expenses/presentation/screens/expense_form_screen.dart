@@ -238,14 +238,14 @@ class ExpenseFormScreen extends HookConsumerWidget {
                         ),
                       ),
                     const SizedBox(height: 8),
-                    OutlinedButton.icon(
+                    DfButton(
+                      label: receiptFile.value != null || existingReceiptUrl != null
+                          ? 'Trocar comprovante'
+                          : 'Anexar comprovante',
+                      icon: Icons.receipt_long_outlined,
+                      variant: DfButtonVariant.outlined,
                       onPressed: pickReceipt,
-                      icon: const Icon(Icons.receipt_long_outlined),
-                      label: Text(
-                        receiptFile.value != null || existingReceiptUrl != null
-                            ? 'Trocar comprovante'
-                            : 'Anexar comprovante',
-                      ),
+                      expand: false,
                     ),
                   ],
                 ),

@@ -6,11 +6,13 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import '../../../authentication/presentation/widgets/auth_primary_button.dart';
+import '../../../../shared/widgets/design_system/df_button.dart';
 import '../../../../shared/widgets/design_system/df_card.dart';
+import '../../../../shared/widgets/design_system/df_filter_pill.dart';
 import '../../domain/services/import_file_validator.dart';
 import '../providers/import_providers.dart';
 import '../widgets/import_preview_table.dart';
+import '../widgets/import_story_header.dart';
 
 /// Tela de importação de extratos CSV/OFX.
 class ImportStatementScreen extends HookConsumerWidget {
@@ -81,6 +83,7 @@ class ImportStatementScreen extends HookConsumerWidget {
         preview.where((item) => item.selected && !item.isDuplicate).length;
 
     return Scaffold(
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         title: const Text('Importar extrato'),
         backgroundColor: Colors.transparent,
@@ -90,7 +93,10 @@ class ImportStatementScreen extends HookConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            const ImportStoryHeader(),
+            const SizedBox(height: 16),
             DfCard(
+              variant: DfCardVariant.elevated,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -99,42 +105,50 @@ class ImportStatementScreen extends HookConsumerWidget {
                   Text(
                     'CSV (Nubank, Inter, genérico) ou OFX. '
                     'Máx. 5 MB e 2.000 linhas. Processado apenas em memória.',
-                    style: theme.textTheme.bodyMedium,
+                    style: theme.textTheme.bodyMedium?.copyWith(height: 1.45),
                   ),
                   const SizedBox(height: 12),
-                  OutlinedButton.icon(
+                  DfButton(
+                    label: fileName.value ?? 'Selecionar arquivo',
+                    icon: Icons.upload_file_outlined,
+                    variant: DfButtonVariant.outlined,
+                    isLoading: mutation.isLoading,
                     onPressed: mutation.isLoading ? null : pickFile,
-                    icon: const Icon(Icons.upload_file_outlined),
-                    label: Text(fileName.value ?? 'Selecionar arquivo'),
+                    expand: false,
                   ),
                 ],
               ),
             ),
             if (preview.isNotEmpty) ...[
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
               Row(
                 children: [
                   Expanded(
                     child: Text(
                       'Preview ($selectedCount selecionadas)',
-                      style: theme.textTheme.titleMedium,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
-                  TextButton(
-                    onPressed: () => ref
+                  DfFilterPill(
+                    label: 'Todas',
+                    selected: false,
+                    onSelected: () => ref
                         .read(importControllerProvider.notifier)
                         .toggleAll(true),
-                    child: const Text('Todas'),
                   ),
-                  TextButton(
-                    onPressed: () => ref
+                  const SizedBox(width: 8),
+                  DfFilterPill(
+                    label: 'Nenhuma',
+                    selected: false,
+                    onSelected: () => ref
                         .read(importControllerProvider.notifier)
                         .toggleAll(false),
-                    child: const Text('Nenhuma'),
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 12),
               ImportPreviewTable(
                 transactions: preview,
                 onToggle: (lineIndex, selected) => ref
@@ -150,11 +164,12 @@ class ImportStatementScreen extends HookConsumerWidget {
                   ),
                 ),
               const SizedBox(height: 16),
-              AuthPrimaryButton(
+              DfButton(
                 label: 'Importar selecionadas',
+                icon: Icons.cloud_download_outlined,
+                variant: DfButtonVariant.gradient,
                 isLoading: mutation.isLoading,
-                onPressed:
-                    selectedCount == 0 ? null : importSelected,
+                onPressed: selectedCount == 0 ? null : importSelected,
               ),
             ],
             if (mutation.hasError) ...[

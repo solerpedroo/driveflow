@@ -8,6 +8,8 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/theme_mode_provider.dart';
 import '../../../../shared/widgets/driveflow_brand_logo.dart';
+import '../../../../shared/widgets/design_system/df_button.dart';
+import '../../../../shared/widgets/design_system/df_filter_pill.dart';
 import '../../../../shared/widgets/design_system/df_card.dart';
 import '../../../../shared/widgets/driveflow_gradient_background.dart';
 import '../../../../shared/widgets/driveflow_metric_chip.dart';
@@ -171,10 +173,10 @@ class FoundationScreen extends HookConsumerWidget {
                       children: [
                         Text('Stack MVP', style: theme.textTheme.titleMedium),
                         const SizedBox(height: 12),
-                        const Wrap(
+                        Wrap(
                           spacing: 8,
                           runSpacing: 8,
-                          children: [
+                          children: const [
                             _TechPill('Flutter'),
                             _TechPill('Riverpod'),
                             _TechPill('GoRouter'),
@@ -193,18 +195,22 @@ class FoundationScreen extends HookConsumerWidget {
                 sliver: SliverToBoxAdapter(
                   child: Column(
                     children: [
-                      FilledButton.icon(
+                      DfButton(
+                        label: 'Próximo: Shell + Veículo (Onda 2)',
+                        icon: Icons.rocket_launch_rounded,
+                        variant: DfButtonVariant.gradient,
                         onPressed: () {},
-                        icon: const Icon(Icons.rocket_launch_rounded),
-                        label: const Text('Próximo: Shell + Veículo (Onda 2)'),
+                        expand: false,
                       ),
                       if (user != null) ...[
                         const SizedBox(height: 12),
-                        TextButton.icon(
+                        DfButton(
+                          label: 'Sair',
+                          icon: Icons.logout_rounded,
+                          variant: DfButtonVariant.outlined,
                           onPressed: () =>
                               ref.read(authControllerProvider.notifier).signOut(),
-                          icon: const Icon(Icons.logout_rounded),
-                          label: const Text('Sair'),
+                          expand: false,
                         ),
                       ],
                     ],
@@ -250,20 +256,10 @@ class _TechPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(999),
-        color: AppColors.mutedSurface(theme),
-        border: Border.all(
-          color: AppColors.electricTeal.withValues(alpha: 0.2),
-        ),
-      ),
-      child: Text(
-        label,
-        style: theme.textTheme.labelMedium,
-      ),
+    return DfFilterPill(
+      label: label,
+      selected: false,
+      onSelected: () {},
     );
   }
 }
