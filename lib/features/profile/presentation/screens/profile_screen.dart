@@ -16,7 +16,8 @@ import '../../../vehicle/presentation/providers/vehicle_providers.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/validators.dart';
-import '../../../../shared/widgets/driveflow_glass_card.dart';
+import '../../../../shared/widgets/design_system/df_card.dart';
+import '../../../../shared/widgets/design_system/df_settings_row.dart';
 import '../../../dashboard/presentation/providers/dashboard_providers.dart';
 import '../../../earnings/presentation/providers/earnings_providers.dart';
 import '../providers/profile_providers.dart';
@@ -102,7 +103,7 @@ class ProfileScreen extends HookConsumerWidget {
         SliverPadding(
           padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
           sliver: SliverToBoxAdapter(
-            child: DriveFlowGlassCard(
+            child: DfCard(
               child: Column(
                 children: [
                   _AvatarSection(
@@ -186,7 +187,7 @@ class ProfileScreen extends HookConsumerWidget {
             data: (vehicles) {
               if (vehicles.isEmpty) {
                 return SliverToBoxAdapter(
-                  child: DriveFlowGlassCard(
+                  child: DfCard(
                     child: Text(
                       'Nenhum veículo cadastrado.',
                       style: theme.textTheme.bodyMedium,
@@ -234,45 +235,48 @@ class ProfileScreen extends HookConsumerWidget {
         SliverPadding(
           padding: const EdgeInsets.fromLTRB(24, 12, 24, 0),
           sliver: SliverToBoxAdapter(
-            child: DriveFlowGlassCard(
+            child: DfCard(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  FilledButton.tonalIcon(
-                    onPressed: () => context.push(AppRoutes.fuelHistory),
-                    icon: const Icon(Icons.local_gas_station_outlined),
-                    label: const Text('Abastecimentos'),
+                  DfSettingsRow(
+                    icon: Icons.local_gas_station_outlined,
+                    label: 'Abastecimentos',
+                    subtitle: 'Histórico e custo por km',
+                    onTap: () => context.push(AppRoutes.fuelHistory),
                   ),
-                  const SizedBox(height: 8),
-                  FilledButton.tonalIcon(
-                    onPressed: () =>
-                        context.push(AppRoutes.maintenanceHistory),
-                    icon: const Icon(Icons.build_circle_outlined),
-                    label: const Text('Manutenções'),
+                  DfSettingsRow(
+                    icon: Icons.build_circle_outlined,
+                    label: 'Manutenções',
+                    subtitle: 'Lembretes e histórico do veículo',
+                    onTap: () => context.push(AppRoutes.maintenanceHistory),
                   ),
-                  const SizedBox(height: 8),
-                  FilledButton.tonalIcon(
-                    onPressed: () => context.push(AppRoutes.importStatement),
-                    icon: const Icon(Icons.upload_file_outlined),
-                    label: const Text('Importar extrato'),
+                  DfSettingsRow(
+                    icon: Icons.upload_file_outlined,
+                    label: 'Importar extrato',
+                    subtitle: 'Uber, 99 e CSV em segundos',
+                    onTap: () => context.push(AppRoutes.importStatement),
                   ),
-                  const SizedBox(height: 8),
-                  FilledButton.tonalIcon(
-                    onPressed: () => context.push(AppRoutes.analytics),
-                    icon: const Icon(Icons.bar_chart_outlined),
-                    label: const Text('Análises'),
+                  DfSettingsRow(
+                    icon: Icons.bar_chart_outlined,
+                    label: 'Análises',
+                    subtitle: 'Tendências e comparação de períodos',
+                    onTap: () => context.push(AppRoutes.analytics),
                   ),
-                  const SizedBox(height: 8),
-                  FilledButton.tonalIcon(
-                    onPressed: () => context.push(AppRoutes.insights),
-                    icon: const Icon(Icons.auto_awesome_outlined),
-                    label: const Text('Insights'),
+                  DfSettingsRow(
+                    icon: Icons.auto_awesome_outlined,
+                    label: 'Insights',
+                    subtitle: 'Melhor horário e projeções',
+                    accentColor: AppColors.profitGreen,
+                    onTap: () => context.push(AppRoutes.insights),
                   ),
-                  const SizedBox(height: 8),
-                  FilledButton.tonalIcon(
-                    onPressed: () => context.push(AppRoutes.goals),
-                    icon: const Icon(Icons.flag_outlined),
-                    label: const Text('Metas'),
+                  DfSettingsRow(
+                    icon: Icons.flag_outlined,
+                    label: 'Metas',
+                    subtitle: 'Acompanhe seu lucro-alvo',
+                    accentColor: AppColors.skyBlueDim,
+                    showDivider: false,
+                    onTap: () => context.push(AppRoutes.goals),
                   ),
                 ],
               ),
@@ -288,26 +292,69 @@ class ProfileScreen extends HookConsumerWidget {
         SliverPadding(
           padding: const EdgeInsets.fromLTRB(24, 12, 24, 0),
           sliver: SliverToBoxAdapter(
-            child: DriveFlowGlassCard(
+            child: DfCard(
+              variant: DfCardVariant.hero,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'DriveFlow IA',
-                    style: theme.textTheme.titleMedium,
+                  Row(
+                    children: [
+                      Container(
+                        width: 44,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              AppColors.skyBlue,
+                              AppColors.skyBlueDim,
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(
+                          Icons.auto_awesome_rounded,
+                          color: Colors.white,
+                          size: 24,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'DriveFlow IA',
+                              style: theme.textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            Text(
+                              'Copiloto financeiro',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: AppColors.secondaryLabel(theme),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 12),
                   Text(
                     'Pergunte sobre lucro, metas, combustível e manutenção com seus dados reais.',
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: AppColors.secondaryLabel(theme),
+                      height: 1.45,
                     ),
                   ),
-                  const SizedBox(height: 12),
-                  FilledButton.tonalIcon(
-                    onPressed: () => context.push(AppRoutes.aiChat),
-                    icon: const Icon(Icons.auto_awesome_outlined),
-                    label: const Text('Abrir assistente'),
+                  const SizedBox(height: 16),
+                  DfSettingsRow(
+                    icon: Icons.chat_bubble_outline_rounded,
+                    label: 'Abrir assistente',
+                    subtitle: 'Respostas com seus números',
+                    accentColor: AppColors.skyBlueDim,
+                    showDivider: false,
+                    onTap: () => context.push(AppRoutes.aiChat),
                   ),
                 ],
               ),
@@ -379,7 +426,7 @@ class _VehicleCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return DriveFlowGlassCard(
+    return DfCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
