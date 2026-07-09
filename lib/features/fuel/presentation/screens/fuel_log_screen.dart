@@ -11,7 +11,7 @@ import '../../../authentication/presentation/widgets/auth_text_field.dart';
 import '../../../vehicle/presentation/providers/vehicle_providers.dart';
 import '../../domain/entities/fuel_log_entity.dart';
 import '../providers/fuel_providers.dart';
-import '../../../../shared/widgets/driveflow_glass_card.dart';
+import '../../../../shared/widgets/design_system/df_card.dart';
 
 /// Formulário de registro de abastecimento.
 class FuelLogScreen extends HookConsumerWidget {
@@ -111,7 +111,7 @@ class FuelLogScreen extends HookConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              DriveFlowGlassCard(
+              DfCard(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
