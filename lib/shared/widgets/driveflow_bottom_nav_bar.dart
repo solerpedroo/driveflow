@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_motion.dart';
+import '../design_system/df_glass_surface.dart';
 
 const Duration kDriveFlowTabSwitchDuration = DriveFlowMotion.normal;
 
@@ -41,52 +42,31 @@ class DriveFlowBottomNavBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final primary = theme.colorScheme.primary;
-    final shell = AppColors.bottomNavBarShell(theme);
-    final isDark = theme.brightness == Brightness.dark;
-    final shadowColor = isDark
-        ? Colors.black.withValues(alpha: 0.30)
-        : AppColors.skyBlue.withValues(alpha: 0.18);
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 14),
-      child: Container(
-        decoration: BoxDecoration(
-          color: shell,
-          borderRadius: BorderRadius.circular(100),
-          border: Border.all(
-            color: isDark
-                ? AppColors.glassBorder
-                : AppColors.glassBorderLight,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: shadowColor,
-              blurRadius: 24,
-              offset: const Offset(0, 10),
-            ),
-          ],
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
-          child: SizedBox(
-            height: _itemTrackHeight,
-            child: Row(
-              children: [
-                for (var i = 0; i < itemCount; i++)
-                  Expanded(
-                    child: _NavItem(
-                      icon: _icons[i],
-                      label: _labels[i],
-                      isActive: selectedIndex == i,
-                      trackHeight: _itemTrackHeight,
-                      chipVertMargin: _chipVerticalMargin,
-                      activeColor: primary,
-                      inactiveColor: AppColors.bottomNavInactive(theme),
-                      onTap: () => onItemTap(i),
-                    ),
+      child: DfGlassSurface(
+        borderRadius: BorderRadius.circular(100),
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+        sigma: 24,
+        child: SizedBox(
+          height: _itemTrackHeight,
+          child: Row(
+            children: [
+              for (var i = 0; i < itemCount; i++)
+                Expanded(
+                  child: _NavItem(
+                    icon: _icons[i],
+                    label: _labels[i],
+                    isActive: selectedIndex == i,
+                    trackHeight: _itemTrackHeight,
+                    chipVertMargin: _chipVerticalMargin,
+                    activeColor: primary,
+                    inactiveColor: AppColors.bottomNavInactive(theme),
+                    onTap: () => onItemTap(i),
                   ),
-              ],
-            ),
+                ),
+            ],
           ),
         ),
       ),
