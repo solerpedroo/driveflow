@@ -222,6 +222,18 @@ flutter test --coverage
 
 ---
 
+## Onda 13 — entregue
+
+- [x] Feature `insights`: `MaintenancePredictor`, `EarningsHeatmapBuilder`, projeção semanal
+- [x] `AverageKmPerDayCalculator` e intervalos padrão de manutenção
+- [x] Notificações preditivas reagendadas após abastecimento
+- [x] Tela `/insights` com cards de melhor horário, manutenção e meta
+- [x] Dashboard: top 3 janelas + badge preditivo; atalhos Análises/Insights
+- [x] Perfil: atalho Insights; IA: sugestão "Qual meu melhor horário?"
+- [x] Testes: calculadoras insights e widget `BestTimeSlotsCard`
+
+---
+
 ## Licença
 
 Projeto privado — todos os direitos reservados.

@@ -5,6 +5,7 @@ import '../../../earnings/presentation/providers/earnings_providers.dart';
 import '../../../expenses/presentation/providers/expenses_providers.dart';
 import '../../../fuel/presentation/providers/fuel_providers.dart';
 import '../../../goals/presentation/providers/goals_providers.dart';
+import '../../../insights/domain/services/earnings_heatmap_builder.dart';
 import '../../../maintenance/presentation/providers/maintenance_providers.dart';
 import '../../../vehicle/presentation/providers/vehicle_providers.dart';
 import '../../data/repositories/ai_repository_impl.dart';
@@ -30,6 +31,7 @@ final aiContextPreviewProvider = Provider<AiContextSnapshot>((ref) {
       ref.watch(activeVehicleMaintenanceProvider).valueOrNull ?? const [];
   final goals = ref.watch(goalsStreamProvider).valueOrNull;
   final odometer = ref.watch(activeVehicleProvider).valueOrNull?.odometerKm;
+  final topSlots = EarningsHeatmapBuilder.topSlots(earnings: earnings);
 
   return AiContextBuilder.build(
     earnings: earnings,
@@ -38,6 +40,7 @@ final aiContextPreviewProvider = Provider<AiContextSnapshot>((ref) {
     maintenanceRecords: maintenance,
     goals: goals,
     currentOdometerKm: odometer,
+    topEarningSlots: topSlots,
   );
 });
 

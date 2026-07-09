@@ -2,6 +2,7 @@ import '../../../earnings/domain/entities/earning_entity.dart';
 import '../../../expenses/domain/entities/expense_entity.dart';
 import '../../../fuel/domain/entities/fuel_log_entity.dart';
 import '../../../goals/domain/entities/goal_entity.dart';
+import '../../../insights/domain/entities/earning_time_slot.dart';
 import '../../../maintenance/domain/entities/maintenance_entity.dart';
 import '../../../maintenance/domain/services/maintenance_due_checker.dart';
 import '../../../../shared/domain/models/period_summary.dart';
@@ -20,6 +21,7 @@ class AiContextSnapshot {
     required this.fuelLogsCount,
     required this.maintenanceAlerts,
     required this.lastFuelCostPerKm,
+    this.topEarningSlots = const [],
   });
 
   final int periodDays;
@@ -32,6 +34,7 @@ class AiContextSnapshot {
   final int fuelLogsCount;
   final int maintenanceAlerts;
   final double? lastFuelCostPerKm;
+  final List<EarningTimeSlot> topEarningSlots;
 
   Map<String, dynamic> toJson() {
     return {
@@ -54,6 +57,15 @@ class AiContextSnapshot {
         'maintenanceAlerts': maintenanceAlerts,
       },
       'lastFuelCostPerKm': lastFuelCostPerKm,
+      'topEarningSlots': topEarningSlots
+          .map(
+            (slot) => {
+              'weekday': slot.weekdayLabel,
+              'hour': slot.hourLabel,
+              'profitPerHour': slot.profitPerHour,
+            },
+          )
+          .toList(growable: false),
     };
   }
 
@@ -81,6 +93,7 @@ abstract final class AiContextBuilder {
     required GoalEntity? goals,
     required double? currentOdometerKm,
     int periodDays = 90,
+    List<EarningTimeSlot> topEarningSlots = const [],
   }) {
     final anchor = DateTime.now();
     final todayRange = dateRangeForGoalPeriod(GoalPeriod.daily, anchor);
@@ -128,6 +141,7 @@ abstract final class AiContextBuilder {
       fuelLogsCount: fuelLogs.length,
       maintenanceAlerts: alerts,
       lastFuelCostPerKm: fuelLogs.isEmpty ? null : fuelLogs.first.costPerKm,
+      topEarningSlots: topEarningSlots,
     );
   }
 
@@ -149,6 +163,10 @@ abstract final class AiContextBuilder {
           '${snapshot.expensesCount}, abastecimentos: ${snapshot.fuelLogsCount}',
       if (snapshot.lastFuelCostPerKm != null)
         'Último custo/km combustível: ${snapshot.lastFuelCostPerKm}',
+      if (snapshot.topEarningSlots.isNotEmpty)
+        'Melhor horário: ${snapshot.topEarningSlots.first.weekdayLabel} '
+            '${snapshot.topEarningSlots.first.hourLabel} '
+            '(${snapshot.topEarningSlots.first.profitPerHour.toStringAsFixed(2)}/h)',
     ].join('\n');
   }
 }

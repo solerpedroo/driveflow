@@ -23,5 +23,6 @@ abstract final class AiQuickSuggestions {
     'Como está minha meta diária?',
     'Quais foram meus maiores gastos?',
     'Preciso fazer alguma manutenção?',
+    'Qual meu melhor horário?',
   ];
 }
