@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_motion.dart';
 
-const Duration kDriveFlowTabSwitchDuration = Duration(milliseconds: 280);
+const Duration kDriveFlowTabSwitchDuration = DriveFlowMotion.normal;
 
-/// Bottom navigation estilo cápsula flutuante — identidade DriveFlow.
+/// Bottom navigation premium — cápsula flutuante com animação suave.
 class DriveFlowBottomNavBar extends StatelessWidget {
   const DriveFlowBottomNavBar({
     required this.selectedIndex,
@@ -18,19 +19,19 @@ class DriveFlowBottomNavBar extends StatelessWidget {
   final ValueChanged<int> onItemTap;
 
   static const List<IconData> _icons = [
-    Icons.dashboard_rounded,
-    Icons.payments_outlined,
-    Icons.receipt_long_outlined,
+    Icons.home_rounded,
+    Icons.payments_rounded,
+    Icons.receipt_long_rounded,
     Icons.bar_chart_rounded,
-    Icons.person_outline,
+    Icons.person_rounded,
   ];
 
   static const List<String> _labels = [
-    'INÍCIO',
-    'GANHOS',
-    'DESPESAS',
-    'RELATÓRIOS',
-    'PERFIL',
+    'Início',
+    'Ganhos',
+    'Despesas',
+    'Relatórios',
+    'Perfil',
   ];
 
   static const double _itemTrackHeight = 56;
@@ -43,25 +44,30 @@ class DriveFlowBottomNavBar extends StatelessWidget {
     final shell = AppColors.bottomNavBarShell(theme);
     final isDark = theme.brightness == Brightness.dark;
     final shadowColor = isDark
-        ? Colors.black.withValues(alpha: 0.24)
-        : primary.withValues(alpha: 0.2);
+        ? Colors.black.withValues(alpha: 0.30)
+        : AppColors.skyBlue.withValues(alpha: 0.18);
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 14),
       child: Container(
         decoration: BoxDecoration(
           color: shell,
           borderRadius: BorderRadius.circular(100),
+          border: Border.all(
+            color: isDark
+                ? AppColors.glassBorder
+                : AppColors.glassBorderLight,
+          ),
           boxShadow: [
             BoxShadow(
               color: shadowColor,
-              blurRadius: 20,
-              offset: const Offset(0, 8),
+              blurRadius: 24,
+              offset: const Offset(0, 10),
             ),
           ],
         ),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
           child: SizedBox(
             height: _itemTrackHeight,
             child: Row(
@@ -115,23 +121,29 @@ class _NavItem extends StatelessWidget {
 
     final textStyle = Theme.of(context).textTheme.labelSmall?.copyWith(
           color: contentColor,
-          fontWeight: FontWeight.w600,
-          letterSpacing: 0.3,
-          fontSize: 9.5,
+          fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+          fontSize: 10,
         );
 
     final column = Column(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Icon(icon, color: contentColor, size: 24),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          textAlign: TextAlign.center,
-          style: textStyle,
+        AnimatedScale(
+          scale: isActive ? 1.05 : 1.0,
+          duration: DriveFlowMotion.fast,
+          child: Icon(icon, color: contentColor, size: 22),
+        ),
+        const SizedBox(height: 3),
+        AnimatedDefaultTextStyle(
+          duration: DriveFlowMotion.fast,
+          style: textStyle!,
+          child: Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
+          ),
         ),
       ],
     );
@@ -144,28 +156,34 @@ class _NavItem extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(100),
         child: Center(
-          child: isActive
-              ? ConstrainedBox(
-                  constraints: BoxConstraints(
-                    minWidth: 72,
-                    minHeight: chipHeight,
-                    maxHeight: chipHeight,
-                  ),
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: activeColor,
-                      borderRadius: BorderRadius.circular(100),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      child: Center(child: column),
-                    ),
-                  ),
-                )
-              : Padding(
-                  padding: EdgeInsets.symmetric(vertical: chipVertMargin),
-                  child: column,
-                ),
+          child: AnimatedContainer(
+            duration: DriveFlowMotion.fast,
+            curve: DriveFlowMotion.standard,
+            constraints: BoxConstraints(
+              minWidth: isActive ? 72 : 48,
+              minHeight: chipHeight,
+              maxHeight: chipHeight,
+            ),
+            decoration: isActive
+                ? BoxDecoration(
+                    color: activeColor,
+                    borderRadius: BorderRadius.circular(100),
+                    boxShadow: [
+                      BoxShadow(
+                        color: activeColor.withValues(alpha: 0.35),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  )
+                : null,
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: isActive ? 12 : 4,
+              ),
+              child: Center(child: column),
+            ),
+          ),
         ),
       ),
     );
