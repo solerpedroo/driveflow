@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_gradients.dart';
 import '../../../core/theme/app_motion.dart';
-import '../../../core/theme/app_radius.dart';
-import '../../../core/theme/app_spacing.dart';
+import '../../../core/utils/df_haptics.dart';
+import '../../../core/theme/app_gradients.dart';
 
 enum DfButtonVariant { primary, outlined, tonal, gradient }
 
@@ -112,7 +112,12 @@ class _DfButtonState extends State<DfButton> {
       duration: DriveFlowMotion.fast,
       curve: DriveFlowMotion.standard,
       child: Listener(
-        onPointerDown: enabled ? (_) => setState(() => _pressed = true) : null,
+        onPointerDown: enabled
+            ? (_) {
+                DfHaptics.light();
+                setState(() => _pressed = true);
+              }
+            : null,
         onPointerUp: enabled ? (_) => setState(() => _pressed = false) : null,
         onPointerCancel: enabled ? (_) => setState(() => _pressed = false) : null,
         child: button,
