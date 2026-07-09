@@ -13,22 +13,27 @@ import '../../../profile/presentation/providers/profile_providers.dart';
 import '../../../authentication/presentation/providers/auth_providers.dart';
 import '../../../vehicle/presentation/providers/vehicle_providers.dart';
 import '../../../vehicle/presentation/widgets/vehicle_scope_chip.dart';
-import '../../../../core/theme/app_motion.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../shared/widgets/design_system/df_skeleton.dart';
 import '../providers/dashboard_providers.dart';
-import '../widgets/dashboard_cockpit_card.dart';
 import '../widgets/dashboard_fuel_card.dart';
 import '../widgets/dashboard_header.dart';
+import '../widgets/dashboard_hero_section.dart';
 import '../widgets/dashboard_maintenance_card.dart';
 import '../widgets/dashboard_shortcuts_row.dart';
-import '../widgets/dashboard_today_card.dart';
 import '../widgets/dashboard_today_metrics_grid.dart';
 import '../widgets/month_summary_card.dart';
 import '../widgets/weekly_profit_chart.dart';
 
-/// Dashboard — visão consolidada do motorista.
+/// Dashboard premium — hero ring + carrossel + métricas (FitCal / FitFolio tier).
 class DashboardScreen extends HookConsumerWidget {
   const DashboardScreen({super.key});
+
+  static String _greetingForHour(int hour, String name) {
+    if (hour < 12) return 'Bom dia, $name';
+    if (hour < 18) return 'Boa tarde, $name';
+    return 'Boa noite, $name';
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -44,10 +49,10 @@ class DashboardScreen extends HookConsumerWidget {
     final topPrediction =
         ref.watch(topMaintenancePredictionProvider).valueOrNull;
 
-    final pulse = useAnimationController(duration: DriveFlowMotion.pulse)
-      ..repeat(reverse: true);
-    final glow = useAnimation(
-      CurvedAnimation(parent: pulse, curve: DriveFlowMotion.standard),
+    final displayName = user?.displayName ?? 'motorista';
+    final greeting = useMemoized(
+      () => _greetingForHour(DateTime.now().hour, displayName),
+      [displayName],
     );
 
     return CustomScrollView(
@@ -56,7 +61,7 @@ class DashboardScreen extends HookConsumerWidget {
         SliverPadding(
           padding: const EdgeInsets.fromLTRB(
             AppSpacing.screenHorizontal,
-            AppSpacing.md,
+            AppSpacing.lg,
             AppSpacing.screenHorizontal,
             0,
           ),
@@ -70,23 +75,44 @@ class DashboardScreen extends HookConsumerWidget {
         SliverPadding(
           padding: const EdgeInsets.fromLTRB(
             AppSpacing.screenHorizontal,
-            AppSpacing.xl,
+            AppSpacing.lg,
             AppSpacing.screenHorizontal,
             0,
           ),
           sliver: SliverToBoxAdapter(
-            child: DashboardCockpitCard(
-              displayName: user?.displayName ?? 'motorista',
-              vehicleLine: vehicle != null
-                  ? '${vehicle.displayName} · ${vehicle.odometerKm.toStringAsFixed(0)} km'
-                  : 'Cadastre seu veículo para liberar métricas completas.',
-              pulseAnimation: glow,
+            child: dashboardAsync.when(
+              loading: () => const SizedBox(
+                height: 340,
+                child: Center(child: CircularProgressIndicator()),
+              ),
+              error: (e, _) => Text('Erro ao carregar dashboard: $e'),
+              data: (snapshot) => dailyGoal.when(
+                data: (goal) => DashboardHeroSection(
+                  summary: snapshot.today,
+                  goalProgress: goal,
+                  greeting: greeting,
+                ),
+                loading: () => const SizedBox(
+                  height: 340,
+                  child: DfSkeleton(itemCount: 1),
+                ),
+                error: (_, __) => DashboardHeroSection(
+                  summary: snapshot.today,
+                  goalProgress: GoalProgressCalculator.calculate(
+                    period: GoalPeriod.daily,
+                    goals: null,
+                    earningsTotal: snapshot.today.revenue,
+                    expensesTotal: snapshot.today.expenses,
+                  ),
+                  greeting: greeting,
+                ),
+              ),
             ),
           ),
         ),
         const SliverToBoxAdapter(
           child: Padding(
-            padding: EdgeInsets.only(top: AppSpacing.md),
+            padding: EdgeInsets.only(top: AppSpacing.lg),
             child: DashboardShortcutsRow(),
           ),
         ),
@@ -105,36 +131,6 @@ class DashboardScreen extends HookConsumerWidget {
               ),
             ),
           ),
-        SliverPadding(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.screenHorizontal,
-            AppSpacing.lg,
-            AppSpacing.screenHorizontal,
-            0,
-          ),
-          sliver: SliverToBoxAdapter(
-            child: dashboardAsync.when(
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, _) => Text('Erro ao carregar dashboard: $e'),
-              data: (snapshot) => dailyGoal.when(
-                data: (goal) => DashboardTodayCard(
-                  summary: snapshot.today,
-                  goalProgress: goal,
-                ),
-                loading: () => const LinearProgressIndicator(),
-                error: (_, __) => DashboardTodayCard(
-                  summary: snapshot.today,
-                  goalProgress: GoalProgressCalculator.calculate(
-                    period: GoalPeriod.daily,
-                    goals: null,
-                    earningsTotal: snapshot.today.revenue,
-                    expensesTotal: snapshot.today.expenses,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
         SliverPadding(
           padding: const EdgeInsets.fromLTRB(
             AppSpacing.screenHorizontal,
