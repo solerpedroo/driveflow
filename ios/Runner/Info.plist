@@ -33,6 +33,12 @@
 			</array>
 		</dict>
 	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>O DriveFlow usa a câmera para escanear comprovantes de despesas.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>O DriveFlow acessa suas fotos para anexar comprovantes e avatar.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>O DriveFlow pode salvar imagens exportadas na sua galeria.</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UIApplicationSceneManifest</key>

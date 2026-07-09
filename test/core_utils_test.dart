@@ -42,9 +42,11 @@ void main() {
       expect(Validators.email('invalid'), isNotNull);
     });
 
-    test('password min length', () {
+    test('password min length and complexity', () {
       expect(Validators.password('123'), isNotNull);
-      expect(Validators.password('12345678'), isNull);
+      expect(Validators.password('12345678'), isNotNull);
+      expect(Validators.password('abc12345'), isNotNull);
+      expect(Validators.password('Abc12345'), isNull);
     });
 
     test('brlAmount rejects invalid value', () {

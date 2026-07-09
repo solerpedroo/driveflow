@@ -83,9 +83,11 @@ class GoalsScreen extends HookConsumerWidget {
               child: Column(
                 children: [
                   for (final period in GoalPeriod.values) ...[
-                    GoalProgressCard(progress: progressMap[period]!),
-                    if (period != GoalPeriod.yearly)
-                      const Divider(height: 24),
+                    if (progressMap[period] case final progress?) ...[
+                      GoalProgressCard(progress: progress),
+                      if (period != GoalPeriod.yearly)
+                        const Divider(height: 24),
+                    ],
                   ],
                 ],
               ),

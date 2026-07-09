@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/presentation/providers/sync_providers.dart';
 import '../../domain/entities/vehicle_entity.dart';
 import '../../domain/repositories/vehicle_repository.dart';
 import '../../domain/services/vehicle_default_resolver.dart';
@@ -7,7 +8,12 @@ import '../../domain/usecases/vehicle_usecases.dart';
 import '../../data/repositories/vehicle_repository_impl.dart';
 
 final vehicleRepositoryProvider = Provider<VehicleRepository>((ref) {
-  return VehicleRepositoryImpl();
+  return VehicleRepositoryImpl(
+    cache: ref.watch(localEntityCacheProvider),
+    syncQueue: ref.watch(pendingSyncQueueProvider),
+    connectivity: ref.watch(connectivityServiceProvider),
+    syncWorker: ref.watch(syncWorkerProvider),
+  );
 });
 
 final vehiclesStreamProvider = StreamProvider<List<VehicleEntity>>((ref) {

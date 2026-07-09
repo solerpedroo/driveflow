@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'app.dart';
 import 'core/presentation/providers/sync_providers.dart';
 import 'core/services/crash_reporting.dart';
+import 'core/services/session_secure_storage.dart';
 import 'core/storage/hive_storage.dart';
 import 'core/services/maintenance_notification_service.dart';
 import 'core/theme/theme_mode_provider.dart';
@@ -14,6 +16,7 @@ Future<void> main() async {
   await DriveFlowCrashReporting.bootstrap(() async {
     await HiveStorage.initialize();
     await initializeSupabase();
+    await _restoreSessionIfAvailable();
     await initializeDateFormatting('pt_BR');
     await MaintenanceNotificationService.instance.initialize();
 
@@ -28,4 +31,16 @@ Future<void> main() async {
       ),
     );
   });
+}
+
+Future<void> _restoreSessionIfAvailable() async {
+  final storage = SessionSecureStorage();
+  final refreshToken = await storage.readRefreshToken();
+  if (refreshToken == null || refreshToken.isEmpty) return;
+
+  try {
+    await Supabase.instance.client.auth.setSession(refreshToken);
+  } on Object {
+    await storage.clear();
+  }
 }

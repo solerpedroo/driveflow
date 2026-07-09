@@ -8,6 +8,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../authentication/presentation/widgets/auth_primary_button.dart';
 import '../../../../shared/widgets/driveflow_glass_card.dart';
+import '../../domain/services/import_file_validator.dart';
 import '../providers/import_providers.dart';
 import '../widgets/import_preview_table.dart';
 
@@ -32,7 +33,23 @@ class ImportStatementScreen extends HookConsumerWidget {
 
       final file = result.files.first;
       fileName.value = file.name;
-      final bytes = file.bytes ?? await File(file.path!).readAsBytes();
+
+      final bytes = file.bytes ??
+          (file.path != null ? await File(file.path!).readAsBytes() : null);
+      if (bytes == null) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Não foi possível ler o arquivo.')),
+          );
+        }
+        return;
+      }
+
+      ImportFileValidator.validate(
+        byteLength: bytes.length,
+        lineCount: String.fromCharCodes(bytes).split('\n').length,
+      );
+
       final content = String.fromCharCodes(bytes);
       final isOfx = file.name.toLowerCase().endsWith('.ofx');
 

@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
+
 import '../../features/earnings/data/datasources/earnings_remote_datasource.dart';
 import '../../features/earnings/data/mappers/earnings_mapper.dart';
 import '../../features/expenses/data/datasources/expenses_remote_datasource.dart';
@@ -89,10 +91,17 @@ class SyncWorker {
         try {
           await _execute(operation);
           await _queue.dequeue(operation.id);
-        } on Object {
+        } on Object catch (error, stackTrace) {
+          if (kDebugMode) {
+            debugPrint(
+              'DriveFlow sync failed (${operation.entity}/${operation.action}): '
+              '$error\n$stackTrace',
+            );
+          }
           final nextAttempts = operation.attempts + 1;
           if (nextAttempts >= 8) {
             await _queue.dequeue(operation.id);
+            _setStatus(SyncStatus.failed);
           } else {
             await _queue.replace(operation.copyWith(attempts: nextAttempts));
             await Future<void>.delayed(operation.backoffDelay);

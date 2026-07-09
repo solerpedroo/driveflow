@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../core/errors/failure.dart';
+import '../../../../core/storage/supabase_storage_urls.dart';
 import '../../domain/entities/expense_entity.dart';
 import '../mappers/expenses_mapper.dart';
 import '../schema/expenses_schema.dart';
@@ -39,7 +40,25 @@ class ExpensesRemoteDataSource {
         .eq(ExpensesSchema.userId, userId)
         .order(ExpensesSchema.date, ascending: false);
 
-    return List<Map<String, dynamic>>.from(rows);
+    return _resolveReceiptRows(List<Map<String, dynamic>>.from(rows));
+  }
+
+  Future<Map<String, dynamic>> _resolveReceiptRow(
+    Map<String, dynamic> row,
+  ) async {
+    final stored = row[ExpensesSchema.receiptUrl] as String?;
+    if (stored == null || SupabaseStorageUrls.isRemoteUrl(stored)) {
+      return row;
+    }
+    final signed = await SupabaseStorageUrls.resolveReceiptUrl(stored);
+    if (signed == null) return row;
+    return {...row, ExpensesSchema.receiptUrl: signed};
+  }
+
+  Future<List<Map<String, dynamic>>> _resolveReceiptRows(
+    List<Map<String, dynamic>> rows,
+  ) async {
+    return Future.wait(rows.map(_resolveReceiptRow));
   }
 
   Future<String?> uploadReceipt(File file) async {
@@ -58,9 +77,7 @@ class ExpensesRemoteDataSource {
             fileOptions: const FileOptions(upsert: false),
           );
 
-      return await _client.storage
-          .from(_receiptsBucket)
-          .createSignedUrl(objectPath, 60 * 60 * 24 * 365);
+      return objectPath;
     } on StorageException catch (e) {
       throw ServerFailure(message: e.message, cause: e);
     }
@@ -75,11 +92,12 @@ class ExpensesRemoteDataSource {
     }
 
     try {
-      return await _client
+      final row = await _client
           .from(ExpensesSchema.table)
           .insert(ExpensesMapper.toInsert(userId: userId, draft: draft))
           .select()
           .single();
+      return _resolveReceiptRow(row);
     } on PostgrestException catch (e) {
       throw ServerFailure(message: e.message, cause: e);
     }
@@ -89,21 +107,37 @@ class ExpensesRemoteDataSource {
     required String id,
     required ExpenseDraft draft,
   }) async {
+    final userId = _userId;
+    if (userId == null) {
+      throw const AuthFailure(message: 'Sessão expirada. Entre novamente.');
+    }
+
     try {
-      return await _client
+      final row = await _client
           .from(ExpensesSchema.table)
           .update(ExpensesMapper.toUpdate(draft))
           .eq(ExpensesSchema.id, id)
+          .eq(ExpensesSchema.userId, userId)
           .select()
           .single();
+      return _resolveReceiptRow(row);
     } on PostgrestException catch (e) {
       throw ServerFailure(message: e.message, cause: e);
     }
   }
 
   Future<void> deleteExpense(String id) async {
+    final userId = _userId;
+    if (userId == null) {
+      throw const AuthFailure(message: 'Sessão expirada. Entre novamente.');
+    }
+
     try {
-      await _client.from(ExpensesSchema.table).delete().eq(ExpensesSchema.id, id);
+      await _client
+          .from(ExpensesSchema.table)
+          .delete()
+          .eq(ExpensesSchema.id, id)
+          .eq(ExpensesSchema.userId, userId);
     } on PostgrestException catch (e) {
       throw ServerFailure(message: e.message, cause: e);
     }

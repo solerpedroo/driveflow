@@ -84,6 +84,7 @@ class VehicleRemoteDataSource {
           .from(VehicleSchema.table)
           .update(VehicleMapper.toUpdate(draft))
           .eq(VehicleSchema.id, id)
+          .eq(VehicleSchema.userId, userId)
           .select()
           .single();
       return row;
@@ -93,8 +94,17 @@ class VehicleRemoteDataSource {
   }
 
   Future<void> deleteVehicle(String id) async {
+    final userId = _userId;
+    if (userId == null) {
+      throw const AuthFailure(message: 'Sessão expirada. Entre novamente.');
+    }
+
     try {
-      await _client.from(VehicleSchema.table).delete().eq(VehicleSchema.id, id);
+      await _client
+          .from(VehicleSchema.table)
+          .delete()
+          .eq(VehicleSchema.id, id)
+          .eq(VehicleSchema.userId, userId);
     } on PostgrestException catch (e) {
       throw ServerFailure(message: e.message, cause: e);
     }
@@ -111,7 +121,8 @@ class VehicleRemoteDataSource {
       await _client
           .from(VehicleSchema.table)
           .update({VehicleSchema.isDefault: true})
-          .eq(VehicleSchema.id, id);
+          .eq(VehicleSchema.id, id)
+          .eq(VehicleSchema.userId, userId);
     } on PostgrestException catch (e) {
       throw ServerFailure(message: e.message, cause: e);
     }
@@ -121,11 +132,17 @@ class VehicleRemoteDataSource {
     required String id,
     required double odometerKm,
   }) async {
+    final userId = _userId;
+    if (userId == null) {
+      throw const AuthFailure(message: 'Sessão expirada. Entre novamente.');
+    }
+
     try {
       await _client
           .from(VehicleSchema.table)
           .update({VehicleSchema.odometer: odometerKm})
-          .eq(VehicleSchema.id, id);
+          .eq(VehicleSchema.id, id)
+          .eq(VehicleSchema.userId, userId);
     } on PostgrestException catch (e) {
       throw ServerFailure(message: e.message, cause: e);
     }

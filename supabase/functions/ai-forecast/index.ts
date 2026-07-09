@@ -1,8 +1,10 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
+const allowedOrigin = Deno.env.get("ALLOWED_ORIGIN") ?? "";
+
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Origin": allowedOrigin || "null",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type",
 };
@@ -11,6 +13,7 @@ const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
 const DEFAULT_MODEL = "llama-3.3-70b-versatile";
 const FALLBACK_MODEL = Deno.env.get("GROQ_FALLBACK_MODEL") ??
   "llama-3.1-8b-instant";
+const RATE_LIMIT_PER_HOUR = 10;
 const CONTEXT_DAYS = 90;
 
 type GroqMessage = { role: "system" | "user" | "assistant"; content: string };
@@ -20,6 +23,15 @@ function jsonResponse(body: unknown, status = 200) {
     status,
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
+}
+
+function clientError(message: string, status = 500) {
+  return jsonResponse({ error: message }, status);
+}
+
+function logServerError(context: string, error: unknown) {
+  const detail = error instanceof Error ? error.message : String(error);
+  console.error(`[ai-forecast] ${context}:`, detail);
 }
 
 function formatBrl(value: number) {
@@ -85,13 +97,13 @@ Deno.serve(async (req) => {
   }
 
   if (req.method !== "POST") {
-    return jsonResponse({ error: "Método não permitido" }, 405);
+    return clientError("Método não permitido", 405);
   }
 
   try {
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
-      return jsonResponse({ error: "Não autorizado" }, 401);
+      return clientError("Não autorizado", 401);
     }
 
     const groqKey = Deno.env.get("GROQ_API_KEY");
@@ -100,7 +112,7 @@ Deno.serve(async (req) => {
     const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
 
     if (!groqKey || !supabaseUrl || !serviceRoleKey || !anonKey) {
-      return jsonResponse({ error: "Configuração do servidor incompleta" }, 500);
+      return clientError("Previsão indisponível no momento.", 500);
     }
 
     const userClient = createClient(supabaseUrl, anonKey, {
@@ -110,10 +122,30 @@ Deno.serve(async (req) => {
 
     const { data: authData, error: authError } = await userClient.auth.getUser();
     if (authError || !authData.user) {
-      return jsonResponse({ error: "Sessão inválida" }, 401);
+      return clientError("Sessão inválida", 401);
     }
 
     const userId = authData.user.id;
+
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+    const { count: recentCount, error: rateError } = await adminClient
+      .from("ai_history")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", userId)
+      .eq("type", "forecast")
+      .gte("created_at", oneHourAgo);
+
+    if (rateError) {
+      logServerError("rate limit check", rateError);
+      return clientError("Previsão indisponível no momento.", 500);
+    }
+    if ((recentCount ?? 0) >= RATE_LIMIT_PER_HOUR) {
+      return clientError(
+        "Limite de previsões atingido. Tente novamente em breve.",
+        429,
+      );
+    }
+
     const since = new Date(Date.now() - CONTEXT_DAYS * 24 * 60 * 60 * 1000)
       .toISOString();
 
@@ -136,11 +168,11 @@ Deno.serve(async (req) => {
     ]);
 
     if (earningsRes.error || expensesRes.error || goalsRes.error) {
-      const message = earningsRes.error?.message ??
-        expensesRes.error?.message ??
-        goalsRes.error?.message ??
-        "Erro ao buscar contexto";
-      return jsonResponse({ error: message }, 500);
+      logServerError(
+        "context fetch",
+        earningsRes.error ?? expensesRes.error ?? goalsRes.error,
+      );
+      return clientError("Previsão indisponível no momento.", 500);
     }
 
     const series = dailyProfitSeries(
@@ -182,7 +214,8 @@ Deno.serve(async (req) => {
     let summary: string;
     try {
       summary = await callGroq(messages, groqKey, DEFAULT_MODEL);
-    } catch {
+    } catch (primaryError) {
+      logServerError("groq primary model", primaryError);
       summary = await callGroq(messages, groqKey, FALLBACK_MODEL);
     }
 
@@ -199,7 +232,8 @@ Deno.serve(async (req) => {
       .single();
 
     if (saveError || !saved) {
-      return jsonResponse({ error: saveError?.message ?? "Erro ao salvar" }, 500);
+      logServerError("save history", saveError);
+      return clientError("Previsão indisponível no momento.", 500);
     }
 
     return jsonResponse({
@@ -212,7 +246,7 @@ Deno.serve(async (req) => {
       createdAt: saved.created_at,
     });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Erro interno";
-    return jsonResponse({ error: message }, 500);
+    logServerError("unhandled", error);
+    return clientError("Previsão indisponível no momento.", 500);
   }
 });
