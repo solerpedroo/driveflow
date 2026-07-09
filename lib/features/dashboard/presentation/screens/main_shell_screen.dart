@@ -16,11 +16,45 @@ import '../../../../shared/widgets/driveflow_main_shell.dart';
 
 /// Shell principal pós-login com 5 abas.
 class MainShellScreen extends HookConsumerWidget {
-  const MainShellScreen({super.key});
+  const MainShellScreen({
+    super.key,
+    this.initialTab = DriveFlowTab.dashboard,
+  });
+
+  final int initialTab;
+
+  static int resolveInitialTab(String? value) {
+    if (value == null || value.isEmpty) return DriveFlowTab.dashboard;
+
+    final parsed = int.tryParse(value);
+    if (parsed != null) return _normalizeTab(parsed);
+
+    switch (value.toLowerCase()) {
+      case 'dashboard':
+        return DriveFlowTab.dashboard;
+      case 'earnings':
+        return DriveFlowTab.earnings;
+      case 'expenses':
+        return DriveFlowTab.expenses;
+      case 'reports':
+        return DriveFlowTab.reports;
+      case 'profile':
+        return DriveFlowTab.profile;
+      default:
+        return DriveFlowTab.dashboard;
+    }
+  }
+
+  static int _normalizeTab(int tab) {
+    if (tab < DriveFlowTab.dashboard || tab >= kDriveFlowMainTabCount) {
+      return DriveFlowTab.dashboard;
+    }
+    return tab;
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final selectedIndex = useState(DriveFlowTab.dashboard);
+    final selectedIndex = useState(_normalizeTab(initialTab));
 
     final tabBodies = useMemoized(
       () => const [
