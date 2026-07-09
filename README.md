@@ -262,7 +262,7 @@ flutter test --coverage
 |---|---|
 | `DfButton` | Ações primárias, outlined e tonal |
 | `DfTextField` | Formulários e auth |
-| `DfCard` | Cartões glass (substitui `DriveFlowGlassCard`) |
+| `DfCard` | Cartões glass / elevated / hero |
 | `DfChip` | Métricas e filtros |
 | `DfEmptyState` | Listas vazias |
 | `DfSkeleton` | Loading de listas |
