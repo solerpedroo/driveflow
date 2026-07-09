@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:driveflow/core/constants/driveflow_tab_count.dart';
 import 'package:driveflow/core/presentation/providers/sync_providers.dart';
 import 'package:driveflow/core/services/sync_status.dart';
 import 'package:driveflow/core/theme/app_theme.dart';
@@ -90,5 +91,63 @@ void main() {
 
     expect(find.text('Perfil'), findsOneWidget);
     expect(find.byType(DriveFlowBottomNavBar), findsOneWidget);
+  });
+
+  testWidgets('MainShellScreen opens profile tab when requested', (tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          authStateProvider.overrideWith(
+            (ref) => Stream.value(
+              const UserEntity(id: 'u1', name: 'Driver', email: 'd@test.com'),
+            ),
+          ),
+          userProfileProvider.overrideWith(
+            (ref) async => const UserEntity(
+              id: 'u1',
+              name: 'Driver',
+              email: 'd@test.com',
+            ),
+          ),
+          earningsStreamProvider.overrideWith((ref) => Stream.value(const [])),
+          expensesStreamProvider.overrideWith((ref) => Stream.value(const [])),
+          goalsStreamProvider.overrideWith((ref) => Stream.value(null)),
+          activeVehicleFuelLogsProvider.overrideWith((ref) => const AsyncData([])),
+          dashboardSnapshotProvider.overrideWith(
+            (ref) => const AsyncData(
+              DashboardSnapshot(
+                today: PeriodSummary.empty,
+                month: PeriodSummary.empty,
+                weekProfits: [],
+              ),
+            ),
+          ),
+          goalProgressProvider.overrideWith(
+            (ref, period) => AsyncData(
+              GoalProgressCalculator.calculate(
+                period: period,
+                goals: null,
+                earningsTotal: 0,
+                expensesTotal: 0,
+              ),
+            ),
+          ),
+          vehiclesStreamProvider.overrideWith((ref) => Stream.value(const [])),
+          isOnlineProvider.overrideWith((ref) => Stream.value(true)),
+          syncStatusProvider.overrideWith((ref) => Stream.value(SyncStatus.idle)),
+          pendingSyncCountProvider.overrideWith((ref) => Future.value(0)),
+        ],
+        child: MaterialApp(
+          theme: buildDriveFlowDarkTheme(),
+          home: const MainShellScreen(initialTab: DriveFlowTab.profile),
+        ),
+      ),
+    );
+
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(find.text('Perfil'), findsOneWidget);
+    expect(find.text('Meus veículos'), findsOneWidget);
   });
 }
