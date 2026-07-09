@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/theme/app_gradients.dart';
+import '../../../core/theme/app_motion.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 
-enum DfButtonVariant { primary, outlined, tonal }
+enum DfButtonVariant { primary, outlined, tonal, gradient }
 
-/// Botão padronizado do Design System v2.
-class DfButton extends StatelessWidget {
+/// Botão padronizado do Design System v2 com press-scale e gradiente hero.
+class DfButton extends StatefulWidget {
   const DfButton({
     required this.label,
     required this.onPressed,
@@ -27,67 +29,143 @@ class DfButton extends StatelessWidget {
   final bool expand;
 
   @override
+  State<DfButton> createState() => _DfButtonState();
+}
+
+class _DfButtonState extends State<DfButton> {
+  bool _pressed = false;
+
+  @override
   Widget build(BuildContext context) {
-    final child = isLoading
+    final theme = Theme.of(context);
+    final enabled = !widget.isLoading && widget.onPressed != null;
+
+    final child = widget.isLoading
         ? const SizedBox(
             height: 22,
             width: 22,
-            child: CircularProgressIndicator(strokeWidth: 2.5),
+            child: CircularProgressIndicator(
+              strokeWidth: 2.5,
+              color: Colors.white,
+            ),
           )
         : Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: expand ? MainAxisSize.max : MainAxisSize.min,
+            mainAxisSize: widget.expand ? MainAxisSize.max : MainAxisSize.min,
             children: [
-              if (leading != null) ...[
-                leading!,
+              if (widget.leading != null) ...[
+                widget.leading!,
                 const SizedBox(width: AppSpacing.sm),
               ],
-              if (icon != null) ...[
-                Icon(icon, size: 20),
+              if (widget.icon != null) ...[
+                Icon(widget.icon, size: 20),
                 const SizedBox(width: AppSpacing.sm),
               ],
-              Flexible(child: Text(label)),
+              Flexible(
+                child: Text(
+                  widget.label,
+                  style: widget.variant == DfButtonVariant.gradient
+                      ? const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                        )
+                      : null,
+                ),
+              ),
             ],
           );
 
-    final button = switch (variant) {
+    Widget button = switch (widget.variant) {
+      DfButtonVariant.gradient => _GradientButton(
+          onPressed: enabled ? widget.onPressed : null,
+          child: child,
+        ),
       DfButtonVariant.primary => FilledButton(
-          onPressed: isLoading ? null : onPressed,
+          onPressed: enabled ? widget.onPressed : null,
           style: FilledButton.styleFrom(
-            minimumSize: const Size.fromHeight(52),
-            shape: RoundedRectangleBorder(
-              borderRadius: AppRadius.mdAll,
-            ),
+            minimumSize: const Size.fromHeight(54),
+            shape: RoundedRectangleBorder(borderRadius: AppRadius.lgAll),
+            elevation: 0,
           ),
           child: child,
         ),
       DfButtonVariant.outlined => OutlinedButton(
-          onPressed: isLoading ? null : onPressed,
+          onPressed: enabled ? widget.onPressed : null,
           style: OutlinedButton.styleFrom(
-            minimumSize: const Size.fromHeight(52),
-            shape: RoundedRectangleBorder(
-              borderRadius: AppRadius.mdAll,
-            ),
+            minimumSize: const Size.fromHeight(54),
+            shape: RoundedRectangleBorder(borderRadius: AppRadius.lgAll),
           ),
           child: child,
         ),
       DfButtonVariant.tonal => FilledButton.tonal(
-          onPressed: isLoading ? null : onPressed,
+          onPressed: enabled ? widget.onPressed : null,
           style: FilledButton.styleFrom(
             minimumSize: const Size.fromHeight(48),
-            shape: RoundedRectangleBorder(
-              borderRadius: AppRadius.mdAll,
-            ),
+            shape: RoundedRectangleBorder(borderRadius: AppRadius.lgAll),
           ),
           child: child,
         ),
     };
 
-    if (!expand) return Semantics(button: true, label: label, child: button);
+    button = AnimatedScale(
+      scale: _pressed && enabled ? 0.97 : 1.0,
+      duration: DriveFlowMotion.fast,
+      curve: DriveFlowMotion.standard,
+      child: Listener(
+        onPointerDown: enabled ? (_) => setState(() => _pressed = true) : null,
+        onPointerUp: enabled ? (_) => setState(() => _pressed = false) : null,
+        onPointerCancel: enabled ? (_) => setState(() => _pressed = false) : null,
+        child: button,
+      ),
+    );
+
+    if (!widget.expand) {
+      return Semantics(button: true, label: widget.label, child: button);
+    }
     return Semantics(
       button: true,
-      label: label,
+      label: widget.label,
       child: SizedBox(width: double.infinity, child: button),
+    );
+  }
+}
+
+class _GradientButton extends StatelessWidget {
+  const _GradientButton({required this.onPressed, required this.child});
+
+  final VoidCallback? onPressed;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final brightness = Theme.of(context).brightness;
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius: AppRadius.lgAll,
+        child: Ink(
+          decoration: BoxDecoration(
+            gradient: AppGradients.primaryButton(brightness),
+            borderRadius: AppRadius.lgAll,
+            boxShadow: [
+              BoxShadow(
+                color: Theme.of(context).colorScheme.primary.withValues(
+                      alpha: brightness == Brightness.dark ? 0.35 : 0.28,
+                    ),
+                blurRadius: 16,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: SizedBox(
+            width: double.infinity,
+            height: 54,
+            child: Center(child: child),
+          ),
+        ),
+      ),
     );
   }
 }
