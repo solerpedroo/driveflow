@@ -1119,6 +1119,33 @@ Substituir `electricTeal` como cor de marca por tons de azul-claro. Verde perman
 
 ---
 
+## Onda 21 — Insights polish & cleanup
+
+**Objetivo:** Remover wrapper deprecated, elevar Insights ao tier premium e padronizar filtros restantes.
+
+### Escopo
+
+| Área | Mudança |
+|---|---|
+| Cleanup | `driveflow_glass_card.dart` removido |
+| Insights screen | Hero narrativo, `DfSegmentedControl` Top 3/5/10, skeleton loading |
+| Insight cards | Ranking de horários, barra gradiente na meta, badges de confiança |
+| Dashboard | `DashboardInsightsSummary` tappable com haptic → Insights |
+| Filtros | `DfFilterPill` em ganhos, `DfSegmentedControl` em relatórios |
+
+### Componentes novos
+
+- `df_filter_pill.dart` — pill de filtro horizontal com haptic
+- `insights_story_header.dart` — hero narrativo da aba Insights
+
+### Critérios de conclusão
+
+- Nenhum `driveflow_glass_card.dart` no projeto
+- Insights com segmented control e cards premium
+- Ganhos e relatórios sem `FilterChip` genérico nas listagens principais
+
+---
+
 ## Mapa de requisitos funcionais → ondas
 
 | RF | Descrição | Onda |
@@ -1150,6 +1177,7 @@ Substituir `electricTeal` como cor de marca por tons de azul-claro. Verde perman
 | RNF-Story | Product storytelling & upsell Pro | 18 |
 | RNF-Outlier | Outlier premium polish — glass, haptics, charts | 19 |
 | RNF-Glass | Glass migration + analytics polish | 20 |
+| RNF-Insights | Insights polish + deprecated cleanup | 21 |
 
 ---
 
