@@ -8,7 +8,7 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/theme_mode_provider.dart';
 import '../../../../shared/widgets/driveflow_brand_logo.dart';
-import '../../../../shared/widgets/driveflow_glass_card.dart';
+import '../../../../shared/widgets/design_system/df_card.dart';
 import '../../../../shared/widgets/driveflow_gradient_background.dart';
 import '../../../../shared/widgets/driveflow_metric_chip.dart';
 
@@ -79,7 +79,7 @@ class FoundationScreen extends HookConsumerWidget {
               SliverPadding(
                 padding: const EdgeInsets.fromLTRB(24, 28, 24, 0),
                 sliver: SliverToBoxAdapter(
-                  child: DriveFlowGlassCard(
+                  child: DfCard(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -165,7 +165,7 @@ class FoundationScreen extends HookConsumerWidget {
               SliverPadding(
                 padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
                 sliver: SliverToBoxAdapter(
-                  child: DriveFlowGlassCard(
+                  child: DfCard(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
