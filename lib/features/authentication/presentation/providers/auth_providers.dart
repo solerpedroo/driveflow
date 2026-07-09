@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../vehicle/presentation/providers/vehicle_providers.dart';
 import '../../data/repositories/auth_repository_impl.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/repositories/auth_repository.dart';
@@ -72,6 +73,10 @@ class AuthController extends Notifier<AsyncValue<void>> {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       await ref.read(signOutProvider)();
+      ref.invalidate(vehiclesStreamProvider);
+      ref.invalidate(scopedVehicleIdProvider);
+      ref.invalidate(activeVehicleIdProvider);
+      ref.read(scopedVehicleIdProvider.notifier).state = null;
     });
   }
 
