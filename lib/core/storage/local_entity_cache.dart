@@ -45,4 +45,8 @@ class LocalEntityCache {
       await box.put(newId, newRow);
     }
   }
+
+  Future<void> clearBox(String boxName) async {
+    await Hive.box<dynamic>(boxName).clear();
+  }
 }
