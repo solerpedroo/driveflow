@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_colors.dart';
+import '../../../../shared/widgets/design_system/df_text_field.dart';
 
-/// Campo de texto padronizado para telas de auth.
+/// Campo de texto de auth — delega para [DfTextField].
+@Deprecated('Use DfTextField. Será removido em v2.1.')
 class AuthTextField extends StatelessWidget {
   const AuthTextField({
     required this.controller,
@@ -33,36 +34,18 @@ class AuthTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label.toUpperCase(),
-          style: theme.textTheme.labelSmall?.copyWith(
-            color: AppColors.secondaryLabel(theme),
-            letterSpacing: 0.9,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        const SizedBox(height: 8),
-        TextFormField(
-          controller: controller,
-          keyboardType: keyboardType,
-          obscureText: obscureText,
-          textInputAction: textInputAction,
-          validator: validator,
-          autofillHints: autofillHints,
-          onFieldSubmitted: onFieldSubmitted,
-          style: theme.textTheme.bodyLarge,
-          decoration: InputDecoration(
-            hintText: hint,
-            prefixIcon: prefixIcon != null ? Icon(prefixIcon, size: 22) : null,
-            suffixIcon: suffixIcon,
-          ),
-        ),
-      ],
+    return DfTextField(
+      controller: controller,
+      label: label,
+      hint: hint,
+      keyboardType: keyboardType,
+      obscureText: obscureText,
+      textInputAction: textInputAction,
+      validator: validator,
+      prefixIcon: prefixIcon,
+      suffixIcon: suffixIcon,
+      autofillHints: autofillHints,
+      onFieldSubmitted: onFieldSubmitted,
     );
   }
 }
