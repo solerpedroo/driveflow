@@ -11,7 +11,7 @@ import '../../../authentication/presentation/widgets/auth_primary_button.dart';
 import '../../../authentication/presentation/widgets/auth_text_field.dart';
 import '../../domain/entities/earning_entity.dart';
 import '../providers/earnings_providers.dart';
-import '../../../../shared/widgets/driveflow_glass_card.dart';
+import '../../../../shared/widgets/design_system/df_card.dart';
 
 /// Formulário de criação/edição de ganho.
 class EarningFormScreen extends HookConsumerWidget {
@@ -84,7 +84,7 @@ class EarningFormScreen extends HookConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              DriveFlowGlassCard(
+              DfCard(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
