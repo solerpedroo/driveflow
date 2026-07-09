@@ -9,24 +9,24 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../../authentication/domain/entities/user_entity.dart';
 import '../../../authentication/presentation/providers/auth_providers.dart';
-import '../../../authentication/presentation/widgets/auth_primary_button.dart';
-import '../../../authentication/presentation/widgets/auth_text_field.dart';
 import '../../../vehicle/domain/entities/vehicle_entity.dart';
 import '../../../vehicle/presentation/providers/vehicle_providers.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../shared/widgets/design_system/df_button.dart';
 import '../../../../shared/widgets/design_system/df_card.dart';
 import '../../../../shared/widgets/design_system/df_empty_state.dart';
 import '../../../../shared/widgets/design_system/df_settings_row.dart';
+import '../../../../shared/widgets/design_system/df_text_field.dart';
 import '../../../dashboard/presentation/providers/dashboard_providers.dart';
 import '../../../earnings/presentation/providers/earnings_providers.dart';
 import '../providers/profile_providers.dart';
 import '../widgets/profile_plan_card.dart';
 import '../widgets/profile_value_stats_card.dart';
 
-/// Aba Perfil — dados do motorista e atalhos.
+/// Aba Perfil — dados do motorista, veículos e atalhos.
 class ProfileScreen extends HookConsumerWidget {
   const ProfileScreen({super.key});
 
@@ -74,36 +74,21 @@ class ProfileScreen extends HookConsumerWidget {
       }
     }
 
-    return CustomScrollView(
-      slivers: [
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: CustomScrollView(
+        slivers: [
+          // ── Header ──────────────────────────────────────────────────────────
         SliverPadding(
           padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
           sliver: SliverToBoxAdapter(
-            child: Text('Perfil', style: theme.textTheme.headlineSmall),
+            child: Text('Perfil', style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700)),
           ),
         ),
+
+        // ── Avatar + Nome ────────────────────────────────────────────────────
         SliverPadding(
           padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
-          sliver: SliverToBoxAdapter(child: const ProfilePlanCard()),
-        ),
-        SliverPadding(
-          padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
-          sliver: SliverToBoxAdapter(
-            child: monthAsync.when(
-              loading: () => const SizedBox.shrink(),
-              error: (_, __) => const SizedBox.shrink(),
-              data: (month) {
-                final rides = earningsAsync.valueOrNull?.length ?? 0;
-                return ProfileValueStatsCard(
-                  month: month,
-                  totalRides: rides,
-                );
-              },
-            ),
-          ),
-        ),
-        SliverPadding(
-          padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
           sliver: SliverToBoxAdapter(
             child: DfCard(
               child: Column(
@@ -115,21 +100,36 @@ class ProfileScreen extends HookConsumerWidget {
                   ),
                   const SizedBox(height: 16),
                   if (editingName.value) ...[
-                    AuthTextField(
+                    DfTextField(
                       controller: nameController,
                       label: 'Nome',
                       validator: (v) =>
                           Validators.requiredField(v, fieldName: 'Nome'),
                     ),
                     const SizedBox(height: 12),
-                    AuthPrimaryButton(
-                      label: 'Salvar nome',
-                      isLoading: mutation.isLoading,
-                      onPressed: saveName,
+                    Row(
+                      children: [
+                        Expanded(
+                          child: DfButton(
+                            label: 'Salvar',
+                            isLoading: mutation.isLoading,
+                            onPressed: saveName,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        DfButton(
+                          label: 'Cancelar',
+                          variant: DfButtonVariant.outlined,
+                          onPressed: () => editingName.value = false,
+                          expand: false,
+                        ),
+                      ],
                     ),
                   ] else ...[
-                    Text(user?.displayName ?? 'Motorista',
-                        style: theme.textTheme.titleLarge),
+                    Text(
+                      user?.displayName ?? 'Motorista',
+                      style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
+                    ),
                     if (user?.email != null) ...[
                       const SizedBox(height: 4),
                       Text(
@@ -162,13 +162,42 @@ class ProfileScreen extends HookConsumerWidget {
             ),
           ),
         ),
+
+        // ── Estatísticas do mês ──────────────────────────────────────────────
         SliverPadding(
           padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+          sliver: SliverToBoxAdapter(
+            child: monthAsync.when(
+              loading: () => const SizedBox.shrink(),
+              error: (_, __) => const SizedBox.shrink(),
+              data: (month) {
+                final rides = earningsAsync.valueOrNull?.length ?? 0;
+                return ProfileValueStatsCard(
+                  month: month,
+                  totalRides: rides,
+                );
+              },
+            ),
+          ),
+        ),
+
+        // ── Plano Pro ────────────────────────────────────────────────────────
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+          sliver: const SliverToBoxAdapter(child: ProfilePlanCard()),
+        ),
+
+        // ── Veículos ─────────────────────────────────────────────────────────
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
           sliver: SliverToBoxAdapter(
             child: Row(
               children: [
                 Expanded(
-                  child: Text('Veículos', style: theme.textTheme.titleMedium),
+                  child: Text(
+                    'Meus veículos',
+                    style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+                  ),
                 ),
                 DfButton(
                   label: 'Adicionar',
@@ -189,7 +218,9 @@ class ProfileScreen extends HookConsumerWidget {
             loading: () => const SliverToBoxAdapter(
               child: Center(child: CircularProgressIndicator()),
             ),
-            error: (e, _) => SliverToBoxAdapter(child: Text('Erro: $e')),
+            error: (e, _) => SliverToBoxAdapter(
+              child: Text('Erro ao carregar veículos: $e'),
+            ),
             data: (vehicles) {
               if (vehicles.isEmpty) {
                 return SliverToBoxAdapter(
@@ -209,35 +240,35 @@ class ProfileScreen extends HookConsumerWidget {
                 separatorBuilder: (_, __) => const SizedBox(height: 12),
                 itemBuilder: (context, index) {
                   final vehicle = vehicles[index];
-                  return Padding(
-                    padding: EdgeInsets.only(
-                      bottom: index == vehicles.length - 1 ? 0 : 0,
+                  return _VehicleCard(
+                    vehicle: vehicle,
+                    isBusy: vehicleMutation.isLoading,
+                    onEdit: () => context.push(
+                      '${AppRoutes.editVehicle}?id=${vehicle.id}',
                     ),
-                    child: _VehicleCard(
-                      vehicle: vehicle,
-                      isBusy: vehicleMutation.isLoading,
-                      onEdit: () => context.push(
-                        '${AppRoutes.editVehicle}?id=${vehicle.id}',
-                      ),
-                      onSetDefault: vehicle.isDefault
-                          ? null
-                          : () => ref
-                              .read(vehicleControllerProvider.notifier)
-                              .setDefault(vehicle.id),
-                      onDelete: vehicles.length <= 1
-                          ? null
-                          : () => _confirmDelete(context, ref, vehicle),
-                    ),
+                    onSetDefault: vehicle.isDefault
+                        ? null
+                        : () => ref
+                            .read(vehicleControllerProvider.notifier)
+                            .setDefault(vehicle.id),
+                    onDelete: vehicles.length <= 1
+                        ? null
+                        : () => _confirmDelete(context, ref, vehicle),
                   );
                 },
               );
             },
           ),
         ),
+
+        // ── Atalhos ──────────────────────────────────────────────────────────
         SliverPadding(
-          padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+          padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
           sliver: SliverToBoxAdapter(
-            child: Text('Atalhos', style: theme.textTheme.titleMedium),
+            child: Text(
+              'Atalhos',
+              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+            ),
           ),
         ),
         SliverPadding(
@@ -291,10 +322,15 @@ class ProfileScreen extends HookConsumerWidget {
             ),
           ),
         ),
+
+        // ── Assistente IA ────────────────────────────────────────────────────
         SliverPadding(
-          padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+          padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
           sliver: SliverToBoxAdapter(
-            child: Text('Assistente', style: theme.textTheme.titleMedium),
+            child: Text(
+              'Assistente',
+              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+            ),
           ),
         ),
         SliverPadding(
@@ -312,10 +348,7 @@ class ProfileScreen extends HookConsumerWidget {
                         height: 44,
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
-                            colors: [
-                              AppColors.skyBlue,
-                              AppColors.skyBlueDim,
-                            ],
+                            colors: [AppColors.skyBlue, AppColors.skyBlueDim],
                           ),
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -369,8 +402,10 @@ class ProfileScreen extends HookConsumerWidget {
             ),
           ),
         ),
+
+        // ── Sair ─────────────────────────────────────────────────────────────
         SliverPadding(
-          padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
+          padding: const EdgeInsets.fromLTRB(24, AppSpacing.xl, 24, 48),
           sliver: SliverToBoxAdapter(
             child: DfButton(
               label: 'Sair da conta',
@@ -382,7 +417,8 @@ class ProfileScreen extends HookConsumerWidget {
           ),
         ),
       ],
-    );
+    ),
+  );
   }
 
   Future<void> _confirmDelete(
@@ -410,11 +446,15 @@ class ProfileScreen extends HookConsumerWidget {
       ),
     );
 
-    if (confirmed == true) {
+    if (confirmed == true && context.mounted) {
       await ref.read(vehicleControllerProvider.notifier).delete(vehicle.id);
     }
   }
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Card de veículo
+// ─────────────────────────────────────────────────────────────────────────────
 
 class _VehicleCard extends StatelessWidget {
   const _VehicleCard({
@@ -442,15 +482,17 @@ class _VehicleCard extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: Text(vehicle.displayName,
-                    style: theme.textTheme.titleMedium),
+                child: Text(
+                  vehicle.displayName,
+                  style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+                ),
               ),
               if (vehicle.isDefault)
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: AppColors.skyBlue.withValues(alpha: 0.14),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(100),
                   ),
                   child: Text(
                     'Padrão',
@@ -471,7 +513,7 @@ class _VehicleCard extends StatelessWidget {
               color: AppColors.secondaryLabel(theme),
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
           Wrap(
             spacing: 8,
             runSpacing: 8,
@@ -505,6 +547,10 @@ class _VehicleCard extends StatelessWidget {
   }
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Seção de avatar
+// ─────────────────────────────────────────────────────────────────────────────
+
 class _AvatarSection extends StatelessWidget {
   const _AvatarSection({
     required this.user,
@@ -520,22 +566,29 @@ class _AvatarSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final photoUrl = user?.photoUrl;
+    final initials = user?.displayName.isNotEmpty == true
+        ? user!.displayName.characters.first.toUpperCase()
+        : '?';
 
     return Column(
       children: [
         Stack(
+          alignment: Alignment.center,
           children: [
             Container(
               padding: const EdgeInsets.all(3),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                   colors: [AppColors.skyBlue, AppColors.skyBlueSoft],
                 ),
                 boxShadow: [
                   BoxShadow(
                     color: AppColors.skyBlue.withValues(alpha: 0.35),
-                    blurRadius: 14,
+                    blurRadius: 16,
+                    offset: const Offset(0, 4),
                   ),
                 ],
               ),
@@ -547,7 +600,7 @@ class _AvatarSection extends StatelessWidget {
                     : null,
                 child: photoUrl == null
                     ? Text(
-                        user?.displayName.characters.first.toUpperCase() ?? '?',
+                        initials,
                         style: theme.textTheme.headlineMedium?.copyWith(
                           color: AppColors.skyBlue,
                           fontWeight: FontWeight.w800,
@@ -557,8 +610,13 @@ class _AvatarSection extends StatelessWidget {
               ),
             ),
             if (isLoading)
-              const Positioned.fill(
-                child: CircularProgressIndicator(strokeWidth: 2),
+              SizedBox(
+                width: 98,
+                height: 98,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: AppColors.skyBlue,
+                ),
               ),
           ],
         ),
