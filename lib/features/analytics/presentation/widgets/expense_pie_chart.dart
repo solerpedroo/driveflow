@@ -2,9 +2,10 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../domain/entities/category_breakdown_slice.dart';
-import '../../../../shared/widgets/driveflow_glass_card.dart';
+import '../../../../shared/widgets/design_system/df_card.dart';
 
 /// Gráfico de pizza com distribuição de despesas por categoria.
 class ExpensePieChart extends StatelessWidget {
@@ -33,7 +34,7 @@ class ExpensePieChart extends StatelessWidget {
     final theme = Theme.of(context);
 
     if (slices.isEmpty) {
-      return DriveFlowGlassCard(
+      return DfCard(
         child: Text(
           'Nenhuma despesa no período.',
           style: theme.textTheme.bodyMedium,
@@ -41,80 +42,91 @@ class ExpensePieChart extends StatelessWidget {
       );
     }
 
-    return DriveFlowGlassCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Despesas por categoria', style: theme.textTheme.titleMedium),
-          const SizedBox(height: 16),
-          SizedBox(
-            height: 200,
-            child: Row(
-              children: [
-                Expanded(
-                  flex: 3,
-                  child: PieChart(
-                    PieChartData(
-                      sectionsSpace: 2,
-                      centerSpaceRadius: 36,
-                      sections: [
-                        for (var i = 0; i < slices.length; i++)
-                          PieChartSectionData(
-                            value: slices[i].amount,
-                            color: _palette[i % _palette.length],
-                            radius: 56,
-                            title: '${(slices[i].share * 100).toStringAsFixed(0)}%',
-                            titleStyle: theme.textTheme.labelSmall?.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  flex: 4,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      for (var i = 0; i < slices.length && i < 5; i++)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 6),
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 10,
-                                height: 10,
-                                decoration: BoxDecoration(
-                                  color: _palette[i % _palette.length],
-                                  shape: BoxShape.circle,
+    final legend = slices.take(5).map((s) => s.category.label).join(', ');
+
+    return Semantics(
+      label: 'Gráfico de despesas por categoria: $legend',
+      child: RepaintBoundary(
+        child: DfCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Despesas por categoria',
+                  style: theme.textTheme.titleMedium),
+              const SizedBox(height: AppSpacing.lg),
+              SizedBox(
+                height: 200,
+                child: Row(
+                  children: [
+                    Expanded(
+                      flex: 3,
+                      child: PieChart(
+                        PieChartData(
+                          sectionsSpace: 2,
+                          centerSpaceRadius: 36,
+                          sections: [
+                            for (var i = 0; i < slices.length; i++)
+                              PieChartSectionData(
+                                value: slices[i].amount,
+                                color: _palette[i % _palette.length],
+                                radius: 56,
+                                title:
+                                    '${(slices[i].share * 100).toStringAsFixed(0)}%',
+                                titleStyle:
+                                    theme.textTheme.labelSmall?.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  slices[i].category.label,
-                                  style: theme.textTheme.bodySmall,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                              Text(
-                                CurrencyFormatter.format(slices[i].amount),
-                                style: theme.textTheme.labelSmall,
-                              ),
-                            ],
-                          ),
+                          ],
                         ),
-                    ],
-                  ),
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.md),
+                    Expanded(
+                      flex: 4,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          for (var i = 0; i < slices.length && i < 5; i++)
+                            Padding(
+                              padding:
+                                  const EdgeInsets.only(bottom: AppSpacing.xs),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 10,
+                                    height: 10,
+                                    decoration: BoxDecoration(
+                                      color: _palette[i % _palette.length],
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                  const SizedBox(width: AppSpacing.sm),
+                                  Expanded(
+                                    child: Text(
+                                      slices[i].category.label,
+                                      style: theme.textTheme.bodySmall,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  Text(
+                                    CurrencyFormatter.format(slices[i].amount),
+                                    style: theme.textTheme.labelSmall,
+                                  ),
+                                ],
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
