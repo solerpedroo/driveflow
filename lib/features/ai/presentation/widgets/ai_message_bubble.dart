@@ -1,8 +1,11 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_radius.dart';
 
-/// Bolha de mensagem do chat de IA.
+/// Bolha premium com glass depth para chat IA.
 class AiMessageBubble extends StatelessWidget {
   const AiMessageBubble({
     required this.text,
@@ -16,9 +19,7 @@ class AiMessageBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final bg = isUser
-        ? AppColors.electricTeal.withValues(alpha: 0.18)
-        : AppColors.mutedSurface(theme);
+    final isDark = theme.brightness == Brightness.dark;
     final align = isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start;
 
     return Padding(
@@ -28,11 +29,23 @@ class AiMessageBubble extends StatelessWidget {
             isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
         children: [
           if (!isUser) ...[
-            CircleAvatar(
-              radius: 16,
-              backgroundColor: AppColors.electricTeal.withValues(alpha: 0.2),
-              child: const Icon(Icons.auto_awesome, size: 16,
-                  color: AppColors.electricTeal),
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    AppColors.skyBlue.withValues(alpha: 0.25),
+                    AppColors.skyBlue.withValues(alpha: 0.08),
+                  ],
+                ),
+                borderRadius: AppRadius.mdAll,
+              ),
+              child: const Icon(
+                Icons.auto_awesome_rounded,
+                size: 18,
+                color: AppColors.skyBlue,
+              ),
             ),
             const SizedBox(width: 8),
           ],
@@ -40,26 +53,42 @@ class AiMessageBubble extends StatelessWidget {
             child: Column(
               crossAxisAlignment: align,
               children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 10,
+                ClipRRect(
+                  borderRadius: BorderRadius.only(
+                    topLeft: const Radius.circular(18),
+                    topRight: const Radius.circular(18),
+                    bottomLeft: Radius.circular(isUser ? 18 : 6),
+                    bottomRight: Radius.circular(isUser ? 6 : 18),
                   ),
-                  decoration: BoxDecoration(
-                    color: bg,
-                    borderRadius: BorderRadius.only(
-                      topLeft: const Radius.circular(16),
-                      topRight: const Radius.circular(16),
-                      bottomLeft: Radius.circular(isUser ? 16 : 4),
-                      bottomRight: Radius.circular(isUser ? 4 : 16),
-                    ),
-                    border: Border.all(
-                      color: isUser
-                          ? AppColors.electricTeal.withValues(alpha: 0.35)
-                          : AppColors.glassBorderLight,
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: isUser
+                            ? AppColors.skyBlue.withValues(alpha: 0.22)
+                            : (isDark
+                                ? AppColors.slate.withValues(alpha: 0.55)
+                                : Colors.white.withValues(alpha: 0.75)),
+                        border: Border.all(
+                          color: isUser
+                              ? AppColors.skyBlue.withValues(alpha: 0.35)
+                              : AppColors.glassBorderLight,
+                        ),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 11,
+                        ),
+                        child: Text(
+                          text,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            height: 1.45,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
-                  child: Text(text, style: theme.textTheme.bodyMedium),
                 ),
               ],
             ),
