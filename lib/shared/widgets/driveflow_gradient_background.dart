@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_gradients.dart';
 
-/// Fundo animado com gradiente ambient + glow — assinatura visual DriveFlow.
+/// Fundo mesh animado — referência FitCal / FitFolio premium backgrounds.
 class DriveFlowGradientBackground extends StatefulWidget {
   const DriveFlowGradientBackground({
     required this.child,
@@ -26,7 +27,7 @@ class _DriveFlowGradientBackgroundState
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 8),
+      duration: const Duration(seconds: 10),
     )..repeat(reverse: true);
   }
 
@@ -40,45 +41,27 @@ class _DriveFlowGradientBackgroundState
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
     final ambient = AppColors.ambientGradient(brightness);
-    final glow = AppColors.accentGlow(brightness);
 
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
         final t = _controller.value;
+        final meshGlows = AppGradients.meshGlows(brightness, t);
+
         return Stack(
           fit: StackFit.expand,
           children: [
             DecoratedBox(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
                   colors: ambient,
                 ),
               ),
             ),
-            DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: RadialGradient(
-                  center: Alignment(0.2 + t * 0.3, -0.6 + t * 0.2),
-                  radius: 1.2,
-                  colors: glow,
-                ),
-              ),
-            ),
-            DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: RadialGradient(
-                  center: Alignment(-0.8 + t * 0.15, 0.9),
-                  radius: 0.9,
-                  colors: [
-                    AppColors.skyBlue.withValues(alpha: 0.06 + t * 0.04),
-                    Colors.transparent,
-                  ],
-                ),
-              ),
-            ),
+            for (final glow in meshGlows)
+              DecoratedBox(decoration: BoxDecoration(gradient: glow)),
             child!,
           ],
         );
