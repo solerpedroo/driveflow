@@ -106,6 +106,7 @@ class ExpensesScreen extends ConsumerWidget {
                   return const SliverFillRemaining(
                     hasScrollBody: false,
                     child: DfEmptyState(
+                      variant: DfEmptyStateVariant.illustrated,
                       icon: Icons.receipt_long_outlined,
                       title: 'Nenhuma despesa neste período',
                       subtitle:
