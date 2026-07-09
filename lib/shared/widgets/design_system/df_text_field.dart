@@ -43,11 +43,10 @@ class DfTextField extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            label.toUpperCase(),
-            style: theme.textTheme.labelSmall?.copyWith(
+            label,
+            style: theme.textTheme.labelMedium?.copyWith(
               color: AppColors.secondaryLabel(theme),
-              letterSpacing: 0.9,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w500,
             ),
           ),
           const SizedBox(height: AppSpacing.sm),

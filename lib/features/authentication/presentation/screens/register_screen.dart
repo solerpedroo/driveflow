@@ -7,15 +7,19 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_motion.dart';
+import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/validators.dart';
+import '../../../../shared/widgets/design_system/df_button.dart';
+import '../../../../shared/widgets/design_system/df_card.dart';
+import '../../../../shared/widgets/design_system/df_password_checklist.dart';
+import '../../../../shared/widgets/design_system/df_staggered_entrance.dart';
+import '../../../../shared/widgets/design_system/df_text_field.dart';
 import '../../../../shared/widgets/driveflow_brand_logo.dart';
-import '../../../../shared/widgets/driveflow_glass_card.dart';
 import '../../../../shared/widgets/driveflow_gradient_background.dart';
 import '../providers/auth_providers.dart';
-import '../widgets/auth_primary_button.dart';
-import '../widgets/auth_text_field.dart';
 
-/// Cadastro com e-mail, senha e nome.
+/// Cadastro com e-mail, senha e nome — checklist de senha em tempo real.
 class RegisterScreen extends HookConsumerWidget {
   const RegisterScreen({super.key});
 
@@ -28,8 +32,16 @@ class RegisterScreen extends HookConsumerWidget {
     final passwordController = useTextEditingController();
     final confirmController = useTextEditingController();
     final obscurePassword = useState(true);
+    final obscureConfirm = useState(true);
+    final passwordText = useState('');
     final authState = ref.watch(authControllerProvider);
     final isLoading = authState.isLoading;
+
+    useEffect(() {
+      void listener() => passwordText.value = passwordController.text;
+      passwordController.addListener(listener);
+      return () => passwordController.removeListener(listener);
+    }, [passwordController]);
 
     useEffect(() {
       SystemChrome.setSystemUIOverlayStyle(
@@ -74,7 +86,12 @@ class RegisterScreen extends HookConsumerWidget {
         body: SafeArea(
           top: false,
           child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.screenHorizontal,
+              0,
+              AppSpacing.screenHorizontal,
+              AppSpacing.xxl,
+            ),
             child: Form(
               key: formKey,
               child: Column(
@@ -84,24 +101,23 @@ class RegisterScreen extends HookConsumerWidget {
                     size: LogoSize.small,
                     showTagline: false,
                   ),
-                  const SizedBox(height: 24),
-                  DriveFlowGlassCard(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                  const SizedBox(height: AppSpacing.xl),
+                  DfCard(
+                    child: DfStaggeredEntrance(
                       children: [
                         Text(
                           'Criar conta',
                           style: theme.textTheme.headlineSmall,
                         ),
-                        const SizedBox(height: 6),
+                        const SizedBox(height: AppSpacing.sm),
                         Text(
                           'Comece a controlar lucro, custos e metas.',
                           style: theme.textTheme.bodyMedium?.copyWith(
                             color: AppColors.secondaryLabel(theme),
                           ),
                         ),
-                        const SizedBox(height: 24),
-                        AuthTextField(
+                        const SizedBox(height: AppSpacing.xl),
+                        DfTextField(
                           controller: nameController,
                           label: 'Nome completo',
                           hint: 'Seu nome',
@@ -111,8 +127,8 @@ class RegisterScreen extends HookConsumerWidget {
                           validator: (v) =>
                               Validators.requiredField(v, fieldName: 'Nome'),
                         ),
-                        const SizedBox(height: 16),
-                        AuthTextField(
+                        const SizedBox(height: AppSpacing.lg),
+                        DfTextField(
                           controller: emailController,
                           label: 'E-mail',
                           hint: 'seu@email.com',
@@ -122,30 +138,37 @@ class RegisterScreen extends HookConsumerWidget {
                           autofillHints: const [AutofillHints.email],
                           validator: Validators.email,
                         ),
-                        const SizedBox(height: 16),
-                        AuthTextField(
+                        const SizedBox(height: AppSpacing.lg),
+                        DfTextField(
                           controller: passwordController,
                           label: 'Senha',
-                          hint: 'Mínimo 8 caracteres',
+                          hint: 'Crie uma senha segura',
                           obscureText: obscurePassword.value,
                           textInputAction: TextInputAction.next,
                           prefixIcon: Icons.lock_outline_rounded,
                           validator: Validators.password,
                           suffixIcon: IconButton(
-                            icon: Icon(
-                              obscurePassword.value
-                                  ? Icons.visibility_off_outlined
-                                  : Icons.visibility_outlined,
+                            icon: AnimatedSwitcher(
+                              duration: DriveFlowMotion.fast,
+                              child: Icon(
+                                obscurePassword.value
+                                    ? Icons.visibility_off_outlined
+                                    : Icons.visibility_outlined,
+                                key: ValueKey(obscurePassword.value),
+                                size: 22,
+                              ),
                             ),
                             onPressed: () =>
                                 obscurePassword.value = !obscurePassword.value,
                           ),
                         ),
-                        const SizedBox(height: 16),
-                        AuthTextField(
+                        const SizedBox(height: AppSpacing.md),
+                        DfPasswordChecklist(password: passwordText.value),
+                        const SizedBox(height: AppSpacing.lg),
+                        DfTextField(
                           controller: confirmController,
                           label: 'Confirmar senha',
-                          obscureText: obscurePassword.value,
+                          obscureText: obscureConfirm.value,
                           textInputAction: TextInputAction.done,
                           prefixIcon: Icons.lock_outline_rounded,
                           onFieldSubmitted: (_) => submit(),
@@ -155,9 +178,23 @@ class RegisterScreen extends HookConsumerWidget {
                             }
                             return Validators.password(value);
                           },
+                          suffixIcon: IconButton(
+                            icon: AnimatedSwitcher(
+                              duration: DriveFlowMotion.fast,
+                              child: Icon(
+                                obscureConfirm.value
+                                    ? Icons.visibility_off_outlined
+                                    : Icons.visibility_outlined,
+                                key: ValueKey(obscureConfirm.value),
+                                size: 22,
+                              ),
+                            ),
+                            onPressed: () =>
+                                obscureConfirm.value = !obscureConfirm.value,
+                          ),
                         ),
-                        const SizedBox(height: 24),
-                        AuthPrimaryButton(
+                        const SizedBox(height: AppSpacing.xl),
+                        DfButton(
                           label: 'Cadastrar',
                           icon: Icons.person_add_rounded,
                           isLoading: isLoading,
@@ -166,7 +203,7 @@ class RegisterScreen extends HookConsumerWidget {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: AppSpacing.lg),
                   Center(
                     child: TextButton(
                       onPressed: isLoading

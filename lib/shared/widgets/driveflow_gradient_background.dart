@@ -73,7 +73,7 @@ class _DriveFlowGradientBackgroundState
                   center: Alignment(-0.8 + t * 0.15, 0.9),
                   radius: 0.9,
                   colors: [
-                    AppColors.electricTeal.withValues(alpha: 0.06 + t * 0.04),
+                    AppColors.skyBlue.withValues(alpha: 0.06 + t * 0.04),
                     Colors.transparent,
                   ],
                 ),

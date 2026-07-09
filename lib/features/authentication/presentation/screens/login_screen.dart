@@ -7,13 +7,16 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_motion.dart';
+import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/validators.dart';
+import '../../../../shared/widgets/design_system/df_button.dart';
+import '../../../../shared/widgets/design_system/df_card.dart';
+import '../../../../shared/widgets/design_system/df_staggered_entrance.dart';
+import '../../../../shared/widgets/design_system/df_text_field.dart';
 import '../../../../shared/widgets/driveflow_brand_logo.dart';
-import '../../../../shared/widgets/driveflow_glass_card.dart';
 import '../../../../shared/widgets/driveflow_gradient_background.dart';
 import '../providers/auth_providers.dart';
-import '../widgets/auth_primary_button.dart';
-import '../widgets/auth_text_field.dart';
 
 /// Login com e-mail/senha e Google OAuth.
 class LoginScreen extends HookConsumerWidget {
@@ -70,31 +73,35 @@ class LoginScreen extends HookConsumerWidget {
         backgroundColor: Colors.transparent,
         body: SafeArea(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.screenHorizontal,
+              AppSpacing.screenHorizontal,
+              AppSpacing.screenHorizontal,
+              AppSpacing.xxl,
+            ),
             child: Form(
               key: formKey,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const DriveFlowBrandLogo(size: LogoSize.medium),
-                  const SizedBox(height: 32),
-                  DriveFlowGlassCard(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                  const SizedBox(height: AppSpacing.xl),
+                  DfCard(
+                    child: DfStaggeredEntrance(
                       children: [
                         Text(
                           'Entrar',
                           style: theme.textTheme.headlineSmall,
                         ),
-                        const SizedBox(height: 6),
+                        const SizedBox(height: AppSpacing.sm),
                         Text(
                           'Acesse sua central financeira de motorista.',
                           style: theme.textTheme.bodyMedium?.copyWith(
                             color: AppColors.secondaryLabel(theme),
                           ),
                         ),
-                        const SizedBox(height: 24),
-                        AuthTextField(
+                        const SizedBox(height: AppSpacing.xl),
+                        DfTextField(
                           controller: emailController,
                           label: 'E-mail',
                           hint: 'seu@email.com',
@@ -104,8 +111,8 @@ class LoginScreen extends HookConsumerWidget {
                           autofillHints: const [AutofillHints.email],
                           validator: Validators.email,
                         ),
-                        const SizedBox(height: 16),
-                        AuthTextField(
+                        const SizedBox(height: AppSpacing.lg),
+                        DfTextField(
                           controller: passwordController,
                           label: 'Senha',
                           hint: '••••••••',
@@ -116,27 +123,33 @@ class LoginScreen extends HookConsumerWidget {
                           validator: Validators.password,
                           onFieldSubmitted: (_) => submit(),
                           suffixIcon: IconButton(
-                            icon: Icon(
-                              obscurePassword.value
-                                  ? Icons.visibility_off_outlined
-                                  : Icons.visibility_outlined,
+                            icon: AnimatedSwitcher(
+                              duration: DriveFlowMotion.fast,
+                              child: Icon(
+                                obscurePassword.value
+                                    ? Icons.visibility_off_outlined
+                                    : Icons.visibility_outlined,
+                                key: ValueKey(obscurePassword.value),
+                                size: 22,
+                              ),
                             ),
                             onPressed: () =>
                                 obscurePassword.value = !obscurePassword.value,
                           ),
                         ),
-                        const SizedBox(height: 24),
-                        AuthPrimaryButton(
+                        const SizedBox(height: AppSpacing.xl),
+                        DfButton(
                           label: 'Entrar',
                           icon: Icons.login_rounded,
                           isLoading: isLoading,
                           onPressed: submit,
                         ),
-                        const SizedBox(height: 12),
-                        AuthOutlinedButton(
+                        const SizedBox(height: AppSpacing.md),
+                        DfButton(
                           label: 'Continuar com Google',
                           isLoading: isLoading,
-                          leading: _GoogleMark(),
+                          leading: const _GoogleMark(),
+                          variant: DfButtonVariant.outlined,
                           onPressed: () => ref
                               .read(authControllerProvider.notifier)
                               .signInWithGoogle(),
@@ -144,7 +157,7 @@ class LoginScreen extends HookConsumerWidget {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: AppSpacing.lg),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -173,6 +186,8 @@ class LoginScreen extends HookConsumerWidget {
 }
 
 class _GoogleMark extends StatelessWidget {
+  const _GoogleMark();
+
   @override
   Widget build(BuildContext context) {
     return Container(

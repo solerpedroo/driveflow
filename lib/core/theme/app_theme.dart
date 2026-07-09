@@ -44,10 +44,10 @@ PageTransitionsTheme get driveFlowPageTransitionsTheme {
 
 ThemeData buildDriveFlowLightTheme() {
   final colorScheme = ColorScheme.fromSeed(
-    seedColor: AppColors.electricTeal,
+    seedColor: AppColors.skyBlue,
     brightness: Brightness.light,
-    primary: AppColors.electricTealDim,
-    onPrimary: AppColors.deepNavy,
+    primary: AppColors.skyBlueDim,
+    onPrimary: Colors.white,
     secondary: const Color(0xFF6366F1),
     surface: AppColors.lightSurface,
   );
@@ -104,7 +104,7 @@ ThemeData buildDriveFlowLightTheme() {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
-        borderSide: const BorderSide(color: AppColors.electricTealDim, width: 2),
+        borderSide: const BorderSide(color: AppColors.skyBlueDim, width: 2),
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       hintStyle: TextStyle(color: AppColors.textSecondaryLight.withValues(alpha: 0.8)),
@@ -122,9 +122,9 @@ ThemeData buildDriveFlowLightTheme() {
 
 ThemeData buildDriveFlowDarkTheme() {
   final colorScheme = ColorScheme.fromSeed(
-    seedColor: AppColors.electricTeal,
+    seedColor: AppColors.skyBlue,
     brightness: Brightness.dark,
-    primary: AppColors.electricTeal,
+    primary: AppColors.skyBlue,
     onPrimary: AppColors.deepNavy,
     secondary: const Color(0xFF818CF8),
     surface: AppColors.midnight,
@@ -182,7 +182,7 @@ ThemeData buildDriveFlowDarkTheme() {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
-        borderSide: const BorderSide(color: AppColors.electricTeal, width: 2),
+        borderSide: const BorderSide(color: AppColors.skyBlue, width: 2),
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       hintStyle: TextStyle(color: AppColors.textSecondary.withValues(alpha: 0.8)),

@@ -40,13 +40,13 @@ class DriveFlowBrandLogo extends StatelessWidget {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    AppColors.electricTeal,
-                    AppColors.electricTealDim,
+                    AppColors.skyBlue,
+                    AppColors.skyBlueDim,
                   ],
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.electricTeal.withValues(alpha: 0.35),
+                    color: AppColors.skyBlue.withValues(alpha: 0.35),
                     blurRadius: 16,
                     offset: const Offset(0, 4),
                   ),
@@ -61,7 +61,7 @@ class DriveFlowBrandLogo extends StatelessWidget {
             const SizedBox(width: 10),
             RichText(
               text: TextSpan(
-                style: GoogleFonts.outfit(
+                style: GoogleFonts.plusJakartaSans(
                   fontSize: titleSize,
                   fontWeight: FontWeight.w800,
                   letterSpacing: -0.8,
@@ -71,7 +71,7 @@ class DriveFlowBrandLogo extends StatelessWidget {
                   TextSpan(text: 'Drive'),
                   TextSpan(
                     text: 'Flow',
-                    style: TextStyle(color: AppColors.electricTeal),
+                    style: TextStyle(color: AppColors.skyBlue),
                   ),
                 ],
               ),

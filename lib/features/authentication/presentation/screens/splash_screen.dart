@@ -4,10 +4,12 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_motion.dart';
+import '../../../../core/theme/app_spacing.dart';
 import '../../../../shared/widgets/driveflow_brand_logo.dart';
 import '../../../../shared/widgets/driveflow_gradient_background.dart';
 
-/// Splash com branding — aguarda resolução de auth via redirect do router.
+/// Splash com branding animado — aguarda resolução de auth via redirect do router.
 class SplashScreen extends HookConsumerWidget {
   const SplashScreen({super.key});
 
@@ -15,9 +17,15 @@ class SplashScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final controller = useAnimationController(
-      duration: const Duration(milliseconds: 1400),
+      duration: DriveFlowMotion.slow,
     );
-    final fade = CurvedAnimation(parent: controller, curve: Curves.easeOut);
+    final curved = useMemoized(
+      () => CurvedAnimation(
+        parent: controller,
+        curve: Curves.easeOutBack,
+      ),
+      [controller],
+    );
 
     useEffect(() {
       SystemChrome.setSystemUIOverlayStyle(
@@ -33,13 +41,22 @@ class SplashScreen extends HookConsumerWidget {
       child: Scaffold(
         backgroundColor: Colors.transparent,
         body: Center(
-          child: FadeTransition(
-            opacity: fade,
+          child: AnimatedBuilder(
+            animation: curved,
+            builder: (context, child) {
+              return Opacity(
+                opacity: curved.value.clamp(0.0, 1.0),
+                child: Transform.scale(
+                  scale: 0.88 + curved.value * 0.12,
+                  child: child,
+                ),
+              );
+            },
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 const DriveFlowBrandLogo(size: LogoSize.large),
-                const SizedBox(height: 32),
+                const SizedBox(height: AppSpacing.xxl),
                 SizedBox(
                   width: 28,
                   height: 28,
@@ -48,7 +65,7 @@ class SplashScreen extends HookConsumerWidget {
                     color: theme.colorScheme.primary,
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: AppSpacing.lg),
                 Text(
                   'Preparando seu cockpit…',
                   style: theme.textTheme.bodyMedium?.copyWith(

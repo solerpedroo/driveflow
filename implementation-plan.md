@@ -2,7 +2,7 @@
 
 Plano de implementação em **16 ondas** (0–15) para o DriveFlow (Flutter + Supabase + Groq), partindo de repositório vazio, combinando Clean Architecture feature-first do escopo com os padrões de organização do projeto MesclaInvest (screens/widgets/services separados, shell de navegação, mappers, test hooks).
 
-**Fases:** ondas **0–9** = MVP v1.0 · ondas **10–14** = features pós-MVP (v1.5 → v2.0) · onda **15** = refatoração de UI / Design System v2.
+**Fases:** ondas **0–9** = MVP v1.0 · ondas **10–14** = features pós-MVP (v1.5 → v2.0) · onda **15** = refatoração de UI / Design System v2 · onda **16** = UI Excellence (paleta azul-claro, motion, auth polish).
 
 **Repositório:** `driveflow`  
 **Referência:** `ES-PI3-2026-T2-G03` (MesclaInvest)
@@ -29,6 +29,7 @@ Plano de implementação em **16 ondas** (0–15) para o DriveFlow (Flutter + Su
 | 13 | Lembretes inteligentes + insights de melhor horário | concluída |
 | 14 | Importação de extratos + previsão IA | concluída |
 | 15 | Refatoração de UI / Design System v2 | concluída |
+| 16 | UI Excellence — paleta azul-claro, tipografia premium, motion auth | em andamento |
 
 ---
 
@@ -914,6 +915,68 @@ Prefixo interno `Df*` nos novos primitives; wrappers `driveflow_*` mantidos como
 
 ---
 
+## Onda 16 — UI Excellence (paleta azul-claro + motion + auth polish)
+
+**Objetivo:** Elevar a interface para uso diário intensivo — referências **Cupertino**, **Material Design 3** e apps fintech de alta engenharia. Eliminar aparência "wide-coding", fechar lacunas alpha no fluxo de auth e entregar motion consistente.
+
+> Executar **após** onda 15. Sem novas features de negócio — apenas polish visual e UX.
+
+### Paleta de cores (azul-claro como primária)
+
+| Token | Hex | Uso |
+|---|---|---|
+| `skyBlue` | `#5BA4F5` | Primária (dark mode, acentos) |
+| `skyBlueDim` | `#3B8AE8` | Primária (light mode, botões) |
+| `skyBlueSoft` | `#93C5FD` | Glow, chips, estados hover |
+| `deepNavy` | `#0A0E17` | Fundo dark (mantido) |
+| `profitGreen` | `#34D399` | Sucesso / lucro (mantido — feedback positivo) |
+| `iceBackground` | `#F0F7FF` → `#EBF4FF` | Gradiente light mode |
+
+Substituir `electricTeal` como cor de marca por tons de azul-claro. Verde permanece apenas em semântica de lucro/sucesso.
+
+### Tipografia (sem fontes de código)
+
+| Papel | Fonte | Motivo |
+|---|---|---|
+| Display / headlines | **Plus Jakarta Sans** | Geométrica, moderna — usada em fintechs premium |
+| Body / labels | **Inter** | Legibilidade diária, neutra e profissional |
+| Números / métricas | **Inter** (tabular figures) | Substituir JetBrains Mono — evita look "dev tool" |
+
+### Componentes novos (`shared/widgets/design_system/`)
+
+| Componente | Função |
+|---|---|
+| `df_password_checklist.dart` | Checklist animado de requisitos de senha (8+ chars, maiúscula, minúscula, número) |
+| `df_staggered_entrance.dart` | Entrada escalonada fade+slide para formulários auth |
+
+### Auth — lacunas alpha fechadas
+
+| Lacuna | Solução |
+|---|---|
+| Sem checklist de senha no cadastro | `DfPasswordChecklist` com ✓ animados em tempo real |
+| Transição login ↔ cadastro sem motion | Slide horizontal Cupertino-style via `authSlidePage` no GoRouter |
+| Labels ALL CAPS nos campos | `DfTextField` com label sentence-case e peso médio |
+| Confirmar senha compartilha toggle | Toggle independente por campo |
+| Skeleton estático | Shimmer animado em `DfSkeleton` |
+
+### Motion e transições
+
+- Auth routes: slide horizontal + fade (`DriveFlowMotion.normal` = 280ms)
+- Formulários: `DfStaggeredEntrance` com delay 60ms entre campos
+- Splash: scale + fade no logo (spring-like curve)
+- Fundo: glow azul-claro no `DriveFlowGradientBackground`
+
+### Critérios de conclusão
+
+- Paleta azul-claro aplicada em `app_colors`, `app_theme`, logo e gradiente
+- Zero uso de JetBrains Mono / Outfit em tipografia principal
+- Checklist de senha visível e animado no `RegisterScreen`
+- Transição animada login ↔ cadastro
+- `flutter analyze` limpo + testes de auth/password checklist
+- Commits atômicos por arquivo
+
+---
+
 ## Mapa de requisitos funcionais → ondas
 
 | RF | Descrição | Onda |
@@ -940,6 +1003,7 @@ Prefixo interno `Df*` nos novos primitives; wrappers `driveflow_*` mantidos como
 | RF20 | Importação extratos | 14 |
 | RF21 | Previsão IA | 14 |
 | RNF-UI | Design System v2 + acessibilidade | 15 |
+| RNF-UI+ | UI Excellence — paleta, tipografia, motion auth | 16 |
 
 ---
 

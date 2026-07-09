@@ -1,4 +1,5 @@
 import 'currency_formatter.dart';
+import 'password_strength.dart';
 
 /// Validadores reutilizáveis em formulários.
 abstract final class Validators {
@@ -14,17 +15,7 @@ abstract final class Validators {
   }
 
   static String? password(String? value, {int minLength = 8}) {
-    if (value == null || value.isEmpty) {
-      return 'Informe sua senha';
-    }
-    if (value.length < minLength) {
-      return 'Mínimo de $minLength caracteres';
-    }
-    if (!RegExp(r'[A-Za-z]').hasMatch(value) ||
-        !RegExp(r'[0-9]').hasMatch(value)) {
-      return 'Use letras e números na senha';
-    }
-    return null;
+    return PasswordStrength.validate(value);
   }
 
   static String? requiredField(String? value, {String fieldName = 'Campo'}) {
