@@ -1,81 +1,34 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../core/theme/app_colors.dart';
+import 'design_system/df_chip.dart';
 
-/// Chip de métrica para dashboard e previews de design system.
+/// Chip de métrica — delega para [DfChip] (Design System v2).
+@Deprecated('Use DfChip. Será removido em v2.1.')
 class DriveFlowMetricChip extends StatelessWidget {
   const DriveFlowMetricChip({
     required this.label,
     required this.value,
     super.key,
-    this.accentColor = AppColors.electricTeal,
+    this.accentColor,
     this.icon,
     this.onTap,
   });
 
   final String label;
   final String value;
-  final Color accentColor;
+  final Color? accentColor;
   final IconData? icon;
   final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Semantics(
-      label: '$label: $value',
-      button: onTap != null,
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(16),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
-              color: AppColors.mutedSurface(theme),
-              border: Border.all(
-                color: accentColor.withValues(alpha: 0.25),
-              ),
-            ),
-            child: Row(
-              children: [
-                if (icon != null) ...[
-                  Icon(icon, size: 18, color: accentColor),
-                  const SizedBox(width: 8),
-                ],
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        label.toUpperCase(),
-                        style: theme.textTheme.labelSmall?.copyWith(
-                          color: AppColors.secondaryLabel(theme),
-                          letterSpacing: 0.8,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        value,
-                        style: GoogleFonts.jetBrainsMono(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          color: theme.colorScheme.onSurface,
-                          fontFeatures: const [FontFeature.tabularFigures()],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
+    return DfChip(
+      label: label,
+      value: value,
+      accentColor: accentColor ?? AppColors.electricTeal,
+      icon: icon,
+      onTap: onTap,
     );
   }
 }
