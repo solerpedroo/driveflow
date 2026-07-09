@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../../core/utils/validators.dart';
@@ -12,6 +13,8 @@ import '../../../authentication/presentation/widgets/auth_text_field.dart';
 import '../../../vehicle/presentation/providers/vehicle_providers.dart';
 import '../../domain/entities/maintenance_entity.dart';
 import '../providers/maintenance_providers.dart';
+import '../../../../shared/widgets/design_system/df_empty_state.dart';
+import '../../../../shared/widgets/design_system/df_filter_pill.dart';
 import '../../../../shared/widgets/design_system/df_card.dart';
 
 /// Formulário de registro/edição de manutenção.
@@ -94,8 +97,16 @@ class MaintenanceFormScreen extends HookConsumerWidget {
 
     if (vehicle == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Manutenção')),
-        body: const Center(child: Text('Cadastre um veículo primeiro.')),
+        appBar: AppBar(
+          title: const Text('Manutenção'),
+          backgroundColor: Colors.transparent,
+        ),
+        body: const DfEmptyState(
+          variant: DfEmptyStateVariant.illustrated,
+          icon: Icons.directions_car_outlined,
+          title: 'Cadastre um veículo primeiro',
+          subtitle: 'Vá em Perfil → Adicionar veículo para registrar manutenções.',
+        ),
       );
     }
 
@@ -121,11 +132,12 @@ class MaintenanceFormScreen extends HookConsumerWidget {
                       spacing: 8,
                       runSpacing: 8,
                       children: kMaintenanceTypes.map((type) {
-                        return FilterChip(
-                          avatar: Icon(type.icon, size: 18),
-                          label: Text(type.label),
+                        return DfFilterPill(
+                          icon: type.icon,
+                          label: type.label,
                           selected: selectedType.value == type,
-                          onSelected: (_) => selectedType.value = type,
+                          accentColor: AppColors.warningAmber,
+                          onSelected: () => selectedType.value = type,
                         );
                       }).toList(growable: false),
                     ),
