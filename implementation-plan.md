@@ -1053,6 +1053,49 @@ Substituir `electricTeal` como cor de marca por tons de azul-claro. Verde perman
 
 ---
 
+## Onda 19 — Outlier Premium Polish
+
+**Objetivo:** Elevar o app ao tier **outlier** — glass shell em todo o app, micro-interações hápticas, gráficos animados e componentes de superfície reutilizáveis.
+
+### Princípios premium
+
+| Princípio | Implementação |
+|---|---|
+| Glass everywhere | `DriveFlowGradientBackground` no shell + `DfGlassSurface` na nav e composer |
+| Micro-interações | `DfHaptics` em botões, tiles, gráficos e celebração do anel 100% |
+| Gráficos táteis | `WeeklyProfitChart` com barras gradiente animadas + tooltip + haptic |
+| Controles premium | `DfSegmentedControl` substitui `FilterChip` no filtro de período |
+| Empty states ilustrados | `DfEmptyStateVariant.illustrated` com orb gradiente |
+
+### Componentes novos
+
+- `df_haptics.dart` — feedback háptico centralizado
+- `df_glass_surface.dart` — superfície frosted reutilizável
+- `df_segmented_control.dart` — pill segmented control
+- `df_settings_row.dart` — linhas de atalho estilo iOS Settings
+- `ai_chat_composer.dart` — composer flutuante glass com botão gradiente
+
+### Melhorias por área
+
+- **Shell:** mesh gradient em todas as abas pós-login
+- **Bottom nav:** barra glass com rim light e sombra nav-shell
+- **Dashboard:** avatar com anel gradiente glow; gráfico semanal animado; hero profit em displaySmall
+- **Goals:** cards empilhados com barra de progresso gradiente
+- **AI:** bubbles glass + composer flutuante
+- **Perfil:** atalhos com `DfSettingsRow` + card hero do assistente IA
+- **Progress ring:** glow na ponta do arco + pulse de celebração em 100%
+
+### Critérios de conclusão
+
+- Shell com fundo mesh em todas as abas autenticadas
+- Bottom nav e composer IA com glass blur
+- Gráfico semanal com animação de entrada e feedback tátil
+- Perfil com atalhos premium (não mais `FilledButton.tonalIcon`)
+- Empty states ilustrados em ganhos e despesas
+- `flutter analyze` limpo + testes existentes passando
+
+---
+
 ## Mapa de requisitos funcionais → ondas
 
 | RF | Descrição | Onda |
@@ -1082,6 +1125,7 @@ Substituir `electricTeal` como cor de marca por tons de azul-claro. Verde perman
 | RNF-UI+ | UI Excellence — paleta, tipografia, motion auth | 16 |
 | RNF-UI++ | Premium UI FitCal/FitFolio tier | 17 |
 | RNF-Story | Product storytelling & upsell Pro | 18 |
+| RNF-Outlier | Outlier premium polish — glass, haptics, charts | 19 |
 
 ---
 
