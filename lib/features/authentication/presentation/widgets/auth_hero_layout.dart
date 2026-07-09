@@ -16,6 +16,7 @@ class AuthHeroLayout extends StatelessWidget {
     this.showLogo = true,
     this.footer,
     this.leading,
+    this.middleChild,
   });
 
   final String headline;
@@ -24,6 +25,7 @@ class AuthHeroLayout extends StatelessWidget {
   final bool showLogo;
   final Widget? footer;
   final Widget? leading;
+  final Widget? middleChild;
 
   @override
   Widget build(BuildContext context) {
@@ -76,6 +78,10 @@ class AuthHeroLayout extends StatelessWidget {
                           height: 1.5,
                         ),
                       ),
+                      if (middleChild != null) ...[
+                        const SizedBox(height: AppSpacing.xl),
+                        middleChild!,
+                      ],
                       const SizedBox(height: AppSpacing.xxl),
                       DfCard(
                         variant: DfCardVariant.elevated,
