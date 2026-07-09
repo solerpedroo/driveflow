@@ -16,6 +16,21 @@ import '../../domain/services/earnings_heatmap_builder.dart';
 import '../../domain/services/maintenance_predictor.dart';
 import '../../domain/services/weekly_goal_projection_calculator.dart';
 
+/// Quantidade de janelas exibidas no card de melhor horário.
+enum InsightsSlotsLimit {
+  top3(3, 'Top 3'),
+  top5(5, 'Top 5'),
+  top10(10, 'Top 10');
+
+  const InsightsSlotsLimit(this.count, this.label);
+
+  final int count;
+  final String label;
+}
+
+final insightsSlotsLimitProvider =
+    StateProvider<InsightsSlotsLimit>((ref) => InsightsSlotsLimit.top5);
+
 List<T> _scoped<T>({
   required List<T> items,
   required String? vehicleId,
