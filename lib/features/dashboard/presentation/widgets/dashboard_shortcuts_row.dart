@@ -11,11 +11,36 @@ class DashboardShortcutsRow extends StatelessWidget {
   const DashboardShortcutsRow({super.key});
 
   static const _shortcuts = [
-    _Shortcut(Icons.insights_outlined, 'Análises', AppRoutes.analytics),
-    _Shortcut(Icons.auto_awesome_outlined, 'Insights', AppRoutes.insights),
-    _Shortcut(Icons.smart_toy_outlined, 'IA', AppRoutes.aiChat),
-    _Shortcut(Icons.flag_outlined, 'Metas', AppRoutes.goals),
-    _Shortcut(Icons.upload_file_outlined, 'Importar', AppRoutes.importStatement),
+    _Shortcut(
+      Icons.insights_outlined,
+      'Análises',
+      AppRoutes.analytics,
+      AppColors.skyBlue,
+    ),
+    _Shortcut(
+      Icons.auto_awesome_outlined,
+      'Insights',
+      AppRoutes.insights,
+      AppColors.profitGreen,
+    ),
+    _Shortcut(
+      Icons.smart_toy_outlined,
+      'IA',
+      AppRoutes.aiChat,
+      AppColors.skyBlueDim,
+    ),
+    _Shortcut(
+      Icons.flag_outlined,
+      'Metas',
+      AppRoutes.goals,
+      AppColors.infoBlue,
+    ),
+    _Shortcut(
+      Icons.upload_file_outlined,
+      'Importar',
+      AppRoutes.importStatement,
+      AppColors.warningAmber,
+    ),
   ];
 
   @override
@@ -49,6 +74,7 @@ class DashboardShortcutsRow extends StatelessWidget {
               return DfShortcutTile(
                 icon: item.icon,
                 label: item.label,
+                accentColor: item.accentColor,
                 onTap: () => context.push(item.route),
               );
             },
@@ -60,9 +86,10 @@ class DashboardShortcutsRow extends StatelessWidget {
 }
 
 class _Shortcut {
-  const _Shortcut(this.icon, this.label, this.route);
+  const _Shortcut(this.icon, this.label, this.route, this.accentColor);
 
   final IconData icon;
   final String label;
   final String route;
+  final Color accentColor;
 }
