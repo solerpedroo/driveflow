@@ -6,6 +6,7 @@ Stream<List<T>> watchCachedRemote<T>({
   required Future<List<T>> Function() loadLocal,
   required List<T> Function(List<Map<String, dynamic>> rows) mapRows,
   required Future<void> Function(List<Map<String, dynamic>> rows) persistRemote,
+  Future<void> Function()? refresh,
 }) {
   late StreamSubscription<List<Map<String, dynamic>>> subscription;
   final controller = StreamController<List<T>>();
@@ -17,6 +18,14 @@ Stream<List<T>> watchCachedRemote<T>({
 
   controller.onListen = () async {
     await emitLocal();
+    if (refresh != null) {
+      unawaited(() async {
+        try {
+          await refresh();
+          await emitLocal();
+        } catch (_) {}
+      }());
+    }
     subscription = remote.listen(
       (rows) async {
         await persistRemote(rows);
