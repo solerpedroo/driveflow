@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_motion.dart';
-import '../design_system/df_glass_surface.dart';
+import 'design_system/df_glass_surface.dart';
 
 const Duration kDriveFlowTabSwitchDuration = DriveFlowMotion.normal;
 
