@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/currency_formatter.dart';
-import '../../../../shared/widgets/driveflow_glass_card.dart';
+import '../../../../shared/widgets/design_system/df_button.dart';
+import '../../../../shared/widgets/design_system/df_card.dart';
 import '../../domain/entities/profit_forecast_result.dart';
 
 /// Card de projeção de lucro (7/30 dias).
@@ -24,7 +25,8 @@ class ProfitForecastCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return DriveFlowGlassCard(
+    return DfCard(
+      variant: DfCardVariant.elevated,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -68,16 +70,13 @@ class ProfitForecastCard extends StatelessWidget {
           ],
           if (onRequestAi != null) ...[
             const SizedBox(height: 12),
-            FilledButton.tonalIcon(
+            DfButton(
+              label: isLoadingAi ? 'Gerando análise…' : 'Análise IA',
+              icon: Icons.auto_awesome_outlined,
+              variant: DfButtonVariant.tonal,
+              isLoading: isLoadingAi,
               onPressed: isLoadingAi ? null : onRequestAi,
-              icon: isLoadingAi
-                  ? const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.auto_awesome_outlined),
-              label: Text(isLoadingAi ? 'Gerando análise…' : 'Análise IA'),
+              expand: false,
             ),
           ],
         ],
