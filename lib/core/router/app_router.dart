@@ -161,7 +161,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         name: 'home',
         pageBuilder: (context, state) => _fadePage(
           key: state.pageKey,
-          child: const MainShellScreen(),
+          child: MainShellScreen(
+            initialTab: MainShellScreen.resolveInitialTab(
+              state.uri.queryParameters['tab'],
+            ),
+          ),
         ),
       ),
       GoRoute(
