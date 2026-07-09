@@ -19,7 +19,7 @@ import '../../domain/entities/expense_entity.dart';
 import '../providers/expenses_providers.dart';
 import '../providers/receipt_ocr_providers.dart';
 import '../widgets/receipt_scan_review_sheet.dart';
-import '../../../../shared/widgets/driveflow_glass_card.dart';
+import '../../../../shared/widgets/design_system/df_card.dart';
 
 /// Formulário de criação/edição de despesa com comprovante e OCR.
 class ExpenseFormScreen extends HookConsumerWidget {
@@ -173,7 +173,7 @@ class ExpenseFormScreen extends HookConsumerWidget {
                 ),
                 const SizedBox(height: 16),
               ],
-              DriveFlowGlassCard(
+              DfCard(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
