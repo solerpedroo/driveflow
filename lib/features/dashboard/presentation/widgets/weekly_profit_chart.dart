@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../shared/domain/models/daily_profit_point.dart';
-import '../../../../shared/widgets/driveflow_glass_card.dart';
+import '../../../../shared/widgets/design_system/df_card.dart';
 
 /// Gráfico de barras com lucro diário da semana atual.
 class WeeklyProfitChart extends StatelessWidget {
@@ -24,7 +24,7 @@ class WeeklyProfitChart extends StatelessWidget {
     );
     final chartMax = maxProfit <= 0 ? 100.0 : maxProfit * 1.2;
 
-    return DriveFlowGlassCard(
+    return DfCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
