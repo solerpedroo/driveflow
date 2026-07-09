@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../constants/app_constants.dart';
+import 'transitions.dart';
 import '../../features/authentication/presentation/providers/auth_providers.dart';
 import '../../features/authentication/presentation/screens/login_screen.dart';
 import '../../features/authentication/presentation/screens/register_screen.dart';
@@ -130,17 +131,19 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.login,
         name: 'login',
-        pageBuilder: (context, state) => _fadePage(
+        pageBuilder: (context, state) => driveFlowAuthSlidePage(
           key: state.pageKey,
           child: const LoginScreen(),
+          slideFromRight: false,
         ),
       ),
       GoRoute(
         path: AppRoutes.register,
         name: 'register',
-        pageBuilder: (context, state) => _fadePage(
+        pageBuilder: (context, state) => driveFlowAuthSlidePage(
           key: state.pageKey,
           child: const RegisterScreen(),
+          slideFromRight: true,
         ),
       ),
       GoRoute(
