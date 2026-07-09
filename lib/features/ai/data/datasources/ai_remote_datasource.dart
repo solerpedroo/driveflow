@@ -54,4 +54,37 @@ class AiRemoteDataSource {
       throw ServerFailure(message: e.message, cause: e);
     }
   }
+
+  Future<Map<String, dynamic>> invokeAiForecast() async {
+    try {
+      final response = await _client.functions.invoke(
+        AiFunctions.aiForecast,
+        body: const {},
+      );
+
+      if (response.status != 200) {
+        final data = response.data;
+        if (data is Map && data['error'] != null) {
+          throw ServerFailure(message: data['error'].toString());
+        }
+        throw ServerFailure(
+          message: 'Previsão indisponível (${response.status})',
+        );
+      }
+
+      final data = response.data;
+      if (data is! Map<String, dynamic>) {
+        throw const ServerFailure(message: 'Resposta inválida da previsão');
+      }
+      return data;
+    } on FunctionException catch (e) {
+      final details = e.details;
+      if (details is Map && details['error'] != null) {
+        throw ServerFailure(message: details['error'].toString(), cause: e);
+      }
+      throw ServerFailure(message: e.reasonPhrase ?? e.toString(), cause: e);
+    } on PostgrestException catch (e) {
+      throw ServerFailure(message: e.message, cause: e);
+    }
+  }
 }

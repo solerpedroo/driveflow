@@ -46,6 +46,12 @@ class ExpensesScreen extends ConsumerWidget {
                     onChanged: (p) =>
                         ref.read(expensesPeriodProvider.notifier).state = p,
                   ),
+                  const SizedBox(height: 8),
+                  OutlinedButton.icon(
+                    onPressed: () => context.push(AppRoutes.importStatement),
+                    icon: const Icon(Icons.upload_file_outlined),
+                    label: const Text('Importar extrato'),
+                  ),
                 ],
               ),
             ),

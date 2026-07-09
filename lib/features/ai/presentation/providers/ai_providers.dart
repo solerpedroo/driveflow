@@ -10,6 +10,7 @@ import '../../../maintenance/presentation/providers/maintenance_providers.dart';
 import '../../../vehicle/presentation/providers/vehicle_providers.dart';
 import '../../data/repositories/ai_repository_impl.dart';
 import '../../domain/entities/ai_message_entity.dart';
+import '../../domain/entities/ai_forecast_message.dart';
 import '../../domain/repositories/ai_repository.dart';
 import '../../domain/services/ai_context_builder.dart';
 import '../../domain/usecases/ai_usecases.dart';
@@ -47,6 +48,26 @@ final aiContextPreviewProvider = Provider<AiContextSnapshot>((ref) {
 final askAiProvider = Provider<AskAiAssistant>((ref) {
   return AskAiAssistant(ref.watch(aiRepositoryProvider));
 });
+
+class AiForecastController extends Notifier<AsyncValue<AiForecastMessage?>> {
+  @override
+  AsyncValue<AiForecastMessage?> build() => const AsyncData(null);
+
+  Future<AiForecastMessage?> generate() async {
+    state = const AsyncLoading();
+    AiForecastMessage? message;
+    state = await AsyncValue.guard(() async {
+      message = await ref.read(aiRepositoryProvider).forecast();
+    });
+    if (state.hasError) return null;
+    return message;
+  }
+}
+
+final aiForecastControllerProvider =
+    NotifierProvider<AiForecastController, AsyncValue<AiForecastMessage?>>(
+  AiForecastController.new,
+);
 
 class AiChatController extends Notifier<AsyncValue<void>> {
   @override

@@ -4,10 +4,12 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../../goals/domain/entities/goal_entity.dart';
 import '../../../vehicle/presentation/widgets/vehicle_scope_chip.dart';
 import '../../domain/entities/analytics_enums.dart';
+import '../../../ai/presentation/providers/ai_providers.dart';
 import '../providers/analytics_providers.dart';
 import '../widgets/expense_pie_chart.dart';
 import '../widgets/period_comparison_bar_chart.dart';
 import '../widgets/period_comparison_card.dart';
+import '../widgets/profit_forecast_card.dart';
 import '../widgets/profit_trend_chart.dart';
 
 /// Tela de análises avançadas — tendências, pizza e comparação de períodos.
@@ -22,6 +24,8 @@ class AnalyticsScreen extends ConsumerWidget {
     final reference = ref.watch(analyticsComparisonReferenceProvider);
 
     final trendAsync = ref.watch(analyticsProfitTrendProvider);
+    final forecastAsync = ref.watch(analyticsProfitForecastProvider);
+    final aiForecastAsync = ref.watch(aiForecastControllerProvider);
     final breakdownAsync = ref.watch(analyticsCategoryBreakdownProvider);
     final comparisonAsync = ref.watch(analyticsComparisonProvider);
 
@@ -79,6 +83,23 @@ class AnalyticsScreen extends ConsumerWidget {
                 data: (points) => ProfitTrendChart(
                   points: points,
                   windowLabel: trendWindow.label,
+                ),
+              ),
+            ),
+          ),
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+            sliver: SliverToBoxAdapter(
+              child: forecastAsync.when(
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (e, _) => Text('Erro: $e'),
+                data: (forecast) => ProfitForecastCard(
+                  forecast: forecast,
+                  aiSummary: aiForecastAsync.valueOrNull?.summary,
+                  isLoadingAi: aiForecastAsync.isLoading,
+                  onRequestAi: () => ref
+                      .read(aiForecastControllerProvider.notifier)
+                      .generate(),
                 ),
               ),
             ),

@@ -82,11 +82,12 @@ abstract final class AppRoutes {
   static const goals = '/goals';
   static const analytics = '/analytics';
   static const insights = '/insights';
+  static const importStatement = '/import/statement';
   static const aiChat = '/ai/chat';
 }
 
-/// Onda atual concluída (v1.5 — lembretes inteligentes e insights).
-const kCurrentWave = 13;
+/// Onda atual concluída (v2.0 — importação de extratos e previsão IA).
+const kCurrentWave = 14;
 
 /// Deep link OAuth Supabase (Google).
 const kOAuthRedirectUrl = 'io.supabase.driveflow://login-callback/';
