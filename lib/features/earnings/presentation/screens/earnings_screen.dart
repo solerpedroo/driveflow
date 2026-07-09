@@ -11,6 +11,7 @@ import '../../../../shared/widgets/design_system/df_card.dart';
 import '../../../../shared/widgets/design_system/df_empty_state.dart';
 import '../../../../shared/widgets/design_system/df_section_header.dart';
 import '../../../../shared/widgets/design_system/df_skeleton.dart';
+import '../../../../shared/widgets/design_system/df_filter_pill.dart';
 import '../../../../shared/widgets/driveflow_period_filter.dart';
 import '../providers/earnings_providers.dart';
 import '../widgets/earning_tile.dart';
@@ -52,10 +53,10 @@ class EarningsScreen extends ConsumerWidget {
                       scrollDirection: Axis.horizontal,
                       child: Row(
                         children: [
-                          FilterChip(
-                            label: const Text('Todas'),
+                          DfFilterPill(
+                            label: 'Todas',
                             selected: platformFilter == null,
-                            onSelected: (_) => ref
+                            onSelected: () => ref
                                 .read(earningsPlatformFilterProvider.notifier)
                                 .state = null,
                           ),
@@ -63,10 +64,10 @@ class EarningsScreen extends ConsumerWidget {
                             (platform) => Padding(
                               padding:
                                   const EdgeInsets.only(left: AppSpacing.sm),
-                              child: FilterChip(
-                                label: Text(platform.label),
+                              child: DfFilterPill(
+                                label: platform.label,
                                 selected: platformFilter == platform,
-                                onSelected: (_) => ref
+                                onSelected: () => ref
                                     .read(
                                         earningsPlatformFilterProvider.notifier)
                                     .state = platform,
