@@ -1,8 +1,10 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
+const allowedOrigin = Deno.env.get("ALLOWED_ORIGIN") ?? "";
+
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Origin": allowedOrigin || "null",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type",
 };
@@ -21,6 +23,15 @@ function jsonResponse(body: unknown, status = 200) {
     status,
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
+}
+
+function clientError(message: string, status = 500) {
+  return jsonResponse({ error: message }, status);
+}
+
+function logServerError(context: string, error: unknown) {
+  const detail = error instanceof Error ? error.message : String(error);
+  console.error(`[ai-chat] ${context}:`, detail);
 }
 
 function formatBrl(value: number) {
@@ -110,13 +121,13 @@ Deno.serve(async (req) => {
   }
 
   if (req.method !== "POST") {
-    return jsonResponse({ error: "Método não permitido" }, 405);
+    return clientError("Método não permitido", 405);
   }
 
   try {
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
-      return jsonResponse({ error: "Não autorizado" }, 401);
+      return clientError("Não autorizado", 401);
     }
 
     const groqKey = Deno.env.get("GROQ_API_KEY");
@@ -125,7 +136,7 @@ Deno.serve(async (req) => {
     const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
 
     if (!groqKey || !supabaseUrl || !serviceRoleKey || !anonKey) {
-      return jsonResponse({ error: "Configuração do servidor incompleta" }, 500);
+      return clientError("Assistente indisponível no momento.", 500);
     }
 
     const userClient = createClient(supabaseUrl, anonKey, {
@@ -135,7 +146,7 @@ Deno.serve(async (req) => {
 
     const { data: authData, error: authError } = await userClient.auth.getUser();
     if (authError || !authData.user) {
-      return jsonResponse({ error: "Sessão inválida" }, 401);
+      return clientError("Sessão inválida", 401);
     }
 
     const userId = authData.user.id;
@@ -143,10 +154,10 @@ Deno.serve(async (req) => {
     const question = typeof body?.question === "string" ? body.question.trim() : "";
 
     if (!question || question.length < 3) {
-      return jsonResponse({ error: "Pergunta inválida" }, 400);
+      return clientError("Pergunta inválida", 400);
     }
     if (question.length > 2000) {
-      return jsonResponse({ error: "Pergunta muito longa" }, 400);
+      return clientError("Pergunta muito longa", 400);
     }
 
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
@@ -157,11 +168,12 @@ Deno.serve(async (req) => {
       .gte("created_at", oneHourAgo);
 
     if (rateError) {
-      return jsonResponse({ error: rateError.message }, 500);
+      logServerError("rate limit check", rateError);
+      return clientError("Assistente indisponível no momento.", 500);
     }
     if ((recentCount ?? 0) >= RATE_LIMIT_PER_HOUR) {
-      return jsonResponse(
-        { error: "Limite de perguntas atingido. Tente novamente em breve." },
+      return clientError(
+        "Limite de perguntas atingido. Tente novamente em breve.",
         429,
       );
     }
@@ -203,13 +215,12 @@ Deno.serve(async (req) => {
 
     if (earningsRes.error || expensesRes.error || goalsRes.error || fuelRes.error ||
       maintenanceRes.error) {
-      const message = earningsRes.error?.message ??
-        expensesRes.error?.message ??
-        goalsRes.error?.message ??
-        fuelRes.error?.message ??
-        maintenanceRes.error?.message ??
-        "Erro ao buscar contexto";
-      return jsonResponse({ error: message }, 500);
+      logServerError(
+        "context fetch",
+        earningsRes.error ?? expensesRes.error ?? goalsRes.error ?? fuelRes.error ??
+          maintenanceRes.error,
+      );
+      return clientError("Assistente indisponível no momento.", 500);
     }
 
     const contextPrompt = buildContextPrompt({
@@ -238,7 +249,8 @@ Deno.serve(async (req) => {
     let answer: string;
     try {
       answer = await callGroq(messages, groqKey, DEFAULT_MODEL);
-    } catch {
+    } catch (primaryError) {
+      logServerError("groq primary model", primaryError);
       answer = await callGroq(messages, groqKey, FALLBACK_MODEL);
     }
 
@@ -249,7 +261,8 @@ Deno.serve(async (req) => {
       .single();
 
     if (saveError || !saved) {
-      return jsonResponse({ error: saveError?.message ?? "Erro ao salvar histórico" }, 500);
+      logServerError("save history", saveError);
+      return clientError("Assistente indisponível no momento.", 500);
     }
 
     return jsonResponse({
@@ -259,7 +272,7 @@ Deno.serve(async (req) => {
       createdAt: saved.created_at,
     });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Erro interno";
-    return jsonResponse({ error: message }, 500);
+    logServerError("unhandled", error);
+    return clientError("Assistente indisponível no momento.", 500);
   }
 });
