@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/driveflow_brand_logo.dart';
 import '../../../../shared/widgets/driveflow_gradient_background.dart';
@@ -42,9 +44,8 @@ class VehicleOnboardingScreen extends ConsumerWidget {
                   subtitle:
                       'Precisamos dos dados básicos do carro para calcular consumo, custo por km e relatórios.',
                   submitLabel: 'Continuar para o app',
-                  onSaved: () {
-                    // Router redirect leva ao shell quando hasVehicleProvider = true.
-                  },
+                  markAsDefault: true,
+                  onSaved: () => context.go(AppRoutes.home),
                 ),
               ),
             ],
