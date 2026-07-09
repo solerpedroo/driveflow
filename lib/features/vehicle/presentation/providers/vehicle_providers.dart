@@ -99,6 +99,7 @@ class VehicleController extends Notifier<AsyncValue<void>> {
       }
     });
     if (state.hasError) return null;
+    ref.invalidate(vehiclesStreamProvider);
     return saved;
   }
 
