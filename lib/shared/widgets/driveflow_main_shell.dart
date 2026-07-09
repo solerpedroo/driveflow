@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../../core/constants/driveflow_tab_count.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_motion.dart';
 import '../../core/utils/df_haptics.dart';
 import 'driveflow_bottom_nav_bar.dart' show DriveFlowBottomNavBar, kDriveFlowTabSwitchDuration;
 import 'driveflow_connectivity_banner.dart';
