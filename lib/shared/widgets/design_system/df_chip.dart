@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
@@ -11,7 +10,7 @@ class DfChip extends StatelessWidget {
     required this.label,
     required this.value,
     super.key,
-    this.accentColor = AppColors.electricTeal,
+    this.accentColor = AppColors.skyBlue,
     this.icon,
     this.onTap,
     this.selected = false,
@@ -49,7 +48,7 @@ class DfChip extends StatelessWidget {
                   ? accentColor.withValues(alpha: 0.15)
                   : AppColors.mutedSurface(theme),
               border: Border.all(
-                color: accentColor.withValues(alpha: selected ? 0.45 : 0.25),
+                color: accentColor.withValues(alpha: selected ? 0.45 : 0.20),
               ),
             ),
             child: Row(
@@ -63,19 +62,17 @@ class DfChip extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        label.toUpperCase(),
+                        label,
                         style: theme.textTheme.labelSmall?.copyWith(
                           color: AppColors.secondaryLabel(theme),
-                          letterSpacing: 0.8,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                       const SizedBox(height: 2),
                       Text(
                         value,
-                        style: GoogleFonts.jetBrainsMono(
-                          fontSize: 16,
+                        style: theme.textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.w700,
-                          color: theme.colorScheme.onSurface,
                           fontFeatures: const [FontFeature.tabularFigures()],
                         ),
                       ),
