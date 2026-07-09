@@ -19,6 +19,8 @@ import '../../domain/entities/expense_entity.dart';
 import '../providers/expenses_providers.dart';
 import '../providers/receipt_ocr_providers.dart';
 import '../widgets/receipt_scan_review_sheet.dart';
+import '../../../../shared/widgets/design_system/df_button.dart';
+import '../../../../shared/widgets/design_system/df_filter_pill.dart';
 import '../../../../shared/widgets/design_system/df_card.dart';
 
 /// Formulário de criação/edição de despesa com comprovante e OCR.
@@ -156,20 +158,14 @@ class ExpenseFormScreen extends HookConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               if (!isEditing) ...[
-                FilledButton.tonalIcon(
+                DfButton(
+                  label: ocrState.isLoading
+                      ? 'Lendo comprovante…'
+                      : 'Escanear comprovante',
+                  icon: Icons.document_scanner_outlined,
+                  variant: DfButtonVariant.tonal,
+                  isLoading: ocrState.isLoading,
                   onPressed: ocrState.isLoading ? null : showScanSourcePicker,
-                  icon: ocrState.isLoading
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.document_scanner_outlined),
-                  label: Text(
-                    ocrState.isLoading
-                        ? 'Lendo comprovante…'
-                        : 'Escanear comprovante',
-                  ),
                 ),
                 const SizedBox(height: 16),
               ],
@@ -183,11 +179,12 @@ class ExpenseFormScreen extends HookConsumerWidget {
                       spacing: 8,
                       runSpacing: 8,
                       children: kExpenseCategories.map((category) {
-                        return FilterChip(
-                          avatar: Icon(category.icon, size: 18),
-                          label: Text(category.label),
+                        return DfFilterPill(
+                          icon: category.icon,
+                          label: category.label,
                           selected: selectedCategory.value == category,
-                          onSelected: (_) =>
+                          accentColor: AppColors.expenseCoral,
+                          onSelected: () =>
                               selectedCategory.value = category,
                         );
                       }).toList(growable: false),
