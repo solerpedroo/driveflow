@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../shared/widgets/design_system/df_button.dart';
 import '../providers/reports_providers.dart';
 
-/// Botões de exportação PDF/CSV.
+/// Botões de exportação PDF/CSV — tier premium.
 class ReportExportActions extends ConsumerWidget {
   const ReportExportActions({super.key});
 
@@ -16,20 +17,24 @@ class ReportExportActions extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        FilledButton.icon(
+        DfButton(
+          label: 'Exportar PDF',
+          icon: Icons.picture_as_pdf_outlined,
+          variant: DfButtonVariant.gradient,
+          isLoading: exportState.isLoading,
           onPressed: exportState.isLoading
               ? null
               : () => ref.read(reportsControllerProvider.notifier).exportPdf(),
-          icon: const Icon(Icons.picture_as_pdf_outlined),
-          label: const Text('Exportar PDF'),
         ),
         const SizedBox(height: AppSpacing.sm),
-        FilledButton.tonalIcon(
+        DfButton(
+          label: 'Exportar CSV',
+          icon: Icons.table_chart_outlined,
+          variant: DfButtonVariant.tonal,
+          isLoading: exportState.isLoading,
           onPressed: exportState.isLoading
               ? null
               : () => ref.read(reportsControllerProvider.notifier).exportCsv(),
-          icon: const Icon(Icons.table_chart_outlined),
-          label: const Text('Exportar CSV'),
         ),
         if (exportState.hasError) ...[
           const SizedBox(height: AppSpacing.md),
