@@ -6,7 +6,7 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/date_utils.dart';
-import '../../../../shared/widgets/driveflow_glass_card.dart';
+import '../../../../shared/widgets/design_system/df_card.dart';
 import '../../../vehicle/presentation/providers/vehicle_providers.dart';
 import '../../domain/entities/maintenance_entity.dart';
 import '../../domain/services/maintenance_due_checker.dart';
@@ -80,7 +80,7 @@ class _MaintenanceTile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
 
-    return DriveFlowGlassCard(
+    return DfCard(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
