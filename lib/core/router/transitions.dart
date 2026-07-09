@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../theme/app_motion.dart';
-import 'app_theme.dart';
+import '../theme/app_theme.dart';
 
 /// Transições de rota empilhada (fade + micro-slide).
 class DriveFlowFadeSlidePageRoute<T> extends MaterialPageRoute<T> {
