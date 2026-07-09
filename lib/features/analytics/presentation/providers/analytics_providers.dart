@@ -1,20 +1,23 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../earnings/domain/entities/earning_entity.dart';
 import '../../../earnings/presentation/providers/earnings_providers.dart';
+import '../../../expenses/domain/entities/expense_entity.dart';
 import '../../../expenses/presentation/providers/expenses_providers.dart';
+import '../../../fuel/domain/entities/fuel_log_entity.dart';
 import '../../../fuel/presentation/providers/fuel_providers.dart';
 import '../../../goals/domain/entities/goal_entity.dart';
 import '../../../reports/presentation/providers/reports_providers.dart';
 import '../../../vehicle/presentation/providers/vehicle_providers.dart';
 import '../../../../core/utils/vehicle_scope_filter.dart';
-import '../domain/entities/analytics_enums.dart';
-import '../domain/entities/category_breakdown_slice.dart';
-import '../domain/entities/period_comparison_result.dart';
-import '../domain/entities/profit_forecast_result.dart';
-import '../domain/services/category_breakdown_calculator.dart';
-import '../domain/services/period_comparison_calculator.dart';
-import '../domain/services/profit_forecast_calculator.dart';
-import '../domain/services/profit_trend_calculator.dart';
+import '../../domain/entities/analytics_enums.dart';
+import '../../domain/entities/category_breakdown_slice.dart';
+import '../../domain/entities/period_comparison_result.dart';
+import '../../domain/entities/profit_forecast_result.dart';
+import '../../domain/services/category_breakdown_calculator.dart';
+import '../../domain/services/period_comparison_calculator.dart';
+import '../../domain/services/profit_forecast_calculator.dart';
+import '../../domain/services/profit_trend_calculator.dart';
 import '../../../../shared/domain/models/daily_profit_point.dart';
 
 final analyticsTrendWindowProvider =
@@ -47,12 +50,12 @@ final analyticsProfitForecastProvider =
   }
 
   final earnings = _scoped(
-    items: earningsAsync.valueOrNull ?? const [],
+    items: earningsAsync.valueOrNull ?? const <EarningEntity>[],
     vehicleId: scopedVehicleId,
     vehicleIdOf: (e) => e.vehicleId,
   );
   final expenses = _scoped(
-    items: expensesAsync.valueOrNull ?? const [],
+    items: expensesAsync.valueOrNull ?? const <ExpenseEntity>[],
     vehicleId: scopedVehicleId,
     vehicleIdOf: (e) => e.vehicleId,
   );
@@ -161,12 +164,12 @@ final analyticsComparisonProvider =
   }
 
   final earnings = _scoped(
-    items: earningsAsync.valueOrNull ?? const [],
+    items: earningsAsync.valueOrNull ?? const <EarningEntity>[],
     vehicleId: scopedVehicleId,
     vehicleIdOf: (e) => e.vehicleId,
   );
   final expenses = _scoped(
-    items: expensesAsync.valueOrNull ?? const [],
+    items: expensesAsync.valueOrNull ?? const <ExpenseEntity>[],
     vehicleId: scopedVehicleId,
     vehicleIdOf: (e) => e.vehicleId,
   );
@@ -177,7 +180,7 @@ final analyticsComparisonProvider =
       reference: reference,
       earnings: earnings,
       expenses: expenses,
-      fuelLogs: fuelAsync.valueOrNull ?? const [],
+      fuelLogs: fuelAsync.valueOrNull ?? const <FuelLogEntity>[],
     ),
   );
 });
@@ -211,12 +214,12 @@ final reportComparisonProvider =
   }
 
   final earnings = _scoped(
-    items: earningsAsync.valueOrNull ?? const [],
+    items: earningsAsync.valueOrNull ?? const <EarningEntity>[],
     vehicleId: scopedVehicleId,
     vehicleIdOf: (e) => e.vehicleId,
   );
   final expenses = _scoped(
-    items: expensesAsync.valueOrNull ?? const [],
+    items: expensesAsync.valueOrNull ?? const <ExpenseEntity>[],
     vehicleId: scopedVehicleId,
     vehicleIdOf: (e) => e.vehicleId,
   );
@@ -227,7 +230,7 @@ final reportComparisonProvider =
       reference: reference,
       earnings: earnings,
       expenses: expenses,
-      fuelLogs: fuelAsync.valueOrNull ?? const [],
+      fuelLogs: fuelAsync.valueOrNull ?? const <FuelLogEntity>[],
     ),
   );
 });
