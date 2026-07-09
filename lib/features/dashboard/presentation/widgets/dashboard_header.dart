@@ -5,8 +5,9 @@ import '../../../authentication/domain/entities/user_entity.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/theme_mode_provider.dart';
+import '../../../../core/utils/df_haptics.dart';
 
-/// Cabeçalho premium — saudação contextual + avatar (padrão FitFolio).
+/// Cabeçalho premium — avatar com anel luminoso.
 class DashboardHeader extends ConsumerWidget {
   const DashboardHeader({required this.user, super.key});
 
@@ -65,7 +66,10 @@ class DashboardHeader extends ConsumerWidget {
             label: 'Alternar tema',
             child: IconButton.filledTonal(
               tooltip: 'Alternar tema',
-              onPressed: () => ref.read(themeModeProvider.notifier).toggle(),
+              onPressed: () {
+                DfHaptics.light();
+                ref.read(themeModeProvider.notifier).toggle();
+              },
               icon: Icon(
                 isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
                 size: 20,
@@ -76,14 +80,32 @@ class DashboardHeader extends ConsumerWidget {
             ),
           ),
           const SizedBox(width: AppSpacing.sm),
-          CircleAvatar(
-            radius: 22,
-            backgroundColor: AppColors.skyBlue.withValues(alpha: 0.18),
-            child: Text(
-              initial,
-              style: theme.textTheme.titleMedium?.copyWith(
-                color: AppColors.skyBlue,
-                fontWeight: FontWeight.w700,
+          Container(
+            padding: const EdgeInsets.all(2.5),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: LinearGradient(
+                colors: [
+                  AppColors.skyBlue,
+                  AppColors.skyBlueSoft,
+                ],
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.skyBlue.withValues(alpha: 0.35),
+                  blurRadius: 12,
+                ),
+              ],
+            ),
+            child: CircleAvatar(
+              radius: 20,
+              backgroundColor: AppColors.skyBlue.withValues(alpha: 0.15),
+              child: Text(
+                initial,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  color: AppColors.skyBlue,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
             ),
           ),

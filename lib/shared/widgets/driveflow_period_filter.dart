@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../../core/constants/date_range_period.dart';
-import '../../core/theme/app_colors.dart';
+import '../design_system/df_segmented_control.dart';
 
-/// Chips de período (Hoje / Semana / Mês).
+/// Filtro de período premium — DfSegmentedControl.
 class DriveFlowPeriodFilter extends StatelessWidget {
   const DriveFlowPeriodFilter({
     required this.value,
@@ -18,20 +18,11 @@ class DriveFlowPeriodFilter extends StatelessWidget {
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
-      child: Row(
-        children: DateRangePeriod.values.map((period) {
-          final selected = period == value;
-          return Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: FilterChip(
-              label: Text(period.label),
-              selected: selected,
-              selectedColor: AppColors.electricTeal.withValues(alpha: 0.2),
-              checkmarkColor: AppColors.electricTeal,
-              onSelected: (_) => onChanged(period),
-            ),
-          );
-        }).toList(growable: false),
+      child: DfSegmentedControl<DateRangePeriod>(
+        segments: DateRangePeriod.values,
+        selected: value,
+        onChanged: onChanged,
+        labelBuilder: (p) => p.label,
       ),
     );
   }

@@ -128,6 +128,7 @@ class EarningsScreen extends ConsumerWidget {
                   return const SliverFillRemaining(
                     hasScrollBody: false,
                     child: DfEmptyState(
+                      variant: DfEmptyStateVariant.illustrated,
                       icon: Icons.payments_outlined,
                       title: 'Nenhum ganho neste período',
                       subtitle:

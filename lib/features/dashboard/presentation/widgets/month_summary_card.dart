@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../shared/domain/models/period_summary.dart';
 import '../../../../shared/widgets/design_system/df_card.dart';
 
-/// Resumo financeiro do mês corrente.
+/// Resumo do mês — lucro hero + métricas secundárias.
 class MonthSummaryCard extends StatelessWidget {
   const MonthSummaryCard({
     required this.summary,
@@ -21,23 +22,41 @@ class MonthSummaryCard extends StatelessWidget {
         summary.profit >= 0 ? AppColors.profitGreen : AppColors.expenseCoral;
 
     return DfCard(
+      variant: DfCardVariant.glass,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Resumo do mês', style: theme.textTheme.titleMedium),
-          const SizedBox(height: 12),
+          Text(
+            'Resumo do mês',
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.md),
+          Text(
+            CurrencyFormatter.formatSigned(summary.profit),
+            style: theme.textTheme.displaySmall?.copyWith(
+              fontWeight: FontWeight.w800,
+              color: profitColor,
+              letterSpacing: -1,
+              fontFeatures: const [FontFeature.tabularFigures()],
+            ),
+          ),
+          Text(
+            'lucro líquido do mês',
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: AppColors.secondaryLabel(theme),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.lg),
           _Row(label: 'Receita', value: CurrencyFormatter.format(summary.revenue)),
           _Row(label: 'Despesas', value: CurrencyFormatter.format(summary.expenses)),
-          _Row(
-            label: 'Lucro',
-            value: CurrencyFormatter.formatSigned(summary.profit),
-            valueColor: profitColor,
-          ),
           if (summary.profitPerHour != null) ...[
-            const Divider(height: 20),
+            const Divider(height: AppSpacing.lg),
             _Row(
               label: 'Lucro / hora',
               value: CurrencyFormatter.format(summary.profitPerHour!),
+              emphasized: true,
             ),
           ],
           if (summary.profitPerKm != null)
@@ -64,12 +83,12 @@ class _Row extends StatelessWidget {
   const _Row({
     required this.label,
     required this.value,
-    this.valueColor,
+    this.emphasized = false,
   });
 
   final String label;
   final String value;
-  final Color? valueColor;
+  final bool emphasized;
 
   @override
   Widget build(BuildContext context) {
@@ -88,9 +107,12 @@ class _Row extends StatelessWidget {
           ),
           Text(
             value,
-            style: theme.textTheme.bodyLarge?.copyWith(
-              color: valueColor,
-              fontWeight: FontWeight.w600,
+            style: (emphasized
+                    ? theme.textTheme.titleSmall
+                    : theme.textTheme.bodyLarge)
+                ?.copyWith(
+              fontWeight: FontWeight.w700,
+              fontFeatures: const [FontFeature.tabularFigures()],
             ),
           ),
         ],
