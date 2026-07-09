@@ -11,15 +11,13 @@ import '../../../../core/theme/app_motion.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../shared/widgets/design_system/df_button.dart';
-import '../../../../shared/widgets/design_system/df_card.dart';
 import '../../../../shared/widgets/design_system/df_password_checklist.dart';
 import '../../../../shared/widgets/design_system/df_staggered_entrance.dart';
 import '../../../../shared/widgets/design_system/df_text_field.dart';
-import '../../../../shared/widgets/driveflow_brand_logo.dart';
-import '../../../../shared/widgets/driveflow_gradient_background.dart';
 import '../providers/auth_providers.dart';
+import '../widgets/auth_hero_layout.dart';
 
-/// Cadastro com e-mail, senha e nome — checklist de senha em tempo real.
+/// Cadastro premium — hero editorial + checklist animado de senha.
 class RegisterScreen extends HookConsumerWidget {
   const RegisterScreen({super.key});
 
@@ -74,146 +72,112 @@ class RegisterScreen extends HookConsumerWidget {
           );
     }
 
-    return DriveFlowGradientBackground(
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        appBar: AppBar(
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back_rounded),
-            onPressed: isLoading ? null : () => context.go(AppRoutes.login),
-          ),
-        ),
-        body: SafeArea(
-          top: false,
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.screenHorizontal,
-              0,
-              AppSpacing.screenHorizontal,
-              AppSpacing.xxl,
+    return AuthHeroLayout(
+      headline: 'Crie sua\nconta DriveFlow',
+      subtitle:
+          'Comece a controlar lucro, custos e metas com uma experiência de alto nível.',
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back_rounded),
+        onPressed: isLoading ? null : () => context.go(AppRoutes.login),
+      ),
+      formChild: Form(
+        key: formKey,
+        child: DfStaggeredEntrance(
+          children: [
+            DfTextField(
+              controller: nameController,
+              label: 'Nome completo',
+              hint: 'Seu nome',
+              textInputAction: TextInputAction.next,
+              prefixIcon: Icons.person_outline_rounded,
+              autofillHints: const [AutofillHints.name],
+              validator: (v) =>
+                  Validators.requiredField(v, fieldName: 'Nome'),
             ),
-            child: Form(
-              key: formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const DriveFlowBrandLogo(
-                    size: LogoSize.small,
-                    showTagline: false,
+            const SizedBox(height: AppSpacing.lg),
+            DfTextField(
+              controller: emailController,
+              label: 'E-mail',
+              hint: 'seu@email.com',
+              keyboardType: TextInputType.emailAddress,
+              textInputAction: TextInputAction.next,
+              prefixIcon: Icons.mail_outline_rounded,
+              autofillHints: const [AutofillHints.email],
+              validator: Validators.email,
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            DfTextField(
+              controller: passwordController,
+              label: 'Senha',
+              hint: 'Crie uma senha segura',
+              obscureText: obscurePassword.value,
+              textInputAction: TextInputAction.next,
+              prefixIcon: Icons.lock_outline_rounded,
+              validator: Validators.password,
+              suffixIcon: IconButton(
+                icon: AnimatedSwitcher(
+                  duration: DriveFlowMotion.fast,
+                  child: Icon(
+                    obscurePassword.value
+                        ? Icons.visibility_off_outlined
+                        : Icons.visibility_outlined,
+                    key: ValueKey(obscurePassword.value),
+                    size: 22,
                   ),
-                  const SizedBox(height: AppSpacing.xl),
-                  DfCard(
-                    child: DfStaggeredEntrance(
-                      children: [
-                        Text(
-                          'Criar conta',
-                          style: theme.textTheme.headlineSmall,
-                        ),
-                        const SizedBox(height: AppSpacing.sm),
-                        Text(
-                          'Comece a controlar lucro, custos e metas.',
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: AppColors.secondaryLabel(theme),
-                          ),
-                        ),
-                        const SizedBox(height: AppSpacing.xl),
-                        DfTextField(
-                          controller: nameController,
-                          label: 'Nome completo',
-                          hint: 'Seu nome',
-                          textInputAction: TextInputAction.next,
-                          prefixIcon: Icons.person_outline_rounded,
-                          autofillHints: const [AutofillHints.name],
-                          validator: (v) =>
-                              Validators.requiredField(v, fieldName: 'Nome'),
-                        ),
-                        const SizedBox(height: AppSpacing.lg),
-                        DfTextField(
-                          controller: emailController,
-                          label: 'E-mail',
-                          hint: 'seu@email.com',
-                          keyboardType: TextInputType.emailAddress,
-                          textInputAction: TextInputAction.next,
-                          prefixIcon: Icons.mail_outline_rounded,
-                          autofillHints: const [AutofillHints.email],
-                          validator: Validators.email,
-                        ),
-                        const SizedBox(height: AppSpacing.lg),
-                        DfTextField(
-                          controller: passwordController,
-                          label: 'Senha',
-                          hint: 'Crie uma senha segura',
-                          obscureText: obscurePassword.value,
-                          textInputAction: TextInputAction.next,
-                          prefixIcon: Icons.lock_outline_rounded,
-                          validator: Validators.password,
-                          suffixIcon: IconButton(
-                            icon: AnimatedSwitcher(
-                              duration: DriveFlowMotion.fast,
-                              child: Icon(
-                                obscurePassword.value
-                                    ? Icons.visibility_off_outlined
-                                    : Icons.visibility_outlined,
-                                key: ValueKey(obscurePassword.value),
-                                size: 22,
-                              ),
-                            ),
-                            onPressed: () =>
-                                obscurePassword.value = !obscurePassword.value,
-                          ),
-                        ),
-                        const SizedBox(height: AppSpacing.md),
-                        DfPasswordChecklist(password: passwordText.value),
-                        const SizedBox(height: AppSpacing.lg),
-                        DfTextField(
-                          controller: confirmController,
-                          label: 'Confirmar senha',
-                          obscureText: obscureConfirm.value,
-                          textInputAction: TextInputAction.done,
-                          prefixIcon: Icons.lock_outline_rounded,
-                          onFieldSubmitted: (_) => submit(),
-                          validator: (value) {
-                            if (value != passwordController.text) {
-                              return 'As senhas não coincidem';
-                            }
-                            return Validators.password(value);
-                          },
-                          suffixIcon: IconButton(
-                            icon: AnimatedSwitcher(
-                              duration: DriveFlowMotion.fast,
-                              child: Icon(
-                                obscureConfirm.value
-                                    ? Icons.visibility_off_outlined
-                                    : Icons.visibility_outlined,
-                                key: ValueKey(obscureConfirm.value),
-                                size: 22,
-                              ),
-                            ),
-                            onPressed: () =>
-                                obscureConfirm.value = !obscureConfirm.value,
-                          ),
-                        ),
-                        const SizedBox(height: AppSpacing.xl),
-                        DfButton(
-                          label: 'Cadastrar',
-                          icon: Icons.person_add_rounded,
-                          isLoading: isLoading,
-                          onPressed: submit,
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.lg),
-                  Center(
-                    child: TextButton(
-                      onPressed: isLoading
-                          ? null
-                          : () => context.go(AppRoutes.login),
-                      child: const Text('Já tenho conta'),
-                    ),
-                  ),
-                ],
+                ),
+                onPressed: () =>
+                    obscurePassword.value = !obscurePassword.value,
               ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            DfPasswordChecklist(password: passwordText.value),
+            const SizedBox(height: AppSpacing.lg),
+            DfTextField(
+              controller: confirmController,
+              label: 'Confirmar senha',
+              obscureText: obscureConfirm.value,
+              textInputAction: TextInputAction.done,
+              prefixIcon: Icons.lock_outline_rounded,
+              onFieldSubmitted: (_) => submit(),
+              validator: (value) {
+                if (value != passwordController.text) {
+                  return 'As senhas não coincidem';
+                }
+                return Validators.password(value);
+              },
+              suffixIcon: IconButton(
+                icon: AnimatedSwitcher(
+                  duration: DriveFlowMotion.fast,
+                  child: Icon(
+                    obscureConfirm.value
+                        ? Icons.visibility_off_outlined
+                        : Icons.visibility_outlined,
+                    key: ValueKey(obscureConfirm.value),
+                    size: 22,
+                  ),
+                ),
+                onPressed: () =>
+                    obscureConfirm.value = !obscureConfirm.value,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.xl),
+            DfButton(
+              label: 'Cadastrar',
+              icon: Icons.person_add_rounded,
+              isLoading: isLoading,
+              variant: DfButtonVariant.gradient,
+              onPressed: submit,
+            ),
+          ],
+        ),
+      ),
+      footer: Center(
+        child: TextButton(
+          onPressed: isLoading ? null : () => context.go(AppRoutes.login),
+          child: Text(
+            'Já tenho conta',
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: AppColors.secondaryLabel(theme),
             ),
           ),
         ),
