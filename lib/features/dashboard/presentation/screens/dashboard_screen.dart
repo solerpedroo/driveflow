@@ -21,7 +21,10 @@ import '../widgets/dashboard_header.dart';
 import '../widgets/dashboard_hero_section.dart';
 import '../widgets/dashboard_maintenance_card.dart';
 import '../widgets/dashboard_shortcuts_row.dart';
+import '../widgets/dashboard_social_proof_strip.dart';
+import '../widgets/dashboard_story_section.dart';
 import '../widgets/dashboard_today_metrics_grid.dart';
+import '../widgets/dashboard_upgrade_banner.dart';
 import '../widgets/month_summary_card.dart';
 import '../widgets/weekly_profit_chart.dart';
 
@@ -58,6 +61,12 @@ class DashboardScreen extends HookConsumerWidget {
     return CustomScrollView(
       slivers: [
         SliverToBoxAdapter(child: DashboardHeader(user: user)),
+        const SliverToBoxAdapter(
+          child: Padding(
+            padding: EdgeInsets.only(top: AppSpacing.md),
+            child: DashboardSocialProofStrip(),
+          ),
+        ),
         SliverPadding(
           padding: const EdgeInsets.fromLTRB(
             AppSpacing.screenHorizontal,
@@ -91,6 +100,7 @@ class DashboardScreen extends HookConsumerWidget {
                   summary: snapshot.today,
                   goalProgress: goal,
                   greeting: greeting,
+                  weekProfits: snapshot.weekProfits,
                 ),
                 loading: () => const SizedBox(
                   height: 340,
@@ -105,6 +115,7 @@ class DashboardScreen extends HookConsumerWidget {
                     expensesTotal: snapshot.today.expenses,
                   ),
                   greeting: greeting,
+                  weekProfits: snapshot.weekProfits,
                 ),
               ),
             ),
@@ -114,6 +125,30 @@ class DashboardScreen extends HookConsumerWidget {
           child: Padding(
             padding: EdgeInsets.only(top: AppSpacing.lg),
             child: DashboardShortcutsRow(),
+          ),
+        ),
+        SliverToBoxAdapter(
+          child: dashboardAsync.when(
+            loading: () => const SizedBox.shrink(),
+            error: (_, __) => const SizedBox.shrink(),
+            data: (snapshot) => dailyGoal.when(
+              data: (goal) => Padding(
+                padding: const EdgeInsets.only(top: AppSpacing.lg),
+                child: DashboardStorySection(
+                  today: snapshot.today,
+                  month: snapshot.month,
+                  goalProgress: goal,
+                ),
+              ),
+              loading: () => const SizedBox.shrink(),
+              error: (_, __) => const SizedBox.shrink(),
+            ),
+          ),
+        ),
+        const SliverToBoxAdapter(
+          child: Padding(
+            padding: EdgeInsets.only(top: AppSpacing.lg),
+            child: DashboardUpgradeBanner(),
           ),
         ),
         if (topSlots.isNotEmpty || topPrediction != null)
