@@ -5,6 +5,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/validators.dart';
+import '../../../../shared/widgets/design_system/df_filter_pill.dart';
 import '../../../../shared/widgets/design_system/df_card.dart';
 import '../../../authentication/presentation/widgets/auth_primary_button.dart';
 import '../../../authentication/presentation/widgets/auth_text_field.dart';
@@ -165,10 +166,10 @@ class VehicleFormScreen extends HookConsumerWidget {
                     runSpacing: 8,
                     children: kFuelTypes.map((fuel) {
                       final selected = selectedFuel.value == fuel;
-                      return FilterChip(
-                        label: Text(fuel.label),
+                      return DfFilterPill(
+                        label: fuel.label,
                         selected: selected,
-                        onSelected: (_) => selectedFuel.value = fuel,
+                        onSelected: () => selectedFuel.value = fuel,
                       );
                     }).toList(growable: false),
                   ),
