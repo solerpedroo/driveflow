@@ -1,3 +1,6 @@
+import 'analytics_enums.dart';
+import '../../../goals/domain/entities/goal_entity.dart';
+
 /// Variação de um indicador entre dois períodos.
 class PeriodMetricDelta {
   const PeriodMetricDelta({
