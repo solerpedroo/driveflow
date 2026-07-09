@@ -82,18 +82,14 @@ class GoalsScreen extends HookConsumerWidget {
           progressAsync.when(
             loading: () => const Center(child: CircularProgressIndicator()),
             error: (e, _) => Text('Erro: $e'),
-            data: (progressMap) => DriveFlowGlassCard(
-              child: Column(
-                children: [
-                  for (final period in GoalPeriod.values) ...[
-                    if (progressMap[period] case final progress?) ...[
-                      GoalProgressCard(progress: progress),
-                      if (period != GoalPeriod.yearly)
-                        const Divider(height: 24),
-                    ],
+            data: (progressMap) => Column(
+              children: [
+                for (final period in GoalPeriod.values)
+                  if (progressMap[period] case final progress?) ...[
+                    GoalProgressCard(progress: progress),
+                    const SizedBox(height: 12),
                   ],
-                ],
-              ),
+              ],
             ),
           ),
           const SizedBox(height: 24),
