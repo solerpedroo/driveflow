@@ -8,6 +8,7 @@ import '../../../vehicle/presentation/widgets/vehicle_scope_chip.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../shared/widgets/design_system/df_section_header.dart';
+import '../../../analytics/presentation/providers/analytics_providers.dart';
 import '../providers/reports_providers.dart';
 import '../widgets/report_export_actions.dart';
 import '../widgets/report_indicators_card.dart';
