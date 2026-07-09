@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../shared/domain/models/period_summary.dart';
-import '../../../../shared/widgets/driveflow_glass_card.dart';
+import '../../../../shared/widgets/design_system/df_card.dart';
 
 /// Resumo financeiro do mês corrente.
 class MonthSummaryCard extends StatelessWidget {
@@ -20,7 +20,7 @@ class MonthSummaryCard extends StatelessWidget {
     final profitColor =
         summary.profit >= 0 ? AppColors.profitGreen : AppColors.expenseCoral;
 
-    return DriveFlowGlassCard(
+    return DfCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

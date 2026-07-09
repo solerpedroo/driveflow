@@ -5,18 +5,27 @@ import '../../../authentication/domain/entities/user_entity.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/theme_mode_provider.dart';
-import '../../../../shared/widgets/driveflow_brand_logo.dart';
 
-/// Cabeçalho do dashboard com logo, usuário e toggle de tema.
+/// Cabeçalho premium — saudação contextual + avatar (padrão FitFolio).
 class DashboardHeader extends ConsumerWidget {
   const DashboardHeader({required this.user, super.key});
 
   final UserEntity? user;
 
+  static String _greetingForHour(int hour) {
+    if (hour < 12) return 'Bom dia';
+    if (hour < 18) return 'Boa tarde';
+    return 'Boa noite';
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final hour = DateTime.now().hour;
+    final greeting = _greetingForHour(hour);
+    final name = user?.displayName ?? 'motorista';
+    final initial = name.isNotEmpty ? name.characters.first.toUpperCase() : 'D';
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(
@@ -26,26 +35,31 @@ class DashboardHeader extends ConsumerWidget {
         0,
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const Expanded(child: DriveFlowBrandLogo(size: LogoSize.medium)),
-          if (user != null)
-            Padding(
-              padding: const EdgeInsets.only(right: AppSpacing.sm),
-              child: Chip(
-                avatar: CircleAvatar(
-                  backgroundColor:
-                      AppColors.electricTeal.withValues(alpha: 0.2),
-                  child: Text(
-                    user!.displayName.characters.first.toUpperCase(),
-                    style: const TextStyle(
-                      color: AppColors.electricTeal,
-                      fontWeight: FontWeight.bold,
-                    ),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '$greeting,',
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    color: AppColors.secondaryLabel(theme),
                   ),
                 ),
-                label: Text(user!.displayName),
-              ),
+                Text(
+                  name,
+                  style: theme.textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -0.5,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
             ),
+          ),
+          const SizedBox(width: AppSpacing.md),
           Semantics(
             button: true,
             label: 'Alternar tema',
@@ -54,6 +68,22 @@ class DashboardHeader extends ConsumerWidget {
               onPressed: () => ref.read(themeModeProvider.notifier).toggle(),
               icon: Icon(
                 isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
+                size: 20,
+              ),
+              style: IconButton.styleFrom(
+                minimumSize: const Size(40, 40),
+              ),
+            ),
+          ),
+          const SizedBox(width: AppSpacing.sm),
+          CircleAvatar(
+            radius: 22,
+            backgroundColor: AppColors.skyBlue.withValues(alpha: 0.18),
+            child: Text(
+              initial,
+              style: theme.textTheme.titleMedium?.copyWith(
+                color: AppColors.skyBlue,
+                fontWeight: FontWeight.w700,
               ),
             ),
           ),
