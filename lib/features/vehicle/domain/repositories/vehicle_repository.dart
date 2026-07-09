@@ -20,4 +20,9 @@ abstract interface class VehicleRepository {
   Future<void> setActiveVehicleId(String? vehicleId);
 
   String? readActiveVehicleId();
+
+  Future<void> updateOdometer({
+    required String id,
+    required double odometerKm,
+  });
 }
