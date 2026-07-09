@@ -12,4 +12,13 @@ abstract final class HiveStorage {
       }
     }
   }
+
+  /// Remove todos os dados locais do usuário (obrigatório no logout).
+  static Future<void> clearUserData() async {
+    for (final name in HiveBoxes.all) {
+      if (Hive.isBoxOpen(name)) {
+        await Hive.box<dynamic>(name).clear();
+      }
+    }
+  }
 }
