@@ -13,6 +13,7 @@ import '../../../authentication/presentation/widgets/auth_primary_button.dart';
 import '../../../authentication/presentation/widgets/auth_text_field.dart';
 import '../../domain/entities/receipt_scan_result.dart';
 import '../providers/receipt_ocr_providers.dart';
+import '../../../../shared/widgets/design_system/df_filter_pill.dart';
 
 /// Dados confirmados pelo usuário após revisão do OCR.
 class ReceiptScanConfirmation {
@@ -185,11 +186,12 @@ class ReceiptScanReviewSheet extends HookConsumerWidget {
                 spacing: 8,
                 runSpacing: 8,
                 children: kExpenseCategories.map((category) {
-                  return FilterChip(
-                    avatar: Icon(category.icon, size: 18),
-                    label: Text(category.label),
+                  return DfFilterPill(
+                    icon: category.icon,
+                    label: category.label,
                     selected: selectedCategory.value == category,
-                    onSelected: (_) => selectedCategory.value = category,
+                    accentColor: AppColors.expenseCoral,
+                    onSelected: () => selectedCategory.value = category,
                   );
                 }).toList(growable: false),
               ),
