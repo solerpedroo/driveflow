@@ -246,6 +246,32 @@ flutter test --coverage
 
 ---
 
+## Onda 15 — entregue
+
+- [x] Design tokens: `app_spacing`, `app_radius`, `app_motion`, `app_elevation`, `app_semantic_colors`
+- [x] Biblioteca `design_system/`: `DfButton`, `DfTextField`, `DfCard`, `DfChip`, `DfEmptyState`, `DfSkeleton`, `DfSectionHeader`, `DfBottomSheet`, `DfFormScaffold`
+- [x] Wrappers `driveflow_*` e `auth_*` delegam para componentes `Df*` (deprecated v2.1)
+- [x] Screens refatoradas: Dashboard, Ganhos, Despesas, Relatórios (< 200 linhas)
+- [x] Acessibilidade: `Semantics` em gráficos, touch targets ≥ 48dp, teste `textScaleFactor` 1.3
+- [x] Prep i18n: `lib/l10n/app_pt.arb` + `AppStrings`
+- [x] Testes: smoke design system e acessibilidade de chip
+
+### Componentes Design System v2
+
+| Componente | Uso |
+|---|---|
+| `DfButton` | Ações primárias, outlined e tonal |
+| `DfTextField` | Formulários e auth |
+| `DfCard` | Cartões glass (substitui `DriveFlowGlassCard`) |
+| `DfChip` | Métricas e filtros |
+| `DfEmptyState` | Listas vazias |
+| `DfSkeleton` | Loading de listas |
+| `DfSectionHeader` / `DfScreenTitle` | Títulos de seção e tela |
+| `DfBottomSheet` | Sheets padronizados |
+| `DfFormScaffold` | Layout de formulários |
+
+---
+
 ## Licença
 
 Projeto privado — todos os direitos reservados.
