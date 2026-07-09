@@ -15,10 +15,39 @@ abstract final class SupabaseConfig {
   );
 
   static bool get isConfigured => url.isNotEmpty && publishableKey.isNotEmpty;
+
+  static bool get isLocalHost {
+    final uri = Uri.tryParse(url);
+    if (uri == null) return false;
+    final host = uri.host.toLowerCase();
+    return host == '127.0.0.1' ||
+        host == 'localhost' ||
+        host == '10.0.2.2';
+  }
+
+  static void assertProductionSafe() {
+    if (kDebugMode) return;
+
+    if (!isConfigured) {
+      throw StateError(
+        'SUPABASE_URL e SUPABASE_ANON_KEY são obrigatórios em release. '
+        'Use --dart-define-from-file=env.json.',
+      );
+    }
+
+    final uri = Uri.tryParse(url);
+    if (uri != null && uri.scheme != 'https' && !isLocalHost) {
+      throw StateError(
+        'SUPABASE_URL deve usar HTTPS em produção (recebido: ${uri.scheme}).',
+      );
+    }
+  }
 }
 
 /// Inicializa Supabase; em dev usa emulador local por padrão.
 Future<void> initializeSupabase() async {
+  SupabaseConfig.assertProductionSafe();
+
   if (!SupabaseConfig.isConfigured && kDebugMode) {
     debugPrint(
       'DriveFlow: SUPABASE_ANON_KEY não definida. '
@@ -28,7 +57,7 @@ Future<void> initializeSupabase() async {
 
   await Supabase.initialize(
     url: SupabaseConfig.url,
-    anonKey: SupabaseConfig.publishableKey.isNotEmpty
+    anonKey: SupabaseConfig.isConfigured
         ? SupabaseConfig.publishableKey
         : 'placeholder-anon-key-for-foundation',
     debug: kDebugMode,
