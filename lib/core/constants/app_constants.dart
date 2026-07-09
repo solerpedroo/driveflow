@@ -86,8 +86,8 @@ abstract final class AppRoutes {
   static const aiChat = '/ai/chat';
 }
 
-/// Onda atual concluída (v2.0 — importação de extratos e previsão IA).
-const kCurrentWave = 14;
+/// Onda atual concluída (v2.0 — Design System v2 e acessibilidade).
+const kCurrentWave = 15;
 
 /// Deep link OAuth Supabase (Google).
 const kOAuthRedirectUrl = 'io.supabase.driveflow://login-callback/';

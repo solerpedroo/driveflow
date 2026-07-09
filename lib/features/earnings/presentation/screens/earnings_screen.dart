@@ -5,14 +5,15 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/constants/ride_platforms.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/currency_formatter.dart';
-import '../../../../core/utils/date_utils.dart';
-import '../../../../shared/widgets/driveflow_empty_state.dart';
-import '../../../../shared/widgets/driveflow_glass_card.dart';
-import '../../../../shared/widgets/driveflow_list_skeleton.dart';
+import '../../../../shared/widgets/design_system/df_card.dart';
+import '../../../../shared/widgets/design_system/df_empty_state.dart';
+import '../../../../shared/widgets/design_system/df_section_header.dart';
+import '../../../../shared/widgets/design_system/df_skeleton.dart';
 import '../../../../shared/widgets/driveflow_period_filter.dart';
-import '../../domain/entities/earning_entity.dart';
 import '../providers/earnings_providers.dart';
+import '../widgets/earning_tile.dart';
 
 /// Listagem de ganhos com filtros de período e plataforma.
 class EarningsScreen extends ConsumerWidget {
@@ -35,72 +36,40 @@ class EarningsScreen extends ConsumerWidget {
         child: CustomScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
-            sliver: SliverToBoxAdapter(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Ganhos', style: theme.textTheme.headlineSmall),
-                  const SizedBox(height: 12),
-                  DriveFlowPeriodFilter(
-                    value: period,
-                    onChanged: (p) =>
-                        ref.read(earningsPeriodProvider.notifier).state = p,
-                  ),
-                  const SizedBox(height: 12),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        FilterChip(
-                          label: const Text('Todas'),
-                          selected: platformFilter == null,
-                          onSelected: (_) => ref
-                              .read(earningsPlatformFilterProvider.notifier)
-                              .state = null,
-                        ),
-                        ...kRidePlatforms.map(
-                          (platform) => Padding(
-                            padding: const EdgeInsets.only(left: 8),
-                            child: FilterChip(
-                              label: Text(platform.label),
-                              selected: platformFilter == platform,
-                              onSelected: (_) => ref
-                                  .read(earningsPlatformFilterProvider.notifier)
-                                  .state = platform,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
-            sliver: SliverToBoxAdapter(
-              child: DriveFlowGlassCard(
-                child: Row(
+            SliverToBoxAdapter(
+              child: DfScreenTitle(
+                title: 'Ganhos',
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(Icons.payments_outlined,
-                        color: AppColors.profitGreen),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                    DriveFlowPeriodFilter(
+                      value: period,
+                      onChanged: (p) =>
+                          ref.read(earningsPeriodProvider.notifier).state = p,
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
                         children: [
-                          Text('Total no período',
-                              style: theme.textTheme.labelMedium),
-                          totalAsync.when(
-                            loading: () => const Text('...'),
-                            error: (e, _) => Text('Erro'),
-                            data: (total) => Text(
-                              CurrencyFormatter.format(total),
-                              style: theme.textTheme.headlineSmall?.copyWith(
-                                color: AppColors.profitGreen,
+                          FilterChip(
+                            label: const Text('Todas'),
+                            selected: platformFilter == null,
+                            onSelected: (_) => ref
+                                .read(earningsPlatformFilterProvider.notifier)
+                                .state = null,
+                          ),
+                          ...kRidePlatforms.map(
+                            (platform) => Padding(
+                              padding:
+                                  const EdgeInsets.only(left: AppSpacing.sm),
+                              child: FilterChip(
+                                label: Text(platform.label),
+                                selected: platformFilter == platform,
+                                onSelected: (_) => ref
+                                    .read(
+                                        earningsPlatformFilterProvider.notifier)
+                                    .state = platform,
                               ),
                             ),
                           ),
@@ -111,38 +80,79 @@ class EarningsScreen extends ConsumerWidget {
                 ),
               ),
             ),
-          ),
-          earningsAsync.when(
-            loading: () => const SliverFillRemaining(
-              child: DriveFlowListSkeleton(),
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.screenHorizontal,
+                AppSpacing.lg,
+                AppSpacing.screenHorizontal,
+                0,
+              ),
+              sliver: SliverToBoxAdapter(
+                child: DfCard(
+                  child: Row(
+                    children: [
+                      const Icon(Icons.payments_outlined,
+                          color: AppColors.profitGreen),
+                      const SizedBox(width: AppSpacing.md),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Total no período',
+                                style: theme.textTheme.labelMedium),
+                            totalAsync.when(
+                              loading: () => const Text('...'),
+                              error: (e, _) => const Text('Erro'),
+                              data: (total) => Text(
+                                CurrencyFormatter.format(total),
+                                style: theme.textTheme.headlineSmall?.copyWith(
+                                  color: AppColors.profitGreen,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
-            error: (e, _) => SliverFillRemaining(
-              child: Center(child: Text('Erro: $e')),
-            ),
-            data: (earnings) {
-              if (earnings.isEmpty) {
-                return SliverFillRemaining(
-                  hasScrollBody: false,
-                  child: DriveFlowEmptyState(
-                    icon: Icons.payments_outlined,
-                    title: 'Nenhum ganho neste período',
-                    subtitle: 'Toque em + Ganho para registrar sua primeira corrida.',
+            earningsAsync.when(
+              loading: () => const SliverFillRemaining(child: DfSkeleton()),
+              error: (e, _) => SliverFillRemaining(
+                child: Center(child: Text('Erro: $e')),
+              ),
+              data: (earnings) {
+                if (earnings.isEmpty) {
+                  return const SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: DfEmptyState(
+                      icon: Icons.payments_outlined,
+                      title: 'Nenhum ganho neste período',
+                      subtitle:
+                          'Toque em + Ganho para registrar sua primeira corrida.',
+                    ),
+                  );
+                }
+                return SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.screenHorizontal,
+                    AppSpacing.lg,
+                    AppSpacing.screenHorizontal,
+                    96,
+                  ),
+                  sliver: SliverList.separated(
+                    itemCount: earnings.length,
+                    separatorBuilder: (_, __) =>
+                        const SizedBox(height: AppSpacing.sm),
+                    itemBuilder: (context, index) =>
+                        EarningTile(earning: earnings[index]),
                   ),
                 );
-              }
-              return SliverPadding(
-                padding: const EdgeInsets.fromLTRB(24, 16, 24, 96),
-                sliver: SliverList.separated(
-                  itemCount: earnings.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 10),
-                  itemBuilder: (context, index) {
-                    return _EarningTile(earning: earnings[index]);
-                  },
-                ),
-              );
-            },
-          ),
-        ],
+              },
+            ),
+          ],
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
@@ -151,87 +161,5 @@ class EarningsScreen extends ConsumerWidget {
         label: const Text('Ganho'),
       ),
     );
-  }
-}
-
-class _EarningTile extends ConsumerWidget {
-  const _EarningTile({required this.earning});
-
-  final EarningEntity earning;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
-
-    return DriveFlowGlassCard(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(16),
-        onTap: () => context.push(AppRoutes.earningForm, extra: earning),
-        onLongPress: () => _confirmDelete(context, ref),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    earning.platform.label,
-                    style: theme.textTheme.titleMedium,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '${DateUtilsDriveFlow.dayMonthYear.format(earning.date)} · '
-                    '${earning.rides} corridas · ${earning.workedHours}h',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: AppColors.secondaryLabel(theme),
-                    ),
-                  ),
-                  if (earning.note != null && earning.note!.isNotEmpty) ...[
-                    const SizedBox(height: 4),
-                    Text(
-                      earning.note!,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: theme.textTheme.bodySmall,
-                    ),
-                  ],
-                ],
-              ),
-            ),
-            Text(
-              CurrencyFormatter.format(earning.amount),
-              style: theme.textTheme.titleMedium?.copyWith(
-                color: AppColors.profitGreen,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Future<void> _confirmDelete(BuildContext context, WidgetRef ref) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Excluir ganho?'),
-        content: const Text('Esta ação não pode ser desfeita.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancelar'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Excluir'),
-          ),
-        ],
-      ),
-    );
-    if (confirmed == true) {
-      await ref.read(earningsControllerProvider.notifier).delete(earning.id);
-    }
   }
 }

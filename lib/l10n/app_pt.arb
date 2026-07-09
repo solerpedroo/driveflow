@@ -1,0 +1,26 @@
+{
+  "@@locale": "pt",
+  "appName": "DriveFlow",
+  "appTagline": "Lucro claro. Decisão inteligente.",
+  "loginTitle": "Entrar",
+  "registerTitle": "Criar conta",
+  "dashboardGreeting": "Olá, {name}!",
+  "@dashboardGreeting": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "earningsTitle": "Ganhos",
+  "expensesTitle": "Despesas",
+  "reportsTitle": "Relatórios",
+  "analyticsTitle": "Análises",
+  "insightsTitle": "Insights",
+  "importStatementTitle": "Importar extrato",
+  "emptyEarnings": "Nenhum ganho neste período",
+  "emptyExpenses": "Nenhuma despesa neste período",
+  "errorGeneric": "Algo deu errado. Tente novamente.",
+  "sessionExpired": "Sessão expirada. Entre novamente.",
+  "cancel": "Cancelar",
+  "save": "Salvar",
+  "delete": "Excluir"
+}

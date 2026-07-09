@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_colors.dart';
+import '../../../../shared/widgets/design_system/df_button.dart';
 
-/// Botão primário de auth com loading integrado.
+/// Botão primário de auth — delega para [DfButton].
+@Deprecated('Use DfButton. Será removido em v2.1.')
 class AuthPrimaryButton extends StatelessWidget {
   const AuthPrimaryButton({
     required this.label,
@@ -19,32 +20,17 @@ class AuthPrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: FilledButton(
-        onPressed: isLoading ? null : onPressed,
-        child: isLoading
-            ? const SizedBox(
-                height: 22,
-                width: 22,
-                child: CircularProgressIndicator(strokeWidth: 2.5),
-              )
-            : Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if (icon != null) ...[
-                    Icon(icon, size: 20),
-                    const SizedBox(width: 8),
-                  ],
-                  Text(label),
-                ],
-              ),
-      ),
+    return DfButton(
+      label: label,
+      onPressed: onPressed,
+      isLoading: isLoading,
+      icon: icon,
     );
   }
 }
 
 /// Botão secundário (Google, links).
+@Deprecated('Use DfButton com variant outlined. Será removido em v2.1.')
 class AuthOutlinedButton extends StatelessWidget {
   const AuthOutlinedButton({
     required this.label,
@@ -61,38 +47,12 @@ class AuthOutlinedButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return SizedBox(
-      width: double.infinity,
-      child: OutlinedButton(
-        onPressed: isLoading ? null : onPressed,
-        style: OutlinedButton.styleFrom(
-          minimumSize: const Size.fromHeight(52),
-          side: BorderSide(
-            color: AppColors.secondaryLabel(theme).withValues(alpha: 0.35),
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-        ),
-        child: isLoading
-            ? const SizedBox(
-                height: 22,
-                width: 22,
-                child: CircularProgressIndicator(strokeWidth: 2.5),
-              )
-            : Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if (leading != null) ...[
-                    leading!,
-                    const SizedBox(width: 10),
-                  ],
-                  Text(label),
-                ],
-              ),
-      ),
+    return DfButton(
+      label: label,
+      onPressed: onPressed,
+      isLoading: isLoading,
+      leading: leading,
+      variant: DfButtonVariant.outlined,
     );
   }
 }

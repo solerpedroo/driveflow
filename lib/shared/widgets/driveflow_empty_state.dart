@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 
-import '../../core/theme/app_colors.dart';
+import 'design_system/df_empty_state.dart';
 
-/// Estado vazio ilustrado para listas sem dados.
+/// Estado vazio — delega para [DfEmptyState] (Design System v2).
+@Deprecated('Use DfEmptyState. Será removido em v2.1.')
 class DriveFlowEmptyState extends StatelessWidget {
   const DriveFlowEmptyState({
     required this.title,
+    super.key,
     this.subtitle,
     this.icon = Icons.inbox_outlined,
-    super.key,
   });
 
   final String title;
@@ -17,41 +18,6 @@ class DriveFlowEmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Semantics(
-      label: title,
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(32),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                icon,
-                size: 56,
-                color: AppColors.secondaryLabel(theme).withValues(alpha: 0.6),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                title,
-                textAlign: TextAlign.center,
-                style: theme.textTheme.titleMedium,
-              ),
-              if (subtitle != null) ...[
-                const SizedBox(height: 8),
-                Text(
-                  subtitle!,
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: AppColors.secondaryLabel(theme),
-                  ),
-                ),
-              ],
-            ],
-          ),
-        ),
-      ),
-    );
+    return DfEmptyState(title: title, subtitle: subtitle, icon: icon);
   }
 }

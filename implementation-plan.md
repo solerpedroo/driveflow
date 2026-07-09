@@ -28,7 +28,7 @@ Plano de implementação em **16 ondas** (0–15) para o DriveFlow (Flutter + Su
 | 12 | Gráficos avançados + comparação de períodos | concluída |
 | 13 | Lembretes inteligentes + insights de melhor horário | concluída |
 | 14 | Importação de extratos + previsão IA | concluída |
-| 15 | Refatoração de UI / Design System v2 | pendente |
+| 15 | Refatoração de UI / Design System v2 | concluída |
 
 ---
 
