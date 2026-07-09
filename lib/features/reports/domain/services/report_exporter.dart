@@ -13,7 +13,7 @@ import '../../../../core/utils/duration_formatter.dart';
 import '../../../earnings/domain/entities/earning_entity.dart';
 import '../../../expenses/domain/entities/expense_entity.dart';
 import '../entities/report_snapshot.dart';
-import '../../analytics/domain/entities/period_comparison_result.dart';
+import '../../../analytics/domain/entities/period_comparison_result.dart';
 
 /// Exporta relatórios em PDF e CSV e compartilha via share sheet.
 abstract final class ReportExporter {
