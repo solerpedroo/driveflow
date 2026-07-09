@@ -89,10 +89,13 @@ final allGoalProgressProvider =
   );
   if (loading) return const AsyncLoading();
 
-  final errorPeriod = periods.cast<GoalPeriod?>().firstWhere(
-        (period) => ref.watch(goalProgressProvider(period!)).hasError,
-        orElse: () => null,
-      );
+  GoalPeriod? errorPeriod;
+  for (final period in periods) {
+    if (ref.watch(goalProgressProvider(period)).hasError) {
+      errorPeriod = period;
+      break;
+    }
+  }
   if (errorPeriod != null) {
     final failed = ref.watch(goalProgressProvider(errorPeriod));
     return AsyncError(

@@ -28,8 +28,13 @@ class AiRepositoryImpl implements AiRepository {
     final response = await _remote.invokeAiChat(question: question);
     final userId = _client.auth.currentUser?.id ?? '';
 
+    final id = response['id'];
+    if (id is! String) {
+      throw StateError('Resposta inválida do assistente.');
+    }
+
     return AiMessageEntity(
-      id: response['id'] as String,
+      id: id,
       userId: userId,
       question: response['question'] as String? ?? question,
       answer: response['answer'] as String,
@@ -42,8 +47,13 @@ class AiRepositoryImpl implements AiRepository {
   Future<AiForecastMessage> forecast() async {
     final response = await _remote.invokeAiForecast();
 
+    final id = response['id'];
+    if (id is! String) {
+      throw StateError('Resposta inválida da previsão.');
+    }
+
     return AiForecastMessage(
-      id: response['id'] as String,
+      id: id,
       summary: response['summary'] as String? ?? '',
       forecast7Days: (response['forecast7Days'] as num?)?.toDouble() ?? 0,
       forecast30Days: (response['forecast30Days'] as num?)?.toDouble() ?? 0,

@@ -27,10 +27,13 @@ class AiChatScreen extends HookConsumerWidget {
       FocusScope.of(context).unfocus();
 
       final saved = await ref.read(aiChatControllerProvider.notifier).ask(question);
-      if (saved == null && context.mounted && mutation.hasError) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(mutation.error.toString())),
-        );
+      if (saved == null && context.mounted) {
+        final error = ref.read(aiChatControllerProvider).error;
+        if (error != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(error.toString())),
+          );
+        }
       }
       if (scrollController.hasClients) {
         await scrollController.animateTo(
@@ -124,6 +127,7 @@ class AiChatScreen extends HookConsumerWidget {
                       controller: controller,
                       minLines: 1,
                       maxLines: 4,
+                      maxLength: 2000,
                       textInputAction: TextInputAction.send,
                       decoration: const InputDecoration(
                         hintText: 'Faça uma pergunta...',

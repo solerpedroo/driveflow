@@ -20,6 +20,10 @@ abstract final class Validators {
     if (value.length < minLength) {
       return 'Mínimo de $minLength caracteres';
     }
+    if (!RegExp(r'[A-Za-z]').hasMatch(value) ||
+        !RegExp(r'[0-9]').hasMatch(value)) {
+      return 'Use letras e números na senha';
+    }
     return null;
   }
 

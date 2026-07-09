@@ -62,11 +62,17 @@ class EarningsRemoteDataSource {
     required String id,
     required EarningDraft draft,
   }) async {
+    final userId = _userId;
+    if (userId == null) {
+      throw const AuthFailure(message: 'Sessão expirada. Entre novamente.');
+    }
+
     try {
       return await _client
           .from(EarningsSchema.table)
           .update(EarningsMapper.toUpdate(draft))
           .eq(EarningsSchema.id, id)
+          .eq(EarningsSchema.userId, userId)
           .select()
           .single();
     } on PostgrestException catch (e) {
@@ -75,8 +81,17 @@ class EarningsRemoteDataSource {
   }
 
   Future<void> deleteEarning(String id) async {
+    final userId = _userId;
+    if (userId == null) {
+      throw const AuthFailure(message: 'Sessão expirada. Entre novamente.');
+    }
+
     try {
-      await _client.from(EarningsSchema.table).delete().eq(EarningsSchema.id, id);
+      await _client
+          .from(EarningsSchema.table)
+          .delete()
+          .eq(EarningsSchema.id, id)
+          .eq(EarningsSchema.userId, userId);
     } on PostgrestException catch (e) {
       throw ServerFailure(message: e.message, cause: e);
     }

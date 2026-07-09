@@ -3,10 +3,13 @@ import 'package:flutter/foundation.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../../core/services/session_secure_storage.dart';
+import '../../../../core/storage/hive_storage.dart';
+import '../../../../core/storage/supabase_storage_urls.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../datasources/supabase_auth_datasource.dart';
 import '../mappers/user_mapper.dart';
+import '../schema/profile_schema.dart';
 
 /// Implementação Supabase de [AuthRepository].
 class AuthRepositoryImpl implements AuthRepository {
@@ -39,10 +42,13 @@ class AuthRepositoryImpl implements AuthRepository {
         try {
           await syncProfile();
         } catch (e, st) {
-          debugPrint('DriveFlow: falha ao sincronizar profile: $e\n$st');
+          if (kDebugMode) {
+            debugPrint('DriveFlow: falha ao sincronizar profile: $e\n$st');
+          }
         }
       } else {
         await _sessionStorage.clear();
+        await HiveStorage.clearUserData();
       }
 
       yield mapAuthUserToEntity(event.session?.user);
@@ -82,6 +88,11 @@ class AuthRepositoryImpl implements AuthRepository {
     if (user == null) {
       throw const AuthFailure(message: 'Não foi possível criar a conta.');
     }
+    if (response.session == null) {
+      throw const AuthFailure(
+        message: 'Conta criada. Confirme seu e-mail antes de entrar.',
+      );
+    }
     await _profiles.upsertProfile(
       id: user.id,
       email: email,
@@ -101,6 +112,7 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<void> signOut() async {
     await _auth.signOut();
     await _sessionStorage.clear();
+    await HiveStorage.clearUserData();
   }
 
   @override
@@ -120,6 +132,16 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<UserEntity?> _resolveUser(String id) async {
     final row = await _profiles.fetchProfile(id);
     if (row == null) return null;
+    final photo = row[ProfileSchema.photo] as String?;
+    if (photo != null && !SupabaseStorageUrls.isRemoteUrl(photo)) {
+      final signed = await SupabaseStorageUrls.resolveAvatarUrl(photo);
+      if (signed != null) {
+        return UserMapper.fromProfileRow({
+          ...row,
+          ProfileSchema.photo: signed,
+        });
+      }
+    }
     return UserMapper.fromProfileRow(row);
   }
 }
