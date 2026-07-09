@@ -6,6 +6,8 @@ import '../../../../core/theme/app_semantic_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/duration_formatter.dart';
+import '../../../../core/utils/story_metrics.dart';
+import '../../../../shared/domain/models/daily_profit_point.dart';
 import '../../../../shared/domain/models/period_summary.dart';
 import '../../../../shared/widgets/design_system/df_card.dart';
 import '../../../../shared/widgets/design_system/df_hero_metric.dart';
@@ -17,12 +19,14 @@ class DashboardHeroSection extends StatelessWidget {
     required this.summary,
     required this.goalProgress,
     required this.greeting,
+    required this.weekProfits,
     super.key,
   });
 
   final PeriodSummary summary;
   final GoalProgress goalProgress;
   final String greeting;
+  final List<DailyProfitPoint> weekProfits;
 
   @override
   Widget build(BuildContext context) {
@@ -36,6 +40,11 @@ class DashboardHeroSection extends StatelessWidget {
     final ringColor = goalProgress.isComplete
         ? AppSemanticColors.success
         : AppColors.skyBlue;
+    final storyLine = StoryMetrics.heroSubtitle(
+      today: summary,
+      goalProgress: goalProgress,
+      weekProfits: weekProfits,
+    );
 
     return DfCard(
       variant: DfCardVariant.hero,
@@ -54,6 +63,14 @@ class DashboardHeroSection extends StatelessWidget {
             'Seu lucro hoje',
             style: theme.textTheme.headlineSmall?.copyWith(
               fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            storyLine,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: AppColors.secondaryLabel(theme),
+              height: 1.4,
             ),
           ),
           const SizedBox(height: AppSpacing.xl),
