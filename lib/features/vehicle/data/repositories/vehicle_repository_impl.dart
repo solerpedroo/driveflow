@@ -50,6 +50,7 @@ class VehicleRepositoryImpl implements VehicleRepository {
       mapRows: (rows) =>
           rows.map(VehicleMapper.fromRow).toList(growable: false),
       persistRemote: (rows) => _local.replaceAll(rows),
+      refresh: fetchVehicles,
     );
   }
 
