@@ -51,6 +51,7 @@ function buildContextPrompt(data: {
   goals: Record<string, unknown> | null;
   fuelLogs: Array<Record<string, unknown>>;
   maintenance: Array<Record<string, unknown>>;
+  platformTrips: Array<Record<string, unknown>>;
 }) {
   const earningsTotal = sumAmount(data.earnings as Array<{ amount: number }>, "amount");
   const expensesTotal = sumAmount(data.expenses as Array<{ amount: number }>, "amount");
@@ -73,6 +74,24 @@ function buildContextPrompt(data: {
     .filter((row) => row.next_due_date || row.next_due_km)
     .slice(0, 5);
 
+  const platformTotals = new Map<string, number>();
+  for (const row of data.earnings) {
+    const p = String(row.platform ?? "other");
+    platformTotals.set(p, (platformTotals.get(p) ?? 0) + Number(row.amount ?? 0));
+  }
+  const platformLines = [...platformTotals.entries()]
+    .map(([p, v]) => `${p}: ${formatBrl(v)}`)
+    .join(", ");
+
+  const tripCount = data.platformTrips.length;
+  const avgTakeRate = data.platformTrips.length > 0
+    ? data.platformTrips.reduce((sum, t) => {
+      const gross = Number(t.fare_amount ?? 0) + Number(t.tip_amount ?? 0);
+      const fee = Number(t.platform_fee ?? 0);
+      return sum + (gross > 0 ? fee / gross : 0);
+    }, 0) / data.platformTrips.length * 100
+    : 0;
+
   return [
     "Contexto financeiro do motorista (últimos 90 dias):",
     `- Receita total: ${formatBrl(earningsTotal)}`,
@@ -84,7 +103,10 @@ function buildContextPrompt(data: {
     `- Metas (BRL): diária ${formatBrl(Number(goals.daily ?? 0))}, semanal ${formatBrl(Number(goals.weekly ?? 0))}, mensal ${formatBrl(Number(goals.monthly ?? 0))}, anual ${formatBrl(Number(goals.yearly ?? 0))}`,
     `- Manutenções com lembrete: ${maintenancePending.length}`,
     `- Registros: ${data.earnings.length} ganhos, ${data.expenses.length} despesas, ${data.fuelLogs.length} abastecimentos`,
-  ].join("\n");
+    platformLines ? `- Receita por app: ${platformLines}` : "",
+    tripCount > 0 ? `- Corridas sincronizadas (trips): ${tripCount}` : "",
+    tripCount > 0 ? `- Take rate médio nas corridas: ${avgTakeRate.toFixed(1)}%` : "",
+  ].filter(Boolean).join("\n");
 }
 
 async function callGroq(messages: GroqMessage[], apiKey: string, model: string) {
@@ -181,7 +203,7 @@ Deno.serve(async (req) => {
     const since = new Date(Date.now() - CONTEXT_DAYS * 24 * 60 * 60 * 1000)
       .toISOString();
 
-    const [earningsRes, expensesRes, goalsRes, fuelRes, maintenanceRes] =
+    const [earningsRes, expensesRes, goalsRes, fuelRes, maintenanceRes, tripsRes] =
       await Promise.all([
         adminClient
           .from("earnings")
@@ -211,14 +233,21 @@ Deno.serve(async (req) => {
           .eq("user_id", userId)
           .order("service_date", { ascending: false })
           .limit(20),
+        adminClient
+          .from("platform_trips")
+          .select("platform, fare_amount, tip_amount, platform_fee, driver_payout, started_at")
+          .eq("user_id", userId)
+          .gte("started_at", since)
+          .order("started_at", { ascending: false })
+          .limit(100),
       ]);
 
     if (earningsRes.error || expensesRes.error || goalsRes.error || fuelRes.error ||
-      maintenanceRes.error) {
+      maintenanceRes.error || tripsRes.error) {
       logServerError(
         "context fetch",
         earningsRes.error ?? expensesRes.error ?? goalsRes.error ?? fuelRes.error ??
-          maintenanceRes.error,
+          maintenanceRes.error ?? tripsRes.error,
       );
       return clientError("Assistente indisponível no momento.", 500);
     }
@@ -229,6 +258,7 @@ Deno.serve(async (req) => {
       goals: goalsRes.data,
       fuelLogs: fuelRes.data ?? [],
       maintenance: maintenanceRes.data ?? [],
+      platformTrips: tripsRes.data ?? [],
     });
 
     const systemPrompt = [
