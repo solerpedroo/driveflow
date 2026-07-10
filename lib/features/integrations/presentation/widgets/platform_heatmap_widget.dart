@@ -10,7 +10,7 @@ import '../../../../shared/widgets/design_system/df_card.dart';
 import '../../../../shared/widgets/design_system/df_segmented_control.dart';
 import '../providers/platform_analytics_providers.dart';
 
-/// Heatmap 7×24 colorido por R$/h.
+/// Heatmap 7×24 colorido por R$/h (grade completa 0h–23h).
 class PlatformHeatmapWidget extends ConsumerWidget {
   const PlatformHeatmapWidget({super.key});
 
@@ -40,21 +40,36 @@ class PlatformHeatmapWidget extends ConsumerWidget {
                   fontWeight: FontWeight.w700,
                 ),
               ),
+              const SizedBox(height: 4),
+              Text(
+                'Arraste para ver todas as 24h',
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: AppColors.secondaryLabel(theme),
+                ),
+              ),
               const SizedBox(height: AppSpacing.sm),
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: DfSegmentedControl<RidePlatform?>(
-                  segments: [null, ...RidePlatform.values.where(
-                    (p) => PlatformAnalyticsBreakdown.integratable.contains(p),
-                  )],
+                  segments: [
+                    null,
+                    ...RidePlatform.values.where(
+                      (p) =>
+                          PlatformAnalyticsBreakdown.integratable.contains(p),
+                    ),
+                  ],
                   selected: filter,
                   labelBuilder: (p) => p?.label ?? 'Todos',
-                  onChanged: (p) =>
-                      ref.read(platformHeatmapFilterProvider.notifier).state = p,
+                  onChanged: (p) => ref
+                      .read(platformHeatmapFilterProvider.notifier)
+                      .state = p,
                 ),
               ),
               const SizedBox(height: AppSpacing.md),
-              _HeatmapGrid(slots: data, maxRate: maxRate),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: _HeatmapGrid(slots: data, maxRate: maxRate),
+              ),
             ],
           ),
         );
@@ -69,8 +84,9 @@ class _HeatmapGrid extends StatelessWidget {
   final List<PlatformHeatmapSlot> slots;
   final double maxRate;
 
-  static const _hours = [6, 8, 10, 12, 14, 16, 18, 20, 22];
+  static const _cellSize = 14.0;
   static const _weekdays = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
+  static final _hours = List.generate(24, (i) => i);
 
   @override
   Widget build(BuildContext context) {
@@ -86,17 +102,21 @@ class _HeatmapGrid extends StatelessWidget {
     }
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
             const SizedBox(width: 28),
             for (final h in _hours)
-              Expanded(
-                child: Text(
-                  '${h}h',
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.labelSmall,
-                ),
+              SizedBox(
+                width: _cellSize + 2,
+                child: h.isEven
+                    ? Text(
+                        '${h}',
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.labelSmall?.copyWith(fontSize: 9),
+                      )
+                    : null,
               ),
           ],
         ),
@@ -109,16 +129,12 @@ class _HeatmapGrid extends StatelessWidget {
                 child: Text(_weekdays[d - 1], style: theme.textTheme.labelSmall),
               ),
               for (final h in _hours)
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(1),
-                    child: AspectRatio(
-                      aspectRatio: 1,
-                      child: _Cell(
-                        slot: lookup['$d-$h'],
-                        maxRate: maxRate,
-                      ),
-                    ),
+                Padding(
+                  padding: const EdgeInsets.all(1),
+                  child: _Cell(
+                    slot: lookup['$d-$h'],
+                    maxRate: maxRate,
+                    size: _cellSize,
                   ),
                 ),
             ],
@@ -130,10 +146,15 @@ class _HeatmapGrid extends StatelessWidget {
 }
 
 class _Cell extends StatelessWidget {
-  const _Cell({required this.slot, required this.maxRate});
+  const _Cell({
+    required this.slot,
+    required this.maxRate,
+    required this.size,
+  });
 
   final PlatformHeatmapSlot? slot;
   final double maxRate;
+  final double size;
 
   @override
   Widget build(BuildContext context) {
@@ -144,11 +165,17 @@ class _Cell extends StatelessWidget {
     return Tooltip(
       message: slot == null
           ? 'Sem dados'
-          : '${slot!.platform.label} ${slot!.revenuePerHour.toStringAsFixed(0)}/h',
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: AppColors.profitGreen.withValues(alpha: intensity),
-          borderRadius: BorderRadius.circular(3),
+          : '${slot!.weekdayLabel} ${slot!.hourLabel} · '
+              '${slot!.platform.label} '
+              '${slot!.revenuePerHour.toStringAsFixed(0)}/h',
+      child: SizedBox(
+        width: size,
+        height: size,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: AppColors.profitGreen.withValues(alpha: intensity),
+            borderRadius: BorderRadius.circular(2),
+          ),
         ),
       ),
     );
