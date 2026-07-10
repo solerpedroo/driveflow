@@ -10,18 +10,23 @@ import 'df_tab_scroll_view.dart';
 class DfSubpageScaffold extends StatelessWidget {
   const DfSubpageScaffold({
     required this.title,
-    required this.children,
     super.key,
+    this.children,
+    this.body,
     this.onRefresh,
     this.actions,
     this.leading,
     this.bottomPadding = 32,
     this.valueHidden,
     this.onToggleValueVisibility,
-  });
+  }) : assert(
+          (children != null) ^ (body != null),
+          'Informe children (scroll) ou body (layout customizado), não ambos.',
+        );
 
   final String title;
-  final List<Widget> children;
+  final List<Widget>? children;
+  final Widget? body;
   final Future<void> Function()? onRefresh;
   final List<Widget>? actions;
   final Widget? leading;
@@ -65,11 +70,12 @@ class DfSubpageScaffold extends StatelessWidget {
             ),
             actions: appBarActions.isEmpty ? null : appBarActions,
           ),
-          body: DfTabScrollView(
-            onRefresh: onRefresh,
-            bottomPadding: bottomPadding,
-            children: children,
-          ),
+          body: body ??
+              DfTabScrollView(
+                onRefresh: onRefresh,
+                bottomPadding: bottomPadding,
+                children: children!,
+              ),
         ),
       ),
     );
