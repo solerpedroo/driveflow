@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../shared/widgets/design_system/df_button.dart';
+import '../../../../shared/widgets/platform_brand_icon.dart';
 import '../../domain/entities/platform_catalog_entry.dart';
 
 /// Bottom sheet explicando o fluxo de conexão OAuth/API.
@@ -53,14 +54,10 @@ class PlatformConnectSheet extends StatelessWidget {
         children: [
           Row(
             children: [
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: entry.brandColor.withValues(alpha: 0.14),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(entry.icon, color: entry.brandColor),
+              PlatformBrandIcon(
+                platform: entry.platform,
+                size: 44,
+                borderRadius: 12,
               ),
               const SizedBox(width: AppSpacing.md),
               Expanded(
