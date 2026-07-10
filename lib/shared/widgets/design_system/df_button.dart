@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_elevation.dart';
-import '../../../core/theme/app_gradients.dart';
 import '../../../core/theme/app_motion.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/df_haptics.dart';
 
 enum DfButtonVariant { primary, outlined, tonal, gradient }
 
-/// Botão padronizado do Design System v2 com press-scale e gradiente hero.
+/// Botão estilo iOS — filled azul system, cantos 12pt, sem sombra pesada.
 class DfButton extends StatefulWidget {
   const DfButton({
     required this.label,
@@ -67,26 +66,26 @@ class _DfButtonState extends State<DfButton> {
               Flexible(
                 child: Text(
                   widget.label,
-                  style: widget.variant == DfButtonVariant.gradient
-                      ? const TextStyle(
+                  style: widget.variant == DfButtonVariant.gradient ||
+                          widget.variant == DfButtonVariant.primary
+                      ? AppTypography.iosHeadline(theme.brightness).copyWith(
                           color: Colors.white,
-                          fontWeight: FontWeight.w700,
                         )
-                      : null,
+                      : AppTypography.iosHeadline(theme.brightness).copyWith(
+                          color: AppColors.systemBlue,
+                        ),
                 ),
               ),
             ],
           );
 
     Widget button = switch (widget.variant) {
-      DfButtonVariant.gradient => _GradientButton(
-          onPressed: enabled ? widget.onPressed : null,
-          child: child,
-        ),
-      DfButtonVariant.primary => FilledButton(
+      DfButtonVariant.gradient || DfButtonVariant.primary => FilledButton(
           onPressed: enabled ? widget.onPressed : null,
           style: FilledButton.styleFrom(
-            minimumSize: const Size.fromHeight(54),
+            backgroundColor: AppColors.systemBlue,
+            foregroundColor: Colors.white,
+            minimumSize: const Size.fromHeight(50),
             shape: RoundedRectangleBorder(borderRadius: AppRadius.lgAll),
             elevation: 0,
           ),
@@ -95,25 +94,26 @@ class _DfButtonState extends State<DfButton> {
       DfButtonVariant.outlined => OutlinedButton(
           onPressed: enabled ? widget.onPressed : null,
           style: OutlinedButton.styleFrom(
-            minimumSize: const Size.fromHeight(54),
+            minimumSize: const Size.fromHeight(50),
+            side: const BorderSide(color: AppColors.systemBlue),
             shape: RoundedRectangleBorder(borderRadius: AppRadius.lgAll),
           ),
           child: child,
         ),
-      DfButtonVariant.tonal => FilledButton.tonal(
+      DfButtonVariant.tonal => TextButton(
           onPressed: enabled ? widget.onPressed : null,
-          style: FilledButton.styleFrom(
-            minimumSize: const Size.fromHeight(48),
-            shape: RoundedRectangleBorder(borderRadius: AppRadius.lgAll),
+          style: TextButton.styleFrom(
+            minimumSize: const Size.fromHeight(44),
+            foregroundColor: AppColors.systemBlue,
           ),
           child: child,
         ),
     };
 
     button = AnimatedScale(
-      scale: _pressed && enabled ? 0.97 : 1.0,
+      scale: _pressed && enabled ? 0.98 : 1.0,
       duration: DriveFlowMotion.fast,
-      curve: DriveFlowMotion.standard,
+      curve: Curves.easeInOut,
       child: Listener(
         onPointerDown: enabled
             ? (_) {
@@ -134,38 +134,6 @@ class _DfButtonState extends State<DfButton> {
       button: true,
       label: widget.label,
       child: SizedBox(width: double.infinity, child: button),
-    );
-  }
-}
-
-class _GradientButton extends StatelessWidget {
-  const _GradientButton({required this.onPressed, required this.child});
-
-  final VoidCallback? onPressed;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    final brightness = Theme.of(context).brightness;
-
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onPressed,
-        borderRadius: AppRadius.lgAll,
-        child: Ink(
-          decoration: BoxDecoration(
-            gradient: AppGradients.primaryButton(brightness),
-            borderRadius: AppRadius.lgAll,
-            boxShadow: AppElevation.brandGlow(brightness),
-          ),
-          child: SizedBox(
-            width: double.infinity,
-            height: 54,
-            child: Center(child: child),
-          ),
-        ),
-      ),
     );
   }
 }

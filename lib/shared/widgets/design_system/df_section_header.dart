@@ -4,7 +4,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 
-/// Cabeçalho de seção premium — label caps + linha de marca.
+/// Cabeçalho de seção estilo iOS — uppercase muted + título.
 class DfSectionHeader extends StatelessWidget {
   const DfSectionHeader({
     required this.title,
@@ -34,42 +34,28 @@ class DfSectionHeader extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (eyebrow != null) ...[
-                  Row(
-                    children: [
-                      Container(
-                        width: 5,
-                        height: 5,
-                        decoration: BoxDecoration(
-                          color: AppColors.brandBlue.withValues(alpha: 0.45),
-                          borderRadius: BorderRadius.circular(2),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(eyebrow!, style: AppTypography.labelCaps(brightness)),
-                    ],
+                  Text(
+                    eyebrow!.toUpperCase(),
+                    style: AppTypography.iosSectionHeader(brightness).copyWith(
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.4,
+                    ),
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 4),
                 ],
                 Text(
                   title,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: -0.3,
+                  style: AppTypography.iosHeadline(brightness).copyWith(
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ],
             ),
           ),
           if (action != null)
-            TextButton(
+            CupertinoStyleTextButton(
               onPressed: action,
-              style: TextButton.styleFrom(
-                foregroundColor: AppColors.brandBlue,
-              ),
-              child: Text(
-                actionLabel ?? 'Ver mais',
-                style: const TextStyle(fontWeight: FontWeight.w600),
-              ),
+              label: actionLabel ?? 'Ver mais',
             ),
         ],
       ),
@@ -77,7 +63,7 @@ class DfSectionHeader extends StatelessWidget {
   }
 }
 
-/// Título de tela editorial — meta + headline.
+/// Título grande estilo iOS Large Title.
 class DfScreenTitle extends StatelessWidget {
   const DfScreenTitle({
     required this.title,
@@ -106,34 +92,51 @@ class DfScreenTitle extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (eyebrow != null) ...[
-            Row(
-              children: [
-                Container(
-                  width: 6,
-                  height: 6,
-                  decoration: BoxDecoration(
-                    color: AppColors.brandBlue.withValues(alpha: 0.50),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Text(eyebrow!, style: AppTypography.labelCaps(brightness)),
-              ],
+            Text(
+              eyebrow!.toUpperCase(),
+              style: AppTypography.iosSectionHeader(brightness).copyWith(
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.4,
+              ),
             ),
             const SizedBox(height: AppSpacing.sm),
           ],
-          Text(
-            title,
-            style: theme.textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.w700,
-              letterSpacing: -0.5,
-            ),
-          ),
+          Text(title, style: AppTypography.iosLargeTitle(brightness)),
           if (subtitle != null) ...[
             const SizedBox(height: AppSpacing.md),
             subtitle!,
           ],
         ],
+      ),
+    );
+  }
+}
+
+/// Link azul system estilo iOS.
+class CupertinoStyleTextButton extends StatelessWidget {
+  const CupertinoStyleTextButton({
+    required this.onPressed,
+    required this.label,
+    super.key,
+  });
+
+  final VoidCallback? onPressed;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextButton(
+      onPressed: onPressed,
+      style: TextButton.styleFrom(
+        foregroundColor: AppColors.systemBlue,
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+      ),
+      child: Text(
+        label,
+        style: AppTypography.iosBody(Theme.of(context).brightness).copyWith(
+          color: AppColors.systemBlue,
+          fontWeight: FontWeight.w400,
+        ),
       ),
     );
   }
