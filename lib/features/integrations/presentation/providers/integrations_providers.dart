@@ -7,6 +7,7 @@ import '../../domain/entities/integration_status.dart';
 import '../../domain/entities/platform_connection_entity.dart';
 import '../../domain/entities/platform_performance_snapshot.dart';
 import '../../domain/entities/platform_shift_recommendation.dart';
+import '../../domain/entities/platform_oauth_session.dart';
 import '../../domain/repositories/platform_integration_repository.dart';
 import '../../domain/services/platform_performance_analyzer.dart';
 import '../../domain/services/platform_shift_advisor.dart';
@@ -74,6 +75,15 @@ class PlatformIntegrationController extends Notifier<AsyncValue<void>> {
 
   PlatformIntegrationRepository get _repo =>
       ref.read(platformIntegrationRepositoryProvider);
+
+  Future<PlatformOAuthSession?> startOAuth(RidePlatform platform) async {
+    state = const AsyncLoading();
+    PlatformOAuthSession? result;
+    state = await AsyncValue.guard(() async {
+      result = await _repo.startOAuth(platform);
+    });
+    return state.hasError ? null : result;
+  }
 
   Future<PlatformConnectionEntity?> connect(RidePlatform platform) async {
     state = const AsyncLoading();

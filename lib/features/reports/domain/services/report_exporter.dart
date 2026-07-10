@@ -12,6 +12,7 @@ import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/duration_formatter.dart';
 import '../../../earnings/domain/entities/earning_entity.dart';
 import '../../../expenses/domain/entities/expense_entity.dart';
+import '../../../integrations/domain/services/platform_analytics_breakdown.dart';
 import '../entities/report_snapshot.dart';
 import '../../../analytics/domain/entities/period_comparison_result.dart';
 
@@ -203,6 +204,19 @@ abstract final class ReportExporter {
           'comparativo,${metric.label},${metric.current.toStringAsFixed(2)},'
           '${metric.delta.toStringAsFixed(2)},'
           '${metric.deltaPercent?.toStringAsFixed(1) ?? ''}',
+        );
+      }
+    }
+
+    final platformSlices = PlatformAnalyticsBreakdown.fromEarnings(earnings);
+    if (platformSlices.isNotEmpty) {
+      buffer.writeln();
+      buffer.writeln('plataforma,app,receita,corridas,share_pct');
+      for (final slice in platformSlices) {
+        buffer.writeln(
+          'plataforma,${slice.platform.label},'
+          '${slice.amount.toStringAsFixed(2)},${slice.rides},'
+          '${slice.sharePercent.toStringAsFixed(1)}',
         );
       }
     }

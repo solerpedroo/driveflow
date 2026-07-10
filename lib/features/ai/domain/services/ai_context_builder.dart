@@ -1,3 +1,6 @@
+import '../../../../core/constants/ride_platforms.dart';
+import '../../../integrations/domain/services/platform_analytics_breakdown.dart';
+import '../../../integrations/domain/entities/platform_trip_entity.dart';
 import '../../../earnings/domain/entities/earning_entity.dart';
 import '../../../expenses/domain/entities/expense_entity.dart';
 import '../../../fuel/domain/entities/fuel_log_entity.dart';
@@ -22,6 +25,9 @@ class AiContextSnapshot {
     required this.maintenanceAlerts,
     required this.lastFuelCostPerKm,
     this.topEarningSlots = const [],
+    this.platformBreakdown = const [],
+    this.platformTripCount = 0,
+    this.lowestTakeRatePlatform,
   });
 
   final int periodDays;
@@ -35,6 +41,9 @@ class AiContextSnapshot {
   final int maintenanceAlerts;
   final double? lastFuelCostPerKm;
   final List<EarningTimeSlot> topEarningSlots;
+  final List<PlatformRevenueSlice> platformBreakdown;
+  final int platformTripCount;
+  final String? lowestTakeRatePlatform;
 
   Map<String, dynamic> toJson() {
     return {
@@ -94,6 +103,7 @@ abstract final class AiContextBuilder {
     required double? currentOdometerKm,
     int periodDays = 90,
     List<EarningTimeSlot> topEarningSlots = const [],
+    List<PlatformTripEntity> platformTrips = const [],
   }) {
     final anchor = DateTime.now();
     final todayRange = dateRangeForGoalPeriod(GoalPeriod.daily, anchor);
@@ -142,7 +152,33 @@ abstract final class AiContextBuilder {
       maintenanceAlerts: alerts,
       lastFuelCostPerKm: fuelLogs.isEmpty ? null : fuelLogs.first.costPerKm,
       topEarningSlots: topEarningSlots,
+      platformBreakdown: PlatformAnalyticsBreakdown.fromEarnings(earnings),
+      platformTripCount: platformTrips.length,
+      lowestTakeRatePlatform: _lowestTakeRate(platformTrips),
     );
+  }
+
+  static String? _lowestTakeRate(List<PlatformTripEntity> trips) {
+    if (trips.isEmpty) return null;
+    final byPlatform = <RidePlatform, double>{};
+    final gross = <RidePlatform, double>{};
+    for (final trip in trips.where((t) => t.isCompleted)) {
+      gross[trip.platform] = (gross[trip.platform] ?? 0) + trip.grossAmount;
+      byPlatform[trip.platform] =
+          (byPlatform[trip.platform] ?? 0) + trip.platformFee;
+    }
+    RidePlatform? best;
+    var bestRate = double.infinity;
+    for (final entry in gross.entries) {
+      final rate = entry.value > 0
+          ? (byPlatform[entry.key] ?? 0) / entry.value * 100
+          : 100;
+      if (rate < bestRate) {
+        bestRate = rate;
+        best = entry.key;
+      }
+    }
+    return best?.label;
   }
 
   static String formatForPrompt(AiContextSnapshot snapshot) {
@@ -167,6 +203,12 @@ abstract final class AiContextBuilder {
         'Melhor horário: ${snapshot.topEarningSlots.first.weekdayLabel} '
             '${snapshot.topEarningSlots.first.hourLabel} '
             '(${snapshot.topEarningSlots.first.profitPerHour.toStringAsFixed(2)}/h)',
+      if (snapshot.platformBreakdown.isNotEmpty)
+        'Receita por app: ${snapshot.platformBreakdown.map((s) => '${s.platform.label} ${s.amount.toStringAsFixed(0)}').join(', ')}',
+      if (snapshot.platformTripCount > 0)
+        'Corridas sincronizadas: ${snapshot.platformTripCount}',
+      if (snapshot.lowestTakeRatePlatform != null)
+        'Menor taxa de plataforma: ${snapshot.lowestTakeRatePlatform}',
     ].join('\n');
   }
 }

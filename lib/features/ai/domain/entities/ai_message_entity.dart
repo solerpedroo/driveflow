@@ -24,6 +24,8 @@ abstract final class AiQuickSuggestions {
     'Quais foram meus maiores gastos?',
     'Preciso fazer alguma manutenção?',
     'Qual meu melhor horário?',
+    'Vale mais Uber ou 99 hoje?',
+    'Qual minha taxa média por app?',
     'Qual a previsão de lucro para este mês?',
   ];
 }

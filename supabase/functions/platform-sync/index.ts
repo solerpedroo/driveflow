@@ -85,14 +85,26 @@ function rollupDaily(platform: string, trips: SyncTripRow[]): DailyRollup[] {
 }
 
 /**
- * Stub — adapters reais retornarão corridas individuais da API.
+ * Stub — adapters reais em adapters.ts
  */
 async function fetchPlatformTrips(
-  _platform: string,
-  _userId: string,
-  _lookbackDays: number,
+  platform: string,
+  userId: string,
+  lookbackDays: number,
 ): Promise<SyncTripRow[]> {
-  return [];
+  const { fetchUberTrips, fetchNinetyNineTrips, fetchInDriveTrips } = await import(
+    "./adapters.ts"
+  );
+  switch (platform) {
+    case "uber":
+      return fetchUberTrips(userId, lookbackDays);
+    case "99":
+      return fetchNinetyNineTrips(userId, lookbackDays);
+    case "indrive":
+      return fetchInDriveTrips(userId, lookbackDays);
+    default:
+      return [];
+  }
 }
 
 Deno.serve(async (req) => {
@@ -109,12 +121,14 @@ Deno.serve(async (req) => {
     return clientError("Não autenticado.", 401);
   }
 
-  let body: { platform?: string; lookback_days?: number };
+  let body: { platform?: string; lookback_days?: number; trigger_source?: string };
   try {
     body = await req.json();
   } catch {
     return clientError("JSON inválido.");
   }
+
+  const triggerSource = body.trigger_source ?? "manual";
 
   const platform = body.platform?.toLowerCase();
   if (!platform || !INTEGRATABLE_PLATFORMS.has(platform)) {
@@ -187,6 +201,19 @@ Deno.serve(async (req) => {
 
   const rollups = rollupDaily(platform, tripRows);
   for (const rollup of rollups) {
+    const { data: existing } = await supabase
+      .from("earnings")
+      .select("source")
+      .eq("user_id", userId)
+      .eq("platform", platform)
+      .eq("external_id", rollup.external_id)
+      .maybeSingle();
+
+    if (existing?.source === "manual") {
+      skippedCount += 1;
+      continue;
+    }
+
     const { error: earningError } = await supabase.from("earnings").upsert(
       {
         user_id: userId,
@@ -215,9 +242,27 @@ Deno.serve(async (req) => {
       status: "connected",
       last_synced_at: syncedAt,
       last_sync_error: null,
+      next_scheduled_sync_at: new Date(Date.now() + 24 * 3600 * 1000).toISOString(),
     })
     .eq("user_id", userId)
     .eq("platform", platform);
+
+  await supabase.from("platform_sync_logs").insert({
+    user_id: userId,
+    platform,
+    trigger_source: triggerSource,
+    trips_imported: tripsImported,
+    earnings_imported: earningsImported,
+    skipped_count: skippedCount,
+    status: skippedCount > 0 && tripsImported + earningsImported > 0
+      ? "partial"
+      : skippedCount > 0
+      ? "error"
+      : "success",
+    message: tripRows.length === 0
+      ? `Adapter ${platform} pronto — aguardando credenciais OAuth.`
+      : null,
+  });
 
   const message = tripRows.length === 0
     ? `Adapter ${platform} pronto — aguardando credenciais OAuth. Corridas e ganhos serão sincronizados automaticamente.`

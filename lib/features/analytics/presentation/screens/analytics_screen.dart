@@ -9,6 +9,7 @@ import '../providers/analytics_providers.dart';
 import '../widgets/expense_pie_chart.dart';
 import '../widgets/period_comparison_bar_chart.dart';
 import '../widgets/period_comparison_card.dart';
+import '../widgets/platform_analytics_section.dart';
 import '../widgets/profit_forecast_card.dart';
 import '../widgets/profit_trend_chart.dart';
 import '../../../../shared/widgets/design_system/df_segmented_control.dart';
@@ -150,6 +151,10 @@ class AnalyticsScreen extends ConsumerWidget {
                 ),
               ),
             ),
+          ),
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+            sliver: const SliverToBoxAdapter(child: PlatformAnalyticsSection()),
           ),
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),

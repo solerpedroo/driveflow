@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import 'package:url_launcher/url_launcher.dart';
+
 import '../../../../core/constants/ride_platforms.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -16,6 +18,7 @@ import '../widgets/platform_connect_sheet.dart';
 import '../widgets/platform_connection_card.dart';
 import '../widgets/platform_insights_panel.dart';
 import '../widgets/platform_recent_trips_card.dart';
+import '../widgets/platform_sync_log_panel.dart';
 
 /// Hub de integrações Uber, 99 e InDrive.
 class PlatformIntegrationsScreen extends ConsumerWidget {
@@ -34,15 +37,30 @@ class PlatformIntegrationsScreen extends ConsumerWidget {
         context,
         entry: entry,
         onConfirm: () async {
-          final result = await ref
+          final session = await ref
               .read(platformIntegrationControllerProvider.notifier)
-              .connect(platform);
-          if (result != null && context.mounted) {
+              .startOAuth(platform);
+          if (session == null) {
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Não foi possível iniciar a conexão.'),
+                ),
+              );
+            }
+            return;
+          }
+          final launched = await launchUrl(
+            Uri.parse(session.authorizationUrl),
+            mode: LaunchMode.externalApplication,
+          );
+          if (context.mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(
-                  'Conexão com ${platform.label} iniciada. '
-                  'Autorize no navegador quando disponível.',
+                  launched
+                      ? 'Autorize ${platform.label} no navegador para conectar.'
+                      : 'Abra o link de autorização manualmente.',
                 ),
               ),
             );
@@ -159,6 +177,10 @@ class PlatformIntegrationsScreen extends ConsumerWidget {
             SliverPadding(
               padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
               sliver: const SliverToBoxAdapter(child: PlatformRecentTripsCard()),
+            ),
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+              sliver: const SliverToBoxAdapter(child: PlatformSyncLogPanel()),
             ),
             SliverPadding(
               padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),

@@ -32,12 +32,12 @@ Plano de implementação em **29 ondas** (0–29) para o DriveFlow (Flutter + Su
 | 16 | UI Excellence — paleta azul-claro, tipografia premium, motion auth | concluída |
 | 17 | Premium UI — FitCal/FitFolio tier (hero ring, mesh, editorial auth) | concluída |
 | 18 | Product Storytelling — narrativa, métricas de valor, upsell Pro | em andamento |
-| 24 | Integrações foundation — hub Uber/99/InDrive, conexões OAuth, proveniência | em andamento |
-| 25 | Histórico de corridas + rollup automático de ganhos diários | em andamento |
-| 26 | Adapters OAuth Uber/99/InDrive (Edge Functions + tokens seguros) | pendente |
-| 27 | Inteligência cross-platform — shift advisor, take rate, gaps de sync | pendente |
-| 28 | Sync em background + webhooks + notificações de repasse | pendente |
-| 29 | Analytics por plataforma + IA com contexto de corridas | pendente |
+| 24 | Integrações foundation — hub Uber/99/InDrive, conexões OAuth, proveniência | concluída |
+| 25 | Histórico de corridas + rollup automático de ganhos diários | concluída |
+| 26 | Adapters OAuth Uber/99/InDrive (Edge Functions + tokens seguros) | em andamento |
+| 27 | Inteligência cross-platform — shift advisor, take rate, gaps de sync | em andamento |
+| 28 | Sync em background + webhooks + notificações de repasse | em andamento |
+| 29 | Analytics por plataforma + IA com contexto de corridas | em andamento |
 
 ---
 

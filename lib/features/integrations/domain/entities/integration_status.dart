@@ -13,7 +13,8 @@ enum IntegrationStatus {
 
   bool get isActive => this == connected;
 
-  bool get canSync => this == connected || this == error;
+  bool get canSync =>
+      this == connected || this == error || this == tokenExpired;
 
   static IntegrationStatus fromValue(String? value) {
     return IntegrationStatus.values.firstWhere(

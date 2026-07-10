@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../earnings/domain/entities/earning_entity.dart';
+import '../../../integrations/domain/services/platform_analytics_breakdown.dart';
+import '../../../integrations/presentation/providers/platform_trips_providers.dart';
 import '../../../earnings/presentation/providers/earnings_providers.dart';
 import '../../../expenses/domain/entities/expense_entity.dart';
 import '../../../expenses/presentation/providers/expenses_providers.dart';
@@ -250,4 +252,10 @@ final reportCategoryBreakdownProvider =
     );
     return CategoryBreakdownCalculator.build(expenses: scoped, range: range);
   });
+});
+
+final analyticsPlatformBreakdownProvider =
+    Provider<AsyncValue<List<PlatformRevenueSlice>>>((ref) {
+  final earnings = ref.watch(earningsStreamProvider);
+  return earnings.whenData(PlatformAnalyticsBreakdown.fromEarnings);
 });

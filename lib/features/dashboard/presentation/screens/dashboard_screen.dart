@@ -16,6 +16,7 @@ import '../../../vehicle/presentation/widgets/vehicle_scope_chip.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../shared/widgets/design_system/df_skeleton.dart';
 import '../providers/dashboard_providers.dart';
+import '../../../integrations/presentation/widgets/dashboard_platform_chip.dart';
 import '../widgets/dashboard_fuel_card.dart';
 import '../widgets/dashboard_header.dart';
 import '../widgets/dashboard_hero_section.dart';
@@ -79,6 +80,17 @@ class DashboardScreen extends HookConsumerWidget {
               alignment: Alignment.centerLeft,
               child: VehicleScopeChip(),
             ),
+          ),
+        ),
+        const SliverToBoxAdapter(
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(
+              AppSpacing.screenHorizontal,
+              AppSpacing.sm,
+              AppSpacing.screenHorizontal,
+              0,
+            ),
+            child: DashboardPlatformChip(),
           ),
         ),
         SliverPadding(
