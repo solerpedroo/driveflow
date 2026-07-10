@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../driveflow_gradient_background.dart';
+import 'df_hero_wealth_card.dart';
 import 'df_tab_scroll_view.dart';
 
 /// Scaffold de subpágina empurrada — gradiente + voltar + scroll Mescla.
@@ -15,6 +16,8 @@ class DfSubpageScaffold extends StatelessWidget {
     this.actions,
     this.leading,
     this.bottomPadding = 32,
+    this.valueHidden,
+    this.onToggleValueVisibility,
   });
 
   final String title;
@@ -24,9 +27,21 @@ class DfSubpageScaffold extends StatelessWidget {
   final Widget? leading;
   final double bottomPadding;
 
+  /// Toggle de visibilidade monetária no AppBar (subpáginas com valores).
+  final bool? valueHidden;
+  final VoidCallback? onToggleValueVisibility;
+
   @override
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
+    final appBarActions = <Widget>[
+      if (valueHidden != null && onToggleValueVisibility != null)
+        DfValueVisibilityButton(
+          hidden: valueHidden!,
+          onToggle: onToggleValueVisibility!,
+        ),
+      ...?actions,
+    ];
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: brightness == Brightness.dark
@@ -48,7 +63,7 @@ class DfSubpageScaffold extends StatelessWidget {
                     fontWeight: FontWeight.w700,
                   ),
             ),
-            actions: actions,
+            actions: appBarActions.isEmpty ? null : appBarActions,
           ),
           body: DfTabScrollView(
             onRefresh: onRefresh,
