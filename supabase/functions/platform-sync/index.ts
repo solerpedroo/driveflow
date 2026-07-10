@@ -6,7 +6,7 @@ const allowedOrigin = Deno.env.get("ALLOWED_ORIGIN") ?? "";
 const corsHeaders = {
   "Access-Control-Allow-Origin": allowedOrigin || "null",
   "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
+    "authorization, x-client-info, apikey, content-type, x-sync-user-id",
 };
 
 const INTEGRATABLE_PLATFORMS = new Set(["uber", "99", "indrive"]);
@@ -107,6 +107,33 @@ async function fetchPlatformTrips(
   }
 }
 
+async function dayHasConflictingEarnings(
+  supabase: ReturnType<typeof createClient>,
+  userId: string,
+  platform: string,
+  day: string,
+): Promise<boolean> {
+  const dayStart = `${day}T00:00:00.000Z`;
+  const dayEnd = `${day}T23:59:59.999Z`;
+
+  const { data: dayEarnings } = await supabase
+    .from("earnings")
+    .select("source, external_id")
+    .eq("user_id", userId)
+    .eq("platform", platform)
+    .gte("date", dayStart)
+    .lte("date", dayEnd);
+
+  if (!dayEarnings?.length) return false;
+
+  return dayEarnings.some((earning) => {
+    if (earning.source === "manual") return true;
+    const externalId = earning.external_id as string | null;
+    return earning.source !== "api_sync" ||
+      (externalId != null && !externalId.startsWith("rollup:"));
+  });
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -137,18 +164,32 @@ Deno.serve(async (req) => {
 
   const lookbackDays = Math.min(Math.max(body.lookback_days ?? 30, 1), 90);
 
-  const supabase = createClient(
-    Deno.env.get("SUPABASE_URL") ?? "",
-    Deno.env.get("SUPABASE_ANON_KEY") ?? "",
-    { global: { headers: { Authorization: authHeader } } },
-  );
+  const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+  const bearerToken = authHeader.replace(/^Bearer\s+/i, "");
+  const syncUserId = req.headers.get("x-sync-user-id");
 
-  const { data: userData, error: userError } = await supabase.auth.getUser();
-  if (userError || !userData.user) {
-    return clientError("Sessão inválida.", 401);
+  let userId: string;
+  let supabase: ReturnType<typeof createClient>;
+
+  if (syncUserId && bearerToken === serviceRoleKey) {
+    userId = syncUserId;
+    supabase = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      serviceRoleKey,
+    );
+  } else {
+    supabase = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+      { global: { headers: { Authorization: authHeader } } },
+    );
+
+    const { data: userData, error: userError } = await supabase.auth.getUser();
+    if (userError || !userData.user) {
+      return clientError("Sessão inválida.", 401);
+    }
+    userId = userData.user.id;
   }
-
-  const userId = userData.user.id;
 
   const { data: connection, error: connError } = await supabase
     .from("platform_connections")
@@ -201,6 +242,13 @@ Deno.serve(async (req) => {
 
   const rollups = rollupDaily(platform, tripRows);
   for (const rollup of rollups) {
+    const day = rollup.date.substring(0, 10);
+
+    if (await dayHasConflictingEarnings(supabase, userId, platform, day)) {
+      skippedCount += 1;
+      continue;
+    }
+
     const { data: existing } = await supabase
       .from("earnings")
       .select("source")
