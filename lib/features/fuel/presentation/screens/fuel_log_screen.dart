@@ -8,7 +8,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/validators.dart';
-import '../../../authentication/presentation/widgets/auth_text_field.dart';
+import '../../../../shared/widgets/design_system/df_text_field.dart';
 import '../../../vehicle/presentation/providers/vehicle_providers.dart';
 import '../../domain/entities/fuel_log_entity.dart';
 import '../providers/fuel_providers.dart';
@@ -144,7 +144,7 @@ class FuelLogScreen extends HookConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  AuthTextField(
+                  DfTextField(
                     controller: stationController,
                     label: 'Posto (opcional)',
                     hint: 'Shell, Ipiranga...',
@@ -164,7 +164,7 @@ class FuelLogScreen extends HookConsumerWidget {
                     }).toList(growable: false),
                   ),
                   const SizedBox(height: 12),
-                  AuthTextField(
+                  DfTextField(
                     controller: priceController,
                     label: 'Preço por litro (R\$)',
                     hint: '5.89',
@@ -174,7 +174,7 @@ class FuelLogScreen extends HookConsumerWidget {
                         Validators.positiveNumber(v, fieldName: 'Preço'),
                   ),
                   const SizedBox(height: 12),
-                  AuthTextField(
+                  DfTextField(
                     controller: litersController,
                     label: 'Litros',
                     hint: '42.5',
@@ -184,7 +184,7 @@ class FuelLogScreen extends HookConsumerWidget {
                         Validators.positiveNumber(v, fieldName: 'Litros'),
                   ),
                   const SizedBox(height: 12),
-                  AuthTextField(
+                  DfTextField(
                     controller: totalController,
                     label: 'Valor total (R\$)',
                     hint: 'R\$ 250,00',
@@ -193,7 +193,7 @@ class FuelLogScreen extends HookConsumerWidget {
                     validator: Validators.brlAmount,
                   ),
                   const SizedBox(height: 12),
-                  AuthTextField(
+                  DfTextField(
                     controller: odometerController,
                     label: 'Odômetro (km)',
                     hint: '45000',

@@ -6,7 +6,7 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/validators.dart';
-import '../../../authentication/presentation/widgets/auth_text_field.dart';
+import '../../../../shared/widgets/design_system/df_text_field.dart';
 import '../../domain/entities/vehicle_entity.dart';
 import '../providers/vehicle_providers.dart';
 import '../../../../shared/widgets/design_system/df_button.dart';
@@ -118,7 +118,7 @@ class VehicleFormScreen extends HookConsumerWidget {
           DfCard(
             child: Column(
               children: [
-                AuthTextField(
+                DfTextField(
                   controller: brandController,
                   label: 'Marca',
                   hint: 'Ex.: Toyota',
@@ -127,7 +127,7 @@ class VehicleFormScreen extends HookConsumerWidget {
                   textInputAction: TextInputAction.next,
                 ),
                 const SizedBox(height: 12),
-                AuthTextField(
+                DfTextField(
                   controller: modelController,
                   label: 'Modelo',
                   hint: 'Ex.: Corolla',
@@ -136,7 +136,7 @@ class VehicleFormScreen extends HookConsumerWidget {
                   textInputAction: TextInputAction.next,
                 ),
                 const SizedBox(height: 12),
-                AuthTextField(
+                DfTextField(
                   controller: yearController,
                   label: 'Ano',
                   hint: '2022',
@@ -154,14 +154,14 @@ class VehicleFormScreen extends HookConsumerWidget {
                   textInputAction: TextInputAction.next,
                 ),
                 const SizedBox(height: 12),
-                AuthTextField(
+                DfTextField(
                   controller: nicknameController,
                   label: 'Apelido (opcional)',
                   hint: 'Ex.: Carro do trabalho',
                   textInputAction: TextInputAction.next,
                 ),
                 const SizedBox(height: 12),
-                AuthTextField(
+                DfTextField(
                   controller: plateController,
                   label: 'Placa (opcional)',
                   hint: 'ABC1D23',
@@ -186,7 +186,7 @@ class VehicleFormScreen extends HookConsumerWidget {
                   }).toList(growable: false),
                 ),
                 const SizedBox(height: 12),
-                AuthTextField(
+                DfTextField(
                   controller: tankController,
                   label: 'Tanque (litros, opcional)',
                   hint: '50',
@@ -195,7 +195,7 @@ class VehicleFormScreen extends HookConsumerWidget {
                   textInputAction: TextInputAction.next,
                 ),
                 const SizedBox(height: 12),
-                AuthTextField(
+                DfTextField(
                   controller: consumptionController,
                   label: 'Consumo médio km/L (opcional)',
                   hint: '12.5',
@@ -204,7 +204,7 @@ class VehicleFormScreen extends HookConsumerWidget {
                   textInputAction: TextInputAction.next,
                 ),
                 const SizedBox(height: 12),
-                AuthTextField(
+                DfTextField(
                   controller: odometerController,
                   label: 'Quilometragem atual',
                   hint: '45000',

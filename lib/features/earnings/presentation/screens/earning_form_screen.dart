@@ -7,7 +7,7 @@ import '../../../../core/constants/ride_platforms.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../../core/utils/validators.dart';
-import '../../../authentication/presentation/widgets/auth_text_field.dart';
+import '../../../../shared/widgets/design_system/df_text_field.dart';
 import '../../domain/entities/earning_entity.dart';
 import '../providers/earnings_providers.dart';
 import '../../../../shared/widgets/design_system/df_card.dart';
@@ -102,7 +102,7 @@ class EarningFormScreen extends HookConsumerWidget {
                     }).toList(growable: false),
                   ),
                   const SizedBox(height: 16),
-                  AuthTextField(
+                  DfTextField(
                     controller: amountController,
                     label: 'Valor (R\$)',
                     hint: 'R\$ 248,50',
@@ -111,7 +111,7 @@ class EarningFormScreen extends HookConsumerWidget {
                     validator: Validators.brlAmount,
                   ),
                   const SizedBox(height: 12),
-                  AuthTextField(
+                  DfTextField(
                     controller: ridesController,
                     label: 'Corridas',
                     hint: '12',
@@ -126,7 +126,7 @@ class EarningFormScreen extends HookConsumerWidget {
                     },
                   ),
                   const SizedBox(height: 12),
-                  AuthTextField(
+                  DfTextField(
                     controller: hoursController,
                     label: 'Horas trabalhadas',
                     hint: '6.5',
@@ -154,7 +154,7 @@ class EarningFormScreen extends HookConsumerWidget {
                     onTap: pickDate,
                   ),
                   const SizedBox(height: 12),
-                  AuthTextField(
+                  DfTextField(
                     controller: noteController,
                     label: 'Observação (opcional)',
                     hint: 'Turno noturno, bônus...',
