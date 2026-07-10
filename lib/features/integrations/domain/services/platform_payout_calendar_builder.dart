@@ -1,3 +1,4 @@
+import '../../../../core/constants/ride_platforms.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../entities/platform_payout_entry.dart';
 import '../entities/platform_trip_entity.dart';
@@ -57,10 +58,11 @@ abstract final class PlatformPayoutCalendarBuilder {
       ..sort((a, b) => a.expectedDate.compareTo(b.expectedDate));
   }
 
-  static double pendingTotal(List<PlatformPayoutEntry> entries) {
-    final now = DateTime.now();
+  static double pendingTotal(List<PlatformPayoutEntry> entries, {DateTime? now}) {
+    final anchor = now ?? DateTime.now();
+    final today = DateUtilsDriveFlow.startOfDay(anchor);
     return entries
-        .where((e) => !e.expectedDate.isBefore(now))
+        .where((e) => !e.expectedDate.isBefore(today))
         .fold<double>(0, (s, e) => s + e.amount);
   }
 }
