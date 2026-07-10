@@ -37,6 +37,8 @@ import '../providers/dashboard_providers.dart';
 import '../../../integrations/presentation/widgets/dashboard_platform_mix_card.dart';
 import '../widgets/dashboard_fuel_card.dart';
 import '../widgets/dashboard_maintenance_card.dart';
+import '../../../integrations/presentation/widgets/platform_goal_progress_card.dart';
+import '../widgets/dashboard_hero_section.dart';
 import '../widgets/dashboard_upgrade_banner.dart';
 import '../widgets/month_summary_card.dart';
 import '../widgets/weekly_profit_chart.dart';
@@ -206,6 +208,13 @@ class _DashboardBody extends StatelessWidget {
               ? 'Progresso da meta de hoje'
               : 'Defina metas em Perfil → Metas',
         ),
+        DashboardHeroSection(
+          summary: today,
+          goalProgress: goal,
+          greeting: greeting.split(',').first,
+          weekProfits: snapshot.weekProfits,
+        ),
+        const PlatformGoalProgressCard(),
         const Align(
           alignment: Alignment.centerLeft,
           child: VehicleScopeChip(),
