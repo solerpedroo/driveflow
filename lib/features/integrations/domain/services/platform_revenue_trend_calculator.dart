@@ -89,7 +89,7 @@ abstract final class PlatformRevenueTrendCalculator {
     final amounts = <RidePlatform, double>{};
 
     for (final trip in trips) {
-      if (!trip.isCompleted) continue;
+      if (!trip.isCompleted || !integratable.contains(trip.platform)) continue;
       if (trip.startedAt.isBefore(start) || trip.startedAt.isAfter(end)) {
         continue;
       }
@@ -122,19 +122,26 @@ abstract final class PlatformRevenueTrendCalculator {
     return ((current - previous) / previous) * 100;
   }
 
-  /// Variação agregada do período (primeiro vs último dia com dados).
+  /// Variação da 1ª metade vs 2ª metade do período (mais estável que dia-a-dia).
   static Map<RidePlatform, double> periodDeltaByPlatform({
     required List<PlatformRevenueTrendPoint> points,
   }) {
-    if (points.length < 2) return {};
+    if (points.length < 4) return {};
 
-    final first = points.first.amountsByPlatform;
-    final last = points.last.amountsByPlatform;
+    final mid = points.length ~/ 2;
+    final firstHalf = points.sublist(0, mid);
+    final secondHalf = points.sublist(mid);
     final deltas = <RidePlatform, double>{};
 
     for (final platform in integratable) {
-      final prev = first[platform] ?? 0;
-      final curr = last[platform] ?? 0;
+      final prev = firstHalf.fold<double>(
+        0,
+        (s, p) => s + (p.amountsByPlatform[platform] ?? 0),
+      );
+      final curr = secondHalf.fold<double>(
+        0,
+        (s, p) => s + (p.amountsByPlatform[platform] ?? 0),
+      );
       final delta = _deltaPercent(prev, curr);
       if (delta != null) deltas[platform] = delta;
     }
