@@ -50,7 +50,7 @@ abstract final class PlatformGoalProgressCalculator {
             platform: platform,
             targetAmount: target,
             actualAmount: actual,
-            progressPercent: percent.clamp(0, 999),
+            progressPercent: percent.clamp(0, 999).toDouble(),
             sharePercent: share * 100,
           ),
         );
