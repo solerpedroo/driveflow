@@ -1,5 +1,6 @@
 import '../../../../core/constants/ride_platforms.dart';
 import '../../../../core/utils/date_utils.dart';
+import '../../../../core/utils/iterable_extensions.dart';
 import '../../../earnings/domain/entities/earning_entity.dart';
 import '../../../goals/domain/entities/goal_entity.dart';
 import '../entities/platform_goal_progress.dart';
@@ -91,13 +92,5 @@ abstract final class PlatformGoalProgressCalculator {
     }
 
     return result;
-  }
-}
-
-extension _FirstOrNull<E> on Iterable<E> {
-  E? get firstOrNull {
-    final iterator = this.iterator;
-    if (!iterator.moveNext()) return null;
-    return iterator.current;
   }
 }
