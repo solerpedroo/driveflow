@@ -35,14 +35,11 @@ class MaintenanceHistoryScreen extends ConsumerWidget {
 
     return DfSubpageScaffold(
       title: 'Manutenções',
+      valueHidden: hidden,
+      onToggleValueVisibility: () => ref
+          .read(valueVisibilityHiddenProvider.notifier)
+          .state = !hidden,
       children: [
-        DfScreenTitleRow(
-          title: 'Manutenção do veículo',
-          hidden: hidden,
-          onToggleVisibility: () => ref
-              .read(valueVisibilityHiddenProvider.notifier)
-              .state = !hidden,
-        ),
         DfHeroWealthCard(
           label: 'Total investido',
           value: CurrencyFormatter.format(totalCost),
