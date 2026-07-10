@@ -1,17 +1,14 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
 import '../../core/theme/app_colors.dart';
-import '../../core/theme/app_elevation.dart';
-import '../../core/theme/app_gradients.dart';
 import '../../core/theme/app_motion.dart';
+import '../../core/theme/app_typography.dart';
 import '../../core/utils/df_haptics.dart';
 import 'design_system/df_glass_surface.dart';
 
 const Duration kDriveFlowTabSwitchDuration = DriveFlowMotion.normal;
 
-/// Tab bar híbrido — blur Cupertino + cápsula flutuante Mescla + pill ReuniAI.
+/// Tab bar glass — active tint quieto (sem gradient glow).
 class DriveFlowBottomNavBar extends StatelessWidget {
   const DriveFlowBottomNavBar({
     required this.selectedIndex,
@@ -50,9 +47,9 @@ class DriveFlowBottomNavBar extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
       child: DfGlassSurface(
-        borderRadius: BorderRadius.circular(100),
+        borderRadius: BorderRadius.circular(28),
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
-        sigma: 20,
+        sigma: 24,
         child: SizedBox(
           height: _itemTrackHeight,
           child: Row(
@@ -95,51 +92,47 @@ class _NavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final contentColor = isActive ? Colors.white : inactiveColor;
+    final brightness = Theme.of(context).brightness;
+    final contentColor = isActive
+        ? AppColors.navActiveForeground(brightness)
+        : inactiveColor;
 
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(100),
-        child: Center(
-          child: AnimatedContainer(
-            duration: DriveFlowMotion.fast,
-            curve: Curves.easeInOut,
-            constraints: BoxConstraints(
-              minWidth: isActive ? 68 : 44,
-              minHeight: 40,
-            ),
-            decoration: isActive
-                ? BoxDecoration(
-                    gradient: AppGradients.brand,
-                    borderRadius: BorderRadius.circular(100),
-                    boxShadow: AppElevation.brandGlow(
-                      Theme.of(context).brightness,
-                    ),
-                  )
-                : null,
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: isActive ? 10 : 4),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(icon, size: 22, color: contentColor),
-                  const SizedBox(height: 2),
-                  Text(
-                    label,
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
-                      letterSpacing: 0.1,
-                      color: contentColor,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Center(
+        child: AnimatedContainer(
+          duration: DriveFlowMotion.fast,
+          curve: Curves.easeOutCubic,
+          constraints: BoxConstraints(
+            minWidth: isActive ? 64 : 44,
+            minHeight: 40,
+          ),
+          decoration: isActive
+              ? BoxDecoration(
+                  color: AppColors.navActiveFill(brightness),
+                  borderRadius: BorderRadius.circular(20),
+                )
+              : null,
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: isActive ? 8 : 4),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(icon, size: 22, color: contentColor),
+                const SizedBox(height: 2),
+                Text(
+                  label,
+                  style: AppTypography.iosCaption(brightness).copyWith(
+                    fontSize: 10,
+                    fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+                    color: contentColor,
                   ),
-                ],
-              ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
             ),
           ),
         ),
