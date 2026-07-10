@@ -31,6 +31,11 @@ abstract final class ProductStory {
       icon: Icons.upload_file_rounded,
     ),
     (
+      title: 'Apps conectados',
+      body: 'Sync automático Uber, 99 e InDrive com analytics por app.',
+      icon: Icons.hub_rounded,
+    ),
+    (
       title: 'Insights de horário',
       body: 'Descubra quando cada hora vale mais.',
       icon: Icons.schedule_rounded,
