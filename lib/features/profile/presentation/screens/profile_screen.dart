@@ -269,6 +269,7 @@ class _PerfilUserCard extends StatelessWidget {
 
     return DfCard(
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Stack(
             alignment: Alignment.center,
