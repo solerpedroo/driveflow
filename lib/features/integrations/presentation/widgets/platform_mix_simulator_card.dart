@@ -6,6 +6,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../shared/widgets/design_system/df_card.dart';
+import '../../../../shared/widgets/platform_brand_icon.dart';
 import '../providers/platform_analytics_providers.dart';
 
 /// Simulador de mix Uber/99/InDrive com projeção mensal.
@@ -32,19 +33,19 @@ class PlatformMixSimulatorCard extends ConsumerWidget {
           ),
           const SizedBox(height: AppSpacing.md),
           _MixSlider(
-            label: RidePlatform.uber.label,
+            platform: RidePlatform.uber,
             value: uber,
             onChanged: (v) =>
                 ref.read(platformMixUberProvider.notifier).state = v,
           ),
           _MixSlider(
-            label: RidePlatform.ninetyNine.label,
+            platform: RidePlatform.ninetyNine,
             value: ninetyNine,
             onChanged: (v) =>
                 ref.read(platformMix99Provider.notifier).state = v,
           ),
           _MixSlider(
-            label: RidePlatform.inDrive.label,
+            platform: RidePlatform.inDrive,
             value: inDrive,
             onChanged: (v) =>
                 ref.read(platformMixInDriveProvider.notifier).state = v,
@@ -81,12 +82,12 @@ class PlatformMixSimulatorCard extends ConsumerWidget {
 
 class _MixSlider extends StatelessWidget {
   const _MixSlider({
-    required this.label,
+    required this.platform,
     required this.value,
     required this.onChanged,
   });
 
-  final String label;
+  final RidePlatform platform;
   final double value;
   final ValueChanged<double> onChanged;
 
@@ -94,9 +95,18 @@ class _MixSlider extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
+        PlatformBrandIcon(
+          platform: platform,
+          size: 28,
+          borderRadius: 8,
+        ),
+        const SizedBox(width: 8),
         SizedBox(
-          width: 56,
-          child: Text(label, style: Theme.of(context).textTheme.labelSmall),
+          width: 52,
+          child: Text(
+            platform.label,
+            style: Theme.of(context).textTheme.labelSmall,
+          ),
         ),
         Expanded(
           child: Slider(
@@ -108,7 +118,14 @@ class _MixSlider extends StatelessWidget {
             onChanged: onChanged,
           ),
         ),
-        Text('${value.round()}%'),
+        SizedBox(
+          width: 36,
+          child: Text(
+            '${value.round()}%',
+            textAlign: TextAlign.end,
+            style: Theme.of(context).textTheme.labelSmall,
+          ),
+        ),
       ],
     );
   }
