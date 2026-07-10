@@ -51,6 +51,20 @@ function dayKey(platform: string, isoDate: string) {
   return `${platform}:${day}`;
 }
 
+function rollupDateForDay(dayTrips: SyncTripRow[]): string {
+  const timestamps = dayTrips
+    .map((trip) => new Date(trip.started_at).getTime())
+    .filter((value) => !Number.isNaN(value))
+    .sort((a, b) => a - b);
+
+  if (timestamps.length === 0) {
+    return `${dayTrips[0].started_at.substring(0, 10)}T18:00:00.000Z`;
+  }
+
+  const median = timestamps[Math.floor(timestamps.length / 2)];
+  return new Date(median).toISOString();
+}
+
 function rollupDaily(platform: string, trips: SyncTripRow[]): DailyRollup[] {
   const buckets = new Map<string, SyncTripRow[]>();
 
@@ -76,7 +90,7 @@ function rollupDaily(platform: string, trips: SyncTripRow[]): DailyRollup[] {
       amount: Number(amount.toFixed(2)),
       rides: dayTrips.length,
       worked_hours: Number(hours.toFixed(2)),
-      date: `${day}T12:00:00.000Z`,
+      date: rollupDateForDay(dayTrips),
       note: `Sync automático · ${dayTrips.length} corridas`,
     });
   }
@@ -295,6 +309,16 @@ Deno.serve(async (req) => {
     .eq("user_id", userId)
     .eq("platform", platform);
 
+  const stubPending = tripRows.length === 0;
+  const importedTotal = tripsImported + earningsImported;
+  const syncStatus = stubPending
+    ? "partial"
+    : skippedCount > 0 && importedTotal > 0
+    ? "partial"
+    : skippedCount > 0
+    ? "error"
+    : "success";
+
   await supabase.from("platform_sync_logs").insert({
     user_id: userId,
     platform,
@@ -302,17 +326,13 @@ Deno.serve(async (req) => {
     trips_imported: tripsImported,
     earnings_imported: earningsImported,
     skipped_count: skippedCount,
-    status: skippedCount > 0 && tripsImported + earningsImported > 0
-      ? "partial"
-      : skippedCount > 0
-      ? "error"
-      : "success",
-    message: tripRows.length === 0
+    status: syncStatus,
+    message: stubPending
       ? `Adapter ${platform} pronto — aguardando credenciais OAuth.`
       : null,
   });
 
-  const message = tripRows.length === 0
+  const message = stubPending
     ? `Adapter ${platform} pronto — aguardando credenciais OAuth. Corridas e ganhos serão sincronizados automaticamente.`
     : undefined;
 
