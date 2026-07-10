@@ -7,7 +7,7 @@ import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 
-/// Hero gradiente — KPI principal + badge opcional + rodapé (Mescla patrimônio).
+/// Hero de KPI — profundidade Wallet (navy→blue), tipografia dominante.
 class DfHeroWealthCard extends StatelessWidget {
   const DfHeroWealthCard({
     required this.label,
@@ -33,92 +33,82 @@ class DfHeroWealthCard extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: AppRadius.xlAll,
         gradient: AppGradients.heroWealth,
-        boxShadow: AppElevation.brandGlow(brightness),
+        boxShadow: AppElevation.heroDepth(brightness),
       ),
-      child: Stack(
-        children: [
-          Positioned(
-            right: -20,
-            top: -28,
-            child: Container(
-              width: 130,
-              height: 130,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.white.withValues(alpha: 0.10),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.xl,
+          AppSpacing.xl,
+          AppSpacing.xl,
+          AppSpacing.lg,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              label,
+              style: AppTypography.labelCaps(brightness).copyWith(
+                color: Colors.white.withValues(alpha: 0.72),
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(AppSpacing.xl),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            const SizedBox(height: AppSpacing.sm),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text(
-                  label.toUpperCase(),
-                  style: AppTypography.labelCaps(brightness).copyWith(
-                    color: Colors.white.withValues(alpha: 0.88),
-                    letterSpacing: 1.1,
+                Expanded(
+                  child: Text(
+                    displayValue,
+                    style: AppTypography.metric(
+                      brightness,
+                      fontSize: 36,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
-                const SizedBox(height: AppSpacing.sm),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        displayValue,
-                        style: AppTypography.iosLargeTitle(brightness).copyWith(
-                          color: Colors.white,
-                          fontSize: 34,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: -0.8,
-                        ),
+                if (badge != null) ...[
+                  const SizedBox(width: AppSpacing.sm),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.14),
+                      borderRadius: BorderRadius.circular(100),
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.16),
                       ),
                     ),
-                    if (badge != null) ...[
-                      const SizedBox(width: AppSpacing.sm),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.18),
-                          borderRadius: BorderRadius.circular(100),
-                          border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.22),
-                          ),
-                        ),
-                        child: Text(
-                          hideValue ? '•••' : badge!,
-                          style: themeFootnote(brightness).copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
+                    child: Text(
+                      hideValue ? '•••' : badge!,
+                      style: AppTypography.iosFootnote(brightness).copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
                       ),
-                    ],
-                  ],
-                ),
-                if (footer != null) ...[
-                  const SizedBox(height: AppSpacing.lg),
-                  footer!,
+                    ),
+                  ),
                 ],
               ],
             ),
-          ),
-        ],
+            if (footer != null) ...[
+              const SizedBox(height: AppSpacing.lg),
+              Divider(
+                height: 1,
+                thickness: 0.5,
+                color: Colors.white.withValues(alpha: 0.16),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              footer!,
+            ],
+          ],
+        ),
       ),
     );
   }
-
-  static TextStyle themeFootnote(Brightness brightness) {
-    return AppTypography.iosFootnote(brightness);
-  }
 }
 
-/// Botão de visibilidade dos valores (Mescla).
+/// Botão de visibilidade dos valores.
 class DfValueVisibilityButton extends StatelessWidget {
   const DfValueVisibilityButton({
     required this.hidden,
@@ -144,7 +134,7 @@ class DfValueVisibilityButton extends StatelessWidget {
   }
 }
 
-/// Título de tela com toggle de visibilidade (Mescla).
+/// Título de tela com toggle de visibilidade.
 class DfScreenTitleRow extends StatelessWidget {
   const DfScreenTitleRow({
     required this.title,
@@ -169,6 +159,7 @@ class DfScreenTitleRow extends StatelessWidget {
             title,
             style: theme.textTheme.headlineSmall?.copyWith(
               fontWeight: FontWeight.w700,
+              letterSpacing: -0.4,
             ),
           ),
         ),
