@@ -11,7 +11,7 @@ import '../../../core/utils/df_haptics.dart';
 
 enum DfButtonVariant { primary, outlined, tonal, gradient }
 
-/// Botão estilo iOS — filled azul system, cantos 12pt, sem sombra pesada.
+/// Botão premium — filled sólido, outline quieto, CTA com profundidade.
 class DfButton extends StatefulWidget {
   const DfButton({
     required this.label,
@@ -39,18 +39,27 @@ class DfButton extends StatefulWidget {
 class _DfButtonState extends State<DfButton> {
   bool _pressed = false;
 
+  Color get _spinnerColor {
+    return switch (widget.variant) {
+      DfButtonVariant.outlined || DfButtonVariant.tonal => AppColors.brandBlue,
+      _ => Colors.white,
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final enabled = !widget.isLoading && widget.onPressed != null;
+    final onBrand = widget.variant == DfButtonVariant.gradient ||
+        widget.variant == DfButtonVariant.primary;
 
     final child = widget.isLoading
-        ? const SizedBox(
+        ? SizedBox(
             height: 22,
             width: 22,
             child: CircularProgressIndicator(
               strokeWidth: 2.5,
-              color: Colors.white,
+              color: _spinnerColor,
             ),
           )
         : Row(
@@ -68,14 +77,9 @@ class _DfButtonState extends State<DfButton> {
               Flexible(
                 child: Text(
                   widget.label,
-                  style: widget.variant == DfButtonVariant.gradient ||
-                          widget.variant == DfButtonVariant.primary
-                      ? AppTypography.iosHeadline(theme.brightness).copyWith(
-                          color: Colors.white,
-                        )
-                      : AppTypography.iosHeadline(theme.brightness).copyWith(
-                          color: AppColors.brandBlue,
-                        ),
+                  style: AppTypography.iosHeadline(theme.brightness).copyWith(
+                    color: onBrand ? Colors.white : AppColors.brandBlue,
+                  ),
                 ),
               ),
             ],
@@ -101,7 +105,9 @@ class _DfButtonState extends State<DfButton> {
           onPressed: enabled ? widget.onPressed : null,
           style: OutlinedButton.styleFrom(
             minimumSize: const Size(0, 50),
-            side: const BorderSide(color: AppColors.brandBlue),
+            side: BorderSide(
+              color: AppColors.brandBlue.withValues(alpha: 0.35),
+            ),
             shape: RoundedRectangleBorder(borderRadius: AppRadius.lgAll),
           ),
           child: child,
@@ -128,7 +134,8 @@ class _DfButtonState extends State<DfButton> {
               }
             : null,
         onPointerUp: enabled ? (_) => setState(() => _pressed = false) : null,
-        onPointerCancel: enabled ? (_) => setState(() => _pressed = false) : null,
+        onPointerCancel:
+            enabled ? (_) => setState(() => _pressed = false) : null,
         child: button,
       ),
     );
@@ -141,9 +148,10 @@ class _DfButtonState extends State<DfButton> {
       label: widget.label,
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final width = constraints.hasBoundedWidth && constraints.maxWidth.isFinite
-              ? constraints.maxWidth
-              : MediaQuery.sizeOf(context).width;
+          final width =
+              constraints.hasBoundedWidth && constraints.maxWidth.isFinite
+                  ? constraints.maxWidth
+                  : MediaQuery.sizeOf(context).width;
           return SizedBox(width: width, child: button);
         },
       ),
@@ -159,6 +167,7 @@ class _GradientButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final brightness = Theme.of(context).brightness;
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -168,7 +177,9 @@ class _GradientButton extends StatelessWidget {
           decoration: BoxDecoration(
             gradient: AppGradients.brand,
             borderRadius: AppRadius.lgAll,
-            boxShadow: AppElevation.brandGlow(Theme.of(context).brightness),
+            boxShadow: onPressed == null
+                ? null
+                : AppElevation.brandGlow(brightness),
           ),
           child: SizedBox(
             width: double.infinity,
