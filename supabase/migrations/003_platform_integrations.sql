@@ -1,4 +1,4 @@
--- DriveFlow migration 003 — integrações Uber, 99 e InDrive (Onda 16)
+-- DriveFlow migration 003 — integrações Uber, 99 e InDrive (Onda 24)
 -- Conexões de plataforma, proveniência de ganhos e dedup por external_id
 
 -- Conexões OAuth/API por motorista e plataforma
