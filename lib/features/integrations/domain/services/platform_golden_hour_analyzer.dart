@@ -35,7 +35,8 @@ abstract final class PlatformGoldenHourAnalyzer {
         0,
         (sum, t) => sum + t.workedHours,
       );
-      final avgPerHour = totalHours > 0 ? totalPayout / totalHours : 0;
+      final avgPerHour =
+          totalHours > 0 ? (totalPayout / totalHours).toDouble() : 0.0;
 
       results.add(
         PlatformGoldenHourSlot(
@@ -44,7 +45,7 @@ abstract final class PlatformGoldenHourAnalyzer {
           hourLabel: '${hour.toString().padLeft(2, '0')}h',
           avgPayoutPerHour: avgPerHour,
           tripCount: items.length,
-          confidence: (items.length / 5).clamp(0.4, 0.95),
+          confidence: (items.length / 5).clamp(0.4, 0.95).toDouble(),
         ),
       );
     }
@@ -87,7 +88,8 @@ abstract final class PlatformGoldenHourAnalyzer {
     });
 
     final best = integratable.first;
-    final rate = best.workedHours > 0 ? best.amount / best.workedHours : 0;
+    final rate =
+        best.workedHours > 0 ? (best.amount / best.workedHours).toDouble() : 0.0;
     final hour = best.date.toLocal().hour;
 
     return PlatformGoldenHourSlot(
