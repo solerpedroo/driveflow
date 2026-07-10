@@ -11,13 +11,28 @@ const corsHeaders = {
 
 const INTEGRATABLE_PLATFORMS = new Set(["uber", "99", "indrive"]);
 
-type SyncEarningRow = {
+type SyncTripRow = {
+  external_id: string;
+  fare_amount: number;
+  tip_amount: number;
+  platform_fee: number;
+  driver_payout: number;
+  distance_km?: number;
+  duration_minutes?: number;
+  started_at: string;
+  ended_at?: string;
+  pickup_label?: string;
+  dropoff_label?: string;
+  status?: string;
+};
+
+type DailyRollup = {
   external_id: string;
   amount: number;
   rides: number;
   worked_hours: number;
   date: string;
-  note?: string;
+  note: string;
 };
 
 function jsonResponse(body: unknown, status = 200) {
@@ -31,20 +46,52 @@ function clientError(message: string, status = 400) {
   return jsonResponse({ error: message }, status);
 }
 
+function dayKey(platform: string, isoDate: string) {
+  const day = isoDate.substring(0, 10);
+  return `${platform}:${day}`;
+}
+
+function rollupDaily(platform: string, trips: SyncTripRow[]): DailyRollup[] {
+  const buckets = new Map<string, SyncTripRow[]>();
+
+  for (const trip of trips) {
+    if ((trip.status ?? "completed") !== "completed") continue;
+    const key = dayKey(platform, trip.started_at);
+    const list = buckets.get(key) ?? [];
+    list.push(trip);
+    buckets.set(key, list);
+  }
+
+  const rollups: DailyRollup[] = [];
+  for (const [, dayTrips] of buckets) {
+    const day = dayTrips[0].started_at.substring(0, 10);
+    const amount = dayTrips.reduce((sum, t) => sum + t.driver_payout, 0);
+    const hours = dayTrips.reduce(
+      (sum, t) => sum + (t.duration_minutes ?? 0) / 60,
+      0,
+    );
+
+    rollups.push({
+      external_id: `rollup:${platform}:${day}`,
+      amount: Number(amount.toFixed(2)),
+      rides: dayTrips.length,
+      worked_hours: Number(hours.toFixed(2)),
+      date: `${day}T12:00:00.000Z`,
+      note: `Sync automático · ${dayTrips.length} corridas`,
+    });
+  }
+
+  return rollups;
+}
+
 /**
- * Stub de sincronização — contrato pronto para adapters Uber/99/InDrive.
- * Quando credenciais OAuth estiverem configuradas, cada adapter retorna
- * SyncEarningRow[] que são upsertados com dedup por external_id.
+ * Stub — adapters reais retornarão corridas individuais da API.
  */
-async function fetchPlatformEarnings(
+async function fetchPlatformTrips(
   _platform: string,
   _userId: string,
   _lookbackDays: number,
-): Promise<SyncEarningRow[]> {
-  // TODO: implementar adapters reais
-  // - uber: Uber Driver API / partner aggregator
-  // - 99: 99 driver earnings endpoint
-  // - indrive: InDrive partner API
+): Promise<SyncTripRow[]> {
   return [];
 }
 
@@ -104,31 +151,61 @@ Deno.serve(async (req) => {
     return clientError("Plataforma não conectada.", 409);
   }
 
-  const rows = await fetchPlatformEarnings(platform, userId, lookbackDays);
-  let importedCount = 0;
+  const tripRows = await fetchPlatformTrips(platform, userId, lookbackDays);
+  let tripsImported = 0;
+  let earningsImported = 0;
   let skippedCount = 0;
   const syncedAt = new Date().toISOString();
 
-  for (const row of rows) {
-    const { error: upsertError } = await supabase.from("earnings").upsert(
+  for (const trip of tripRows) {
+    const { error: tripError } = await supabase.from("platform_trips").upsert(
       {
         user_id: userId,
         platform,
-        amount: row.amount,
-        rides: row.rides,
-        worked_hours: row.worked_hours,
-        date: row.date,
-        note: row.note ?? null,
-        source: "api_sync",
-        external_id: row.external_id,
+        external_id: trip.external_id,
+        fare_amount: trip.fare_amount,
+        tip_amount: trip.tip_amount,
+        platform_fee: trip.platform_fee,
+        driver_payout: trip.driver_payout,
+        distance_km: trip.distance_km ?? null,
+        duration_minutes: trip.duration_minutes ?? null,
+        started_at: trip.started_at,
+        ended_at: trip.ended_at ?? null,
+        pickup_label: trip.pickup_label ?? null,
+        dropoff_label: trip.dropoff_label ?? null,
+        status: trip.status ?? "completed",
       },
       { onConflict: "user_id,platform,external_id", ignoreDuplicates: false },
     );
 
-    if (upsertError) {
+    if (tripError) {
       skippedCount += 1;
     } else {
-      importedCount += 1;
+      tripsImported += 1;
+    }
+  }
+
+  const rollups = rollupDaily(platform, tripRows);
+  for (const rollup of rollups) {
+    const { error: earningError } = await supabase.from("earnings").upsert(
+      {
+        user_id: userId,
+        platform,
+        amount: rollup.amount,
+        rides: rollup.rides,
+        worked_hours: rollup.worked_hours,
+        date: rollup.date,
+        note: rollup.note,
+        source: "api_sync",
+        external_id: rollup.external_id,
+      },
+      { onConflict: "user_id,platform,external_id", ignoreDuplicates: false },
+    );
+
+    if (earningError) {
+      skippedCount += 1;
+    } else {
+      earningsImported += 1;
     }
   }
 
@@ -142,13 +219,15 @@ Deno.serve(async (req) => {
     .eq("user_id", userId)
     .eq("platform", platform);
 
-  const message = rows.length === 0
-    ? `Adapter ${platform} pronto — aguardando credenciais OAuth no servidor.`
+  const message = tripRows.length === 0
+    ? `Adapter ${platform} pronto — aguardando credenciais OAuth. Corridas e ganhos serão sincronizados automaticamente.`
     : undefined;
 
   return jsonResponse({
     platform,
-    imported_count: importedCount,
+    trips_imported: tripsImported,
+    earnings_imported: earningsImported,
+    imported_count: tripsImported + earningsImported,
     skipped_count: skippedCount,
     synced_at: syncedAt,
     message,
