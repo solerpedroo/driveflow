@@ -1,5 +1,6 @@
 import '../../../../core/constants/ride_platforms.dart';
 import '../../../../core/utils/date_utils.dart';
+import '../../../../core/utils/iterable_extensions.dart';
 import '../../../earnings/domain/entities/earning_entity.dart';
 import '../../../goals/domain/entities/goal_entity.dart';
 import '../entities/platform_goal_progress.dart';
@@ -20,32 +21,15 @@ abstract final class PlatformGoalProgressCalculator {
     if (dailyTarget <= 0) return const [];
 
     final anchor = now ?? DateTime.now();
-    final todayStart = DateUtilsDriveFlow.startOfDay(anchor);
-    final todayEnd = DateUtilsDriveFlow.endOfDay(anchor);
+    final todayByPlatform = _todayActualByPlatform(
+      earnings: earnings,
+      trips: trips,
+      anchor: anchor,
+    );
 
     final historical = PlatformAnalyticsBreakdown.fromEarnings(earnings);
     final totalHistorical =
         historical.fold<double>(0, (s, slice) => s + slice.amount);
-
-    final todayByPlatform = <RidePlatform, double>{};
-    for (final trip in trips) {
-      if (!trip.isCompleted) continue;
-      if (trip.startedAt.isBefore(todayStart) ||
-          trip.startedAt.isAfter(todayEnd)) {
-        continue;
-      }
-      todayByPlatform[trip.platform] =
-          (todayByPlatform[trip.platform] ?? 0) + trip.driverPayout;
-    }
-
-    for (final earning in earnings) {
-      if (!integratable.contains(earning.platform)) continue;
-      if (earning.date.isBefore(todayStart) || earning.date.isAfter(todayEnd)) {
-        continue;
-      }
-      todayByPlatform[earning.platform] =
-          (todayByPlatform[earning.platform] ?? 0) + earning.amount;
-    }
 
     final results = <PlatformGoalProgress>[];
 
@@ -75,12 +59,38 @@ abstract final class PlatformGoalProgressCalculator {
 
     return results..sort((a, b) => b.actualAmount.compareTo(a.actualAmount));
   }
-}
 
-extension _FirstOrNull<E> on Iterable<E> {
-  E? get firstOrNull {
-    final iterator = this.iterator;
-    if (!iterator.moveNext()) return null;
-    return iterator.current;
+  /// Corridas do dia têm prioridade; evita duplicar rollup `api_sync`.
+  static Map<RidePlatform, double> _todayActualByPlatform({
+    required List<EarningEntity> earnings,
+    required List<PlatformTripEntity> trips,
+    required DateTime anchor,
+  }) {
+    final todayStart = DateUtilsDriveFlow.startOfDay(anchor);
+    final todayEnd = DateUtilsDriveFlow.endOfDay(anchor);
+    final result = <RidePlatform, double>{};
+
+    for (final trip in trips) {
+      if (!trip.isCompleted || !integratable.contains(trip.platform)) continue;
+      if (trip.startedAt.isBefore(todayStart) ||
+          trip.startedAt.isAfter(todayEnd)) {
+        continue;
+      }
+      result[trip.platform] =
+          (result[trip.platform] ?? 0) + trip.driverPayout;
+    }
+
+    for (final earning in earnings) {
+      if (!integratable.contains(earning.platform)) continue;
+      if (earning.date.isBefore(todayStart) || earning.date.isAfter(todayEnd)) {
+        continue;
+      }
+      final tripSum = result[earning.platform] ?? 0;
+      if (tripSum > 0) continue;
+      result[earning.platform] =
+          (result[earning.platform] ?? 0) + earning.amount;
+    }
+
+    return result;
   }
 }

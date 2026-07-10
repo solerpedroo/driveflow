@@ -31,6 +31,9 @@ class PlatformNetProfitChart extends StatelessWidget {
     final maxY = slices
         .map((s) => s.grossAmount > s.netAmount ? s.grossAmount : s.netAmount)
         .reduce((a, b) => a > b ? a : b);
+    final minY = slices
+        .map((s) => s.netAmount < 0 ? s.netAmount : 0)
+        .reduce((a, b) => a < b ? a : b);
 
     return DfCard(
       child: Column(
@@ -46,6 +49,7 @@ class PlatformNetProfitChart extends StatelessWidget {
             child: BarChart(
               BarChartData(
                 maxY: maxY * 1.2,
+                minY: minY < 0 ? minY * 1.2 : 0,
                 groupsSpace: 16,
                 barGroups: [
                   for (var i = 0; i < slices.length; i++)

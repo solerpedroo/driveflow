@@ -9,6 +9,7 @@ class PlatformNetProfitSlice {
     required this.fuelCost,
     required this.netAmount,
     required this.tripCount,
+    required this.workedHours,
   });
 
   final RidePlatform platform;
@@ -17,6 +18,9 @@ class PlatformNetProfitSlice {
   final double fuelCost;
   final double netAmount;
   final int tripCount;
+
+  /// Horas reais somadas (`durationMinutes`) ou fallback por corrida.
+  final double workedHours;
 
   double get netSharePercent =>
       grossAmount > 0 ? (netAmount / grossAmount) * 100 : 0;

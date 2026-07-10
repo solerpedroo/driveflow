@@ -15,6 +15,7 @@ void main() {
         'external_account_id': 'driver-99',
         'last_synced_at': '2026-07-10T12:00:00Z',
         'last_sync_error': null,
+        'metadata': {'settlement_days': 3},
         'created_at': '2026-07-01T12:00:00Z',
         'updated_at': '2026-07-10T12:00:00Z',
       });
@@ -22,6 +23,7 @@ void main() {
       expect(entity.platform, RidePlatform.ninetyNine);
       expect(entity.status, IntegrationStatus.connected);
       expect(entity.externalAccountId, 'driver-99');
+      expect(entity.metadata['settlement_days'], 3);
     });
 
     test('toUpsert serializa status pending', () {

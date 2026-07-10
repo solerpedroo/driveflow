@@ -67,7 +67,8 @@ class _RegionRow extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  '${region.platform.label} · ${region.tripCount} corridas',
+                  '${region.platform.label} · ${region.tripCount} corridas'
+                  '${region.isEstimated ? ' · estimado' : ''}',
                   style: theme.textTheme.labelSmall?.copyWith(
                     color: AppColors.secondaryLabel(theme),
                   ),

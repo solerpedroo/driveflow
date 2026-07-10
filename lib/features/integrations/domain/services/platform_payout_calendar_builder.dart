@@ -1,4 +1,6 @@
+import '../../../../core/constants/ride_platforms.dart';
 import '../../../../core/utils/date_utils.dart';
+import '../../../../core/utils/iterable_extensions.dart';
 import '../entities/platform_payout_entry.dart';
 import '../entities/platform_trip_entity.dart';
 import 'platform_payout_rules.dart';
@@ -7,6 +9,7 @@ import 'platform_payout_rules.dart';
 abstract final class PlatformPayoutCalendarBuilder {
   static List<PlatformPayoutEntry> build({
     required List<PlatformTripEntity> trips,
+    Map<RidePlatform, int>? policyOverrides,
     DateTime? now,
   }) {
     final anchor = now ?? DateTime.now();
@@ -20,9 +23,12 @@ abstract final class PlatformPayoutCalendarBuilder {
 
     for (final trip in pending) {
       final tripDate = trip.endedAt ?? trip.startedAt;
-      final days = PlatformPayoutRules.settlementDays(trip.platform);
+      final policy = PlatformPayoutRules.resolve(
+        trip.platform,
+        partnerOverrides: policyOverrides,
+      );
       final expected = DateUtilsDriveFlow.startOfDay(
-        tripDate.add(Duration(days: days)),
+        tripDate.add(Duration(days: policy.settlementDays)),
       );
       final key = '${trip.platform.value}-${expected.millisecondsSinceEpoch}';
 
@@ -33,7 +39,8 @@ abstract final class PlatformPayoutCalendarBuilder {
           expectedDate: expected,
           amount: trip.driverPayout,
           tripCount: 1,
-          settlementDays: days,
+          settlementDays: policy.settlementDays,
+          cycleLabel: policy.cycleLabel,
         );
       } else {
         grouped[key] = existing.copyWith(
@@ -51,16 +58,18 @@ abstract final class PlatformPayoutCalendarBuilder {
             amount: g.amount,
             tripCount: g.tripCount,
             settlementDays: g.settlementDays,
+            cycleLabel: g.cycleLabel,
           ),
         )
         .toList(growable: false)
       ..sort((a, b) => a.expectedDate.compareTo(b.expectedDate));
   }
 
-  static double pendingTotal(List<PlatformPayoutEntry> entries) {
-    final now = DateTime.now();
+  static double pendingTotal(List<PlatformPayoutEntry> entries, {DateTime? now}) {
+    final anchor = now ?? DateTime.now();
+    final today = DateUtilsDriveFlow.startOfDay(anchor);
     return entries
-        .where((e) => !e.expectedDate.isBefore(now))
+        .where((e) => !e.expectedDate.isBefore(today))
         .fold<double>(0, (s, e) => s + e.amount);
   }
 }
@@ -72,6 +81,7 @@ class _Group {
     required this.amount,
     required this.tripCount,
     required this.settlementDays,
+    required this.cycleLabel,
   });
 
   final RidePlatform platform;
@@ -79,6 +89,7 @@ class _Group {
   final double amount;
   final int tripCount;
   final int settlementDays;
+  final String cycleLabel;
 
   _Group copyWith({double? amount, int? tripCount}) {
     return _Group(
@@ -87,6 +98,7 @@ class _Group {
       amount: amount ?? this.amount,
       tripCount: tripCount ?? this.tripCount,
       settlementDays: settlementDays,
+      cycleLabel: cycleLabel,
     );
   }
 }

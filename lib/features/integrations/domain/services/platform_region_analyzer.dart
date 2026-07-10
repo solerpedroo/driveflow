@@ -1,7 +1,10 @@
+import '../../../../core/constants/ride_platforms.dart';
 import '../entities/platform_region_snapshot.dart';
 import '../entities/platform_trip_entity.dart';
+import 'platform_analytics_breakdown.dart';
+import 'platform_region_label.dart';
 
-/// Top regiões por R$/corrida a partir de pickup_label.
+/// Top regiões por R$/corrida a partir de pickup/dropoff/distância.
 abstract final class PlatformRegionAnalyzer {
   static const maxRegions = 5;
 
@@ -13,9 +16,11 @@ abstract final class PlatformRegionAnalyzer {
 
     for (final trip in trips) {
       if (!trip.isCompleted) continue;
-      final label = _normalizeRegion(trip.pickupLabel);
-      if (label.isEmpty) continue;
+      if (!PlatformAnalyticsBreakdown.integratable.contains(trip.platform)) {
+        continue;
+      }
 
+      final label = PlatformRegionLabel.fromTrip(trip);
       final key = '${trip.platform.value}-$label';
       final existing = grouped[key];
       if (existing == null) {
@@ -24,6 +29,7 @@ abstract final class PlatformRegionAnalyzer {
           label: label,
           payout: trip.driverPayout,
           count: 1,
+          isEstimated: PlatformRegionLabel.isEstimated(label),
         );
       } else {
         grouped[key] = existing.copyWith(
@@ -41,21 +47,19 @@ abstract final class PlatformRegionAnalyzer {
             avgPayout: g.count > 0 ? g.payout / g.count : 0,
             tripCount: g.count,
             totalPayout: g.payout,
+            isEstimated: g.isEstimated,
           ),
         )
         .toList()
-      ..sort((a, b) => b.avgPayout.compareTo(a.avgPayout));
+      ..sort((a, b) {
+        // Prefer endereços reais sobre buckets estimados.
+        if (a.isEstimated != b.isEstimated) {
+          return a.isEstimated ? 1 : -1;
+        }
+        return b.avgPayout.compareTo(a.avgPayout);
+      });
 
     return sorted.take(limit).toList(growable: false);
-  }
-
-  static String _normalizeRegion(String? label) {
-    if (label == null || label.trim().isEmpty) return '';
-    final trimmed = label.trim();
-    final comma = trimmed.indexOf(',');
-    if (comma > 0) return trimmed.substring(0, comma).trim();
-    final parts = trimmed.split(' ');
-    return parts.take(2).join(' ');
   }
 }
 
@@ -65,12 +69,14 @@ class _RegionGroup {
     required this.label,
     required this.payout,
     required this.count,
+    required this.isEstimated,
   });
 
   final RidePlatform platform;
   final String label;
   final double payout;
   final int count;
+  final bool isEstimated;
 
   _RegionGroup copyWith({double? payout, int? count}) {
     return _RegionGroup(
@@ -78,6 +84,7 @@ class _RegionGroup {
       label: label,
       payout: payout ?? this.payout,
       count: count ?? this.count,
+      isEstimated: isEstimated,
     );
   }
 }

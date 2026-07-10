@@ -5,8 +5,8 @@ import '../../../../core/constants/ride_platforms.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_motion.dart';
 import '../../../../core/theme/app_spacing.dart';
-import '../../../../core/utils/currency_formatter.dart';
 import '../../../integrations/domain/entities/platform_revenue_trend_point.dart';
+import '../../../integrations/domain/services/platform_revenue_trend_calculator.dart';
 import '../../../../shared/widgets/design_system/df_card.dart';
 
 /// Linhas múltiplas — evolução de receita por Uber/99/InDrive.
@@ -59,9 +59,10 @@ class _PlatformRevenueTrendChartState extends State<PlatformRevenueTrendChart>
     }
 
     final platforms = PlatformRevenueTrendCalculator.integratable.toList();
-    final maxY = points
-        .expand((p) => p.amountsByPlatform.values)
-        .fold<double>(0, (m, v) => v > m ? v : m);
+    final values = points.expand((p) => p.amountsByPlatform.values);
+    final maxY = values.isEmpty
+        ? 1.0
+        : values.fold<double>(0, (m, v) => v > m ? v : m);
 
     return DfCard(
       child: Column(
@@ -195,5 +196,3 @@ class _DeltaChip extends StatelessWidget {
     );
   }
 }
-
-import '../../../integrations/domain/services/platform_revenue_trend_calculator.dart';

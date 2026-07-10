@@ -1,6 +1,8 @@
 import '../../../../core/constants/ride_platforms.dart';
 import '../entities/platform_net_profit_slice.dart';
 import '../entities/platform_trip_entity.dart';
+import 'platform_analytics_breakdown.dart';
+import 'platform_trip_duration.dart';
 
 /// Lucro líquido por app: payout − custo combustível estimado.
 abstract final class PlatformNetProfitCalculator {
@@ -11,7 +13,10 @@ abstract final class PlatformNetProfitCalculator {
     final byPlatform = <RidePlatform, List<PlatformTripEntity>>{};
 
     for (final trip in trips) {
-      if (!trip.isCompleted) continue;
+      if (!trip.isCompleted ||
+          !PlatformAnalyticsBreakdown.integratable.contains(trip.platform)) {
+        continue;
+      }
       byPlatform.putIfAbsent(trip.platform, () => []).add(trip);
     }
 
@@ -34,6 +39,7 @@ abstract final class PlatformNetProfitCalculator {
       (s, t) => s + (t.distanceKm ?? 0),
     );
     final fuelCost = km * fuelCostPerKm;
+    final hours = PlatformTripDuration.sumHours(trips);
 
     return PlatformNetProfitSlice(
       platform: platform,
@@ -42,6 +48,7 @@ abstract final class PlatformNetProfitCalculator {
       fuelCost: fuelCost,
       netAmount: payout - fuelCost,
       tripCount: trips.length,
+      workedHours: hours,
     );
   }
 }

@@ -37,9 +37,10 @@ abstract final class PlatformShiftPlanBuilder {
 
       if (blocks.isNotEmpty && blocks.last.platform == best.platform) {
         final last = blocks.last;
+        final nextEnd = hour + 1;
         blocks[blocks.length - 1] = PlatformShiftPlanBlock(
           startHour: last.startHour,
-          endHour: hour + 1,
+          endHour: nextEnd > 23 ? 24 : nextEnd,
           platform: last.platform,
           reason: last.reason,
           expectedRevenuePerHour: last.expectedRevenuePerHour,

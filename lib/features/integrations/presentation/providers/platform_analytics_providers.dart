@@ -32,6 +32,7 @@ import '../../domain/services/platform_shift_plan_builder.dart';
 import '../../domain/services/platform_take_rate_trend_calculator.dart';
 import 'integrations_providers.dart';
 import 'platform_trips_providers.dart';
+import '../../domain/services/platform_payout_rules.dart';
 
 /// Janela do gráfico de evolução por app.
 enum PlatformTrendWindow {
@@ -126,19 +127,12 @@ final platformTodayMixProvider =
   return trips.when(
     loading: () => const AsyncLoading(),
     error: (e, st) => AsyncError(e, st),
-    data: (tripList) {
-      final now = DateTime.now();
-      final todayStart = DateTime(now.year, now.month, now.day);
-      final todayEarnings = earnings
-          .where((e) => !e.date.isBefore(todayStart))
-          .toList();
-      if (tripList.isNotEmpty || todayEarnings.isNotEmpty) {
-        return AsyncData(
-          PlatformAnalyticsBreakdown.fromEarnings(todayEarnings),
-        );
-      }
-      return const AsyncData([]);
-    },
+    data: (tripList) => AsyncData(
+      PlatformAnalyticsBreakdown.todayMix(
+        earnings: earnings,
+        trips: tripList,
+      ),
+    ),
   );
 });
 
@@ -213,7 +207,15 @@ final platformMixSimulationProvider =
 final platformPayoutCalendarProvider =
     Provider<AsyncValue<List<PlatformPayoutEntry>>>((ref) {
   final trips = ref.watch(platformTripsStreamProvider);
-  return trips.whenData(PlatformPayoutCalendarBuilder.build);
+  final connections = ref.watch(platformConnectionsProvider).valueOrNull ?? [];
+  final overrides = PlatformPayoutRules.overridesFromConnections(connections);
+
+  return trips.whenData(
+    (tripList) => PlatformPayoutCalendarBuilder.build(
+      trips: tripList,
+      policyOverrides: overrides,
+    ),
+  );
 });
 
 final platformPendingPayoutProvider = Provider<double>((ref) {

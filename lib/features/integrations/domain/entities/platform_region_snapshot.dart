@@ -8,6 +8,7 @@ class PlatformRegionSnapshot {
     required this.avgPayout,
     required this.tripCount,
     required this.totalPayout,
+    this.isEstimated = false,
   });
 
   final RidePlatform platform;
@@ -15,4 +16,7 @@ class PlatformRegionSnapshot {
   final double avgPayout;
   final int tripCount;
   final double totalPayout;
+
+  /// `true` quando o rótulo veio de distância/área genérica, não de endereço.
+  final bool isEstimated;
 }
