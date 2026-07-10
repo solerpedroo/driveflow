@@ -10,6 +10,8 @@ abstract final class EarningsSchema {
   static const note = 'note';
   static const date = 'date';
   static const vehicleId = 'vehicle_id';
+  static const source = 'source';
+  static const externalId = 'external_id';
   static const createdAt = 'created_at';
   static const updatedAt = 'updated_at';
 }

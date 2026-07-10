@@ -261,6 +261,31 @@ class ProfileScreen extends HookConsumerWidget {
           ),
         ),
 
+        // ── Integrações de apps ────────────────────────────────────────────
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+          sliver: SliverToBoxAdapter(
+            child: Text(
+              'Integrações',
+              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+            ),
+          ),
+        ),
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(24, 12, 24, 0),
+          sliver: SliverToBoxAdapter(
+            child: DfCard(
+              child: DfSettingsRow(
+                icon: Icons.hub_outlined,
+                label: 'Apps conectados',
+                subtitle: 'Uber, 99 e InDrive — sync automático de ganhos',
+                accentColor: AppColors.profitGreen,
+                onTap: () => context.push(AppRoutes.platformIntegrations),
+              ),
+            ),
+          ),
+        ),
+
         // ── Atalhos ──────────────────────────────────────────────────────────
         SliverPadding(
           padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
@@ -293,7 +318,7 @@ class ProfileScreen extends HookConsumerWidget {
                   DfSettingsRow(
                     icon: Icons.upload_file_outlined,
                     label: 'Importar extrato',
-                    subtitle: 'Uber, 99 e CSV em segundos',
+                    subtitle: 'Nubank, Inter ou OFX em segundos',
                     onTap: () => context.push(AppRoutes.importStatement),
                   ),
                   DfSettingsRow(

@@ -1,4 +1,5 @@
 import '../../../../core/constants/ride_platforms.dart';
+import '../../../integrations/domain/entities/earning_source.dart';
 
 /// Ganho registrado pelo motorista.
 class EarningEntity {
@@ -12,6 +13,8 @@ class EarningEntity {
     required this.date,
     this.vehicleId,
     this.note,
+    this.source = EarningSource.manual,
+    this.externalId,
     this.createdAt,
     this.updatedAt,
   });
@@ -25,6 +28,8 @@ class EarningEntity {
   final DateTime date;
   final String? vehicleId;
   final String? note;
+  final EarningSource source;
+  final String? externalId;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -38,6 +43,8 @@ class EarningEntity {
     DateTime? date,
     String? vehicleId,
     String? note,
+    EarningSource? source,
+    String? externalId,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -51,6 +58,8 @@ class EarningEntity {
       date: date ?? this.date,
       vehicleId: vehicleId ?? this.vehicleId,
       note: note ?? this.note,
+      source: source ?? this.source,
+      externalId: externalId ?? this.externalId,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -67,6 +76,8 @@ class EarningDraft {
     required this.date,
     this.vehicleId,
     this.note,
+    this.source = EarningSource.manual,
+    this.externalId,
   });
 
   final RidePlatform platform;
@@ -76,4 +87,6 @@ class EarningDraft {
   final DateTime date;
   final String? vehicleId;
   final String? note;
+  final EarningSource source;
+  final String? externalId;
 }

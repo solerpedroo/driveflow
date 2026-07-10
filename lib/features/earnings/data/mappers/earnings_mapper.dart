@@ -1,4 +1,5 @@
 import '../../../../core/constants/ride_platforms.dart';
+import '../../../integrations/domain/entities/earning_source.dart';
 import '../../domain/entities/earning_entity.dart';
 import '../schema/earnings_schema.dart';
 
@@ -16,6 +17,8 @@ abstract final class EarningsMapper {
       note: row[EarningsSchema.note] as String?,
       date: _toDateTime(row[EarningsSchema.date]) ?? DateTime.now(),
       vehicleId: row[EarningsSchema.vehicleId] as String?,
+      source: EarningSource.fromValue(row[EarningsSchema.source] as String?),
+      externalId: row[EarningsSchema.externalId] as String?,
       createdAt: _toDateTime(row[EarningsSchema.createdAt]),
       updatedAt: _toDateTime(row[EarningsSchema.updatedAt]),
     );
@@ -33,7 +36,9 @@ abstract final class EarningsMapper {
       EarningsSchema.workedHours: draft.workedHours,
       EarningsSchema.note: _nullableText(draft.note),
       EarningsSchema.date: draft.date.toUtc().toIso8601String(),
+      EarningsSchema.source: draft.source.value,
       if (draft.vehicleId != null) EarningsSchema.vehicleId: draft.vehicleId,
+      if (draft.externalId != null) EarningsSchema.externalId: draft.externalId,
     };
   }
 
@@ -45,7 +50,9 @@ abstract final class EarningsMapper {
       EarningsSchema.workedHours: draft.workedHours,
       EarningsSchema.note: _nullableText(draft.note),
       EarningsSchema.date: draft.date.toUtc().toIso8601String(),
+      EarningsSchema.source: draft.source.value,
       if (draft.vehicleId != null) EarningsSchema.vehicleId: draft.vehicleId,
+      if (draft.externalId != null) EarningsSchema.externalId: draft.externalId,
     };
   }
 
@@ -60,6 +67,8 @@ abstract final class EarningsMapper {
       EarningsSchema.note: entity.note,
       EarningsSchema.date: entity.date.toUtc().toIso8601String(),
       if (entity.vehicleId != null) EarningsSchema.vehicleId: entity.vehicleId,
+      EarningsSchema.source: entity.source.value,
+      if (entity.externalId != null) EarningsSchema.externalId: entity.externalId,
       if (entity.createdAt != null)
         EarningsSchema.createdAt: entity.createdAt!.toUtc().toIso8601String(),
       if (entity.updatedAt != null)
@@ -75,7 +84,9 @@ abstract final class EarningsMapper {
       'worked_hours': draft.workedHours,
       'note': draft.note,
       'date': draft.date.toUtc().toIso8601String(),
+      'source': draft.source.value,
       if (draft.vehicleId != null) 'vehicle_id': draft.vehicleId,
+      if (draft.externalId != null) 'external_id': draft.externalId,
     };
   }
 
@@ -88,6 +99,8 @@ abstract final class EarningsMapper {
       note: json['note'] as String?,
       date: _toDateTime(json['date']) ?? DateTime.now(),
       vehicleId: json['vehicle_id'] as String?,
+      source: EarningSource.fromValue(json['source'] as String?),
+      externalId: json['external_id'] as String?,
     );
   }
 
