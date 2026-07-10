@@ -4,10 +4,11 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../../authentication/domain/entities/user_entity.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../../../../core/theme/theme_mode_provider.dart';
 import '../../../../core/utils/df_haptics.dart';
 
-/// Cabeçalho premium — avatar com anel luminoso.
+/// Cabeçalho premium — saudação editorial + avatar com anel de marca.
 class DashboardHeader extends ConsumerWidget {
   const DashboardHeader({required this.user, super.key});
 
@@ -42,17 +43,29 @@ class DashboardHeader extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  '$greeting,',
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    color: AppColors.secondaryLabel(theme),
-                  ),
+                Row(
+                  children: [
+                    Container(
+                      width: 6,
+                      height: 6,
+                      decoration: BoxDecoration(
+                        color: AppColors.brandBlue.withValues(alpha: 0.50),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'DASHBOARD',
+                      style: AppTypography.labelCaps(theme.brightness),
+                    ),
+                  ],
                 ),
+                const SizedBox(height: AppSpacing.sm),
                 Text(
-                  name,
+                  '$greeting, $name',
                   style: theme.textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: -0.5,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -0.6,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -76,6 +89,7 @@ class DashboardHeader extends ConsumerWidget {
               ),
               style: IconButton.styleFrom(
                 minimumSize: const Size(40, 40),
+                backgroundColor: AppColors.mutedSurface(theme),
               ),
             ),
           ),
@@ -84,26 +98,25 @@ class DashboardHeader extends ConsumerWidget {
             padding: const EdgeInsets.all(2.5),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              gradient: LinearGradient(
-                colors: [
-                  AppColors.skyBlue,
-                  AppColors.skyBlueSoft,
-                ],
+              gradient: const LinearGradient(
+                colors: [AppColors.brandBlue, AppColors.brandBlueDark],
               ),
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.skyBlue.withValues(alpha: 0.35),
-                  blurRadius: 12,
+                  color: AppColors.brandBlue.withValues(alpha: 0.35),
+                  blurRadius: 14,
                 ),
               ],
             ),
             child: CircleAvatar(
               radius: 20,
-              backgroundColor: AppColors.skyBlue.withValues(alpha: 0.15),
+              backgroundColor: isDark
+                  ? AppColors.brandNavy
+                  : Colors.white.withValues(alpha: 0.95),
               child: Text(
                 initial,
                 style: theme.textTheme.titleMedium?.copyWith(
-                  color: AppColors.skyBlue,
+                  color: AppColors.brandBlue,
                   fontWeight: FontWeight.w800,
                 ),
               ),
