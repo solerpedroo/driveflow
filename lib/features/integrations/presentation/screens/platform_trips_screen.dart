@@ -8,6 +8,7 @@ import '../../../../shared/widgets/design_system/df_empty_state.dart';
 import '../../../../shared/widgets/design_system/df_expandable_list_section.dart';
 import '../../../../shared/widgets/design_system/df_filter_pill.dart';
 import '../../../../shared/widgets/design_system/df_section_header.dart';
+import '../../../../shared/widgets/design_system/df_skeleton.dart';
 import '../../../../shared/widgets/design_system/df_subpage_scaffold.dart';
 import '../providers/platform_trips_providers.dart';
 import '../widgets/platform_trip_tile.dart';
@@ -100,7 +101,7 @@ class PlatformTripsScreen extends ConsumerWidget {
           ),
         ),
         tripsAsync.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => const DfSkeleton(itemCount: 3),
           error: (e, _) => Text('Erro ao carregar corridas: $e'),
           data: (trips) {
             if (trips.isEmpty) {

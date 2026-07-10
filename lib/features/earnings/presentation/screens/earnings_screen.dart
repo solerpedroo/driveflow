@@ -62,7 +62,7 @@ class EarningsScreen extends ConsumerWidget {
             totalAsync.when(
               loading: () => const SizedBox(
                 height: 140,
-                child: Center(child: CircularProgressIndicator()),
+                child: DfSkeleton(itemCount: 1),
               ),
               error: (_, __) => const SizedBox.shrink(),
               data: (total) => DfHeroWealthCard(
