@@ -59,11 +59,10 @@ class DfHeroWealthCard extends StatelessWidget {
                   child: Text(
                     displayValue,
                     style: AppTypography.metric(
-                      brightness,
-                      fontSize: 36,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
-                    ),
+          brightness,
+          fontSize: 36,
+          color: Colors.white,
+        ),
                   ),
                 ),
                 if (badge != null) ...[
@@ -152,7 +151,6 @@ class DfScreenTitleRow extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Expanded(
           child: Text(
