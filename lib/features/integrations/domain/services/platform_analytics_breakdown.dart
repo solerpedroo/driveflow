@@ -80,6 +80,20 @@ abstract final class PlatformAnalyticsBreakdown {
     ]..sort((a, b) => b.amount.compareTo(a.amount));
   }
 
+  /// Prioriza trips quando existem; fallback para earnings.
+  static List<PlatformRevenueSlice> fromTripsOrEarnings({
+    required List<PlatformTripEntity> trips,
+    required List<EarningEntity> earnings,
+  }) {
+    final integratableTrips = trips
+        .where((t) => t.isCompleted && integratable.contains(t.platform))
+        .toList();
+    if (integratableTrips.isNotEmpty) {
+      return fromTrips(integratableTrips);
+    }
+    return fromEarnings(earnings);
+  }
+
   /// Mix do dia — prioriza corridas sincronizadas; fallback para ganhos manuais.
   static List<PlatformRevenueSlice> todayMix({
     required List<EarningEntity> earnings,
