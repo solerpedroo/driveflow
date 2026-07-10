@@ -16,7 +16,7 @@ void main() {
       ),
     );
 
-    expect(find.text('Criar conta'), findsOneWidget);
+    expect(find.text('Cadastrar'), findsOneWidget);
     expect(find.text('Mínimo 8 caracteres'), findsOneWidget);
     expect(find.text('Uma letra maiúscula'), findsOneWidget);
 

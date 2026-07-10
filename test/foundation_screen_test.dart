@@ -31,7 +31,7 @@ void main() {
     expect(find.byType(DriveFlowBrandLogo), findsOneWidget);
     expect(find.textContaining('Onda 0'), findsOneWidget);
     expect(find.text('Prévia de métricas'), findsOneWidget);
-    expect(find.text('LUCRO HOJE'), findsOneWidget);
+    expect(find.text('Lucro hoje'), findsOneWidget);
     expect(find.byType(Chip), findsOneWidget);
   });
 }
