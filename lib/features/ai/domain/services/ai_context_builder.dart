@@ -176,7 +176,6 @@ abstract final class AiContextBuilder {
       }
     }
 
-    final anchor = DateTime.now();
     final cutoff = anchor.subtract(Duration(days: periodDays));
     final periodEarnings = earnings
         .where((e) => !e.date.isBefore(cutoff))
@@ -232,7 +231,7 @@ abstract final class AiContextBuilder {
     for (final entry in gross.entries) {
       final rate = entry.value > 0
           ? (byPlatform[entry.key] ?? 0) / entry.value * 100
-          : 100;
+          : 100.0;
       if (rate < bestRate) {
         bestRate = rate;
         best = entry.key;
