@@ -1,71 +1,129 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
-/// Tipografia DriveFlow — Plus Jakarta Sans + Inter (sem fontes de código).
+/// Tipografia estilo SF Pro / iOS Human Interface Guidelines.
 abstract final class AppTypography {
   static TextTheme build(Brightness brightness) {
-    final base = brightness == Brightness.dark
-        ? ThemeData.dark().textTheme
-        : ThemeData.light().textTheme;
-
-    final display = GoogleFonts.plusJakartaSansTextTheme(base);
-    final body = GoogleFonts.interTextTheme(base);
+    final label = brightness == Brightness.dark ? Colors.white : Colors.black;
+    final secondary = const Color(0xFF8E8E93);
 
     return TextTheme(
-      displayLarge: display.displayLarge?.copyWith(
+      displayLarge: iosLargeTitle(brightness).copyWith(color: label),
+      displayMedium: TextStyle(
+        fontSize: 28,
         fontWeight: FontWeight.w700,
-        letterSpacing: -1.4,
+        letterSpacing: 0.36,
+        color: label,
       ),
-      displayMedium: display.displayMedium?.copyWith(
+      displaySmall: TextStyle(
+        fontSize: 22,
         fontWeight: FontWeight.w700,
-        letterSpacing: -1.0,
+        letterSpacing: 0.35,
+        color: label,
       ),
-      displaySmall: display.displaySmall?.copyWith(
-        fontWeight: FontWeight.w700,
-        letterSpacing: -0.6,
-      ),
-      headlineLarge: display.headlineLarge?.copyWith(
-        fontWeight: FontWeight.w700,
-      ),
-      headlineMedium: display.headlineMedium?.copyWith(
+      headlineLarge: TextStyle(
+        fontSize: 22,
         fontWeight: FontWeight.w600,
+        letterSpacing: 0.35,
+        color: label,
       ),
-      headlineSmall: display.headlineSmall?.copyWith(
+      headlineMedium: iosHeadline(brightness).copyWith(color: label),
+      headlineSmall: TextStyle(
+        fontSize: 20,
         fontWeight: FontWeight.w600,
+        letterSpacing: 0.38,
+        color: label,
       ),
-      titleLarge: body.titleLarge?.copyWith(
+      titleLarge: iosHeadline(brightness).copyWith(color: label),
+      titleMedium: TextStyle(
+        fontSize: 16,
         fontWeight: FontWeight.w600,
-        fontFeatures: const [FontFeature.tabularFigures()],
+        letterSpacing: -0.24,
+        color: label,
       ),
-      titleMedium: body.titleMedium?.copyWith(fontWeight: FontWeight.w600),
-      titleSmall: body.titleSmall?.copyWith(fontWeight: FontWeight.w500),
-      bodyLarge: body.bodyLarge,
-      bodyMedium: body.bodyMedium,
-      bodySmall: body.bodySmall,
-      labelLarge: body.labelLarge?.copyWith(
+      titleSmall: TextStyle(
+        fontSize: 15,
         fontWeight: FontWeight.w600,
-        letterSpacing: 0.2,
+        letterSpacing: -0.24,
+        color: label,
       ),
-      labelMedium: body.labelMedium?.copyWith(
-        fontWeight: FontWeight.w500,
-        letterSpacing: 0.1,
+      bodyLarge: iosBody(brightness).copyWith(color: label),
+      bodyMedium: TextStyle(
+        fontSize: 15,
+        fontWeight: FontWeight.w400,
+        letterSpacing: -0.24,
+        color: label,
       ),
-      labelSmall: body.labelSmall?.copyWith(
-        fontWeight: FontWeight.w500,
-        letterSpacing: 0.2,
+      bodySmall: iosFootnote(brightness).copyWith(color: secondary),
+      labelLarge: TextStyle(
+        fontSize: 15,
+        fontWeight: FontWeight.w600,
+        letterSpacing: -0.24,
+        color: label,
       ),
+      labelMedium: iosCaption(brightness).copyWith(color: secondary),
+      labelSmall: iosCaption(brightness).copyWith(color: secondary),
     );
   }
 
-  /// Label caps premium — hierarquia editorial (ReuniAI).
-  static TextStyle labelCaps(Brightness brightness) {
+  static TextStyle iosLargeTitle(Brightness brightness) {
     return TextStyle(
-      fontSize: 11,
+      fontSize: 34,
+      fontWeight: FontWeight.w700,
+      letterSpacing: 0.37,
+      color: brightness == Brightness.dark ? Colors.white : Colors.black,
+    );
+  }
+
+  static TextStyle iosHeadline(Brightness brightness) {
+    return TextStyle(
+      fontSize: 17,
       fontWeight: FontWeight.w600,
-      letterSpacing: 1.1,
-      color: brightness == Brightness.dark
-          ? const Color(0xFF94A3B8)
-          : const Color(0xFF737373),
+      letterSpacing: -0.41,
+      color: brightness == Brightness.dark ? Colors.white : Colors.black,
+    );
+  }
+
+  static TextStyle iosBody(Brightness brightness) {
+    return TextStyle(
+      fontSize: 17,
+      fontWeight: FontWeight.w400,
+      letterSpacing: -0.41,
+      color: brightness == Brightness.dark ? Colors.white : Colors.black,
+    );
+  }
+
+  static TextStyle iosFootnote(Brightness brightness) {
+    return TextStyle(
+      fontSize: 13,
+      fontWeight: FontWeight.w400,
+      letterSpacing: -0.08,
+      color: const Color(0xFF8E8E93),
+    );
+  }
+
+  static TextStyle iosCaption(Brightness brightness) {
+    return TextStyle(
+      fontSize: 10,
+      fontWeight: FontWeight.w500,
+      letterSpacing: 0.12,
+      color: const Color(0xFF8E8E93),
+    );
+  }
+
+  /// Cabeçalho de seção agrupada iOS (Settings).
+  static TextStyle iosSectionHeader(Brightness brightness) {
+    return TextStyle(
+      fontSize: 13,
+      fontWeight: FontWeight.w400,
+      letterSpacing: -0.08,
+      color: const Color(0xFF8E8E93),
+    );
+  }
+
+  static TextStyle labelCaps(Brightness brightness) {
+    return iosSectionHeader(brightness).copyWith(
+      fontWeight: FontWeight.w600,
+      letterSpacing: 0.6,
     );
   }
 }
