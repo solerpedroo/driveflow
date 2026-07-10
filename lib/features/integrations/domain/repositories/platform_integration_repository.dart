@@ -25,11 +25,15 @@ class PlatformSyncResult {
   bool get hasImports => importedCount > 0 || tripsImported > 0;
 }
 
+import '../entities/platform_oauth_session.dart';
+
 /// Contrato de repositório para integrações Uber/99/InDrive.
 abstract class PlatformIntegrationRepository {
   Stream<List<PlatformConnectionEntity>> watchConnections();
 
   Future<List<PlatformConnectionEntity>> fetchConnections();
+
+  Future<PlatformOAuthSession> startOAuth(RidePlatform platform);
 
   Future<PlatformConnectionEntity> connectPlatform(RidePlatform platform);
 
