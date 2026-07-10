@@ -1,6 +1,7 @@
 import '../../../../core/constants/ride_platforms.dart';
 import '../entities/platform_net_profit_slice.dart';
 import '../entities/platform_trip_entity.dart';
+import 'platform_analytics_breakdown.dart';
 
 /// Lucro líquido por app: payout − custo combustível estimado.
 abstract final class PlatformNetProfitCalculator {
@@ -11,7 +12,9 @@ abstract final class PlatformNetProfitCalculator {
     final byPlatform = <RidePlatform, List<PlatformTripEntity>>{};
 
     for (final trip in trips) {
-      if (!trip.isCompleted) continue;
+      if (!trip.isCompleted || !PlatformAnalyticsBreakdown.integratable.contains(trip.platform)) {
+        continue;
+      }
       byPlatform.putIfAbsent(trip.platform, () => []).add(trip);
     }
 
