@@ -4,163 +4,137 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/constants/ride_platforms.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/currency_formatter.dart';
-import '../../../../shared/widgets/design_system/df_card.dart';
+import '../../../../core/utils/value_visibility_provider.dart';
 import '../../../../shared/widgets/design_system/df_empty_state.dart';
-import '../../../../shared/widgets/design_system/df_section_header.dart';
-import '../../../../shared/widgets/design_system/df_skeleton.dart';
+import '../../../../shared/widgets/design_system/df_expandable_list_section.dart';
 import '../../../../shared/widgets/design_system/df_filter_pill.dart';
+import '../../../../shared/widgets/design_system/df_header_row.dart';
+import '../../../../shared/widgets/design_system/df_hero_wealth_card.dart';
+import '../../../../shared/widgets/design_system/df_pill_action_button.dart';
+import '../../../../shared/widgets/design_system/df_skeleton.dart';
+import '../../../../shared/widgets/design_system/df_tab_scroll_view.dart';
 import '../../../../shared/widgets/driveflow_period_filter.dart';
 import '../providers/earnings_providers.dart';
 import '../widgets/earning_tile.dart';
 
-/// Listagem de ganhos com filtros de período e plataforma.
+/// Ganhos no padrão Mescla Carteira — hero, ações 2×2, movimentações.
 class EarningsScreen extends ConsumerWidget {
   const EarningsScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
     final period = ref.watch(earningsPeriodProvider);
     final platformFilter = ref.watch(earningsPlatformFilterProvider);
     final earningsAsync = ref.watch(earningsListProvider);
     final totalAsync = ref.watch(earningsTotalProvider);
+    final hidden = ref.watch(valueVisibilityHiddenProvider);
 
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: RefreshIndicator(
-        onRefresh: () async {
-          await ref.read(earningsRepositoryProvider).fetchEarnings();
-        },
-        child: CustomScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          slivers: [
-            SliverToBoxAdapter(
-              child: DfScreenTitle(
-                title: 'Ganhos',
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    DriveFlowPeriodFilter(
-                      value: period,
-                      onChanged: (p) =>
-                          ref.read(earningsPeriodProvider.notifier).state = p,
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: [
-                          DfFilterPill(
-                            label: 'Todas',
-                            selected: platformFilter == null,
-                            onSelected: () => ref
-                                .read(earningsPlatformFilterProvider.notifier)
-                                .state = null,
-                          ),
-                          ...kRidePlatforms.map(
-                            (platform) => Padding(
-                              padding:
-                                  const EdgeInsets.only(left: AppSpacing.sm),
-                              child: DfFilterPill(
-                                label: platform.label,
-                                selected: platformFilter == platform,
-                                onSelected: () => ref
-                                    .read(
-                                        earningsPlatformFilterProvider.notifier)
-                                    .state = platform,
-                              ),
-                            ),
-                          ),
-                        ],
+      body: earningsAsync.when(
+        loading: () => const Center(child: DfSkeleton(itemCount: 4)),
+        error: (e, _) => Center(child: Text('Erro: $e')),
+        data: (earnings) => DfTabScrollView(
+          onRefresh: () async {
+            await ref.read(earningsRepositoryProvider).fetchEarnings();
+          },
+          children: [
+            const DfHeaderRow(),
+            DfScreenTitleRow(
+              title: 'Ganhos',
+              hidden: hidden,
+              onToggleVisibility: () => ref
+                  .read(valueVisibilityHiddenProvider.notifier)
+                  .state = !hidden,
+            ),
+            totalAsync.when(
+              loading: () => const SizedBox(
+                height: 140,
+                child: Center(child: CircularProgressIndicator()),
+              ),
+              error: (_, __) => const SizedBox.shrink(),
+              data: (total) => DfHeroWealthCard(
+                label: 'Total no período',
+                value: CurrencyFormatter.format(total),
+                badge: '${earnings.length} registros',
+                hideValue: hidden,
+              ),
+            ),
+            DfPillActionGrid(
+              actions: [
+                DfPillActionButton(
+                  icon: Icons.add_circle_outline,
+                  label: 'Novo ganho',
+                  onTap: () => context.push(AppRoutes.earningForm),
+                ),
+                DfPillActionButton(
+                  icon: Icons.hub_outlined,
+                  label: 'Integrações',
+                  onTap: () => context.push(AppRoutes.platformIntegrations),
+                ),
+                DfPillActionButton(
+                  icon: Icons.flag_outlined,
+                  label: 'Metas',
+                  onTap: () => context.push(AppRoutes.goals),
+                ),
+                DfPillActionButton(
+                  icon: Icons.bar_chart_rounded,
+                  label: 'Relatórios',
+                  onTap: () => context.go('${AppRoutes.home}?tab=reports'),
+                ),
+              ],
+            ),
+            DriveFlowPeriodFilter(
+              value: period,
+              onChanged: (p) =>
+                  ref.read(earningsPeriodProvider.notifier).state = p,
+            ),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  DfFilterPill(
+                    label: 'Todas',
+                    selected: platformFilter == null,
+                    onSelected: () => ref
+                        .read(earningsPlatformFilterProvider.notifier)
+                        .state = null,
+                  ),
+                  ...kRidePlatforms.map(
+                    (platform) => Padding(
+                      padding: const EdgeInsets.only(left: AppSpacing.sm),
+                      child: DfFilterPill(
+                        label: platform.label,
+                        selected: platformFilter == platform,
+                        onSelected: () => ref
+                            .read(earningsPlatformFilterProvider.notifier)
+                            .state = platform,
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
-            SliverPadding(
-              padding: const EdgeInsets.fromLTRB(
-                AppSpacing.screenHorizontal,
-                AppSpacing.lg,
-                AppSpacing.screenHorizontal,
-                0,
+            if (earnings.isEmpty)
+              const DfEmptyState(
+                variant: DfEmptyStateVariant.illustrated,
+                icon: Icons.payments_outlined,
+                title: 'Nenhum ganho neste período',
+                subtitle:
+                    'Toque em Novo ganho para registrar sua primeira corrida.',
+              )
+            else
+              DfExpandableListSection(
+                title: 'Minhas movimentações',
+                eyebrow: 'Ganhos',
+                itemCount: earnings.length,
+                itemBuilder: (context, index) =>
+                    EarningTile(earning: earnings[index]),
               ),
-              sliver: SliverToBoxAdapter(
-                child: DfCard(
-                  child: Row(
-                    children: [
-                      const Icon(Icons.payments_outlined,
-                          color: AppColors.profitGreen),
-                      const SizedBox(width: AppSpacing.md),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Total no período',
-                                style: theme.textTheme.labelMedium),
-                            totalAsync.when(
-                              loading: () => const Text('...'),
-                              error: (e, _) => const Text('Erro'),
-                              data: (total) => Text(
-                                CurrencyFormatter.format(total),
-                                style: theme.textTheme.headlineSmall?.copyWith(
-                                  color: AppColors.profitGreen,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            earningsAsync.when(
-              loading: () => const SliverFillRemaining(child: DfSkeleton()),
-              error: (e, _) => SliverFillRemaining(
-                child: Center(child: Text('Erro: $e')),
-              ),
-              data: (earnings) {
-                if (earnings.isEmpty) {
-                  return const SliverFillRemaining(
-                    hasScrollBody: false,
-                    child: DfEmptyState(
-                      variant: DfEmptyStateVariant.illustrated,
-                      icon: Icons.payments_outlined,
-                      title: 'Nenhum ganho neste período',
-                      subtitle:
-                          'Toque em + Ganho para registrar sua primeira corrida.',
-                    ),
-                  );
-                }
-                return SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(
-                    AppSpacing.screenHorizontal,
-                    AppSpacing.lg,
-                    AppSpacing.screenHorizontal,
-                    96,
-                  ),
-                  sliver: SliverList.separated(
-                    itemCount: earnings.length,
-                    separatorBuilder: (_, __) =>
-                        const SizedBox(height: AppSpacing.sm),
-                    itemBuilder: (context, index) =>
-                        EarningTile(earning: earnings[index]),
-                  ),
-                );
-              },
-            ),
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.push(AppRoutes.earningForm),
-        icon: const Icon(Icons.add_rounded),
-        label: const Text('Ganho'),
       ),
     );
   }
