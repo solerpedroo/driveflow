@@ -36,6 +36,7 @@ class MainShellScreen extends HookConsumerWidget {
   static int? _tabFromGoRouter(BuildContext context) {
     try {
       final tabParam = GoRouterState.of(context).uri.queryParameters['tab'];
+      if (tabParam == null || tabParam.isEmpty) return null;
       return DriveFlowTab.fromQueryParam(tabParam);
     } catch (_) {
       return null;
@@ -44,6 +45,11 @@ class MainShellScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final router = GoRouter.maybeOf(context);
+    if (router != null) {
+      useListenable(router.routerDelegate);
+    }
+
     final localTab = useState(initialTab);
     final routeTab = _tabFromGoRouter(context);
     final selectedIndex = routeTab ?? localTab.value;
@@ -60,24 +66,24 @@ class MainShellScreen extends HookConsumerWidget {
     );
 
     void onNavIndexChanged(int index) {
-      activatedTabs.value = {...activatedTabs.value, index};
-      if (routeTab != null) {
-        context.go(_homeLocationForTab(index));
-        return;
-      }
       localTab.value = index;
+      activatedTabs.value = {...activatedTabs.value, index};
+      if (router != null) {
+        context.go(_homeLocationForTab(index));
+      }
     }
 
     useEffect(() {
-      activatedTabs.value = {...activatedTabs.value, selectedIndex};
+      localTab.value = initialTab;
+      activatedTabs.value = {...activatedTabs.value, initialTab, selectedIndex};
       return null;
-    }, [selectedIndex]);
+    }, [initialTab, selectedIndex]);
 
     return DriveFlowMainShell(
       selectedIndex: selectedIndex,
       onNavIndexChanged: onNavIndexChanged,
       tabBodies: tabBodies,
-      activatedTabIndices: activatedTabs.value,
+      activatedTabIndices: {...activatedTabs.value, selectedIndex},
     );
   }
 }
