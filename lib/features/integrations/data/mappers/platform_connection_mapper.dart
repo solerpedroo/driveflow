@@ -18,6 +18,7 @@ abstract final class PlatformConnectionMapper {
           row[PlatformConnectionsSchema.externalAccountId] as String?,
       lastSyncedAt: _toDateTime(row[PlatformConnectionsSchema.lastSyncedAt]),
       lastSyncError: row[PlatformConnectionsSchema.lastSyncError] as String?,
+      metadata: _metadata(row[PlatformConnectionsSchema.metadata]),
       createdAt: _toDateTime(row[PlatformConnectionsSchema.createdAt]),
       updatedAt: _toDateTime(row[PlatformConnectionsSchema.updatedAt]),
     );
@@ -66,5 +67,11 @@ abstract final class PlatformConnectionMapper {
     if (value == null) return null;
     if (value is DateTime) return value.toLocal();
     return DateTime.tryParse(value.toString())?.toLocal();
+  }
+
+  static Map<String, dynamic> _metadata(Object? value) {
+    if (value is Map<String, dynamic>) return value;
+    if (value is Map) return Map<String, dynamic>.from(value);
+    return const {};
   }
 }
