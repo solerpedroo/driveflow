@@ -27,4 +27,6 @@ class PlatformSyncLogEntity {
   final DateTime createdAt;
 
   bool get isSuccess => status == 'success';
+  bool get isPartial => status == 'partial';
+  bool get isError => status == 'error';
 }
