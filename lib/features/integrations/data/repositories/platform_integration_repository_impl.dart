@@ -60,11 +60,7 @@ class PlatformIntegrationRepositoryImpl implements PlatformIntegrationRepository
   Future<PlatformConnectionEntity> disconnectPlatform(
     RidePlatform platform,
   ) async {
-    final row = await _connections.upsertConnection(
-      platform: platform,
-      status: IntegrationStatus.disconnected,
-      lastSyncError: null,
-    );
+    final row = await _connections.disconnectConnection(platform: platform);
     return PlatformConnectionMapper.fromRow(row);
   }
 
