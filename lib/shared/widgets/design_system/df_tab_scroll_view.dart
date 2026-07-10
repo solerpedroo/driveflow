@@ -17,20 +17,31 @@ class DfTabScrollView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final content = SingleChildScrollView(
-      physics: onRefresh != null
-          ? const AlwaysScrollableScrollPhysics()
-          : null,
-      padding: DfScreenBody.padding.copyWith(bottom: bottomPadding),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          for (var i = 0; i < children.length; i++) ...[
-            if (i > 0) const SizedBox(height: DfScreenBody.sectionGap),
-            children[i],
-          ],
-        ],
-      ),
+    final content = LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.hasBoundedWidth && constraints.maxWidth.isFinite
+            ? constraints.maxWidth
+            : MediaQuery.sizeOf(context).width;
+
+        return SingleChildScrollView(
+          physics: onRefresh != null
+              ? const AlwaysScrollableScrollPhysics()
+              : null,
+          padding: DfScreenBody.padding.copyWith(bottom: bottomPadding),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minWidth: width, maxWidth: width),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (var i = 0; i < children.length; i++) ...[
+                  if (i > 0) const SizedBox(height: DfScreenBody.sectionGap),
+                  children[i],
+                ],
+              ],
+            ),
+          ),
+        );
+      },
     );
 
     if (onRefresh == null) return content;
