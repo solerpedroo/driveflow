@@ -18,13 +18,14 @@ abstract final class PlatformMixSimulator {
   }) {
     final normalized = _normalize(mixPercent);
     final profitPerHour = <RidePlatform, double>{};
+    final revenuePerHour = <RidePlatform, double>{};
 
     for (final slice in netSlices) {
       if (!integratable.contains(slice.platform)) continue;
-      final hours = slice.tripCount * 0.5;
-      if (hours > 0) {
-        profitPerHour[slice.platform] = slice.netAmount / hours;
-      }
+      if (slice.workedHours <= 0) continue;
+
+      profitPerHour[slice.platform] = slice.netAmount / slice.workedHours;
+      revenuePerHour[slice.platform] = slice.grossAmount / slice.workedHours;
     }
 
     var projectedProfit = 0.0;
@@ -34,20 +35,16 @@ abstract final class PlatformMixSimulator {
 
     for (final platform in integratable) {
       final share = (normalized[platform] ?? 0) / 100;
-      final rate = profitPerHour[platform] ?? 0;
-      projectedProfit += rate * hoursPerDay * workingDaysPerMonth * share;
+      final profitRate = profitPerHour[platform] ?? 0;
+      final revenueRate = revenuePerHour[platform] ?? 0;
 
-      final grossSlice = netSlices
-          .where((s) => s.platform == platform)
-          .firstOrNull;
-      if (grossSlice != null && grossSlice.tripCount > 0) {
-        final revPerHour =
-            grossSlice.grossAmount / (grossSlice.tripCount * 0.5);
-        projectedRevenue += revPerHour * hoursPerDay * workingDaysPerMonth * share;
-      }
+      projectedProfit +=
+          profitRate * hoursPerDay * workingDaysPerMonth * share;
+      projectedRevenue +=
+          revenueRate * hoursPerDay * workingDaysPerMonth * share;
 
-      if (rate > bestRate) {
-        bestRate = rate;
+      if (profitRate > bestRate) {
+        bestRate = profitRate;
         best = platform;
       }
     }
@@ -74,13 +71,5 @@ abstract final class PlatformMixSimulator {
       for (final entry in filtered.entries)
         entry.key: (entry.value / total) * 100,
     };
-  }
-}
-
-extension _FirstOrNull<E> on Iterable<E> {
-  E? get firstOrNull {
-    final iterator = this.iterator;
-    if (!iterator.moveNext()) return null;
-    return iterator.current;
   }
 }
