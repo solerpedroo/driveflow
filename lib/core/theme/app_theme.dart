@@ -46,9 +46,9 @@ PageTransitionsTheme get driveFlowPageTransitionsTheme {
 ThemeData buildDriveFlowLightTheme() {
   const colorScheme = ColorScheme(
     brightness: Brightness.light,
-    primary: AppColors.systemBlue,
+    primary: AppColors.brandBlue,
     onPrimary: Colors.white,
-    secondary: AppColors.systemBlue,
+    secondary: AppColors.brandBlue,
     onSecondary: Colors.white,
     error: AppColors.expenseCoral,
     onError: Colors.white,
@@ -65,7 +65,7 @@ ThemeData buildDriveFlowLightTheme() {
     scaffoldBackgroundColor: AppColors.iosGroupedBackground,
     pageTransitionsTheme: driveFlowPageTransitionsTheme,
     splashFactory: NoSplash.splashFactory,
-    highlightColor: AppColors.systemBlue.withValues(alpha: 0.08),
+    highlightColor: AppColors.brandBlue.withValues(alpha: 0.08),
     appBarTheme: AppBarTheme(
       elevation: 0,
       scrolledUnderElevation: 0,
@@ -87,7 +87,7 @@ ThemeData buildDriveFlowLightTheme() {
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
-        backgroundColor: AppColors.systemBlue,
+        backgroundColor: AppColors.brandBlue,
         foregroundColor: Colors.white,
         minimumSize: const Size.fromHeight(50),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
@@ -113,7 +113,7 @@ ThemeData buildDriveFlowLightTheme() {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: AppColors.systemBlue, width: 1.5),
+        borderSide: const BorderSide(color: AppColors.brandBlue, width: 1.5),
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       hintStyle: AppTypography.iosBody(Brightness.light).copyWith(
@@ -134,7 +134,7 @@ ThemeData buildDriveFlowLightTheme() {
 ThemeData buildDriveFlowDarkTheme() {
   const colorScheme = ColorScheme(
     brightness: Brightness.dark,
-    primary: AppColors.systemBlue,
+    primary: AppColors.brandBlue,
     onPrimary: Colors.white,
     secondary: AppColors.systemBlueDark,
     onSecondary: Colors.white,
@@ -153,7 +153,7 @@ ThemeData buildDriveFlowDarkTheme() {
     scaffoldBackgroundColor: AppColors.iosGroupedBackgroundDark,
     pageTransitionsTheme: driveFlowPageTransitionsTheme,
     splashFactory: NoSplash.splashFactory,
-    highlightColor: AppColors.systemBlue.withValues(alpha: 0.12),
+    highlightColor: AppColors.brandBlue.withValues(alpha: 0.12),
     appBarTheme: AppBarTheme(
       elevation: 0,
       scrolledUnderElevation: 0,
@@ -175,7 +175,7 @@ ThemeData buildDriveFlowDarkTheme() {
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
-        backgroundColor: AppColors.systemBlue,
+        backgroundColor: AppColors.brandBlue,
         foregroundColor: Colors.white,
         minimumSize: const Size.fromHeight(50),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
@@ -201,7 +201,7 @@ ThemeData buildDriveFlowDarkTheme() {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: AppColors.systemBlue, width: 1.5),
+        borderSide: const BorderSide(color: AppColors.brandBlue, width: 1.5),
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       hintStyle: AppTypography.iosBody(Brightness.dark).copyWith(
