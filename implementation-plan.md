@@ -42,7 +42,7 @@ Plano de implementação em **34 ondas** (0–34) para o DriveFlow (Flutter + Su
 | 31 | Turno inteligente — heatmap 7×24, plano de turno, simulador de mix | em andamento |
 | 32 | Caixa e metas — calendário de repasses, metas por app, take rate temporal | em andamento |
 | 33 | Pro analytics — regiões, consistência, PDF visual, IA com séries temporais | em andamento |
-| 34 | Apple Premium UI — Geist, profundidade Wallet/Cash App, anti–vibe-coding | em andamento |
+| 34 | Apple Premium UI — Geist, profundidade Wallet/Cash App, anti–vibe-coding | concluída |
 
 ---
 
@@ -1520,15 +1520,15 @@ Substituir `electricTeal` como cor de marca por tons de azul-claro. Verde perman
 
 ### Critérios de conclusão
 
-- [ ] `google_fonts` ≥ 7.0 e tipografia principal 100% Geist
-- [ ] Zero `mesclaIndigo` em heróis / mesh / brand cards
-- [ ] Zero glow na bottom nav; active state quieto
-- [ ] Fundo sem animação infinita de mesh
-- [ ] Dashboard sem lucro do mês duplicado em 2+ heróis tipográficos
-- [ ] `DfMovimentacaoTile` sem `DfCard` wrapping por linha
-- [ ] Labels principais sentence-case (sem `BOM DIA, NAME` caps)
-- [ ] Commits atômicos por arquivo
-- [ ] `flutter analyze` limpo + testes existentes passando
+- [x] `google_fonts` ≥ 7.0 e tipografia principal 100% Geist
+- [x] Zero `mesclaIndigo` em heróis / mesh / brand cards
+- [x] Zero glow na bottom nav; active state quieto
+- [x] Fundo sem animação infinita de mesh
+- [x] Dashboard sem lucro do mês duplicado em 2+ heróis tipográficos
+- [x] `DfMovimentacaoTile` sem `DfCard` wrapping por linha
+- [x] Labels principais sentence-case (sem `BOM DIA, NAME` caps)
+- [x] Commits atômicos por arquivo
+- [x] `flutter analyze` limpo nas áreas alteradas + testes de UI passando
 
 ### Ordem de commits (atômicos)
 
