@@ -10,6 +10,7 @@ import '../../../../shared/widgets/design_system/df_filter_pill.dart';
 import '../../../../shared/widgets/design_system/df_section_header.dart';
 import '../../../../shared/widgets/design_system/df_skeleton.dart';
 import '../../../../shared/widgets/design_system/df_subpage_scaffold.dart';
+import '../../../../shared/widgets/platform_brand_icon.dart';
 import '../providers/platform_trips_providers.dart';
 import '../widgets/platform_trip_tile.dart';
 
@@ -91,6 +92,11 @@ class PlatformTripsScreen extends ConsumerWidget {
                       child: DfFilterPill(
                         label: platform.label,
                         selected: filter == platform,
+                        leading: PlatformBrandIcon(
+                          platform: platform,
+                          size: 20,
+                          borderRadius: 6,
+                        ),
                         onSelected: () => ref
                             .read(platformTripsFilterProvider.notifier)
                             .state = platform,
