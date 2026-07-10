@@ -49,7 +49,6 @@ class DriveFlowBottomNavBar extends StatelessWidget {
       child: DfGlassSurface(
         borderRadius: BorderRadius.circular(28),
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
-        sigma: 24,
         child: SizedBox(
           height: _itemTrackHeight,
           child: Row(
