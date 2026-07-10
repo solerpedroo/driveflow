@@ -83,6 +83,12 @@ class ImportStatementScreen extends HookConsumerWidget {
 
     final selectedCount =
         preview.where((item) => item.selected && !item.isDuplicate).length;
+    final selectable =
+        preview.where((item) => !item.isDuplicate).toList(growable: false);
+    final allSelected = selectable.isNotEmpty &&
+        selectable.every((item) => item.selected);
+    final noneSelected =
+        selectable.isNotEmpty && selectable.every((item) => !item.selected);
 
     return DfSubpageScaffold(
       title: 'Importar extrato',
@@ -124,7 +130,7 @@ class ImportStatementScreen extends HookConsumerWidget {
               ),
               DfFilterPill(
                 label: 'Todas',
-                selected: false,
+                selected: allSelected,
                 onSelected: () => ref
                     .read(importControllerProvider.notifier)
                     .toggleAll(true),
@@ -132,7 +138,7 @@ class ImportStatementScreen extends HookConsumerWidget {
               const SizedBox(width: 8),
               DfFilterPill(
                 label: 'Nenhuma',
-                selected: false,
+                selected: noneSelected,
                 onSelected: () => ref
                     .read(importControllerProvider.notifier)
                     .toggleAll(false),
