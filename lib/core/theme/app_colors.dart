@@ -1,56 +1,70 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-/// Design tokens — paleta premium azul (referência ReuniAI + Mescla).
+/// Tokens iOS / Cupertino — system colors + azul Apple.
 abstract final class AppColors {
-  // Brand — azul premium
-  static const Color brandBlue = Color(0xFF0064F5);
-  static const Color brandBlueDark = Color(0xFF0047B8);
-  static const Color brandBlueDeep = Color(0xFF002D6E);
-  static const Color brandGlow = Color(0xFFB8D4FF);
-  static const Color brandNavy = Color(0xFF0A192F);
+  // iOS system blue (acento principal)
+  static const Color systemBlue = Color(0xFF007AFF);
+  static const Color systemBlueDark = Color(0xFF0A84FF);
 
-  /// Aliases legados — propagam a nova paleta sem refatorar telas.
-  static const Color skyBlue = brandBlue;
+  // Brand aliases
+  static const Color brandBlue = systemBlue;
+  static const Color brandBlueDark = Color(0xFF0056CC);
+  static const Color brandBlueDeep = Color(0xFF003D99);
+  static const Color brandGlow = Color(0xFF5AC8FA);
+  static const Color brandNavy = Color(0xFF000000);
+
+  static const Color skyBlue = systemBlue;
   static const Color skyBlueDim = brandBlueDark;
   static const Color skyBlueSoft = brandGlow;
 
-  static const Color deepNavy = brandNavy;
-  static const Color midnight = Color(0xFF0F1419);
-  static const Color slate = Color(0xFF1A2332);
+  static const Color deepNavy = Color(0xFF000000);
+  static const Color midnight = Color(0xFF1C1C1E);
+  static const Color slate = Color(0xFF2C2C2E);
 
-  /// @deprecated Use [brandBlue].
-  static const Color electricTeal = brandBlue;
-
-  /// @deprecated Use [brandBlueDark].
+  static const Color electricTeal = systemBlue;
   static const Color electricTealDim = brandBlueDark;
 
   // Semantic
-  static const Color profitGreen = Color(0xFF10B981);
-  static const Color expenseCoral = Color(0xFFEF4444);
-  static const Color warningAmber = Color(0xFFF59E0B);
-  static const Color infoBlue = Color(0xFF38BDF8);
+  static const Color profitGreen = Color(0xFF34C759);
+  static const Color expenseCoral = Color(0xFFFF3B30);
+  static const Color warningAmber = Color(0xFFFF9500);
+  static const Color infoBlue = Color(0xFF5AC8FA);
 
-  // Light mode surfaces — canvas neutro premium
-  static const Color lightBackground = Color(0xFFFAFAFA);
-  static const Color lightSurface = Color(0xFFFFFFFF);
-  static const Color lightMuted = Color(0xFFF5F5F5);
-  static const Color lightBorder = Color(0xFFEBEBEB);
+  // iOS light surfaces
+  static const Color iosGroupedBackground = Color(0xFFF2F2F7);
+  static const Color iosSecondaryGrouped = Color(0xFFFFFFFF);
+  static const Color iosTertiaryGrouped = Color(0xFFF2F2F7);
+  static const Color iosSeparator = Color(0x4C3C3C43);
+  static const Color iosLabel = Color(0xFF000000);
+  static const Color iosSecondaryLabel = Color(0x993C3C43);
+  static const Color iosBarBackgroundLight = Color(0xF0F9F9F9);
 
-  // Text
-  static const Color textPrimary = Color(0xFF252525);
-  static const Color textSecondary = Color(0xFF94A3B8);
-  static const Color textSecondaryLight = Color(0xFF737373);
+  // iOS dark surfaces
+  static const Color iosGroupedBackgroundDark = Color(0xFF000000);
+  static const Color iosSecondaryGroupedDark = Color(0xFF1C1C1E);
+  static const Color iosTertiaryGroupedDark = Color(0xFF2C2C2E);
+  static const Color iosSeparatorDark = Color(0xA6545458);
+  static const Color iosBarBackgroundDark = Color(0xB31C1C1E);
 
-  // Borders & glass
+  // Legacy aliases
+  static const Color lightBackground = iosGroupedBackground;
+  static const Color lightSurface = iosSecondaryGrouped;
+  static const Color lightMuted = iosTertiaryGrouped;
+  static const Color lightBorder = Color(0xFFC6C6C8);
+
+  static const Color textPrimary = iosLabel;
+  static const Color textSecondary = Color(0xFF8E8E93);
+  static const Color textSecondaryLight = iosSecondaryLabel;
+
   static const Color glassBorder = Color(0x33FFFFFF);
-  static const Color glassBorderLight = Color(0x1A0A192F);
+  static const Color glassBorderLight = Color(0xFFC6C6C8);
 
   static const SystemUiOverlayStyle darkOverlay = SystemUiOverlayStyle(
     statusBarColor: Colors.transparent,
     statusBarIconBrightness: Brightness.light,
     statusBarBrightness: Brightness.dark,
-    systemNavigationBarColor: brandNavy,
+    systemNavigationBarColor: iosGroupedBackgroundDark,
     systemNavigationBarIconBrightness: Brightness.light,
   );
 
@@ -58,15 +72,25 @@ abstract final class AppColors {
     statusBarColor: Colors.transparent,
     statusBarIconBrightness: Brightness.dark,
     statusBarBrightness: Brightness.light,
-    systemNavigationBarColor: lightBackground,
+    systemNavigationBarColor: iosGroupedBackground,
     systemNavigationBarIconBrightness: Brightness.dark,
   );
 
+  static Color groupedBackground(Brightness brightness) {
+    return brightness == Brightness.dark
+        ? iosGroupedBackgroundDark
+        : iosGroupedBackground;
+  }
+
+  static Color secondaryGrouped(Brightness brightness) {
+    return brightness == Brightness.dark
+        ? iosSecondaryGroupedDark
+        : iosSecondaryGrouped;
+  }
+
   static List<Color> shellGradient(Brightness brightness) {
-    if (brightness == Brightness.dark) {
-      return const [Color(0xFF0F1419), Color(0xFF0A192F)];
-    }
-    return const [Color(0xFFF8FAFC), Color(0xFFFAFAFA), Color(0xFFFFFFFF)];
+    final bg = groupedBackground(brightness);
+    return [bg, bg];
   }
 
   static List<Color> ambientGradient(Brightness brightness) {
@@ -74,59 +98,46 @@ abstract final class AppColors {
   }
 
   static List<Color> accentGlow(Brightness brightness) {
-    if (brightness == Brightness.dark) {
-      return [
-        brandBlue.withValues(alpha: 0.22),
-        brandGlow.withValues(alpha: 0.08),
-        Colors.transparent,
-      ];
-    }
-    return [
-      brandBlue.withValues(alpha: 0.12),
-      brandGlow.withValues(alpha: 0.06),
-      Colors.transparent,
-    ];
+    return [Colors.transparent, Colors.transparent];
   }
 
   static Color cardSurface(ThemeData theme) {
-    if (theme.brightness == Brightness.dark) {
-      return slate.withValues(alpha: 0.72);
-    }
-    return lightSurface;
+    return secondaryGrouped(theme.brightness);
   }
 
   static Color mutedSurface(ThemeData theme) {
     if (theme.brightness == Brightness.dark) {
-      return midnight;
+      return iosTertiaryGroupedDark;
     }
-    return lightMuted;
+    return iosTertiaryGrouped;
   }
 
   static Color secondaryLabel(ThemeData theme) {
     if (theme.brightness == Brightness.dark) {
-      return textSecondary;
+      return const Color(0xFF8E8E93);
     }
-    return textSecondaryLight;
+    return const Color(0xFF8E8E93);
   }
 
   static Color bottomNavInactive(ThemeData theme) {
-    if (theme.brightness == Brightness.dark) {
-      return textSecondary;
-    }
-    return const Color(0xFF9CA3AF);
+    return const Color(0xFF8E8E93);
   }
 
   static Color bottomNavBarShell(ThemeData theme) {
     if (theme.brightness == Brightness.dark) {
-      return slate.withValues(alpha: 0.92);
+      return iosBarBackgroundDark;
     }
-    return lightSurface.withValues(alpha: 0.88);
+    return iosBarBackgroundLight;
   }
 
   static Color border(ThemeData theme) {
     if (theme.brightness == Brightness.dark) {
-      return Colors.white.withValues(alpha: 0.08);
+      return iosSeparatorDark;
     }
-    return lightBorder;
+    return iosSeparator;
+  }
+
+  static Color separator(ThemeData theme) {
+    return border(theme);
   }
 }
