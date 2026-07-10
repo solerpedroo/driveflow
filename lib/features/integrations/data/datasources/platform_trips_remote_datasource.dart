@@ -33,15 +33,15 @@ class PlatformTripsRemoteDataSource {
     var builder = _client
         .from(PlatformTripsSchema.table)
         .select()
-        .eq(PlatformTripsSchema.userId, userId)
-        .order(PlatformTripsSchema.startedAt, ascending: false)
-        .limit(limit);
+        .eq(PlatformTripsSchema.userId, userId);
 
     if (platform != null) {
       builder = builder.eq(PlatformTripsSchema.platform, platform.value);
     }
 
-    final rows = await builder;
+    final rows = await builder
+        .order(PlatformTripsSchema.startedAt, ascending: false)
+        .limit(limit);
     return List<Map<String, dynamic>>.from(rows);
   }
 }
