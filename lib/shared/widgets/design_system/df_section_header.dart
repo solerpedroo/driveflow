@@ -128,13 +128,13 @@ class CupertinoStyleTextButton extends StatelessWidget {
     return TextButton(
       onPressed: onPressed,
       style: TextButton.styleFrom(
-        foregroundColor: AppColors.systemBlue,
+        foregroundColor: AppColors.brandBlue,
         padding: const EdgeInsets.symmetric(horizontal: 8),
       ),
       child: Text(
         label,
         style: AppTypography.iosBody(Theme.of(context).brightness).copyWith(
-          color: AppColors.systemBlue,
+          color: AppColors.brandBlue,
           fontWeight: FontWeight.w400,
         ),
       ),
