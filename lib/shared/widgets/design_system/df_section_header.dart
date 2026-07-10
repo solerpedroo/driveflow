@@ -4,7 +4,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 
-/// Cabeçalho de seção estilo iOS — uppercase muted + título.
+/// Cabeçalho de seção — eyebrow sentence-case + título.
 class DfSectionHeader extends StatelessWidget {
   const DfSectionHeader({
     required this.title,
@@ -35,10 +35,9 @@ class DfSectionHeader extends StatelessWidget {
               children: [
                 if (eyebrow != null) ...[
                   Text(
-                    eyebrow!.toUpperCase(),
+                    eyebrow!,
                     style: AppTypography.iosSectionHeader(brightness).copyWith(
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 0.4,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                   const SizedBox(height: 4),
