@@ -28,12 +28,10 @@ class ExpensesScreen extends ConsumerWidget {
     final totalAsync = ref.watch(expensesTotalProvider);
     final hidden = ref.watch(valueVisibilityHiddenProvider);
 
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: groupedAsync.when(
-        loading: () => const Center(child: DfSkeleton(itemCount: 4)),
-        error: (e, _) => Center(child: Text('Erro: $e')),
-        data: (grouped) {
+    return groupedAsync.when(
+      loading: () => const Center(child: DfSkeleton(itemCount: 4)),
+      error: (e, _) => Center(child: Text('Erro: $e')),
+      data: (grouped) {
           final categories = grouped.keys.toList()
             ..sort((a, b) => a.label.compareTo(b.label));
           final itemCount = grouped.values.fold<int>(
@@ -119,7 +117,6 @@ class ExpensesScreen extends ConsumerWidget {
             ],
           );
         },
-      ),
     );
   }
 }
