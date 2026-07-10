@@ -19,7 +19,6 @@ import '../../../vehicle/domain/entities/vehicle_entity.dart';
 import '../../../vehicle/presentation/providers/vehicle_providers.dart';
 import '../../../vehicle/presentation/widgets/vehicle_scope_chip.dart';
 import '../../../../core/constants/app_constants.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/currency_formatter.dart';
@@ -43,15 +42,18 @@ import '../widgets/dashboard_upgrade_banner.dart';
 import '../widgets/month_summary_card.dart';
 import '../widgets/weekly_profit_chart.dart';
 
-/// Dashboard reorganizado no padrão Mescla Início — hero, resumos, seções.
+/// Dashboard — hierarquia Wallet: um hero de mês + seção Hoje.
 class DashboardScreen extends HookConsumerWidget {
   const DashboardScreen({super.key});
 
-  static String _greetingCaps(int hour, String name) {
-    final first = name.split(RegExp(r'\s+')).first.toUpperCase();
-    if (hour < 12) return 'BOM DIA, $first';
-    if (hour < 18) return 'BOA TARDE, $first';
-    return 'BOA NOITE, $first';
+  static String _greeting(int hour, String name) {
+    final first = name.split(RegExp(r'\s+')).first;
+    final capitalized = first.isEmpty
+        ? 'motorista'
+        : '${first[0].toUpperCase()}${first.substring(1)}';
+    if (hour < 12) return 'Bom dia, $capitalized';
+    if (hour < 18) return 'Boa tarde, $capitalized';
+    return 'Boa noite, $capitalized';
   }
 
   @override
@@ -71,7 +73,7 @@ class DashboardScreen extends HookConsumerWidget {
 
     final displayName = user?.displayName ?? 'motorista';
     final greeting = useMemoized(
-      () => _greetingCaps(DateTime.now().hour, displayName),
+      () => _greeting(DateTime.now().hour, displayName),
       [displayName],
     );
 
@@ -157,7 +159,7 @@ class _DashboardBody extends StatelessWidget {
         const DfHeaderRow(),
         Text(greeting, style: AppTypography.labelCaps(brightness)),
         DfScreenTitleRow(
-          title: 'Seu painel financeiro',
+          title: 'Seu painel',
           hidden: hidden,
           onToggleVisibility: onToggleVisibility,
         ),
@@ -226,19 +228,19 @@ class _DashboardBody extends StatelessWidget {
             ),
           ],
         ),
-        Column(
+        const Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const DfSectionHeader(
+            DfSectionHeader(
               title: 'Mix de plataformas',
               eyebrow: 'Hoje',
             ),
-            const SizedBox(height: AppSpacing.md),
-            const DashboardPlatformMixCard(),
+            SizedBox(height: AppSpacing.md),
+            DashboardPlatformMixCard(),
           ],
         ),
         WeeklyProfitChart(points: snapshot.weekProfits),
-        MonthSummaryCard(summary: month),
+        MonthSummaryCard(summary: month, hideHeroProfit: true),
         if (topSlots.isNotEmpty || topPrediction != null)
           DashboardInsightsSummary(
             topSlots: topSlots,
@@ -274,11 +276,10 @@ class _HeroMiniStat extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          label.toUpperCase(),
+          label,
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: Colors.white.withValues(alpha: 0.75),
-                letterSpacing: 0.8,
-                fontWeight: FontWeight.w600,
+                color: Colors.white.withValues(alpha: 0.70),
+                fontWeight: FontWeight.w500,
               ),
         ),
         const SizedBox(height: 4),
@@ -287,6 +288,7 @@ class _HeroMiniStat extends StatelessWidget {
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 color: Colors.white,
                 fontWeight: FontWeight.w700,
+                fontFeatures: const [FontFeature.tabularFigures()],
               ),
         ),
       ],
