@@ -41,14 +41,11 @@ class AnalyticsScreen extends ConsumerWidget {
 
     return DfSubpageScaffold(
       title: 'Análises',
+      valueHidden: hidden,
+      onToggleValueVisibility: () => ref
+          .read(valueVisibilityHiddenProvider.notifier)
+          .state = !hidden,
       children: [
-        DfScreenTitleRow(
-          title: 'Evolução e comparação',
-          hidden: hidden,
-          onToggleVisibility: () => ref
-              .read(valueVisibilityHiddenProvider.notifier)
-              .state = !hidden,
-        ),
         const Align(
           alignment: Alignment.centerLeft,
           child: VehicleScopeChip(),
