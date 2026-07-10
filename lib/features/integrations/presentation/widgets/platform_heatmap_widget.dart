@@ -75,9 +75,15 @@ class _HeatmapGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final lookup = {
-      for (final s in slots) '${s.weekday}-${s.hour}': s,
-    };
+    final lookup = <String, PlatformHeatmapSlot>{};
+    for (final slot in slots) {
+      final key = '${slot.weekday}-${slot.hour}';
+      final existing = lookup[key];
+      if (existing == null ||
+          slot.revenuePerHour > existing.revenuePerHour) {
+        lookup[key] = slot;
+      }
+    }
 
     return Column(
       children: [
