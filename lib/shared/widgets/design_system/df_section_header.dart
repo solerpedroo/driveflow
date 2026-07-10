@@ -64,6 +64,9 @@ class DfSectionHeader extends StatelessWidget {
 }
 
 /// Título grande estilo iOS Large Title.
+///
+/// Preferir [DfScreenTitleRow] nas abas do shell Mescla.
+@Deprecated('Use DfScreenTitleRow no padrão Mescla')
 class DfScreenTitle extends StatelessWidget {
   const DfScreenTitle({
     required this.title,
