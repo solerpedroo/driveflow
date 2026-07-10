@@ -1,8 +1,8 @@
 # DriveFlow — implementation-plan.md
 
-Plano de implementação em **33 ondas** (0–33) para o DriveFlow (Flutter + Supabase + Groq), partindo de repositório vazio, combinando Clean Architecture feature-first do escopo com os padrões de organização do projeto MesclaInvest (screens/widgets/services separados, shell de navegação, mappers, test hooks).
+Plano de implementação em **34 ondas** (0–34) para o DriveFlow (Flutter + Supabase + Groq), partindo de repositório vazio, combinando Clean Architecture feature-first do escopo com os padrões de organização do projeto MesclaInvest (screens/widgets/services separados, shell de navegação, mappers, test hooks).
 
-**Fases:** ondas **0–9** = MVP v1.0 · ondas **10–14** = features pós-MVP · ondas **15–23** = Design System + Premium UI · ondas **24–29** = Integrações Uber/99/InDrive + inteligência cross-platform · ondas **30–33** = Analytics avançado por app + turno inteligente + caixa/metas + Pro analytics.
+**Fases:** ondas **0–9** = MVP v1.0 · ondas **10–14** = features pós-MVP · ondas **15–23** = Design System + Premium UI · ondas **24–29** = Integrações Uber/99/InDrive + inteligência cross-platform · ondas **30–33** = Analytics avançado por app + turno inteligente + caixa/metas + Pro analytics · onda **34** = Apple Premium UI (Geist + profundidade + hierarquia).
 
 **Repositório:** `driveflow`  
 **Referência:** `ES-PI3-2026-T2-G03` (MesclaInvest)
@@ -42,6 +42,7 @@ Plano de implementação em **33 ondas** (0–33) para o DriveFlow (Flutter + Su
 | 31 | Turno inteligente — heatmap 7×24, plano de turno, simulador de mix | em andamento |
 | 32 | Caixa e metas — calendário de repasses, metas por app, take rate temporal | em andamento |
 | 33 | Pro analytics — regiões, consistência, PDF visual, IA com séries temporais | em andamento |
+| 34 | Apple Premium UI — Geist, profundidade Wallet/Cash App, anti–vibe-coding | em andamento |
 
 ---
 
@@ -1438,6 +1439,108 @@ Substituir `electricTeal` como cor de marca por tons de azul-claro. Verde perman
 
 ---
 
+## Onda 34 — Apple Premium UI (Geist + profundidade + hierarquia)
+
+**Objetivo:** Eliminar a aparência de “vibe coding” / template fintech e elevar o DriveFlow ao patamar visual de apps referência da App Store — **Apple Wallet**, **Cash App**, **Apple Fitness**, **Linear**, **Robinhood** — com tipografia **Geist** (Google Fonts), profundidade em camadas e hierarquia de informação disciplinada.
+
+> Sem novas features de negócio. Commits **atômicos por arquivo**. Referência única por superfície (não empilhar FitCal + Mescla + ReuniAI + Cupertino nos comentários).
+
+### Diagnóstico (auditoria pré-onda)
+
+| Problema | Evidência | Impacto |
+|---|---|---|
+| Tipografia genérica | Plus Jakarta + Inter — stack típico de UI gerada | Look “AI fintech”, sem identidade |
+| Gradiente indigo/roxo | `heroWealth` = brandBlue → `mesclaIndigo` | Desvia da marca azul; bias purple |
+| Glow em tudo | `brandGlow` em nav, CTA, hero, brand card | Fadiga visual; chrome compete com dados |
+| Mesh animado 14s | `DriveFlowGradientBackground` loop infinito | Wallpaper de demo, não app financeiro |
+| Três heróis no dashboard | Wealth card + ring FitCal + MonthSummary | Sem hierarquia; lucro do mês duplicado |
+| Card soup em listas | `DfMovimentacaoTile` = `DfCard` por linha | Longe de Wallet/Cash App (rows + separators) |
+| Nav com pill gradiente | Active tab = `AppGradients.brand` + glow | Nav rouba foco do conteúdo |
+| Labels ALL CAPS | `labelCaps`, saudações `BOM DIA, JOÃO` | Tom de marketing, não produto diário |
+| Glass opaco | fill 0.72–0.78 + rim só no topo | Sem vibrancy real; blur sem conteúdo |
+| Comentários multi-referência | “Cupertino + ReuniAI + Mescla + FitCal” | Identidade híbrida sem disciplina |
+
+### Referências App Store (padrões adotados)
+
+| App | Padrão | Aplicação no DriveFlow |
+|---|---|---|
+| **Apple Wallet** | Um saldo dominante; lista flat; profundidade sutil | Hero único; tiles sem card por linha |
+| **Cash App** | Tipografia bold no valor; chrome mínimo; accent só em dinheiro | Geist display no KPI; nav quieta |
+| **Apple Fitness** | Um anel = uma narrativa | Ring do dia como herói secundário (abaixo do mês) ou único acima da dobra |
+| **Linear** | Geist-like; monochrome + 1 accent; sem glow | Geist via `google_fonts`; azul único |
+| **Robinhood** | Número + sparkline; chips de período textuais | Gráfico semanal sem card decorativo excessivo |
+| **Stripe Dashboard** | KPI row + tabela; bordas hairline | Month summary como grouped rows |
+
+### Tipografia — Geist (Google Fonts ≥ 7.0)
+
+| Papel | Fonte | Peso / tracking |
+|---|---|---|
+| Display / large title | **Geist** | w700, letterSpacing −0.8…−1.2 |
+| Headlines / titles | **Geist** | w600–w700 |
+| Body / labels | **Geist** | w400–w500 |
+| Métricas / moeda | **Geist** + `FontFeature.tabularFigures()` | w700–w800 |
+| Section labels | **Geist** sentence-case | w500, 13px — **sem ALL CAPS** |
+
+- Upgrade: `google_fonts: ^7.0.0` (Geist adicionado em 7.0.0)
+- Remover Plus Jakarta Sans e Inter da tipografia principal
+- Logo e nav passam a usar o mesmo `TextTheme` / `GoogleFonts.geist`
+
+### Tokens de profundidade (Apple-like)
+
+| Token | Mudança |
+|---|---|
+| `app_colors` | Remover uso de `mesclaIndigo` em heróis; superfícies em camadas (grouped / elevated / elevated+); ambient azul suave sem roxo |
+| `app_elevation` | Sombras multi-camada suaves (blur 1+12+24); `brandGlow` só em CTA primário opcional, nunca na nav |
+| `app_gradients` | Hero = navy → brandBlue (sem indigo); mesh estático (sem loop 14s) ou bloom radial único |
+| `app_theme` | Scaffold com fundo em camadas; inputs com hairline; botões 50pt sem glow default |
+| `df_screen_body` | Unificar `sectionGap` com `AppSpacing` (20–24 consistente) |
+
+### Componentes — redesign
+
+| Arquivo | Mudança |
+|---|---|
+| `df_hero_wealth_card.dart` | Estilo Wallet: superfície navy profunda, valor tipográfico, footer em hairline; sem blob circular; label sentence-case |
+| `df_card.dart` | `grouped` com hairline; `elevated` com sombra real; `brand` sem indigo; glass mais translúcido |
+| `df_button.dart` | Primary sólido + sombra sutil; gradient = brand depth (navy→blue) sem glow exagerado; loading color-aware |
+| `df_glass_surface.dart` | Fill mais translúcido; borda full hairline (não só top); sombra nav discreta |
+| `df_movimentacao_tile.dart` | Row em superfície grouped (sem `DfCard` por item); separator inset |
+| `df_hero_metric.dart` | Tabular figures + tracking editorial Geist |
+| `driveflow_bottom_nav_bar.dart` | Active = tint brand suave (não gradient glow); labels via `AppTypography` |
+| `driveflow_gradient_background.dart` | Bloom estático / ambient depth — **sem** `AnimationController.repeat` |
+| `driveflow_brand_logo.dart` | Geist; mark com profundidade sutil |
+
+### Screens — hierarquia
+
+| Tela | Mudança |
+|---|---|
+| Dashboard | Saudação sentence-case; **um** hero de lucro do mês; ring do dia como seção “Hoje”; `MonthSummaryCard` vira breakdown (sem repetir lucro gigante) |
+| Auth | Menos card-on-card; headline tipográfico limpo; Google mark com cores oficiais (não “G” genérico) |
+| Earnings / Expenses | Mesmo hero wealth refinado; lista em rows |
+| Shell | Fundo ambient quieto; nav glass discreta |
+
+### Critérios de conclusão
+
+- [ ] `google_fonts` ≥ 7.0 e tipografia principal 100% Geist
+- [ ] Zero `mesclaIndigo` em heróis / mesh / brand cards
+- [ ] Zero glow na bottom nav; active state quieto
+- [ ] Fundo sem animação infinita de mesh
+- [ ] Dashboard sem lucro do mês duplicado em 2+ heróis tipográficos
+- [ ] `DfMovimentacaoTile` sem `DfCard` wrapping por linha
+- [ ] Labels principais sentence-case (sem `BOM DIA, NAME` caps)
+- [ ] Commits atômicos por arquivo
+- [ ] `flutter analyze` limpo + testes existentes passando
+
+### Ordem de commits (atômicos)
+
+1. `implementation-plan.md` — documentação desta onda  
+2. `pubspec.yaml` (+ lock) — google_fonts ^7  
+3. Tokens: `app_colors` → `app_elevation` → `app_gradients` → `app_typography` → `app_theme` → `app_spacing` / `df_screen_body`  
+4. Design system: card, button, glass, hero wealth, hero metric, movimentação tile  
+5. Shell: gradient background, bottom nav, brand logo  
+6. Screens: dashboard, hero section, month summary, auth layout, login  
+
+---
+
 ## Mapa de requisitos funcionais → ondas
 
 | RF | Descrição | Onda |
@@ -1472,6 +1575,7 @@ Substituir `electricTeal` como cor de marca por tons de azul-claro. Verde perman
 | RNF-Insights | Insights polish + deprecated cleanup | 21 |
 | RNF-Forms | Forms polish + final FilterChip cleanup | 22 |
 | RNF-Final | Final outlier polish — 100% design system | 23 |
+| RNF-Apple | Apple Premium UI — Geist, profundidade, hierarquia | 34 |
 | RF22 | Conexão apps Uber/99/InDrive | 24 |
 | RF23 | Sync ganhos e corridas via API | 25–26 |
 | RF24 | Histórico de corridas sincronizadas | 25 |
@@ -1533,7 +1637,8 @@ PLATFORM_OAUTH_REDIRECT_URL=
 | **v2.1** | Metas por veículo, remoção aliases `driveflow_*` deprecated | pós-15 |
 | **v3.0** | Integrações Uber/99/InDrive + inteligência cross-platform | 24–29 |
 | **v3.1** | Analytics avançado por app — gráficos, turno, caixa, Pro | 30–33 |
-| **v3.2** | Comunidade, parceiros, painel web | fora do plano atual |
+| **v3.2** | Apple Premium UI — Geist + profundidade Wallet/Cash App | 34 |
+| **v3.3** | Comunidade, parceiros, painel web | fora do plano atual |
 
 ---
 
