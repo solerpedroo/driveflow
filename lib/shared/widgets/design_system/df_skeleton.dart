@@ -36,39 +36,43 @@ class _DfSkeletonState extends State<DfSkeleton>
 
   @override
   Widget build(BuildContext context) {
-    return ListView.separated(
+    return Padding(
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.screenHorizontal,
         AppSpacing.lg,
         AppSpacing.screenHorizontal,
         AppSpacing.xxxl * 2,
       ),
-      itemCount: widget.itemCount,
-      separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
-      itemBuilder: (context, index) {
-        return DfCard(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.lg,
-            vertical: AppSpacing.md,
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _ShimmerBar(animation: _shimmer, width: 120),
-                    const SizedBox(height: AppSpacing.sm),
-                    _ShimmerBar(animation: _shimmer, width: 180, height: 12),
-                  ],
-                ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (var index = 0; index < widget.itemCount; index++) ...[
+            if (index > 0) const SizedBox(height: AppSpacing.sm),
+            DfCard(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.lg,
+                vertical: AppSpacing.md,
               ),
-              const SizedBox(width: AppSpacing.md),
-              _ShimmerBar(animation: _shimmer, width: 72),
-            ],
-          ),
-        );
-      },
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _ShimmerBar(animation: _shimmer, width: 120),
+                        const SizedBox(height: AppSpacing.sm),
+                        _ShimmerBar(animation: _shimmer, width: 180, height: 12),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.md),
+                  _ShimmerBar(animation: _shimmer, width: 72),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
     );
   }
 }
