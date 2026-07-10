@@ -8,6 +8,7 @@ import '../../../expenses/presentation/screens/expenses_screen.dart';
 import '../../../vehicle/domain/entities/vehicle_entity.dart';
 import '../../../vehicle/presentation/providers/vehicle_providers.dart';
 import '../../../vehicle/presentation/screens/vehicle_form_screen.dart';
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/constants/driveflow_tab_count.dart';
 import '../../../reports/presentation/screens/reports_screen.dart';
 import '../../../dashboard/presentation/screens/dashboard_screen.dart';
@@ -23,38 +24,27 @@ class MainShellScreen extends HookConsumerWidget {
 
   final int initialTab;
 
-  static int resolveInitialTab(String? value) {
-    if (value == null || value.isEmpty) return DriveFlowTab.dashboard;
+  static int resolveInitialTab(String? value) => DriveFlowTab.fromQueryParam(value);
 
-    final parsed = int.tryParse(value);
-    if (parsed != null) return _normalizeTab(parsed);
-
-    switch (value.toLowerCase()) {
-      case 'dashboard':
-        return DriveFlowTab.dashboard;
-      case 'earnings':
-        return DriveFlowTab.earnings;
-      case 'expenses':
-        return DriveFlowTab.expenses;
-      case 'reports':
-        return DriveFlowTab.reports;
-      case 'profile':
-        return DriveFlowTab.profile;
-      default:
-        return DriveFlowTab.dashboard;
-    }
+  static String _homeLocationForTab(int tab) {
+    if (tab == DriveFlowTab.dashboard) return AppRoutes.home;
+    return '${AppRoutes.home}?tab=${DriveFlowTab.queryParamFor(tab)}';
   }
 
-  static int _normalizeTab(int tab) {
-    if (tab < DriveFlowTab.dashboard || tab >= kDriveFlowMainTabCount) {
-      return DriveFlowTab.dashboard;
+  static int? _tabFromGoRouter(BuildContext context) {
+    try {
+      final tabParam = GoRouterState.of(context).uri.queryParameters['tab'];
+      return DriveFlowTab.fromQueryParam(tabParam);
+    } catch (_) {
+      return null;
     }
-    return tab;
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final selectedIndex = useState(_normalizeTab(initialTab));
+    final localTab = useState(initialTab);
+    final routeTab = _tabFromGoRouter(context);
+    final selectedIndex = routeTab ?? localTab.value;
 
     final tabBodies = useMemoized(
       () => const [
@@ -66,9 +56,17 @@ class MainShellScreen extends HookConsumerWidget {
       ],
     );
 
+    void onNavIndexChanged(int index) {
+      if (routeTab != null) {
+        context.go(_homeLocationForTab(index));
+        return;
+      }
+      localTab.value = index;
+    }
+
     return DriveFlowMainShell(
-      selectedIndex: selectedIndex.value,
-      onNavIndexChanged: (index) => selectedIndex.value = index,
+      selectedIndex: selectedIndex,
+      onNavIndexChanged: onNavIndexChanged,
       tabBodies: tabBodies,
     );
   }
