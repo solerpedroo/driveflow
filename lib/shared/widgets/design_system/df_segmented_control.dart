@@ -106,7 +106,7 @@ class _Segment extends StatelessWidget {
           ).copyWith(
             fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
             color: selected
-                ? AppColors.systemBlue
+                ? AppColors.brandBlue
                 : AppColors.secondaryLabel(Theme.of(context)),
           ),
         ),
