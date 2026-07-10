@@ -195,6 +195,7 @@ class _DashboardBody extends StatelessWidget {
           goalProgress: goal,
           greeting: greeting.split(',').first,
           weekProfits: snapshot.weekProfits,
+          hideValue: hidden,
         ),
         const DashboardPlatformChip(),
         const PlatformGoalProgressCard(),
