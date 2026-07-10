@@ -131,7 +131,7 @@ class EarningsScreen extends ConsumerWidget {
                 eyebrow: 'Ganhos',
                 itemCount: earnings.length,
                 itemBuilder: (context, index) =>
-                    EarningTile(earning: earnings[index]),
+                    EarningTile(earning: earnings[index], hideValue: hidden),
               ),
           ],
         ),
