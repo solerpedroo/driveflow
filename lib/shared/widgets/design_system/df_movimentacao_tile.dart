@@ -17,6 +17,7 @@ class DfMovimentacaoTile extends StatelessWidget {
     this.onTap,
     this.onLongPress,
     this.hideValue = false,
+    this.leading,
   });
 
   final String title;
@@ -27,6 +28,7 @@ class DfMovimentacaoTile extends StatelessWidget {
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
   final bool hideValue;
+  final Widget? leading;
 
   @override
   Widget build(BuildContext context) {
@@ -44,22 +46,23 @@ class DfMovimentacaoTile extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.14),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              alignment: Alignment.center,
-              child: Text(
-                symbol,
-                style: theme.textTheme.titleLarge?.copyWith(
-                  color: color,
-                  fontWeight: FontWeight.w800,
+            leading ??
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: color.withValues(alpha: 0.14),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    symbol,
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      color: color,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
                 ),
-              ),
-            ),
             const SizedBox(width: AppSpacing.md),
             Expanded(
               child: Column(
