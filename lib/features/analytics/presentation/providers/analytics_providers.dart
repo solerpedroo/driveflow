@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../earnings/domain/entities/earning_entity.dart';
 import '../../../earnings/presentation/providers/earnings_providers.dart';
+import '../../../integrations/domain/entities/platform_trip_entity.dart';
 import '../../../integrations/domain/services/platform_analytics_breakdown.dart';
 import '../../../integrations/presentation/providers/platform_trips_providers.dart';
 import '../../../expenses/domain/entities/expense_entity.dart';
@@ -280,7 +281,7 @@ final analyticsPlatformBreakdownProvider =
     vehicleIdOf: (e) => e.vehicleId,
   );
   final scopedTrips = _scoped(
-    items: trips.valueOrNull ?? const [],
+    items: trips.valueOrNull ?? const <PlatformTripEntity>[],
     vehicleId: scopedVehicleId,
     vehicleIdOf: (t) => t.vehicleId,
   );
