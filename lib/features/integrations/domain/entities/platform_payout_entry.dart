@@ -8,6 +8,7 @@ class PlatformPayoutEntry {
     required this.amount,
     required this.tripCount,
     required this.settlementDays,
+    this.cycleLabel,
   });
 
   final RidePlatform platform;
@@ -15,6 +16,7 @@ class PlatformPayoutEntry {
   final double amount;
   final int tripCount;
   final int settlementDays;
+  final String? cycleLabel;
 
   bool get isOverdue => expectedDate.isBefore(DateTime.now());
 }
