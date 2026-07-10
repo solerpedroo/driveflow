@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../core/constants/app_constants.dart';
 import '../../core/theme/app_colors.dart';
-import '../../core/theme/app_gradients.dart';
 
-/// Logotipo tipográfico DriveFlow — marca azul premium.
+/// Logotipo DriveFlow — minimalista estilo iOS.
 class DriveFlowBrandLogo extends StatelessWidget {
   const DriveFlowBrandLogo({
     super.key,
@@ -22,7 +20,7 @@ class DriveFlowBrandLogo extends StatelessWidget {
     final titleSize = switch (size) {
       LogoSize.small => 22.0,
       LogoSize.medium => 28.0,
-      LogoSize.large => 36.0,
+      LogoSize.large => 34.0,
     };
 
     return Column(
@@ -36,15 +34,8 @@ class DriveFlowBrandLogo extends StatelessWidget {
               width: titleSize * 0.55,
               height: titleSize * 0.55,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                gradient: AppGradients.brand,
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.brandBlue.withValues(alpha: 0.35),
-                    blurRadius: 16,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
+                borderRadius: BorderRadius.circular(10),
+                color: AppColors.systemBlue,
               ),
               child: Icon(
                 Icons.speed_rounded,
@@ -55,17 +46,19 @@ class DriveFlowBrandLogo extends StatelessWidget {
             const SizedBox(width: 10),
             RichText(
               text: TextSpan(
-                style: GoogleFonts.plusJakartaSans(
+                style: TextStyle(
                   fontSize: titleSize,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: -0.8,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.37,
                   color: theme.colorScheme.onSurface,
+                  fontFamily: '.SF Pro Display',
+                  fontFamilyFallback: const ['Roboto', 'sans-serif'],
                 ),
                 children: const [
                   TextSpan(text: 'Drive'),
                   TextSpan(
                     text: 'Flow',
-                    style: TextStyle(color: AppColors.brandBlue),
+                    style: TextStyle(color: AppColors.systemBlue),
                   ),
                 ],
               ),
