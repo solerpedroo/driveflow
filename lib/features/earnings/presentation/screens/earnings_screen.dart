@@ -16,6 +16,7 @@ import '../../../../shared/widgets/design_system/df_pill_action_button.dart';
 import '../../../../shared/widgets/design_system/df_skeleton.dart';
 import '../../../../shared/widgets/design_system/df_tab_scroll_view.dart';
 import '../../../../shared/widgets/driveflow_period_filter.dart';
+import '../../../../shared/widgets/platform_brand_icon.dart';
 import '../providers/earnings_providers.dart';
 import '../widgets/earning_tile.dart';
 
@@ -118,6 +119,13 @@ class EarningsScreen extends ConsumerWidget {
                       child: DfFilterPill(
                         label: platform.label,
                         selected: platformFilter == platform,
+                        leading: PlatformBrandIcon.hasBrandAsset(platform)
+                            ? PlatformBrandIcon(
+                                platform: platform,
+                                size: 20,
+                                borderRadius: 6,
+                              )
+                            : null,
                         onSelected: () => ref
                             .read(earningsPlatformFilterProvider.notifier)
                             .state = platform,
