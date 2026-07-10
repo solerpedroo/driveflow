@@ -51,7 +51,6 @@ class DfMovimentacaoTile extends StatelessWidget {
             vertical: AppSpacing.md,
           ),
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               leading ??
                   Container(
