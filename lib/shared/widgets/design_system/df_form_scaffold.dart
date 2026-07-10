@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
+import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import 'df_button.dart';
+import '../driveflow_gradient_background.dart';
 
-/// Scaffold compartilhado para formulários (app bar + scroll + ações).
+/// Scaffold compartilhado para formulários — gradiente Mescla + ações fixas.
 class DfFormScaffold extends StatelessWidget {
   const DfFormScaffold({
     required this.title,
@@ -24,37 +27,62 @@ class DfFormScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-        backgroundColor: Colors.transparent,
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(AppSpacing.screenHorizontal),
-              child: child,
+    final brightness = Theme.of(context).brightness;
+
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: brightness == Brightness.dark
+          ? AppColors.darkOverlay
+          : AppColors.lightOverlay,
+      child: DriveFlowGradientBackground(
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          appBar: AppBar(
+            title: Text(
+              title,
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
             ),
+            backgroundColor: Colors.transparent,
           ),
-          SafeArea(
-            minimum: const EdgeInsets.all(AppSpacing.screenHorizontal),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (secondaryAction != null) ...[
-                  secondaryAction!,
-                  const SizedBox(height: AppSpacing.sm),
-                ],
-                DfButton(
-                  label: submitLabel,
-                  onPressed: onSubmit,
-                  isLoading: isLoading,
+          body: Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.screenHorizontal,
+                    AppSpacing.sm,
+                    AppSpacing.screenHorizontal,
+                    AppSpacing.lg,
+                  ),
+                  child: child,
                 ),
-              ],
-            ),
+              ),
+              SafeArea(
+                minimum: const EdgeInsets.fromLTRB(
+                  AppSpacing.screenHorizontal,
+                  AppSpacing.md,
+                  AppSpacing.screenHorizontal,
+                  AppSpacing.lg,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    DfButton(
+                      label: submitLabel,
+                      onPressed: onSubmit,
+                      isLoading: isLoading,
+                    ),
+                    if (secondaryAction != null) ...[
+                      const SizedBox(height: AppSpacing.sm),
+                      secondaryAction!,
+                    ],
+                  ],
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
