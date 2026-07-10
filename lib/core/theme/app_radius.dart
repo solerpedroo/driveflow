@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-/// Raios de borda padronizados.
+/// Raios de borda padronizados — premium (14px surface, 24px hero).
 abstract final class AppRadius {
-  static const double sm = 12;
-  static const double md = 16;
-  static const double lg = 20;
-  static const double xl = 28;
+  static const double sm = 10;
+  static const double md = 12;
+  static const double lg = 14;
+  static const double xl = 24;
 
   static const BorderRadius smAll = BorderRadius.all(Radius.circular(sm));
   static const BorderRadius mdAll = BorderRadius.all(Radius.circular(md));
