@@ -31,12 +31,12 @@ final aiHistoryStreamProvider = StreamProvider<List<AiMessageEntity>>((ref) {
 final aiContextPreviewProvider = Provider<AiContextSnapshot>((ref) {
   final vehicleId = ref.watch(scopedVehicleIdProvider);
   final earnings = _scoped(
-    items: ref.watch(earningsStreamProvider).valueOrNull ?? const [],
+    items: ref.watch(earningsStreamProvider).valueOrNull ?? const <EarningEntity>[],
     vehicleId: vehicleId,
     vehicleIdOf: (EarningEntity e) => e.vehicleId,
   );
   final expenses = _scoped(
-    items: ref.watch(expensesStreamProvider).valueOrNull ?? const [],
+    items: ref.watch(expensesStreamProvider).valueOrNull ?? const <ExpenseEntity>[],
     vehicleId: vehicleId,
     vehicleIdOf: (ExpenseEntity e) => e.vehicleId,
   );
