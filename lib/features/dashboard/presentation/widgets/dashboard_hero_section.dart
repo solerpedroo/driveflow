@@ -7,6 +7,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/duration_formatter.dart';
 import '../../../../core/utils/story_metrics.dart';
+import '../../../../core/utils/value_visibility_provider.dart';
 import '../../../../shared/domain/models/daily_profit_point.dart';
 import '../../../../shared/domain/models/period_summary.dart';
 import '../../../../shared/widgets/design_system/df_card.dart';
@@ -20,6 +21,7 @@ class DashboardHeroSection extends StatelessWidget {
     required this.goalProgress,
     required this.greeting,
     required this.weekProfits,
+    this.hideValue = false,
     super.key,
   });
 
@@ -27,6 +29,7 @@ class DashboardHeroSection extends StatelessWidget {
   final GoalProgress goalProgress;
   final String greeting;
   final List<DailyProfitPoint> weekProfits;
+  final bool hideValue;
 
   @override
   Widget build(BuildContext context) {
@@ -40,11 +43,20 @@ class DashboardHeroSection extends StatelessWidget {
     final ringColor = goalProgress.isComplete
         ? AppSemanticColors.success
         : AppColors.brandBlue;
-    final storyLine = StoryMetrics.heroSubtitle(
-      today: summary,
-      goalProgress: goalProgress,
-      weekProfits: weekProfits,
+    final storyLine = hideValue
+        ? 'Acompanhe lucro e meta do dia em tempo real'
+        : StoryMetrics.heroSubtitle(
+            today: summary,
+            goalProgress: goalProgress,
+            weekProfits: weekProfits,
+          );
+    final profitDisplay = maskCurrency(
+      CurrencyFormatter.formatSigned(summary.profit),
+      hidden: hideValue,
     );
+    final goalLabel = goalProgress.hasTarget
+        ? 'Meta ${maskPlain(goalProgress.progressLabel, hidden: hideValue)}'
+        : 'Lucro do dia';
 
     return DfCard(
       variant: DfCardVariant.hero,
@@ -96,10 +108,8 @@ class DashboardHeroSection extends StatelessWidget {
               strokeWidth: 12,
               accentColor: ringColor,
               child: DfHeroMetric(
-                value: CurrencyFormatter.formatSigned(summary.profit),
-                label: goalProgress.hasTarget
-                    ? 'Meta ${goalProgress.progressLabel}'
-                    : 'Lucro do dia',
+                value: profitDisplay,
+                label: goalLabel,
                 valueColor: profitColor,
               ),
             ),
@@ -110,7 +120,10 @@ class DashboardHeroSection extends StatelessWidget {
               Expanded(
                 child: _MacroPill(
                   label: 'Ganhos',
-                  value: CurrencyFormatter.format(summary.revenue),
+                  value: maskCurrency(
+                    CurrencyFormatter.format(summary.revenue),
+                    hidden: hideValue,
+                  ),
                   color: AppSemanticColors.success,
                 ),
               ),
@@ -118,7 +131,10 @@ class DashboardHeroSection extends StatelessWidget {
               Expanded(
                 child: _MacroPill(
                   label: 'Gastos',
-                  value: CurrencyFormatter.format(summary.expenses),
+                  value: maskCurrency(
+                    CurrencyFormatter.format(summary.expenses),
+                    hidden: hideValue,
+                  ),
                   color: AppSemanticColors.error,
                 ),
               ),

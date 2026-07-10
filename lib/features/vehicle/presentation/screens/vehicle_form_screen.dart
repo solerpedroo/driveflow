@@ -4,13 +4,15 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/validators.dart';
-import '../../../../shared/widgets/design_system/df_filter_pill.dart';
-import '../../../../shared/widgets/design_system/df_card.dart';
 import '../../../authentication/presentation/widgets/auth_primary_button.dart';
 import '../../../authentication/presentation/widgets/auth_text_field.dart';
 import '../../domain/entities/vehicle_entity.dart';
 import '../providers/vehicle_providers.dart';
+import '../../../../shared/widgets/design_system/df_card.dart';
+import '../../../../shared/widgets/design_system/df_filter_pill.dart';
+import '../../../../shared/widgets/design_system/df_form_scaffold.dart';
 
 /// Formulário reutilizável de veículo (onboarding + edição).
 class VehicleFormScreen extends HookConsumerWidget {
@@ -22,6 +24,7 @@ class VehicleFormScreen extends HookConsumerWidget {
     this.submitLabel = 'Salvar veículo',
     this.markAsDefault = false,
     this.onSaved,
+    this.embedded = false,
     super.key,
   });
 
@@ -31,6 +34,9 @@ class VehicleFormScreen extends HookConsumerWidget {
   final String submitLabel;
   final bool markAsDefault;
   final VoidCallback? onSaved;
+
+  /// Quando `true`, renderiza só o corpo do formulário (ex.: onboarding).
+  final bool embedded;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -86,149 +92,156 @@ class VehicleFormScreen extends HookConsumerWidget {
       }
     }
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
-      child: Form(
-        key: formKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
+    final formBody = Form(
+      key: formKey,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (embedded) ...[
             Text(title, style: theme.textTheme.headlineSmall),
             const SizedBox(height: 8),
+          ] else ...[
             Text(
-              subtitle,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: AppColors.secondaryLabel(theme),
-                height: 1.45,
-              ),
+              'VEÍCULO',
+              style: AppTypography.labelCaps(theme.brightness),
             ),
-            const SizedBox(height: 24),
-            DfCard(
-              child: Column(
-                children: [
-                  AuthTextField(
-                    controller: brandController,
-                    label: 'Marca',
-                    hint: 'Ex.: Toyota',
-                    validator: (v) =>
-                        Validators.requiredField(v, fieldName: 'Marca'),
-                    textInputAction: TextInputAction.next,
-                  ),
-                  const SizedBox(height: 12),
-                  AuthTextField(
-                    controller: modelController,
-                    label: 'Modelo',
-                    hint: 'Ex.: Corolla',
-                    validator: (v) =>
-                        Validators.requiredField(v, fieldName: 'Modelo'),
-                    textInputAction: TextInputAction.next,
-                  ),
-                  const SizedBox(height: 12),
-                  AuthTextField(
-                    controller: yearController,
-                    label: 'Ano',
-                    hint: '2022',
-                    keyboardType: TextInputType.number,
-                    validator: (v) {
-                      final base =
-                          Validators.requiredField(v, fieldName: 'Ano');
-                      if (base != null) return base;
-                      final year = int.tryParse(v!.trim());
-                      if (year == null || year < 1980 || year > 2100) {
-                        return 'Ano inválido';
-                      }
-                      return null;
-                    },
-                    textInputAction: TextInputAction.next,
-                  ),
-                  const SizedBox(height: 12),
-                  AuthTextField(
-                    controller: nicknameController,
-                    label: 'Apelido (opcional)',
-                    hint: 'Ex.: Carro do trabalho',
-                    textInputAction: TextInputAction.next,
-                  ),
-                  const SizedBox(height: 12),
-                  AuthTextField(
-                    controller: plateController,
-                    label: 'Placa (opcional)',
-                    hint: 'ABC1D23',
-                    textInputAction: TextInputAction.next,
-                  ),
-                  const SizedBox(height: 12),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text('Combustível', style: theme.textTheme.labelLarge),
-                  ),
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: kFuelTypes.map((fuel) {
-                      final selected = selectedFuel.value == fuel;
-                      return DfFilterPill(
-                        label: fuel.label,
-                        selected: selected,
-                        onSelected: () => selectedFuel.value = fuel,
-                      );
-                    }).toList(growable: false),
-                  ),
-                  const SizedBox(height: 12),
-                  AuthTextField(
-                    controller: tankController,
-                    label: 'Tanque (litros, opcional)',
-                    hint: '50',
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
-                    textInputAction: TextInputAction.next,
-                  ),
-                  const SizedBox(height: 12),
-                  AuthTextField(
-                    controller: consumptionController,
-                    label: 'Consumo médio km/L (opcional)',
-                    hint: '12.5',
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
-                    textInputAction: TextInputAction.next,
-                  ),
-                  const SizedBox(height: 12),
-                  AuthTextField(
-                    controller: odometerController,
-                    label: 'Quilometragem atual',
-                    hint: '45000',
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
-                    validator: (v) => Validators.odometer(
-                      v,
-                      previous: vehicle?.odometerKm,
-                    ),
-                    textInputAction: TextInputAction.done,
-                    onFieldSubmitted: (_) => submit(),
-                  ),
-                  if (vehicleCount > 0 || vehicle != null) ...[
-                    const SizedBox(height: 16),
-                    SwitchListTile(
-                      contentPadding: EdgeInsets.zero,
-                      title: const Text('Veículo padrão'),
-                      subtitle: const Text(
-                        'Usado como fallback e para novos registros.',
-                      ),
-                      value: isDefault.value,
-                      onChanged: (value) => isDefault.value = value,
-                    ),
-                  ],
-                ],
-              ),
+            const SizedBox(height: 8),
+          ],
+          Text(
+            subtitle,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: AppColors.secondaryLabel(theme),
+              height: 1.45,
             ),
-            if (mutation.hasError) ...[
-              const SizedBox(height: 12),
-              Text(
-                mutation.error.toString(),
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.error,
+          ),
+          const SizedBox(height: 16),
+          DfCard(
+            child: Column(
+              children: [
+                AuthTextField(
+                  controller: brandController,
+                  label: 'Marca',
+                  hint: 'Ex.: Toyota',
+                  validator: (v) =>
+                      Validators.requiredField(v, fieldName: 'Marca'),
+                  textInputAction: TextInputAction.next,
                 ),
+                const SizedBox(height: 12),
+                AuthTextField(
+                  controller: modelController,
+                  label: 'Modelo',
+                  hint: 'Ex.: Corolla',
+                  validator: (v) =>
+                      Validators.requiredField(v, fieldName: 'Modelo'),
+                  textInputAction: TextInputAction.next,
+                ),
+                const SizedBox(height: 12),
+                AuthTextField(
+                  controller: yearController,
+                  label: 'Ano',
+                  hint: '2022',
+                  keyboardType: TextInputType.number,
+                  validator: (v) {
+                    final base =
+                        Validators.requiredField(v, fieldName: 'Ano');
+                    if (base != null) return base;
+                    final year = int.tryParse(v!.trim());
+                    if (year == null || year < 1980 || year > 2100) {
+                      return 'Ano inválido';
+                    }
+                    return null;
+                  },
+                  textInputAction: TextInputAction.next,
+                ),
+                const SizedBox(height: 12),
+                AuthTextField(
+                  controller: nicknameController,
+                  label: 'Apelido (opcional)',
+                  hint: 'Ex.: Carro do trabalho',
+                  textInputAction: TextInputAction.next,
+                ),
+                const SizedBox(height: 12),
+                AuthTextField(
+                  controller: plateController,
+                  label: 'Placa (opcional)',
+                  hint: 'ABC1D23',
+                  textInputAction: TextInputAction.next,
+                ),
+                const SizedBox(height: 12),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text('Combustível', style: theme.textTheme.labelLarge),
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: kFuelTypes.map((fuel) {
+                    final selected = selectedFuel.value == fuel;
+                    return DfFilterPill(
+                      label: fuel.label,
+                      selected: selected,
+                      onSelected: () => selectedFuel.value = fuel,
+                    );
+                  }).toList(growable: false),
+                ),
+                const SizedBox(height: 12),
+                AuthTextField(
+                  controller: tankController,
+                  label: 'Tanque (litros, opcional)',
+                  hint: '50',
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
+                  textInputAction: TextInputAction.next,
+                ),
+                const SizedBox(height: 12),
+                AuthTextField(
+                  controller: consumptionController,
+                  label: 'Consumo médio km/L (opcional)',
+                  hint: '12.5',
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
+                  textInputAction: TextInputAction.next,
+                ),
+                const SizedBox(height: 12),
+                AuthTextField(
+                  controller: odometerController,
+                  label: 'Quilometragem atual',
+                  hint: '45000',
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
+                  validator: (v) => Validators.odometer(
+                    v,
+                    previous: vehicle?.odometerKm,
+                  ),
+                  textInputAction: TextInputAction.done,
+                  onFieldSubmitted: (_) => submit(),
+                ),
+                if (vehicleCount > 0 || vehicle != null) ...[
+                  const SizedBox(height: 16),
+                  SwitchListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: const Text('Veículo padrão'),
+                    subtitle: const Text(
+                      'Usado como fallback e para novos registros.',
+                    ),
+                    value: isDefault.value,
+                    onChanged: (value) => isDefault.value = value,
+                  ),
+                ],
+              ],
+            ),
+          ),
+          if (mutation.hasError) ...[
+            const SizedBox(height: 12),
+            Text(
+              mutation.error.toString(),
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.error,
               ),
-            ],
+            ),
+          ],
+          if (embedded) ...[
             const SizedBox(height: 20),
             AuthPrimaryButton(
               label: submitLabel,
@@ -236,8 +249,23 @@ class VehicleFormScreen extends HookConsumerWidget {
               onPressed: submit,
             ),
           ],
-        ),
+        ],
       ),
+    );
+
+    if (embedded) {
+      return SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+        child: formBody,
+      );
+    }
+
+    return DfFormScaffold(
+      title: title,
+      submitLabel: submitLabel,
+      isLoading: mutation.isLoading,
+      onSubmit: submit,
+      child: formBody,
     );
   }
 

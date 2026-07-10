@@ -9,12 +9,14 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../../../shared/widgets/design_system/df_button.dart';
 import '../../../../shared/widgets/design_system/df_card.dart';
 import '../../../../shared/widgets/design_system/df_filter_pill.dart';
+import '../../../../shared/widgets/design_system/df_section_header.dart';
+import '../../../../shared/widgets/design_system/df_subpage_scaffold.dart';
 import '../../domain/services/import_file_validator.dart';
 import '../providers/import_providers.dart';
 import '../widgets/import_preview_table.dart';
 import '../widgets/import_story_header.dart';
 
-/// Tela de importação de extratos CSV/OFX.
+/// Importação de extratos — layout Mescla.
 class ImportStatementScreen extends HookConsumerWidget {
   const ImportStatementScreen({super.key});
 
@@ -82,108 +84,88 @@ class ImportStatementScreen extends HookConsumerWidget {
     final selectedCount =
         preview.where((item) => item.selected && !item.isDuplicate).length;
 
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      appBar: AppBar(
-        title: const Text('Importar extrato'),
-        backgroundColor: Colors.transparent,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const ImportStoryHeader(),
-            const SizedBox(height: 16),
-            DfCard(
-              variant: DfCardVariant.elevated,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Arquivo', style: theme.textTheme.titleMedium),
-                  const SizedBox(height: 8),
-                  Text(
-                    'CSV (Nubank, Inter, genérico) ou OFX. '
-                    'Máx. 5 MB e 2.000 linhas. Processado apenas em memória.',
-                    style: theme.textTheme.bodyMedium?.copyWith(height: 1.45),
-                  ),
-                  const SizedBox(height: 12),
-                  DfButton(
-                    label: fileName.value ?? 'Selecionar arquivo',
-                    icon: Icons.upload_file_outlined,
-                    variant: DfButtonVariant.outlined,
-                    isLoading: mutation.isLoading,
-                    onPressed: mutation.isLoading ? null : pickFile,
-                    expand: false,
-                  ),
-                ],
-              ),
-            ),
-            if (preview.isNotEmpty) ...[
-              const SizedBox(height: 20),
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      'Preview ($selectedCount selecionadas)',
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                  DfFilterPill(
-                    label: 'Todas',
-                    selected: false,
-                    onSelected: () => ref
-                        .read(importControllerProvider.notifier)
-                        .toggleAll(true),
-                  ),
-                  const SizedBox(width: 8),
-                  DfFilterPill(
-                    label: 'Nenhuma',
-                    selected: false,
-                    onSelected: () => ref
-                        .read(importControllerProvider.notifier)
-                        .toggleAll(false),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              ImportPreviewTable(
-                transactions: preview,
-                onToggle: (lineIndex, selected) => ref
-                    .read(importControllerProvider.notifier)
-                    .toggleSelection(lineIndex, selected),
-              ),
-              if (preview.length > 50)
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: Text(
-                    'Exibindo 50 de ${preview.length} linhas.',
-                    style: theme.textTheme.bodySmall,
-                  ),
-                ),
-              const SizedBox(height: 16),
-              DfButton(
-                label: 'Importar selecionadas',
-                icon: Icons.cloud_download_outlined,
-                variant: DfButtonVariant.gradient,
-                isLoading: mutation.isLoading,
-                onPressed: selectedCount == 0 ? null : importSelected,
-              ),
-            ],
-            if (mutation.hasError) ...[
-              const SizedBox(height: 12),
+    return DfSubpageScaffold(
+      title: 'Importar extrato',
+      children: [
+        const ImportStoryHeader(),
+        DfCard(
+          variant: DfCardVariant.elevated,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const DfSectionHeader(title: 'Arquivo', eyebrow: 'Upload'),
               Text(
-                mutation.error.toString(),
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.error,
-                ),
+                'CSV (Nubank, Inter, genérico) ou OFX. '
+                'Máx. 5 MB e 2.000 linhas. Processado apenas em memória.',
+                style: theme.textTheme.bodyMedium?.copyWith(height: 1.45),
+              ),
+              const SizedBox(height: 12),
+              DfButton(
+                label: fileName.value ?? 'Selecionar arquivo',
+                icon: Icons.upload_file_outlined,
+                variant: DfButtonVariant.outlined,
+                isLoading: mutation.isLoading,
+                onPressed: mutation.isLoading ? null : pickFile,
+                expand: false,
               ),
             ],
-          ],
+          ),
         ),
-      ),
+        if (preview.isNotEmpty) ...[
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'Preview ($selectedCount selecionadas)',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              DfFilterPill(
+                label: 'Todas',
+                selected: false,
+                onSelected: () => ref
+                    .read(importControllerProvider.notifier)
+                    .toggleAll(true),
+              ),
+              const SizedBox(width: 8),
+              DfFilterPill(
+                label: 'Nenhuma',
+                selected: false,
+                onSelected: () => ref
+                    .read(importControllerProvider.notifier)
+                    .toggleAll(false),
+              ),
+            ],
+          ),
+          ImportPreviewTable(
+            transactions: preview,
+            onToggle: (lineIndex, selected) => ref
+                .read(importControllerProvider.notifier)
+                .toggleSelection(lineIndex, selected),
+          ),
+          if (preview.length > 50)
+            Text(
+              'Exibindo 50 de ${preview.length} linhas.',
+              style: theme.textTheme.bodySmall,
+            ),
+          DfButton(
+            label: 'Importar selecionadas',
+            icon: Icons.cloud_download_outlined,
+            variant: DfButtonVariant.gradient,
+            isLoading: mutation.isLoading,
+            onPressed: selectedCount == 0 ? null : importSelected,
+          ),
+        ],
+        if (mutation.hasError)
+          Text(
+            mutation.error.toString(),
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.error,
+            ),
+          ),
+      ],
     );
   }
 }

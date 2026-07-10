@@ -8,7 +8,7 @@ import 'platform_net_profit_chart.dart';
 import 'platform_revenue_chart.dart';
 import 'platform_revenue_trend_chart.dart';
 import 'platform_take_rate_trend_chart.dart';
-import '../../../../shared/widgets/design_system/df_segmented_control.dart';
+import '../../../../shared/widgets/design_system/df_period_pill_chip.dart';
 import '../providers/analytics_providers.dart';
 
 /// Seção completa de analytics por plataforma (ondas 30–33).
@@ -48,15 +48,12 @@ class PlatformAnalyticsSection extends ConsumerWidget {
           style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 8),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: DfSegmentedControl<PlatformTrendWindow>(
-            segments: PlatformTrendWindow.values,
-            selected: trendWindow,
-            labelBuilder: (w) => w.label,
-            onChanged: (w) =>
-                ref.read(platformTrendWindowProvider.notifier).state = w,
-          ),
+        DfPeriodPillRow<PlatformTrendWindow>(
+          segments: PlatformTrendWindow.values,
+          selected: trendWindow,
+          labelBuilder: (w) => w.label,
+          onChanged: (w) =>
+              ref.read(platformTrendWindowProvider.notifier).state = w,
         ),
         const SizedBox(height: 12),
         trend.when(

@@ -5,15 +5,18 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/validators.dart';
-import '../../../authentication/presentation/widgets/auth_primary_button.dart';
 import '../../../authentication/presentation/widgets/auth_text_field.dart';
 import '../../domain/entities/goal_entity.dart';
 import '../providers/goals_providers.dart';
+import '../../../../shared/widgets/design_system/df_button.dart';
+import '../../../../shared/widgets/design_system/df_card.dart';
+import '../../../../shared/widgets/design_system/df_hero_wealth_card.dart';
+import '../../../../shared/widgets/design_system/df_section_header.dart';
+import '../../../../shared/widgets/design_system/df_subpage_scaffold.dart';
 import '../widgets/goal_progress_card.dart';
 import '../widgets/goals_story_header.dart';
-import '../../../../shared/widgets/design_system/df_card.dart';
 
-/// Tela de configuração e acompanhamento de metas financeiras.
+/// Metas financeiras — hero de progresso + formulário agrupado.
 class GoalsScreen extends HookConsumerWidget {
   const GoalsScreen({super.key});
 
@@ -66,119 +69,118 @@ class GoalsScreen extends HookConsumerWidget {
       }
     }
 
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      appBar: AppBar(
-        title: const Text('Metas'),
-        backgroundColor: Colors.transparent,
-      ),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
-        children: [
-          const GoalsStoryHeader(),
-          const SizedBox(height: 20),
-          Text('Progresso', style: theme.textTheme.titleMedium),
-          const SizedBox(height: 12),
-          progressAsync.when(
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (e, _) => Text('Erro: $e'),
-            data: (progressMap) => Column(
+    return DfSubpageScaffold(
+      title: 'Metas',
+      children: [
+        const GoalsStoryHeader(),
+        progressAsync.when(
+          loading: () => const SizedBox.shrink(),
+          error: (_, __) => const SizedBox.shrink(),
+          data: (progressMap) {
+            final monthly = progressMap[GoalPeriod.monthly];
+            if (monthly == null) return const SizedBox.shrink();
+            return DfHeroWealthCard(
+              label: 'Meta mensal',
+              value: monthly.hasTarget
+                  ? CurrencyFormatter.format(monthly.targetAmount)
+                  : 'Sem meta',
+              badge: monthly.progressLabel,
+            );
+          },
+        ),
+        const DfSectionHeader(title: 'Progresso', eyebrow: 'Períodos'),
+        progressAsync.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (e, _) => Text('Erro: $e'),
+          data: (progressMap) => Column(
+            children: [
+              for (final period in GoalPeriod.values)
+                if (progressMap[period] case final progress?) ...[
+                  GoalProgressCard(progress: progress),
+                  const SizedBox(height: 12),
+                ],
+            ],
+          ),
+        ),
+        const DfSectionHeader(title: 'Configurar metas', eyebrow: 'Valores'),
+        Text(
+          'Defina quanto você quer lucrar em cada período (ganhos − despesas).',
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: AppColors.secondaryLabel(theme),
+          ),
+        ),
+        DfCard(
+          child: Form(
+            key: formKey,
+            child: Column(
               children: [
-                for (final period in GoalPeriod.values)
-                  if (progressMap[period] case final progress?) ...[
-                    GoalProgressCard(progress: progress),
-                    const SizedBox(height: 12),
-                  ],
+                AuthTextField(
+                  controller: dailyController,
+                  label: 'Meta diária',
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
+                  prefixIcon: Icons.today_outlined,
+                  validator: (v) {
+                    if (v == null || v.trim().isEmpty) return null;
+                    return Validators.brlAmount(v);
+                  },
+                ),
+                const SizedBox(height: 12),
+                AuthTextField(
+                  controller: weeklyController,
+                  label: 'Meta semanal',
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
+                  prefixIcon: Icons.date_range_outlined,
+                  validator: (v) {
+                    if (v == null || v.trim().isEmpty) return null;
+                    return Validators.brlAmount(v);
+                  },
+                ),
+                const SizedBox(height: 12),
+                AuthTextField(
+                  controller: monthlyController,
+                  label: 'Meta mensal',
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
+                  prefixIcon: Icons.calendar_month_outlined,
+                  validator: (v) {
+                    if (v == null || v.trim().isEmpty) return null;
+                    return Validators.brlAmount(v);
+                  },
+                ),
+                const SizedBox(height: 12),
+                AuthTextField(
+                  controller: yearlyController,
+                  label: 'Meta anual',
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
+                  prefixIcon: Icons.event_outlined,
+                  validator: (v) {
+                    if (v == null || v.trim().isEmpty) return null;
+                    return Validators.brlAmount(v);
+                  },
+                ),
+                if (mutation.hasError) ...[
+                  const SizedBox(height: 12),
+                  Text(
+                    mutation.error.toString(),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.error,
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 16),
+                DfButton(
+                  label: 'Salvar metas',
+                  isLoading: mutation.isLoading,
+                  onPressed: submit,
+                ),
               ],
             ),
           ),
-          const SizedBox(height: 24),
-          Text('Configurar metas', style: theme.textTheme.titleMedium),
-          const SizedBox(height: 8),
-          Text(
-            'Defina quanto você quer lucrar em cada período (ganhos − despesas).',
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: AppColors.secondaryLabel(theme),
-            ),
-          ),
-          const SizedBox(height: 16),
-          DfCard(
-            child: Form(
-              key: formKey,
-              child: Column(
-                children: [
-                  AuthTextField(
-                    controller: dailyController,
-                    label: 'Meta diária',
-                    keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true,
-                    ),
-                    prefixIcon: Icons.today_outlined,
-                    validator: (v) {
-                      if (v == null || v.trim().isEmpty) return null;
-                      return Validators.brlAmount(v);
-                    },
-                  ),
-                  const SizedBox(height: 12),
-                  AuthTextField(
-                    controller: weeklyController,
-                    label: 'Meta semanal',
-                    keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true,
-                    ),
-                    prefixIcon: Icons.date_range_outlined,
-                    validator: (v) {
-                      if (v == null || v.trim().isEmpty) return null;
-                      return Validators.brlAmount(v);
-                    },
-                  ),
-                  const SizedBox(height: 12),
-                  AuthTextField(
-                    controller: monthlyController,
-                    label: 'Meta mensal',
-                    keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true,
-                    ),
-                    prefixIcon: Icons.calendar_month_outlined,
-                    validator: (v) {
-                      if (v == null || v.trim().isEmpty) return null;
-                      return Validators.brlAmount(v);
-                    },
-                  ),
-                  const SizedBox(height: 12),
-                  AuthTextField(
-                    controller: yearlyController,
-                    label: 'Meta anual',
-                    keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true,
-                    ),
-                    prefixIcon: Icons.event_outlined,
-                    validator: (v) {
-                      if (v == null || v.trim().isEmpty) return null;
-                      return Validators.brlAmount(v);
-                    },
-                  ),
-                  if (mutation.hasError) ...[
-                    const SizedBox(height: 12),
-                    Text(
-                      mutation.error.toString(),
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.error,
-                      ),
-                    ),
-                  ],
-                  const SizedBox(height: 16),
-                  AuthPrimaryButton(
-                    label: 'Salvar metas',
-                    isLoading: mutation.isLoading,
-                    onPressed: submit,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

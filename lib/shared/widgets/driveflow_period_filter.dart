@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../../core/constants/date_range_period.dart';
-import 'design_system/df_segmented_control.dart';
+import 'design_system/df_period_pill_chip.dart';
 
-/// Filtro de período premium — DfSegmentedControl.
+/// Filtro de período — chips Mescla (Hoje / Semana / Mês).
 class DriveFlowPeriodFilter extends StatelessWidget {
   const DriveFlowPeriodFilter({
     required this.value,
@@ -16,14 +16,11 @@ class DriveFlowPeriodFilter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: DfSegmentedControl<DateRangePeriod>(
-        segments: DateRangePeriod.values,
-        selected: value,
-        onChanged: onChanged,
-        labelBuilder: (p) => p.label,
-      ),
+    return DfPeriodPillRow<DateRangePeriod>(
+      segments: DateRangePeriod.values,
+      selected: value,
+      labelBuilder: (p) => p.label,
+      onChanged: onChanged,
     );
   }
 }

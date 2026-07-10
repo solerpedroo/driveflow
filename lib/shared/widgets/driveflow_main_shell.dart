@@ -9,18 +9,20 @@ import 'driveflow_bottom_nav_bar.dart' show DriveFlowBottomNavBar, kDriveFlowTab
 import 'driveflow_connectivity_banner.dart';
 import 'driveflow_gradient_background.dart';
 
-/// Shell pós-login — fundo grouped iOS + tab bar Cupertino.
+/// Shell pós-login — fundo grouped iOS + tab bar Cupertino + lazy tabs.
 class DriveFlowMainShell extends StatelessWidget {
   const DriveFlowMainShell({
     required this.selectedIndex,
     required this.onNavIndexChanged,
     required this.tabBodies,
+    required this.activatedTabIndices,
     super.key,
   }) : assert(tabBodies.length == kDriveFlowMainTabCount);
 
   final int selectedIndex;
   final ValueChanged<int> onNavIndexChanged;
   final List<Widget> tabBodies;
+  final Set<int> activatedTabIndices;
 
   void _onTab(int index) {
     if (index != selectedIndex) DfHaptics.selection();
@@ -46,6 +48,9 @@ class DriveFlowMainShell extends StatelessWidget {
                   child: Stack(
                     fit: StackFit.expand,
                     children: List.generate(tabBodies.length, (index) {
+                      if (!activatedTabIndices.contains(index)) {
+                        return const SizedBox.shrink();
+                      }
                       final active = index == selectedIndex;
                       return Positioned.fill(
                         child: ExcludeSemantics(

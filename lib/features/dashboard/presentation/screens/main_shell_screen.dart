@@ -13,9 +13,10 @@ import '../../../../core/constants/driveflow_tab_count.dart';
 import '../../../reports/presentation/screens/reports_screen.dart';
 import '../../../dashboard/presentation/screens/dashboard_screen.dart';
 import '../../../profile/presentation/screens/profile_screen.dart';
+import '../../../../shared/widgets/design_system/df_subpage_scaffold.dart';
 import '../../../../shared/widgets/driveflow_main_shell.dart';
 
-/// Shell principal pós-login com 5 abas.
+/// Shell principal pós-login com 5 abas e lazy mount.
 class MainShellScreen extends HookConsumerWidget {
   const MainShellScreen({
     super.key,
@@ -24,7 +25,8 @@ class MainShellScreen extends HookConsumerWidget {
 
   final int initialTab;
 
-  static int resolveInitialTab(String? value) => DriveFlowTab.fromQueryParam(value);
+  static int resolveInitialTab(String? value) =>
+      DriveFlowTab.fromQueryParam(value);
 
   static String _homeLocationForTab(int tab) {
     if (tab == DriveFlowTab.dashboard) return AppRoutes.home;
@@ -45,6 +47,7 @@ class MainShellScreen extends HookConsumerWidget {
     final localTab = useState(initialTab);
     final routeTab = _tabFromGoRouter(context);
     final selectedIndex = routeTab ?? localTab.value;
+    final activatedTabs = useState(<int>{initialTab});
 
     final tabBodies = useMemoized(
       () => const [
@@ -57,6 +60,7 @@ class MainShellScreen extends HookConsumerWidget {
     );
 
     void onNavIndexChanged(int index) {
+      activatedTabs.value = {...activatedTabs.value, index};
       if (routeTab != null) {
         context.go(_homeLocationForTab(index));
         return;
@@ -64,10 +68,16 @@ class MainShellScreen extends HookConsumerWidget {
       localTab.value = index;
     }
 
+    useEffect(() {
+      activatedTabs.value = {...activatedTabs.value, selectedIndex};
+      return null;
+    }, [selectedIndex]);
+
     return DriveFlowMainShell(
       selectedIndex: selectedIndex,
       onNavIndexChanged: onNavIndexChanged,
       tabBodies: tabBodies,
+      activatedTabIndices: activatedTabs.value,
     );
   }
 }
@@ -80,19 +90,13 @@ class AddVehicleScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final vehicles = ref.watch(vehiclesListProvider).valueOrNull ?? const [];
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Adicionar veículo'),
-        backgroundColor: Colors.transparent,
-      ),
-      body: VehicleFormScreen(
-        title: 'Novo veículo',
-        subtitle:
-            'Cadastre outro carro para separar abastecimentos, manutenções e relatórios.',
-        submitLabel: 'Salvar veículo',
-        markAsDefault: vehicles.isEmpty,
-        onSaved: () => context.pop(),
-      ),
+    return VehicleFormScreen(
+      title: 'Adicionar veículo',
+      subtitle:
+          'Cadastre outro carro para separar abastecimentos, manutenções e relatórios.',
+      submitLabel: 'Salvar veículo',
+      markAsDefault: vehicles.isEmpty,
+      onSaved: () => context.pop(),
     );
   }
 }
@@ -108,33 +112,40 @@ class EditVehicleScreen extends ConsumerWidget {
     final vehiclesAsync = ref.watch(vehiclesListProvider);
     final theme = Theme.of(context);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Editar veículo'),
-        backgroundColor: Colors.transparent,
+    return vehiclesAsync.when(
+      loading: () => const DfSubpageScaffold(
+        title: 'Editar veículo',
+        children: [
+          Center(child: CircularProgressIndicator()),
+        ],
       ),
-      body: vehiclesAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Erro: $e')),
-        data: (vehicles) {
-          final vehicle = _resolveVehicle(vehicles, vehicleId);
-          if (vehicle == null) {
-            return Center(
-              child: Text(
+      error: (e, _) => DfSubpageScaffold(
+        title: 'Editar veículo',
+        children: [
+          Text('Erro: $e'),
+        ],
+      ),
+      data: (vehicles) {
+        final vehicle = _resolveVehicle(vehicles, vehicleId);
+        if (vehicle == null) {
+          return DfSubpageScaffold(
+            title: 'Editar veículo',
+            children: [
+              Text(
                 'Nenhum veículo encontrado.',
                 style: theme.textTheme.bodyLarge,
               ),
-            );
-          }
-          return VehicleFormScreen(
-            vehicle: vehicle,
-            title: 'Editar veículo',
-            subtitle: 'Atualize os dados do ${vehicle.displayName}.',
-            submitLabel: 'Salvar alterações',
-            onSaved: () => context.pop(),
+            ],
           );
-        },
-      ),
+        }
+        return VehicleFormScreen(
+          vehicle: vehicle,
+          title: 'Editar veículo',
+          subtitle: 'Atualize os dados do ${vehicle.displayName}.',
+          submitLabel: 'Salvar alterações',
+          onSaved: () => context.pop(),
+        );
+      },
     );
   }
 

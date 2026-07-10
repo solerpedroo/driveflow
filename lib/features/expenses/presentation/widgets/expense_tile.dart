@@ -3,70 +3,38 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../../core/constants/app_constants.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_radius.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/date_utils.dart';
-import '../../../../shared/widgets/design_system/df_card.dart';
+import '../../../../shared/widgets/design_system/df_movimentacao_tile.dart';
 import '../../domain/entities/expense_entity.dart';
 import '../providers/expenses_providers.dart';
 
-/// Tile de despesa na listagem.
+/// Tile de despesa — padrão Mescla movimentação.
 class ExpenseTile extends ConsumerWidget {
-  const ExpenseTile({required this.expense, super.key});
+  const ExpenseTile({
+    required this.expense,
+    super.key,
+    this.hideValue = false,
+  });
 
   final ExpenseEntity expense;
+  final bool hideValue;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
+    final title = expense.description?.isNotEmpty == true
+        ? expense.description!
+        : expense.category.label;
 
-    return DfCard(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: InkWell(
-        borderRadius: AppRadius.mdAll,
-        onTap: () => context.push(AppRoutes.expenseForm, extra: expense),
-        onLongPress: () => _confirmDelete(context, ref),
-        child: Row(
-          children: [
-            Icon(expense.category.icon,
-                size: 20, color: AppColors.expenseCoral),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    expense.description?.isNotEmpty == true
-                        ? expense.description!
-                        : expense.category.label,
-                    style: theme.textTheme.bodyLarge,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    DateUtilsDriveFlow.dayMonthYear.format(expense.date),
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: AppColors.secondaryLabel(theme),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            if (expense.receiptUrl != null)
-              const Padding(
-                padding: EdgeInsets.only(right: 8),
-                child: Icon(Icons.attach_file_rounded, size: 18),
-              ),
-            Text(
-              CurrencyFormatter.format(expense.amount),
-              style: theme.textTheme.titleSmall?.copyWith(
-                color: AppColors.expenseCoral,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ],
-        ),
-      ),
+    return DfMovimentacaoTile(
+      title: title,
+      detailCaps: expense.category.label,
+      dateLabel: DateUtilsDriveFlow.dayMonthYear.format(expense.date),
+      amount: CurrencyFormatter.format(expense.amount),
+      isCredit: false,
+      hideValue: hideValue,
+      onTap: () => context.push(AppRoutes.expenseForm, extra: expense),
+      onLongPress: () => _confirmDelete(context, ref),
     );
   }
 

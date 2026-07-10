@@ -5,15 +5,18 @@ import '../../../analytics/presentation/widgets/expense_pie_chart.dart';
 import '../../../analytics/presentation/widgets/period_comparison_card.dart';
 import '../../../goals/domain/entities/goal_entity.dart';
 import '../../../vehicle/presentation/widgets/vehicle_scope_chip.dart';
-import '../../../../shared/widgets/design_system/df_segmented_control.dart';
-import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/utils/currency_formatter.dart';
+import '../../../../core/utils/value_visibility_provider.dart';
+import '../../../../shared/widgets/design_system/df_goal_period_chips.dart';
+import '../../../../shared/widgets/design_system/df_header_row.dart';
+import '../../../../shared/widgets/design_system/df_hero_wealth_card.dart';
 import '../../../../shared/widgets/design_system/df_section_header.dart';
-import '../../../analytics/presentation/providers/analytics_providers.dart';
+import '../../../../shared/widgets/design_system/df_tab_scroll_view.dart';
 import '../providers/reports_providers.dart';
 import '../widgets/report_export_actions.dart';
 import '../widgets/report_indicators_card.dart';
 
-/// Aba Relatórios — indicadores por período e exportação PDF/CSV.
+/// Relatórios no padrão Mescla — hero, período, indicadores, gráficos.
 class ReportsScreen extends ConsumerWidget {
   const ReportsScreen({super.key});
 
@@ -23,100 +26,58 @@ class ReportsScreen extends ConsumerWidget {
     final reportAsync = ref.watch(reportSnapshotProvider);
     final comparisonAsync = ref.watch(reportComparisonProvider);
     final breakdownAsync = ref.watch(reportCategoryBreakdownProvider);
+    final hidden = ref.watch(valueVisibilityHiddenProvider);
 
-    return CustomScrollView(
-      slivers: [
-        const SliverToBoxAdapter(
-          child: DfScreenTitle(title: 'Relatórios'),
+    return DfTabScrollView(
+      children: [
+        const DfHeaderRow(),
+        DfScreenTitleRow(
+          title: 'Relatórios',
+          hidden: hidden,
+          onToggleVisibility: () => ref
+              .read(valueVisibilityHiddenProvider.notifier)
+              .state = !hidden,
         ),
-        SliverPadding(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.screenHorizontal,
-            AppSpacing.md,
-            AppSpacing.screenHorizontal,
-            0,
-          ),
-          sliver: const SliverToBoxAdapter(
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: VehicleScopeChip(),
-            ),
-          ),
+        const Align(
+          alignment: Alignment.centerLeft,
+          child: VehicleScopeChip(),
         ),
-        SliverPadding(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.screenHorizontal,
-            AppSpacing.lg,
-            AppSpacing.screenHorizontal,
-            0,
-          ),
-          sliver: SliverToBoxAdapter(
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: DfSegmentedControl<GoalPeriod>(
-                segments: GoalPeriod.values,
-                selected: period,
-                labelBuilder: (p) => p.label,
-                onChanged: (p) =>
-                    ref.read(reportPeriodProvider.notifier).state = p,
-              ),
-            ),
+        DfGoalPeriodChips(
+          selected: period,
+          onChanged: (p) =>
+              ref.read(reportPeriodProvider.notifier).state = p,
+        ),
+        reportAsync.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (e, _) => Text('Erro: $e'),
+          data: (report) => DfHeroWealthCard(
+            label: 'Lucro no período',
+            value: CurrencyFormatter.formatSigned(report.summary.profit),
+            badge: '${report.summary.rides} corridas',
+            hideValue: hidden,
           ),
         ),
-        SliverPadding(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.screenHorizontal,
-            AppSpacing.lg,
-            AppSpacing.screenHorizontal,
-            0,
-          ),
-          sliver: SliverToBoxAdapter(
-            child: reportAsync.when(
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, _) => Text('Erro: $e'),
-              data: (report) => ReportIndicatorsCard(report: report),
-            ),
-          ),
+        reportAsync.when(
+          loading: () => const SizedBox.shrink(),
+          error: (_, __) => const SizedBox.shrink(),
+          data: (report) => ReportIndicatorsCard(report: report),
         ),
-        SliverPadding(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.screenHorizontal,
-            AppSpacing.lg,
-            AppSpacing.screenHorizontal,
-            0,
-          ),
-          sliver: SliverToBoxAdapter(
-            child: comparisonAsync.when(
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, _) => Text('Erro: $e'),
-              data: (comparison) => PeriodComparisonCard(comparison: comparison),
-            ),
-          ),
+        const DfSectionHeader(title: 'Comparação', eyebrow: 'Período'),
+        comparisonAsync.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (e, _) => Text('Erro: $e'),
+          data: (comparison) => PeriodComparisonCard(comparison: comparison),
         ),
-        SliverPadding(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.screenHorizontal,
-            AppSpacing.lg,
-            AppSpacing.screenHorizontal,
-            0,
-          ),
-          sliver: SliverToBoxAdapter(
-            child: breakdownAsync.when(
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, _) => Text('Erro: $e'),
-              data: (slices) => ExpensePieChart(slices: slices),
-            ),
-          ),
+        const DfSectionHeader(
+          title: 'Distribuição de despesas',
+          eyebrow: 'Categorias',
         ),
-        const SliverPadding(
-          padding: EdgeInsets.fromLTRB(
-            AppSpacing.screenHorizontal,
-            AppSpacing.xl,
-            AppSpacing.screenHorizontal,
-            AppSpacing.xxl,
-          ),
-          sliver: SliverToBoxAdapter(child: ReportExportActions()),
+        breakdownAsync.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (e, _) => Text('Erro: $e'),
+          data: (slices) => ExpensePieChart(slices: slices),
         ),
+        const ReportExportActions(),
       ],
     );
   }
