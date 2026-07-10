@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/ride_platforms.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../shared/widgets/design_system/df_button.dart';
 import '../../../../shared/widgets/design_system/df_card.dart';
+import '../../../../shared/widgets/platform_brand_icon.dart';
 import '../../domain/entities/integration_status.dart';
 import '../../domain/entities/platform_catalog_entry.dart';
 import '../../domain/entities/platform_connection_entity.dart';
@@ -44,14 +44,10 @@ class PlatformConnectionCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: entry.brandColor.withValues(alpha: 0.14),
-                  borderRadius: AppRadius.mdAll,
-                ),
-                child: Icon(entry.icon, color: entry.brandColor),
+              PlatformBrandIcon(
+                platform: entry.platform,
+                size: 48,
+                borderRadius: 12,
               ),
               const SizedBox(width: AppSpacing.md),
               Expanded(
