@@ -1,8 +1,8 @@
 # DriveFlow — implementation-plan.md
 
-Plano de implementação em **16 ondas** (0–15) para o DriveFlow (Flutter + Supabase + Groq), partindo de repositório vazio, combinando Clean Architecture feature-first do escopo com os padrões de organização do projeto MesclaInvest (screens/widgets/services separados, shell de navegação, mappers, test hooks).
+Plano de implementação em **29 ondas** (0–29) para o DriveFlow (Flutter + Supabase + Groq), partindo de repositório vazio, combinando Clean Architecture feature-first do escopo com os padrões de organização do projeto MesclaInvest (screens/widgets/services separados, shell de navegação, mappers, test hooks).
 
-**Fases:** ondas **0–9** = MVP v1.0 · ondas **10–14** = features pós-MVP · onda **15–17** = Design System + Premium UI · onda **18** = Product Storytelling & upsell.
+**Fases:** ondas **0–9** = MVP v1.0 · ondas **10–14** = features pós-MVP · ondas **15–23** = Design System + Premium UI · ondas **24–29** = Integrações Uber/99/InDrive + inteligência cross-platform.
 
 **Repositório:** `driveflow`  
 **Referência:** `ES-PI3-2026-T2-G03` (MesclaInvest)
@@ -32,6 +32,12 @@ Plano de implementação em **16 ondas** (0–15) para o DriveFlow (Flutter + Su
 | 16 | UI Excellence — paleta azul-claro, tipografia premium, motion auth | concluída |
 | 17 | Premium UI — FitCal/FitFolio tier (hero ring, mesh, editorial auth) | concluída |
 | 18 | Product Storytelling — narrativa, métricas de valor, upsell Pro | em andamento |
+| 24 | Integrações foundation — hub Uber/99/InDrive, conexões OAuth, proveniência | em andamento |
+| 25 | Histórico de corridas + rollup automático de ganhos diários | em andamento |
+| 26 | Adapters OAuth Uber/99/InDrive (Edge Functions + tokens seguros) | pendente |
+| 27 | Inteligência cross-platform — shift advisor, take rate, gaps de sync | pendente |
+| 28 | Sync em background + webhooks + notificações de repasse | pendente |
+| 29 | Analytics por plataforma + IA com contexto de corridas | pendente |
 
 ---
 
@@ -64,6 +70,8 @@ lib/
 │   ├── goals/
 │   ├── reports/
 │   ├── ai/
+│   ├── import/
+│   ├── integrations/                 # Uber, 99, InDrive — OAuth, trips, sync
 │   └── profile/
 │
 └── shared/
@@ -1192,6 +1200,156 @@ Substituir `electricTeal` como cor de marca por tons de azul-claro. Verde perman
 
 ---
 
+## Onda 24 — Integrações foundation (Uber, 99, InDrive)
+
+**Objetivo:** Preparar infraestrutura para conectar apps de corridas e sincronizar dados automaticamente — sem depender de digitação manual.
+
+### Escopo
+
+| Área | Entrega |
+|---|---|
+| Supabase | `platform_connections` (status OAuth, last_sync, cursor) |
+| Earnings | Colunas `source` (`manual`/`import`/`api_sync`) + `external_id` com dedup |
+| Domain | `IntegrationStatus`, `PlatformCatalog`, `PlatformConnectionEntity` |
+| Data | Repository + datasources + Edge Function stub `platform-sync` |
+| UI | Tela **Apps conectados** (`/integrations/platforms`) + atalho no Perfil |
+| Sync | Conectar → `pending` · Sincronizar → upsert com dedup · Erro → `error` |
+
+### Critérios de conclusão
+
+- Motorista consegue iniciar conexão com Uber, 99 e InDrive
+- Status de conexão persiste e atualiza em tempo real (stream)
+- Edge Function responde com contrato `{ trips_imported, earnings_imported, synced_at }`
+- Ganhos sincronizados não duplicam (`external_id`)
+
+---
+
+## Onda 25 — Histórico de corridas + rollup de ganhos
+
+**Objetivo:** Puxar corridas individuais das APIs e derivar ganhos diários automaticamente — o motorista vê cada corrida e o lucro consolidado.
+
+### Escopo
+
+| Área | Entrega |
+|---|---|
+| Supabase | Tabela `platform_trips` (fare, tip, fee, payout, rota, duração, status) |
+| Domain | `PlatformTripEntity`, `EarningsRollupService` (trips → `EarningDraft` diário) |
+| Edge Function | Sync grava corridas + rollup diário em `earnings` |
+| UI | **Histórico de corridas** (`/integrations/trips`) com filtros por app |
+| Hub | Card "Últimas corridas sincronizadas" no hub de integrações |
+
+### Dados sincronizados por corrida
+
+- Valor bruto, gorjeta, taxa da plataforma, repasse líquido
+- Distância, duração, horário início/fim
+- Origem/destino (labels)
+- Status: concluída, cancelada, ajustada
+
+### Critérios de conclusão
+
+- Corridas aparecem no histórico após sync
+- Ganhos diários são calculados automaticamente a partir das corridas
+- Filtro por Uber / 99 / InDrive funciona
+- Testes: `earnings_rollup_service_test`, `platform_trip_mapper_test`
+
+---
+
+## Onda 26 — Adapters OAuth Uber/99/InDrive
+
+**Objetivo:** Implementar conexão real com APIs oficiais ou agregador parceiro (Argyle/Rollee-style).
+
+### Escopo
+
+| Plataforma | Adapter | Dados |
+|---|---|---|
+| Uber | OAuth Driver API / partner | trips, payouts, ratings, surge |
+| 99 | OAuth motorista | trips, repasses, horas online |
+| InDrive | OAuth partner | trips negociadas, ofertas |
+
+| Área | Entrega |
+|---|---|
+| Edge Functions | `platform-oauth-callback`, adapters em `platform-sync` |
+| Secrets | Tokens criptografados server-side (nunca no client) |
+| Sync cursor | Paginação incremental (`sync_cursor` jsonb) |
+| Reauth | Status `token_expired` + fluxo de renovação na UI |
+
+### Critérios de conclusão
+
+- OAuth completo para pelo menos 1 plataforma em staging
+- Sync incremental (não reimporta corridas existentes)
+- Tokens revogados ao desconectar
+
+---
+
+## Onda 27 — Inteligência cross-platform
+
+**Objetivo:** Features que só fazem sentido com múltiplos apps — decisões inteligentes para o motorista.
+
+### Features de valor
+
+| Feature | Descrição | Status |
+|---|---|---|
+| **Melhor app agora** | Recomenda Uber/99/InDrive por turno (R$/hora histórico) | ✅ foundation |
+| **Comparativo R$/hora** | Barras visuais entre plataformas | ✅ foundation |
+| **Take rate transparency** | Qual app retém menos (`PlatformFeeAnalyzer`) | ✅ foundation |
+| **Gaps de sync** | Alerta apps conectados sem dados recentes | ✅ foundation |
+| **Horário de ouro** | Cruzar heatmap de ganhos com trips por slot | pendente |
+| **Sugestão de turno** | "Abra 99 entre 18h–22h" push notification | pendente |
+| **Lucro por km** | Cruzar trips com custo combustível do veículo ativo | pendente |
+| **Score de plataforma** | Nota composta: R$/h, take rate, avaliação, consistência | pendente |
+
+### Critérios de conclusão
+
+- Painel de insights no hub com dados reais pós-sync
+- IA (Groq) recebe breakdown por plataforma no contexto
+- Dashboard exibe chip "Melhor app: 99" quando há dados
+
+---
+
+## Onda 28 — Sync em background + webhooks
+
+**Objetivo:** Motorista conecta uma vez e os dados fluem automaticamente.
+
+### Escopo
+
+| Área | Entrega |
+|---|---|
+| Cron | Edge Function `platform-sync-cron` (diário + pós-turno) |
+| Webhooks | Receber eventos de payout/trip das plataformas |
+| Push | Notificação "Repasse Uber: R$ 248,50 creditado" |
+| Offline | Fila local de sync pendente (reusar `pending_sync_queue`) |
+| Conflitos | Regra: API overwrite para `api_sync`, preservar edição manual |
+
+### Critérios de conclusão
+
+- Sync automático diário sem ação do usuário
+- Push de repasse e alerta de token expirado
+- Log de sync auditável (`platform_sync_logs` opcional)
+
+---
+
+## Onda 29 — Analytics por plataforma + IA enriquecida
+
+**Objetivo:** Dashboard e relatórios com visão por app — relatório fiscal e decisão de onde rodar.
+
+### Escopo
+
+| Área | Entrega |
+|---|---|
+| Analytics | Gráfico pizza/barra por plataforma (ganhos vs despesas) |
+| Relatórios | Export PDF/CSV com aba por Uber/99/InDrive |
+| IA | Prompts: "Vale mais Uber ou 99 hoje?", "Qual minha taxa média?" |
+| Metas | Meta de lucro com progresso desmembrado por app |
+| Pro upsell | "Sync automático + analytics por app" no paywall |
+
+### Critérios de conclusão
+
+- Tela Analytics com filtro/seção por plataforma
+- Relatório mensal PDF inclui breakdown Uber/99/InDrive
+- IA responde com dados reais de trips e take rate
+
+---
+
 ## Mapa de requisitos funcionais → ondas
 
 | RF | Descrição | Onda |
@@ -1226,6 +1384,13 @@ Substituir `electricTeal` como cor de marca por tons de azul-claro. Verde perman
 | RNF-Insights | Insights polish + deprecated cleanup | 21 |
 | RNF-Forms | Forms polish + final FilterChip cleanup | 22 |
 | RNF-Final | Final outlier polish — 100% design system | 23 |
+| RF22 | Conexão apps Uber/99/InDrive | 24 |
+| RF23 | Sync ganhos e corridas via API | 25–26 |
+| RF24 | Histórico de corridas sincronizadas | 25 |
+| RF25 | Rollup automático ganhos diários | 25 |
+| RF26 | Inteligência cross-platform (shift advisor, take rate) | 27 |
+| RF27 | Sync background + webhooks + push repasse | 28 |
+| RF28 | Analytics e relatórios por plataforma | 29 |
 
 ---
 
@@ -1254,6 +1419,15 @@ SUPABASE_ANON_KEY=
 # Supabase Edge Functions (secrets)
 GROQ_API_KEY=
 GROQ_MODEL=llama-3.3-70b-versatile
+
+# Integrações (Onda 26+)
+UBER_CLIENT_ID=
+UBER_CLIENT_SECRET=
+NINETY_NINE_CLIENT_ID=
+NINETY_NINE_CLIENT_SECRET=
+INDRIVE_CLIENT_ID=
+INDRIVE_CLIENT_SECRET=
+PLATFORM_OAUTH_REDIRECT_URL=
 ```
 
 ---
@@ -1265,7 +1439,8 @@ GROQ_MODEL=llama-3.3-70b-versatile
 | **v1.5** | OCR, gráficos avançados, múltiplos veículos, lembretes inteligentes | 10–13 |
 | **v2.0** | Importação extratos, previsão IA, melhor horário, comparação períodos | 12–14 |
 | **v2.1** | Metas por veículo, remoção aliases `driveflow_*` deprecated | pós-15 |
-| **v3.0** | Comunidade, parceiros, painel web | fora do plano atual |
+| **v3.0** | Integrações Uber/99/InDrive + inteligência cross-platform | 24–29 |
+| **v3.1** | Comunidade, parceiros, painel web | fora do plano atual |
 
 ---
 
