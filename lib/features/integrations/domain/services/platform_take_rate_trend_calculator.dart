@@ -1,3 +1,4 @@
+import '../../../../core/constants/ride_platforms.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../entities/platform_take_rate_point.dart';
 import '../entities/platform_trip_entity.dart';
