@@ -13,7 +13,6 @@ import '../../../../core/constants/driveflow_tab_count.dart';
 import '../../../reports/presentation/screens/reports_screen.dart';
 import '../../../dashboard/presentation/screens/dashboard_screen.dart';
 import '../../../profile/presentation/screens/profile_screen.dart';
-import '../../../../shared/widgets/design_system/df_subpage_scaffold.dart';
 import '../../../../shared/widgets/driveflow_main_shell.dart';
 
 /// Shell principal pós-login com 5 abas e lazy mount.
@@ -90,18 +89,13 @@ class AddVehicleScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final vehicles = ref.watch(vehiclesListProvider).valueOrNull ?? const [];
 
-    return DfSubpageScaffold(
+    return VehicleFormScreen(
       title: 'Adicionar veículo',
-      children: [
-        VehicleFormScreen(
-          title: 'Novo veículo',
-          subtitle:
-              'Cadastre outro carro para separar abastecimentos, manutenções e relatórios.',
-          submitLabel: 'Salvar veículo',
-          markAsDefault: vehicles.isEmpty,
-          onSaved: () => context.pop(),
-        ),
-      ],
+      subtitle:
+          'Cadastre outro carro para separar abastecimentos, manutenções e relatórios.',
+      submitLabel: 'Salvar veículo',
+      markAsDefault: vehicles.isEmpty,
+      onSaved: () => context.pop(),
     );
   }
 }
@@ -117,30 +111,33 @@ class EditVehicleScreen extends ConsumerWidget {
     final vehiclesAsync = ref.watch(vehiclesListProvider);
     final theme = Theme.of(context);
 
-    return DfSubpageScaffold(
-      title: 'Editar veículo',
-      children: [
-        vehiclesAsync.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, _) => Text('Erro: $e'),
-          data: (vehicles) {
-            final vehicle = _resolveVehicle(vehicles, vehicleId);
-            if (vehicle == null) {
-              return Text(
+    return vehiclesAsync.when(
+      loading: () => const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      ),
+      error: (e, _) => Scaffold(
+        body: Center(child: Text('Erro: $e')),
+      ),
+      data: (vehicles) {
+        final vehicle = _resolveVehicle(vehicles, vehicleId);
+        if (vehicle == null) {
+          return Scaffold(
+            body: Center(
+              child: Text(
                 'Nenhum veículo encontrado.',
                 style: theme.textTheme.bodyLarge,
-              );
-            }
-            return VehicleFormScreen(
-              vehicle: vehicle,
-              title: 'Editar veículo',
-              subtitle: 'Atualize os dados do ${vehicle.displayName}.',
-              submitLabel: 'Salvar alterações',
-              onSaved: () => context.pop(),
-            );
-          },
-        ),
-      ],
+              ),
+            ),
+          );
+        }
+        return VehicleFormScreen(
+          vehicle: vehicle,
+          title: 'Editar veículo',
+          subtitle: 'Atualize os dados do ${vehicle.displayName}.',
+          submitLabel: 'Salvar alterações',
+          onSaved: () => context.pop(),
+        );
+      },
     );
   }
 
