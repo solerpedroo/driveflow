@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_elevation.dart';
 import '../../../core/theme/app_gradients.dart';
 import '../../../core/theme/app_motion.dart';
 import '../../../core/theme/app_radius.dart';
@@ -155,15 +157,7 @@ class _GradientButton extends StatelessWidget {
           decoration: BoxDecoration(
             gradient: AppGradients.primaryButton(brightness),
             borderRadius: AppRadius.lgAll,
-            boxShadow: [
-              BoxShadow(
-                color: Theme.of(context).colorScheme.primary.withValues(
-                      alpha: brightness == Brightness.dark ? 0.35 : 0.28,
-                    ),
-                blurRadius: 16,
-                offset: const Offset(0, 6),
-              ),
-            ],
+            boxShadow: AppElevation.brandGlow(brightness),
           ),
           child: SizedBox(
             width: double.infinity,
