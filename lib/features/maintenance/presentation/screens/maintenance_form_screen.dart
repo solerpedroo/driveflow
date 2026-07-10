@@ -5,19 +5,21 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../../core/utils/validators.dart';
-import '../../../authentication/presentation/widgets/auth_primary_button.dart';
 import '../../../authentication/presentation/widgets/auth_text_field.dart';
 import '../../../vehicle/presentation/providers/vehicle_providers.dart';
 import '../../domain/entities/maintenance_entity.dart';
 import '../providers/maintenance_providers.dart';
+import '../../../../shared/widgets/design_system/df_card.dart';
 import '../../../../shared/widgets/design_system/df_empty_state.dart';
 import '../../../../shared/widgets/design_system/df_filter_pill.dart';
-import '../../../../shared/widgets/design_system/df_card.dart';
+import '../../../../shared/widgets/design_system/df_form_scaffold.dart';
+import '../../../../shared/widgets/design_system/df_subpage_scaffold.dart';
 
-/// Formulário de registro/edição de manutenção.
+/// Formulário de manutenção — DfFormScaffold Mescla.
 class MaintenanceFormScreen extends HookConsumerWidget {
   const MaintenanceFormScreen({this.record, super.key});
 
@@ -56,7 +58,8 @@ class MaintenanceFormScreen extends HookConsumerWidget {
     Future<void> pickNextDueDate() async {
       final picked = await showDatePicker(
         context: context,
-        initialDate: nextDueDate.value ?? DateTime.now().add(const Duration(days: 90)),
+        initialDate:
+            nextDueDate.value ?? DateTime.now().add(const Duration(days: 90)),
         firstDate: DateTime.now(),
         lastDate: DateTime.now().add(const Duration(days: 365 * 5)),
         locale: const Locale('pt', 'BR'),
@@ -96,127 +99,130 @@ class MaintenanceFormScreen extends HookConsumerWidget {
     }
 
     if (vehicle == null) {
-      return Scaffold(
-        appBar: AppBar(
-          title: const Text('Manutenção'),
-          backgroundColor: Colors.transparent,
-        ),
-        body: const DfEmptyState(
-          variant: DfEmptyStateVariant.illustrated,
-          icon: Icons.directions_car_outlined,
-          title: 'Cadastre um veículo primeiro',
-          subtitle: 'Vá em Perfil → Adicionar veículo para registrar manutenções.',
-        ),
+      return const DfSubpageScaffold(
+        title: 'Manutenção',
+        children: [
+          DfEmptyState(
+            variant: DfEmptyStateVariant.illustrated,
+            icon: Icons.directions_car_outlined,
+            title: 'Cadastre um veículo primeiro',
+            subtitle:
+                'Vá em Perfil → Adicionar veículo para registrar manutenções.',
+          ),
+        ],
       );
     }
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(isEditing ? 'Editar manutenção' : 'Nova manutenção'),
-        backgroundColor: Colors.transparent,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(24, 8, 24, 32),
-        child: Form(
-          key: formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              DfCard(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Tipo', style: theme.textTheme.labelLarge),
-                    const SizedBox(height: 8),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: kMaintenanceTypes.map((type) {
-                        return DfFilterPill(
-                          icon: type.icon,
-                          label: type.label,
-                          selected: selectedType.value == type,
-                          accentColor: AppColors.warningAmber,
-                          onSelected: () => selectedType.value = type,
-                        );
-                      }).toList(growable: false),
-                    ),
-                    const SizedBox(height: 16),
-                    AuthTextField(
-                      controller: costController,
-                      label: 'Custo (R\$)',
-                      hint: 'R\$ 350,00',
-                      keyboardType:
-                          const TextInputType.numberWithOptions(decimal: true),
-                      validator: Validators.brlAmount,
-                    ),
-                    const SizedBox(height: 12),
-                    ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      title: const Text('Data do serviço'),
-                      subtitle: Text(
-                        DateUtilsDriveFlow.dayMonthYear.format(serviceDate.value),
-                      ),
-                      trailing: const Icon(Icons.calendar_today_outlined),
-                      onTap: pickServiceDate,
-                    ),
-                    const SizedBox(height: 12),
-                    AuthTextField(
-                      controller: nextKmController,
-                      label: 'Próxima revisão em km (opcional)',
-                      hint: '55000',
-                      keyboardType:
-                          const TextInputType.numberWithOptions(decimal: true),
-                    ),
-                    const SizedBox(height: 12),
-                    ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      title: const Text('Próxima revisão em data (opcional)'),
-                      subtitle: Text(
-                        nextDueDate.value == null
-                            ? 'Não definida'
-                            : DateUtilsDriveFlow.dayMonthYear
-                                .format(nextDueDate.value!),
-                      ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (nextDueDate.value != null)
-                            IconButton(
-                              icon: const Icon(Icons.close_rounded),
-                              onPressed: () => nextDueDate.value = null,
-                            ),
-                          const Icon(Icons.event_outlined),
-                        ],
-                      ),
-                      onTap: pickNextDueDate,
-                    ),
-                    const SizedBox(height: 12),
-                    AuthTextField(
-                      controller: notesController,
-                      label: 'Observação (opcional)',
-                      hint: 'Troca de óleo sintético 5W30',
-                    ),
-                  ],
-                ),
+    return DfFormScaffold(
+      title: isEditing ? 'Editar manutenção' : 'Nova manutenção',
+      submitLabel: isEditing ? 'Salvar alterações' : 'Registrar manutenção',
+      isLoading: mutation.isLoading,
+      onSubmit: submit,
+      child: Form(
+        key: formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              'MANUTENÇÃO',
+              style: AppTypography.labelCaps(theme.brightness),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              vehicle.displayName,
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w700,
               ),
-              if (mutation.hasError) ...[
-                const SizedBox(height: 12),
-                Text(
-                  mutation.error.toString(),
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.error,
+            ),
+            const SizedBox(height: 16),
+            DfCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Tipo', style: theme.textTheme.labelLarge),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: kMaintenanceTypes.map((type) {
+                      return DfFilterPill(
+                        icon: type.icon,
+                        label: type.label,
+                        selected: selectedType.value == type,
+                        accentColor: AppColors.warningAmber,
+                        onSelected: () => selectedType.value = type,
+                      );
+                    }).toList(growable: false),
                   ),
+                  const SizedBox(height: 16),
+                  AuthTextField(
+                    controller: costController,
+                    label: 'Custo (R\$)',
+                    hint: 'R\$ 350,00',
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
+                    validator: Validators.brlAmount,
+                  ),
+                  const SizedBox(height: 12),
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: const Text('Data do serviço'),
+                    subtitle: Text(
+                      DateUtilsDriveFlow.dayMonthYear.format(serviceDate.value),
+                    ),
+                    trailing: const Icon(Icons.calendar_today_outlined),
+                    onTap: pickServiceDate,
+                  ),
+                  const SizedBox(height: 12),
+                  AuthTextField(
+                    controller: nextKmController,
+                    label: 'Próxima revisão em km (opcional)',
+                    hint: '55000',
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
+                  ),
+                  const SizedBox(height: 12),
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: const Text('Próxima revisão em data (opcional)'),
+                    subtitle: Text(
+                      nextDueDate.value == null
+                          ? 'Não definida'
+                          : DateUtilsDriveFlow.dayMonthYear
+                              .format(nextDueDate.value!),
+                    ),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (nextDueDate.value != null)
+                          IconButton(
+                            icon: const Icon(Icons.close_rounded),
+                            onPressed: () => nextDueDate.value = null,
+                          ),
+                        const Icon(Icons.event_outlined),
+                      ],
+                    ),
+                    onTap: pickNextDueDate,
+                  ),
+                  const SizedBox(height: 12),
+                  AuthTextField(
+                    controller: notesController,
+                    label: 'Observação (opcional)',
+                    hint: 'Troca de óleo sintético 5W30',
+                  ),
+                ],
+              ),
+            ),
+            if (mutation.hasError) ...[
+              const SizedBox(height: 12),
+              Text(
+                mutation.error.toString(),
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.error,
                 ),
-              ],
-              const SizedBox(height: 20),
-              AuthPrimaryButton(
-                label: isEditing ? 'Salvar alterações' : 'Registrar manutenção',
-                isLoading: mutation.isLoading,
-                onPressed: submit,
               ),
             ],
-          ),
+          ],
         ),
       ),
     );
