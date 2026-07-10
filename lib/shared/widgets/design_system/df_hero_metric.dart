@@ -35,7 +35,6 @@ class DfHeroMetric extends StatelessWidget {
           style: AppTypography.metric(
             brightness,
             fontSize: 26,
-            fontWeight: FontWeight.w700,
             color: valueColor ?? theme.colorScheme.onSurface,
           ),
           textAlign: alignment == CrossAxisAlignment.center
