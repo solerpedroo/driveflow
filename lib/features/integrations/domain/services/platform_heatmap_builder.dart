@@ -1,6 +1,9 @@
 import '../../../../core/constants/ride_platforms.dart';
+import '../../../../core/utils/iterable_extensions.dart';
 import '../entities/platform_heatmap_slot.dart';
 import '../entities/platform_trip_entity.dart';
+import 'platform_analytics_breakdown.dart';
+import 'platform_trip_duration.dart';
 
 /// Heatmap 7×24 de R$/h por Uber, 99 e InDrive.
 abstract final class PlatformHeatmapBuilder {
@@ -17,10 +20,13 @@ abstract final class PlatformHeatmapBuilder {
 
     for (final trip in trips) {
       if (!trip.isCompleted) continue;
+      if (!PlatformAnalyticsBreakdown.integratable.contains(trip.platform)) {
+        continue;
+      }
       if (trip.startedAt.isBefore(cutoff)) continue;
       if (filterPlatform != null && trip.platform != filterPlatform) continue;
 
-      final hours = trip.workedHours > 0 ? trip.workedHours : 0.5;
+      final hours = PlatformTripDuration.workedHours(trip);
       _add(
         buckets,
         weekday: trip.startedAt.weekday,
@@ -54,9 +60,12 @@ abstract final class PlatformHeatmapBuilder {
     final slots = build(trips: trips, now: anchor);
     if (slots.isEmpty) return null;
 
-    return slots.where(
-      (s) => s.weekday == anchor.weekday && s.hour == anchor.hour,
-    ).firstOrNull ?? slots.first;
+    return slots
+            .where(
+              (s) => s.weekday == anchor.weekday && s.hour == anchor.hour,
+            )
+            .firstOrNull ??
+        slots.first;
   }
 
   static void _add(
@@ -118,13 +127,5 @@ class _Bucket {
       hours: hours ?? this.hours,
       count: count ?? this.count,
     );
-  }
-}
-
-extension _FirstOrNull<E> on Iterable<E> {
-  E? get firstOrNull {
-    final iterator = this.iterator;
-    if (!iterator.moveNext()) return null;
-    return iterator.current;
   }
 }
