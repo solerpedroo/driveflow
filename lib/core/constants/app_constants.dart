@@ -84,6 +84,7 @@ abstract final class AppRoutes {
   static const insights = '/insights';
   static const importStatement = '/import/statement';
   static const platformIntegrations = '/integrations/platforms';
+  static const platformTripHistory = '/integrations/trips';
   static const aiChat = '/ai/chat';
   static const paywall = '/paywall';
 }
