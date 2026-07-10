@@ -39,7 +39,7 @@ class DashboardHeroSection extends StatelessWidget {
         : 0.0;
     final ringColor = goalProgress.isComplete
         ? AppSemanticColors.success
-        : AppColors.brandBlue;
+        : AppColors.systemBlue;
     final storyLine = StoryMetrics.heroSubtitle(
       today: summary,
       goalProgress: goalProgress,
@@ -47,7 +47,7 @@ class DashboardHeroSection extends StatelessWidget {
     );
 
     return DfCard(
-      variant: DfCardVariant.hero,
+      variant: DfCardVariant.grouped,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -65,9 +65,9 @@ class DashboardHeroSection extends StatelessWidget {
               Text(
                 greeting.toUpperCase(),
                 style: theme.textTheme.labelSmall?.copyWith(
-                  color: AppColors.brandBlue,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 1.0,
+                  color: AppColors.systemBlue,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.6,
                 ),
               ),
             ],
@@ -222,7 +222,7 @@ class _StatChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 14, color: AppColors.brandBlue),
+          Icon(icon, size: 14, color: AppColors.systemBlue),
           const SizedBox(width: 6),
           Text(label, style: theme.textTheme.labelMedium),
         ],

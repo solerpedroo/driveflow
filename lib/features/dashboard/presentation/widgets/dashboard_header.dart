@@ -8,7 +8,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/theme/theme_mode_provider.dart';
 import '../../../../core/utils/df_haptics.dart';
 
-/// Cabeçalho premium — saudação editorial + avatar com anel de marca.
+/// Cabeçalho Large Title estilo iOS.
 class DashboardHeader extends ConsumerWidget {
   const DashboardHeader({required this.user, super.key});
 
@@ -23,7 +23,8 @@ class DashboardHeader extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
+    final brightness = theme.brightness;
+    final isDark = brightness == Brightness.dark;
     final hour = DateTime.now().hour;
     final greeting = _greetingForHour(hour);
     final name = user?.displayName ?? 'motorista';
@@ -37,37 +38,21 @@ class DashboardHeader extends ConsumerWidget {
         0,
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    Container(
-                      width: 6,
-                      height: 6,
-                      decoration: BoxDecoration(
-                        color: AppColors.brandBlue.withValues(alpha: 0.50),
-                        borderRadius: BorderRadius.circular(2),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      'DASHBOARD',
-                      style: AppTypography.labelCaps(theme.brightness),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: AppSpacing.sm),
                 Text(
-                  '$greeting, $name',
-                  style: theme.textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: -0.6,
-                  ),
-                  maxLines: 1,
+                  greeting,
+                  style: AppTypography.iosFootnote(brightness),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  name,
+                  style: AppTypography.iosLargeTitle(brightness),
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
               ],
@@ -77,7 +62,7 @@ class DashboardHeader extends ConsumerWidget {
           Semantics(
             button: true,
             label: 'Alternar tema',
-            child: IconButton.filledTonal(
+            child: IconButton(
               tooltip: 'Alternar tema',
               onPressed: () {
                 DfHaptics.light();
@@ -85,40 +70,18 @@ class DashboardHeader extends ConsumerWidget {
               },
               icon: Icon(
                 isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
-                size: 20,
-              ),
-              style: IconButton.styleFrom(
-                minimumSize: const Size(40, 40),
-                backgroundColor: AppColors.mutedSurface(theme),
+                size: 22,
+                color: AppColors.systemBlue,
               ),
             ),
           ),
-          const SizedBox(width: AppSpacing.sm),
-          Container(
-            padding: const EdgeInsets.all(2.5),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: const LinearGradient(
-                colors: [AppColors.brandBlue, AppColors.brandBlueDark],
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.brandBlue.withValues(alpha: 0.35),
-                  blurRadius: 14,
-                ),
-              ],
-            ),
-            child: CircleAvatar(
-              radius: 20,
-              backgroundColor: isDark
-                  ? AppColors.brandNavy
-                  : Colors.white.withValues(alpha: 0.95),
-              child: Text(
-                initial,
-                style: theme.textTheme.titleMedium?.copyWith(
-                  color: AppColors.brandBlue,
-                  fontWeight: FontWeight.w800,
-                ),
+          CircleAvatar(
+            radius: 20,
+            backgroundColor: AppColors.systemBlue.withValues(alpha: 0.12),
+            child: Text(
+              initial,
+              style: AppTypography.iosHeadline(brightness).copyWith(
+                color: AppColors.systemBlue,
               ),
             ),
           ),
