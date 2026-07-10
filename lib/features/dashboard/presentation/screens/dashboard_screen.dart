@@ -193,7 +193,6 @@ class _DashboardBody extends StatelessWidget {
         DashboardHeroSection(
           summary: today,
           goalProgress: goal,
-          greeting: greeting.split(',').first,
           weekProfits: snapshot.weekProfits,
           hideValue: hidden,
         ),

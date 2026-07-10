@@ -19,7 +19,6 @@ class DashboardHeroSection extends StatelessWidget {
   const DashboardHeroSection({
     required this.summary,
     required this.goalProgress,
-    required this.greeting,
     required this.weekProfits,
     this.hideValue = false,
     super.key,
@@ -27,7 +26,6 @@ class DashboardHeroSection extends StatelessWidget {
 
   final PeriodSummary summary;
   final GoalProgress goalProgress;
-  final String greeting;
   final List<DailyProfitPoint> weekProfits;
   final bool hideValue;
 
@@ -63,28 +61,6 @@ class DashboardHeroSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Container(
-                width: 6,
-                height: 6,
-                decoration: BoxDecoration(
-                  color: AppColors.brandBlue.withValues(alpha: 0.50),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                greeting.toUpperCase(),
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: AppColors.brandBlue,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 0.6,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.sm),
           Text(
             'Seu lucro hoje',
             style: theme.textTheme.headlineSmall?.copyWith(
