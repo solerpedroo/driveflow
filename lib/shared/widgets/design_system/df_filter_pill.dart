@@ -14,6 +14,7 @@ class DfFilterPill extends StatelessWidget {
     required this.onSelected,
     super.key,
     this.icon,
+    this.leading,
     this.accentColor = AppColors.skyBlue,
   });
 
@@ -21,6 +22,7 @@ class DfFilterPill extends StatelessWidget {
   final bool selected;
   final VoidCallback onSelected;
   final IconData? icon;
+  final Widget? leading;
   final Color accentColor;
 
   @override
@@ -67,7 +69,10 @@ class DfFilterPill extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (icon != null) ...[
+              if (leading != null) ...[
+                leading!,
+                const SizedBox(width: 6),
+              ] else if (icon != null) ...[
                 Icon(icon, size: 16, color: color),
                 const SizedBox(width: 6),
               ],
