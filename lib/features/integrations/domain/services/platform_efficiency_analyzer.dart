@@ -1,6 +1,7 @@
 import '../../../../core/constants/ride_platforms.dart';
 import '../entities/platform_efficiency_snapshot.dart';
 import '../entities/platform_trip_entity.dart';
+import 'platform_analytics_breakdown.dart';
 
 /// R$/corrida, R$/km e gorjeta média por plataforma.
 abstract final class PlatformEfficiencyAnalyzer {
@@ -10,7 +11,10 @@ abstract final class PlatformEfficiencyAnalyzer {
     final byPlatform = <RidePlatform, List<PlatformTripEntity>>{};
 
     for (final trip in trips) {
-      if (!trip.isCompleted) continue;
+      if (!trip.isCompleted ||
+          !PlatformAnalyticsBreakdown.integratable.contains(trip.platform)) {
+        continue;
+      }
       byPlatform.putIfAbsent(trip.platform, () => []).add(trip);
     }
 
