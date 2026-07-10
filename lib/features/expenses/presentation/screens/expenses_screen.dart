@@ -3,187 +3,122 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../../core/constants/app_constants.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/currency_formatter.dart';
-import '../../../../shared/widgets/design_system/df_button.dart';
-import '../../../../shared/widgets/design_system/df_card.dart';
+import '../../../../core/utils/value_visibility_provider.dart';
 import '../../../../shared/widgets/design_system/df_empty_state.dart';
-import '../../../../shared/widgets/design_system/df_section_header.dart';
+import '../../../../shared/widgets/design_system/df_expandable_list_section.dart';
+import '../../../../shared/widgets/design_system/df_header_row.dart';
+import '../../../../shared/widgets/design_system/df_hero_wealth_card.dart';
+import '../../../../shared/widgets/design_system/df_pill_action_button.dart';
 import '../../../../shared/widgets/design_system/df_skeleton.dart';
+import '../../../../shared/widgets/design_system/df_tab_scroll_view.dart';
 import '../../../../shared/widgets/driveflow_period_filter.dart';
-import '../../domain/entities/expense_entity.dart';
 import '../providers/expenses_providers.dart';
 import '../widgets/expense_tile.dart';
 
-/// Listagem de despesas agrupadas por categoria.
+/// Despesas no padrão Mescla Carteira — hero, ações 2×2, categorias.
 class ExpensesScreen extends ConsumerWidget {
   const ExpensesScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
     final period = ref.watch(expensesPeriodProvider);
     final groupedAsync = ref.watch(expensesGroupedProvider);
     final totalAsync = ref.watch(expensesTotalProvider);
+    final hidden = ref.watch(valueVisibilityHiddenProvider);
 
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: RefreshIndicator(
-        onRefresh: () async {
-          await ref.read(expensesRepositoryProvider).fetchExpenses();
-        },
-        child: CustomScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          slivers: [
-            SliverToBoxAdapter(
-              child: DfScreenTitle(
+      body: groupedAsync.when(
+        loading: () => const Center(child: DfSkeleton(itemCount: 4)),
+        error: (e, _) => Center(child: Text('Erro: $e')),
+        data: (grouped) {
+          final categories = grouped.keys.toList()
+            ..sort((a, b) => a.label.compareTo(b.label));
+          final itemCount = grouped.values.fold<int>(
+            0,
+            (sum, items) => sum + items.length,
+          );
+
+          return DfTabScrollView(
+            onRefresh: () async {
+              await ref.read(expensesRepositoryProvider).fetchExpenses();
+            },
+            children: [
+              const DfHeaderRow(),
+              DfScreenTitleRow(
                 title: 'Despesas',
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    DriveFlowPeriodFilter(
-                      value: period,
-                      onChanged: (p) =>
-                          ref.read(expensesPeriodProvider.notifier).state = p,
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
-                    DfButton(
-                      label: 'Importar extrato',
-                      icon: Icons.upload_file_outlined,
-                      variant: DfButtonVariant.outlined,
-                      onPressed: () => context.push(AppRoutes.importStatement),
-                    ),
-                  ],
+                hidden: hidden,
+                onToggleVisibility: () => ref
+                    .read(valueVisibilityHiddenProvider.notifier)
+                    .state = !hidden,
+              ),
+              totalAsync.when(
+                loading: () => const SizedBox(
+                  height: 140,
+                  child: Center(child: CircularProgressIndicator()),
+                ),
+                error: (_, __) => const SizedBox.shrink(),
+                data: (total) => DfHeroWealthCard(
+                  label: 'Total no período',
+                  value: CurrencyFormatter.format(total),
+                  badge: '$itemCount lançamentos',
+                  hideValue: hidden,
                 ),
               ),
-            ),
-            SliverPadding(
-              padding: const EdgeInsets.fromLTRB(
-                AppSpacing.screenHorizontal,
-                AppSpacing.lg,
-                AppSpacing.screenHorizontal,
-                0,
-              ),
-              sliver: SliverToBoxAdapter(
-                child: DfCard(
-                  child: Row(
-                    children: [
-                      const Icon(Icons.receipt_long_outlined,
-                          color: AppColors.expenseCoral),
-                      const SizedBox(width: AppSpacing.md),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Total no período',
-                                style: theme.textTheme.labelMedium),
-                            totalAsync.when(
-                              loading: () => const Text('...'),
-                              error: (e, _) => const Text('Erro'),
-                              data: (total) => Text(
-                                CurrencyFormatter.format(total),
-                                style: theme.textTheme.headlineSmall?.copyWith(
-                                  color: AppColors.expenseCoral,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+              DfPillActionGrid(
+                actions: [
+                  DfPillActionButton(
+                    icon: Icons.add_circle_outline,
+                    label: 'Nova despesa',
+                    onTap: () => context.push(AppRoutes.expenseForm),
                   ),
-                ),
+                  DfPillActionButton(
+                    icon: Icons.upload_file_outlined,
+                    label: 'Importar',
+                    onTap: () => context.push(AppRoutes.importStatement),
+                  ),
+                  DfPillActionButton(
+                    icon: Icons.local_gas_station_outlined,
+                    label: 'Combustível',
+                    onTap: () => context.push(AppRoutes.fuelHistory),
+                  ),
+                  DfPillActionButton(
+                    icon: Icons.build_circle_outlined,
+                    label: 'Manutenção',
+                    onTap: () => context.push(AppRoutes.maintenanceHistory),
+                  ),
+                ],
               ),
-            ),
-            groupedAsync.when(
-              loading: () => const SliverFillRemaining(child: DfSkeleton()),
-              error: (e, _) => SliverFillRemaining(
-                child: Center(child: Text('Erro: $e')),
+              DriveFlowPeriodFilter(
+                value: period,
+                onChanged: (p) =>
+                    ref.read(expensesPeriodProvider.notifier).state = p,
               ),
-              data: (grouped) {
-                if (grouped.isEmpty) {
-                  return const SliverFillRemaining(
-                    hasScrollBody: false,
-                    child: DfEmptyState(
-                      variant: DfEmptyStateVariant.illustrated,
-                      icon: Icons.receipt_long_outlined,
-                      title: 'Nenhuma despesa neste período',
-                      subtitle:
-                          'Registre combustível, pedágio e outros custos.',
-                    ),
+              if (grouped.isEmpty)
+                const DfEmptyState(
+                  variant: DfEmptyStateVariant.illustrated,
+                  icon: Icons.receipt_long_outlined,
+                  title: 'Nenhuma despesa neste período',
+                  subtitle:
+                      'Registre combustível, pedágio e outros custos.',
+                )
+                else
+                ...categories.map((category) {
+                  final items = grouped[category]!;
+                  return DfExpandableListSection(
+                    title: category.label,
+                    eyebrow: 'Categoria',
+                    itemCount: items.length,
+                    itemBuilder: (context, index) =>
+                        ExpenseTile(expense: items[index]),
+                    seeAllLabel: 'Ver todas',
                   );
-                }
-
-                final categories = grouped.keys.toList()
-                  ..sort((a, b) => a.label.compareTo(b.label));
-
-                return SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(
-                    AppSpacing.screenHorizontal,
-                    AppSpacing.lg,
-                    AppSpacing.screenHorizontal,
-                    96,
-                  ),
-                  sliver: SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        final category = categories[index];
-                        final items = grouped[category]!;
-                        final subtotal = items.fold<double>(
-                          0,
-                          (sum, e) => sum + e.amount,
-                        );
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: AppSpacing.lg),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Icon(category.icon,
-                                      size: 20,
-                                      color: AppColors.expenseCoral),
-                                  const SizedBox(width: AppSpacing.sm),
-                                  Expanded(
-                                    child: Text(
-                                      category.label,
-                                      style: theme.textTheme.titleMedium,
-                                    ),
-                                  ),
-                                  Text(
-                                    CurrencyFormatter.format(subtotal),
-                                    style: theme.textTheme.labelLarge?.copyWith(
-                                      color: AppColors.expenseCoral,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: AppSpacing.sm),
-                              ...items.map(
-                                (expense) => Padding(
-                                  padding:
-                                      const EdgeInsets.only(bottom: AppSpacing.sm),
-                                  child: ExpenseTile(expense: expense),
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                      childCount: categories.length,
-                    ),
-                  ),
-                );
-              },
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.push(AppRoutes.expenseForm),
-        icon: const Icon(Icons.add_rounded),
-        label: const Text('Despesa'),
+                }),
+            ],
+          );
+        },
       ),
     );
   }
