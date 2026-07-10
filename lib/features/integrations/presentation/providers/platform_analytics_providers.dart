@@ -138,7 +138,7 @@ final platformEfficiencyProvider =
     );
   }
 
-  return AsyncData(PlatformEfficiencyAnalyzer.analyze(trips));
+  return AsyncData(PlatformEfficiencyAnalyzer.analyze(trips: trips));
 });
 
 final platformTodayMixProvider =
@@ -324,7 +324,7 @@ final platformRegionTopProvider =
     );
   }
 
-  return AsyncData(PlatformRegionAnalyzer.topRegions(trips));
+  return AsyncData(PlatformRegionAnalyzer.topRegions(trips: trips));
 });
 
 final platformConsistencyProvider =
@@ -340,5 +340,5 @@ final platformConsistencyProvider =
     );
   }
 
-  return AsyncData(PlatformConsistencyAnalyzer.analyze(trips));
+  return AsyncData(PlatformConsistencyAnalyzer.analyze(trips: trips));
 });
