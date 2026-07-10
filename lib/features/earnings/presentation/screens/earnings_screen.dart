@@ -31,12 +31,10 @@ class EarningsScreen extends ConsumerWidget {
     final totalAsync = ref.watch(earningsTotalProvider);
     final hidden = ref.watch(valueVisibilityHiddenProvider);
 
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: earningsAsync.when(
-        loading: () => const Center(child: DfSkeleton(itemCount: 4)),
-        error: (e, _) => Center(child: Text('Erro: $e')),
-        data: (earnings) => DfTabScrollView(
+    return earningsAsync.when(
+      loading: () => const Center(child: DfSkeleton(itemCount: 4)),
+      error: (e, _) => Center(child: Text('Erro: $e')),
+      data: (earnings) => DfTabScrollView(
           onRefresh: () async {
             await ref.read(earningsRepositoryProvider).fetchEarnings();
           },
@@ -135,7 +133,6 @@ class EarningsScreen extends ConsumerWidget {
               ),
           ],
         ),
-      ),
     );
   }
 }
