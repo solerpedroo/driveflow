@@ -31,11 +31,17 @@ class PlatformSyncLogPanel extends ConsumerWidget {
             Row(
               children: [
                 Icon(
-                  log.isSuccess ? Icons.check_circle : Icons.warning_amber,
+                  log.isSuccess
+                      ? Icons.check_circle
+                      : log.isPartial
+                          ? Icons.info_outline
+                          : Icons.warning_amber,
                   size: 16,
                   color: log.isSuccess
                       ? AppColors.profitGreen
-                      : AppColors.warningAmber,
+                      : log.isPartial
+                          ? AppColors.skyBlue
+                          : AppColors.warningAmber,
                 ),
                 const SizedBox(width: 8),
                 Expanded(
