@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'app_colors.dart';
 
-/// Gradientes híbridos — ReuniAI brand + Mescla hero + base Cupertino plana.
+/// Gradientes de profundidade — navy → blue, sem indigo/roxo.
 abstract final class AppGradients {
   static const LinearGradient brand = LinearGradient(
     begin: Alignment.topLeft,
@@ -15,11 +15,16 @@ abstract final class AppGradients {
     stops: [0.0, 0.55, 1.0],
   );
 
-  /// Hero wealth — Mescla indigo + ReuniAI blue.
+  /// Hero principal — profundidade Wallet (navy → brand).
   static const LinearGradient heroWealth = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [AppColors.brandBlue, AppColors.mesclaIndigo],
+    colors: [
+      Color(0xFF0B1F3A),
+      AppColors.brandBlueDeep,
+      AppColors.brandBlue,
+    ],
+    stops: [0.0, 0.45, 1.0],
   );
 
   static LinearGradient primaryButton(Brightness brightness) => brand;
@@ -32,14 +37,14 @@ abstract final class AppGradients {
     );
   }
 
-  /// ReuniAI — cartão com tint brand/6% sobre grouped.
+  /// Cartão hero suave — tint brand sem “card marketing”.
   static LinearGradient heroCardAccent(Brightness brightness) {
     if (brightness == Brightness.dark) {
       return LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
         colors: [
-          AppColors.brandBlue.withValues(alpha: 0.22),
+          AppColors.brandBlue.withValues(alpha: 0.16),
           AppColors.iosSecondaryGroupedDark,
           AppColors.iosSecondaryGroupedDark,
         ],
@@ -49,7 +54,7 @@ abstract final class AppGradients {
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
       colors: [
-        AppColors.brandBlue.withValues(alpha: 0.07),
+        AppColors.brandBlue.withValues(alpha: 0.05),
         AppColors.iosSecondaryGrouped,
         AppColors.iosSecondaryGrouped,
       ],
@@ -62,7 +67,7 @@ abstract final class AppGradients {
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
         colors: [
-          AppColors.slate.withValues(alpha: 0.9),
+          AppColors.slate.withValues(alpha: 0.95),
           AppColors.iosSecondaryGroupedDark,
         ],
       );
@@ -70,15 +75,15 @@ abstract final class AppGradients {
     return const LinearGradient(
       begin: Alignment.topCenter,
       end: Alignment.bottomCenter,
-      colors: [AppColors.iosSecondaryGrouped, AppColors.lightMuted],
+      colors: [Color(0xFFFFFFFF), Color(0xFFF7F9FC)],
     );
   }
 
   static RadialGradient brandBloom(Brightness brightness) {
-    final alpha = brightness == Brightness.dark ? 0.12 : 0.07;
+    final alpha = brightness == Brightness.dark ? 0.10 : 0.055;
     return RadialGradient(
-      center: const Alignment(0, -1.1),
-      radius: 1.2,
+      center: const Alignment(0.15, -0.95),
+      radius: 1.15,
       colors: [
         AppColors.brandBlue.withValues(alpha: alpha),
         Colors.transparent,
@@ -86,26 +91,27 @@ abstract final class AppGradients {
     );
   }
 
+  /// Blooms estáticos de profundidade (sem animação).
   static List<RadialGradient> meshGlows(
     Brightness brightness,
     double animation,
   ) {
-    final t = animation;
+    // `animation` mantido na assinatura por compatibilidade; ignorado.
     if (brightness == Brightness.dark) {
       return [
         RadialGradient(
-          center: Alignment(0.12 + t * 0.18, -0.55 + t * 0.1),
-          radius: 1.0,
+          center: const Alignment(0.2, -0.7),
+          radius: 1.05,
           colors: [
-            AppColors.brandBlue.withValues(alpha: 0.16),
+            AppColors.brandBlue.withValues(alpha: 0.12),
             Colors.transparent,
           ],
         ),
         RadialGradient(
-          center: Alignment(-0.7 + t * 0.08, 0.9),
-          radius: 0.8,
+          center: const Alignment(-0.75, 0.85),
+          radius: 0.9,
           colors: [
-            AppColors.mesclaIndigo.withValues(alpha: 0.08),
+            AppColors.brandBlueDeep.withValues(alpha: 0.10),
             Colors.transparent,
           ],
         ),
@@ -114,10 +120,10 @@ abstract final class AppGradients {
     return [
       brandBloom(brightness),
       RadialGradient(
-        center: Alignment(-0.6 + t * 0.1, 0.92),
-        radius: 0.85,
+        center: const Alignment(-0.65, 0.95),
+        radius: 0.9,
         colors: [
-          AppColors.brandGlow.withValues(alpha: 0.14),
+          AppColors.brandGlow.withValues(alpha: 0.10),
           Colors.transparent,
         ],
       ),
