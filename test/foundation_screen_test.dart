@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:driveflow/core/theme/app_theme.dart';
 import 'package:driveflow/features/authentication/domain/entities/user_entity.dart';
 import 'package:driveflow/features/authentication/presentation/providers/auth_providers.dart';
+import 'package:driveflow/shared/widgets/design_system/df_chip.dart';
 import 'package:driveflow/features/dashboard/presentation/screens/foundation_screen.dart';
 import 'package:driveflow/shared/widgets/driveflow_brand_logo.dart';
 
@@ -31,7 +32,7 @@ void main() {
     expect(find.byType(DriveFlowBrandLogo), findsOneWidget);
     expect(find.textContaining('Onda 0'), findsOneWidget);
     expect(find.text('Prévia de métricas'), findsOneWidget);
-    expect(find.text('Lucro hoje'), findsOneWidget);
-    expect(find.byType(Chip), findsOneWidget);
+    expect(find.text('Test Driver'), findsOneWidget);
+    expect(find.byType(DfChip), findsWidgets);
   });
 }
