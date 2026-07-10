@@ -18,7 +18,16 @@ Deno.serve(async (req) => {
     return new Response("Unauthorized", { status: 401 });
   }
 
-  const body = await req.json();
+  let body: Record<string, unknown>;
+  try {
+    body = await req.json();
+  } catch {
+    return new Response(JSON.stringify({ error: "JSON inválido" }), {
+      status: 400,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
   const platform = (body.platform as string)?.toLowerCase();
   const externalUserId = body.external_user_id as string;
   const eventType = body.event_type as string;
