@@ -33,7 +33,7 @@ abstract final class PlatformGoldenHourAnalyzer {
           items.fold<double>(0, (sum, t) => sum + t.driverPayout);
       final totalHours = items.fold<double>(
         0,
-        (sum, t) => sum + (t.durationMinutes != null ? t.durationMinutes! / 60 : 1),
+        (sum, t) => sum + t.workedHours,
       );
       final avgPerHour = totalHours > 0 ? totalPayout / totalHours : 0;
 
