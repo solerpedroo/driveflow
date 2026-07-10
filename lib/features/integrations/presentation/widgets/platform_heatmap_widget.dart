@@ -7,7 +7,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../integrations/domain/entities/platform_heatmap_slot.dart';
 import '../../../integrations/domain/services/platform_analytics_breakdown.dart';
 import '../../../../shared/widgets/design_system/df_card.dart';
-import '../../../../shared/widgets/design_system/df_segmented_control.dart';
+import '../../../../shared/widgets/design_system/df_period_pill_chip.dart';
 import '../providers/platform_analytics_providers.dart';
 
 /// Heatmap 7×24 colorido por R$/h (grade completa 0h–23h).
@@ -48,22 +48,19 @@ class PlatformHeatmapWidget extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: AppSpacing.sm),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: DfSegmentedControl<RidePlatform?>(
-                  segments: [
-                    null,
-                    ...RidePlatform.values.where(
-                      (p) =>
-                          PlatformAnalyticsBreakdown.integratable.contains(p),
-                    ),
-                  ],
-                  selected: filter,
-                  labelBuilder: (p) => p?.label ?? 'Todos',
-                  onChanged: (p) => ref
-                      .read(platformHeatmapFilterProvider.notifier)
-                      .state = p,
-                ),
+              DfPeriodPillRow<RidePlatform?>(
+                segments: [
+                  null,
+                  ...RidePlatform.values.where(
+                    (p) =>
+                        PlatformAnalyticsBreakdown.integratable.contains(p),
+                  ),
+                ],
+                selected: filter,
+                labelBuilder: (p) => p?.label ?? 'Todos',
+                onChanged: (p) => ref
+                    .read(platformHeatmapFilterProvider.notifier)
+                    .state = p,
               ),
               const SizedBox(height: AppSpacing.md),
               SingleChildScrollView(
