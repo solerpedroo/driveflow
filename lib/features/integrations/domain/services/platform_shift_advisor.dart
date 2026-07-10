@@ -1,5 +1,6 @@
 import '../../../../core/constants/ride_platforms.dart';
 import '../../../earnings/domain/entities/earning_entity.dart';
+import '../entities/platform_performance_snapshot.dart';
 import '../entities/platform_shift_recommendation.dart';
 import 'platform_catalog.dart';
 import 'platform_performance_analyzer.dart';
