@@ -1,12 +1,15 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_elevation.dart';
 import '../../core/theme/app_motion.dart';
-import 'design_system/df_glass_surface.dart';
+import '../../core/utils/df_haptics.dart';
 
 const Duration kDriveFlowTabSwitchDuration = DriveFlowMotion.normal;
 
-/// Bottom navigation premium — cápsula flutuante com animação suave.
+/// Tab bar estilo Cupertino — blur, ícones, azul system no ativo.
 class DriveFlowBottomNavBar extends StatelessWidget {
   const DriveFlowBottomNavBar({
     required this.selectedIndex,
@@ -35,38 +38,47 @@ class DriveFlowBottomNavBar extends StatelessWidget {
     'Perfil',
   ];
 
-  static const double _itemTrackHeight = 56;
-  static const double _chipVerticalMargin = 4;
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final primary = theme.colorScheme.primary;
+    final brightness = theme.brightness;
+    final active = AppColors.systemBlue;
+    final inactive = AppColors.bottomNavInactive(theme);
 
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
-      child: DfGlassSurface(
-        borderRadius: BorderRadius.circular(100),
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-        sigma: 18,
-        child: SizedBox(
-          height: _itemTrackHeight,
-          child: Row(
-            children: [
-              for (var i = 0; i < itemCount; i++)
-                Expanded(
-                  child: _NavItem(
-                    icon: _icons[i],
-                    label: _labels[i],
-                    isActive: selectedIndex == i,
-                    trackHeight: _itemTrackHeight,
-                    chipVertMargin: _chipVerticalMargin,
-                    activeColor: primary,
-                    inactiveColor: AppColors.bottomNavInactive(theme),
-                    onTap: () => onItemTap(i),
-                  ),
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        border: AppElevation.rimLight(brightness),
+        boxShadow: AppElevation.navShellShadow(brightness),
+      ),
+      child: ClipRect(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+          child: ColoredBox(
+            color: AppColors.bottomNavBarShell(theme),
+            child: SafeArea(
+              top: false,
+              child: SizedBox(
+                height: 50,
+                child: Row(
+                  children: [
+                    for (var i = 0; i < itemCount; i++)
+                      Expanded(
+                        child: _TabItem(
+                          icon: _icons[i],
+                          label: _labels[i],
+                          isActive: selectedIndex == i,
+                          activeColor: active,
+                          inactiveColor: inactive,
+                          onTap: () {
+                            DfHaptics.selection();
+                            onItemTap(i);
+                          },
+                        ),
+                      ),
+                  ],
                 ),
-            ],
+              ),
+            ),
           ),
         ),
       ),
@@ -74,13 +86,11 @@ class DriveFlowBottomNavBar extends StatelessWidget {
   }
 }
 
-class _NavItem extends StatelessWidget {
-  const _NavItem({
+class _TabItem extends StatelessWidget {
+  const _TabItem({
     required this.icon,
     required this.label,
     required this.isActive,
-    required this.trackHeight,
-    required this.chipVertMargin,
     required this.activeColor,
     required this.inactiveColor,
     required this.onTap,
@@ -89,88 +99,35 @@ class _NavItem extends StatelessWidget {
   final IconData icon;
   final String label;
   final bool isActive;
-  final double trackHeight;
-  final double chipVertMargin;
   final Color activeColor;
   final Color inactiveColor;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final contentColor = isActive ? Colors.white : inactiveColor;
-
-    final textStyle = Theme.of(context).textTheme.labelSmall?.copyWith(
-          color: contentColor,
-          fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
-          fontSize: 10,
-        );
-
-    final column = Column(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        AnimatedScale(
-          scale: isActive ? 1.05 : 1.0,
-          duration: DriveFlowMotion.fast,
-          child: Icon(icon, color: contentColor, size: 22),
-        ),
-        const SizedBox(height: 3),
-        AnimatedDefaultTextStyle(
-          duration: DriveFlowMotion.fast,
-          style: textStyle!,
-          child: Text(
-            label,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            textAlign: TextAlign.center,
-          ),
-        ),
-      ],
-    );
-
-    final chipHeight = trackHeight - 2 * chipVertMargin;
+    final color = isActive ? activeColor : inactiveColor;
 
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(100),
-        child: Center(
-          child: AnimatedContainer(
-            duration: DriveFlowMotion.fast,
-            curve: DriveFlowMotion.standard,
-            constraints: BoxConstraints(
-              minWidth: isActive ? 72 : 48,
-              minHeight: chipHeight,
-              maxHeight: chipHeight,
-            ),
-            decoration: isActive
-                ? BoxDecoration(
-                    gradient: const LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        AppColors.brandBlue,
-                        AppColors.brandBlueDark,
-                      ],
-                    ),
-                    borderRadius: BorderRadius.circular(100),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.brandBlue.withValues(alpha: 0.40),
-                        blurRadius: 14,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  )
-                : null,
-            child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: isActive ? 12 : 4,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 24, color: color),
+            const SizedBox(height: 2),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w500,
+                letterSpacing: 0.12,
+                color: color,
               ),
-              child: Center(child: column),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
-          ),
+          ],
         ),
       ),
     );
