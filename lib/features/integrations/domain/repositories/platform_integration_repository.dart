@@ -9,6 +9,8 @@ class PlatformSyncResult {
     required this.importedCount,
     required this.skippedCount,
     required this.syncedAt,
+    this.tripsImported = 0,
+    this.earningsImported = 0,
     this.message,
   });
 
@@ -16,9 +18,11 @@ class PlatformSyncResult {
   final int importedCount;
   final int skippedCount;
   final DateTime syncedAt;
+  final int tripsImported;
+  final int earningsImported;
   final String? message;
 
-  bool get hasImports => importedCount > 0;
+  bool get hasImports => importedCount > 0 || tripsImported > 0;
 }
 
 /// Contrato de repositório para integrações Uber/99/InDrive.
