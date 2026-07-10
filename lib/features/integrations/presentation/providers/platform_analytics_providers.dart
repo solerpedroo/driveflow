@@ -126,19 +126,12 @@ final platformTodayMixProvider =
   return trips.when(
     loading: () => const AsyncLoading(),
     error: (e, st) => AsyncError(e, st),
-    data: (tripList) {
-      final now = DateTime.now();
-      final todayStart = DateTime(now.year, now.month, now.day);
-      final todayEarnings = earnings
-          .where((e) => !e.date.isBefore(todayStart))
-          .toList();
-      if (tripList.isNotEmpty || todayEarnings.isNotEmpty) {
-        return AsyncData(
-          PlatformAnalyticsBreakdown.fromEarnings(todayEarnings),
-        );
-      }
-      return const AsyncData([]);
-    },
+    data: (tripList) => AsyncData(
+      PlatformAnalyticsBreakdown.todayMix(
+        earnings: earnings,
+        trips: tripList,
+      ),
+    ),
   );
 });
 
