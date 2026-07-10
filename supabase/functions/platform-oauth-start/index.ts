@@ -1,0 +1,90 @@
+import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import { createClient } from "jsr:@supabase/supabase-js@2";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": Deno.env.get("ALLOWED_ORIGIN") ?? "null",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type",
+};
+
+const PLATFORMS = new Set(["uber", "99", "indrive"]);
+
+const OAUTH_BASE: Record<string, string> = {
+  uber: "https://login.uber.com/oauth/v2/authorize",
+  "99": "https://oauth.99app.com/authorize",
+  indrive: "https://oauth.indrive.com/authorize",
+};
+
+function json(body: unknown, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
+}
+
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+  if (req.method !== "POST") return json({ error: "Método não suportado" }, 405);
+
+  const authHeader = req.headers.get("Authorization");
+  if (!authHeader) return json({ error: "Não autenticado" }, 401);
+
+  const supabase = createClient(
+    Deno.env.get("SUPABASE_URL") ?? "",
+    Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+    { global: { headers: { Authorization: authHeader } } },
+  );
+
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+  if (userError || !userData.user) return json({ error: "Sessão inválida" }, 401);
+
+  const body = await req.json();
+  const platform = (body.platform as string)?.toLowerCase();
+  const redirectUri = body.redirect_uri as string;
+
+  if (!platform || !PLATFORMS.has(platform)) {
+    return json({ error: "Plataforma inválida" }, 400);
+  }
+  if (!redirectUri) return json({ error: "redirect_uri obrigatório" }, 400);
+
+  const stateToken = crypto.randomUUID();
+  const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
+
+  const { error: stateError } = await supabase.from("platform_oauth_states").insert({
+    user_id: userData.user.id,
+    platform,
+    state_token: stateToken,
+    redirect_uri: redirectUri,
+    expires_at: expiresAt,
+  });
+
+  if (stateError) return json({ error: stateError.message }, 500);
+
+  const clientId = Deno.env.get(
+    platform === "uber"
+      ? "UBER_CLIENT_ID"
+      : platform === "99"
+      ? "NINETY_NINE_CLIENT_ID"
+      : "INDRIVE_CLIENT_ID",
+  ) ?? "stub-client-id";
+
+  const base = OAUTH_BASE[platform];
+  const authUrl = new URL(base);
+  authUrl.searchParams.set("client_id", clientId);
+  authUrl.searchParams.set("response_type", "code");
+  authUrl.searchParams.set("redirect_uri", redirectUri);
+  authUrl.searchParams.set("state", stateToken);
+  authUrl.searchParams.set("scope", "earnings trips profile");
+
+  await supabase.from("platform_connections").upsert({
+    user_id: userData.user.id,
+    platform,
+    status: "pending",
+  }, { onConflict: "user_id,platform" });
+
+  return json({
+    authorization_url: authUrl.toString(),
+    state_token: stateToken,
+    expires_at: expiresAt,
+  });
+});
