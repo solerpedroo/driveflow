@@ -7,10 +7,10 @@ import '../../../goals/domain/entities/goal_entity.dart';
 import '../../../vehicle/presentation/widgets/vehicle_scope_chip.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/value_visibility_provider.dart';
+import '../../../../shared/widgets/design_system/df_goal_period_chips.dart';
 import '../../../../shared/widgets/design_system/df_header_row.dart';
 import '../../../../shared/widgets/design_system/df_hero_wealth_card.dart';
 import '../../../../shared/widgets/design_system/df_section_header.dart';
-import '../../../../shared/widgets/design_system/df_segmented_control.dart';
 import '../../../../shared/widgets/design_system/df_tab_scroll_view.dart';
 import '../providers/reports_providers.dart';
 import '../widgets/report_export_actions.dart';
@@ -42,15 +42,10 @@ class ReportsScreen extends ConsumerWidget {
           alignment: Alignment.centerLeft,
           child: VehicleScopeChip(),
         ),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: DfSegmentedControl<GoalPeriod>(
-            segments: GoalPeriod.values,
-            selected: period,
-            labelBuilder: (p) => p.label,
-            onChanged: (p) =>
-                ref.read(reportPeriodProvider.notifier).state = p,
-          ),
+        DfGoalPeriodChips(
+          selected: period,
+          onChanged: (p) =>
+              ref.read(reportPeriodProvider.notifier).state = p,
         ),
         reportAsync.when(
           loading: () => const Center(child: CircularProgressIndicator()),
