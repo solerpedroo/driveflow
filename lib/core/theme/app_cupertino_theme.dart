@@ -6,7 +6,7 @@ import 'app_typography.dart';
 CupertinoThemeData buildDriveFlowCupertinoLightTheme() {
   return CupertinoThemeData(
     brightness: Brightness.light,
-    primaryColor: AppColors.systemBlue,
+    primaryColor: AppColors.brandBlue,
     primaryContrastingColor: CupertinoColors.white,
     barBackgroundColor: AppColors.iosBarBackgroundLight,
     scaffoldBackgroundColor: AppColors.iosGroupedBackground,
@@ -22,7 +22,7 @@ CupertinoThemeData buildDriveFlowCupertinoLightTheme() {
 CupertinoThemeData buildDriveFlowCupertinoDarkTheme() {
   return CupertinoThemeData(
     brightness: Brightness.dark,
-    primaryColor: AppColors.systemBlue,
+    primaryColor: AppColors.brandBlue,
     primaryContrastingColor: CupertinoColors.white,
     barBackgroundColor: AppColors.iosBarBackgroundDark,
     scaffoldBackgroundColor: AppColors.iosGroupedBackgroundDark,
