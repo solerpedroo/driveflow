@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../../core/constants/app_constants.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_gradients.dart';
 
-/// Logotipo DriveFlow — minimalista estilo iOS.
+/// Logotipo DriveFlow — ReuniAI editorial + gradiente Mescla/ReuniAI.
 class DriveFlowBrandLogo extends StatelessWidget {
   const DriveFlowBrandLogo({
     super.key,
@@ -35,7 +37,14 @@ class DriveFlowBrandLogo extends StatelessWidget {
               height: titleSize * 0.55,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
-                color: AppColors.systemBlue,
+                gradient: AppGradients.brand,
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.brandBlue.withValues(alpha: 0.28),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
               child: Icon(
                 Icons.speed_rounded,
@@ -46,19 +55,17 @@ class DriveFlowBrandLogo extends StatelessWidget {
             const SizedBox(width: 10),
             RichText(
               text: TextSpan(
-                style: TextStyle(
+                style: GoogleFonts.plusJakartaSans(
                   fontSize: titleSize,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 0.37,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.8,
                   color: theme.colorScheme.onSurface,
-                  fontFamily: '.SF Pro Display',
-                  fontFamilyFallback: const ['Roboto', 'sans-serif'],
                 ),
                 children: const [
                   TextSpan(text: 'Drive'),
                   TextSpan(
                     text: 'Flow',
-                    style: TextStyle(color: AppColors.systemBlue),
+                    style: TextStyle(color: AppColors.brandBlue),
                   ),
                 ],
               ),
