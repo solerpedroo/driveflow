@@ -5,6 +5,7 @@ import '../../../../core/theme/app_radius.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../../shared/widgets/design_system/df_card.dart';
+import '../../../../shared/widgets/platform_brand_icon.dart';
 import '../../domain/entities/platform_trip_entity.dart';
 
 /// Tile de corrida sincronizada no histórico.
@@ -22,6 +23,12 @@ class PlatformTripTile extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          PlatformBrandIcon(
+            platform: trip.platform,
+            size: 40,
+            borderRadius: 10,
+          ),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
