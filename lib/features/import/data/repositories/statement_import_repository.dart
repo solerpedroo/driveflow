@@ -1,5 +1,6 @@
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/constants/ride_platforms.dart';
+import '../../../integrations/domain/entities/earning_source.dart';
 import '../../../earnings/domain/entities/earning_entity.dart';
 import '../../../earnings/domain/repositories/earnings_repository.dart';
 import '../../../expenses/domain/entities/expense_entity.dart';
@@ -47,6 +48,7 @@ class StatementImportRepository {
               date: transaction.date,
               vehicleId: vehicleId,
               note: 'Importado: ${transaction.description}',
+              source: EarningSource.import_,
             ),
           );
           importedEarnings++;
