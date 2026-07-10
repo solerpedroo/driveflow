@@ -18,18 +18,22 @@ class PlatformRevenueSlice {
 
 /// Breakdown de ganhos por Uber, 99 e InDrive.
 abstract final class PlatformAnalyticsBreakdown {
+  static const integratable = {
+    RidePlatform.uber,
+    RidePlatform.ninetyNine,
+    RidePlatform.inDrive,
+  };
+
   static List<PlatformRevenueSlice> fromEarnings(List<EarningEntity> earnings) {
-    final integratable = earnings.where(
-      (e) =>
-          e.platform == RidePlatform.uber ||
-          e.platform == RidePlatform.ninetyNine ||
-          e.platform == RidePlatform.inDrive,
+    final integratableEarnings = earnings.where(
+      (e) => integratable.contains(e.platform),
     );
 
-    final total = integratable.fold<double>(0, (s, e) => s + e.amount);
+    final total =
+        integratableEarnings.fold<double>(0, (s, e) => s + e.amount);
     final byPlatform = <RidePlatform, ({double amount, int rides})>{};
 
-    for (final earning in integratable) {
+    for (final earning in integratableEarnings) {
       final current = byPlatform[earning.platform];
       byPlatform[earning.platform] = (
         amount: (current?.amount ?? 0) + earning.amount,
