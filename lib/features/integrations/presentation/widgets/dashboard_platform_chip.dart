@@ -6,6 +6,7 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../shared/widgets/platform_brand_icon.dart';
 import '../../domain/entities/platform_shift_recommendation.dart';
 import '../providers/integrations_providers.dart';
 
@@ -70,7 +71,11 @@ class _ChipContent extends StatelessWidget {
           ),
           child: Row(
             children: [
-              const Icon(Icons.hub_rounded, color: AppColors.profitGreen, size: 20),
+              PlatformBrandIcon(
+                platform: recommendation.recommended,
+                size: 28,
+                borderRadius: 8,
+              ),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
