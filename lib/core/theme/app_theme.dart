@@ -17,7 +17,7 @@ class DriveFlowFadeSlideTransitionsBuilder extends PageTransitionsBuilder {
   ) {
     final curved = CurvedAnimation(
       parent: animation,
-      curve: Curves.easeOutCubic,
+      curve: const Cubic(0.22, 1.0, 0.36, 1.0),
       reverseCurve: Curves.easeInCubic,
     );
     return FadeTransition(
@@ -44,12 +44,14 @@ PageTransitionsTheme get driveFlowPageTransitionsTheme {
 
 ThemeData buildDriveFlowLightTheme() {
   final colorScheme = ColorScheme.fromSeed(
-    seedColor: AppColors.skyBlue,
+    seedColor: AppColors.brandBlue,
     brightness: Brightness.light,
-    primary: AppColors.skyBlueDim,
+    primary: AppColors.brandBlue,
     onPrimary: Colors.white,
-    secondary: const Color(0xFF6366F1),
+    secondary: AppColors.brandBlueDark,
     surface: AppColors.lightSurface,
+    onSurface: AppColors.textPrimary,
+    outline: AppColors.lightBorder,
   );
 
   return ThemeData(
@@ -63,31 +65,34 @@ ThemeData buildDriveFlowLightTheme() {
       elevation: 0,
       scrolledUnderElevation: 0,
       backgroundColor: Colors.transparent,
-      foregroundColor: AppColors.deepNavy,
+      foregroundColor: AppColors.brandNavy,
       centerTitle: false,
       titleTextStyle: AppTypography.build(Brightness.light).titleLarge?.copyWith(
-            color: AppColors.deepNavy,
+            color: AppColors.brandNavy,
             fontWeight: FontWeight.w700,
+            letterSpacing: -0.4,
           ),
     ),
-    cardTheme: const CardThemeData(
+    cardTheme: CardThemeData(
       elevation: 0,
       color: AppColors.lightSurface,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(20)),
-        side: BorderSide(color: AppColors.glassBorderLight),
+        borderRadius: BorderRadius.circular(14),
+        side: BorderSide(color: AppColors.lightBorder),
       ),
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
+        backgroundColor: AppColors.brandBlue,
+        foregroundColor: Colors.white,
         minimumSize: const Size.fromHeight(52),
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(14),
         ),
         textStyle: const TextStyle(
           fontWeight: FontWeight.w700,
-          letterSpacing: 0.3,
+          letterSpacing: 0.2,
         ),
       ),
     ),
@@ -100,17 +105,19 @@ ThemeData buildDriveFlowLightTheme() {
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
-        borderSide: BorderSide(color: AppColors.glassBorderLight),
+        borderSide: const BorderSide(color: AppColors.lightBorder),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
-        borderSide: const BorderSide(color: AppColors.skyBlueDim, width: 2),
+        borderSide: const BorderSide(color: AppColors.brandBlue, width: 2),
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      hintStyle: TextStyle(color: AppColors.textSecondaryLight.withValues(alpha: 0.8)),
+      hintStyle: TextStyle(
+        color: AppColors.textSecondaryLight.withValues(alpha: 0.85),
+      ),
     ),
     dividerTheme: const DividerThemeData(
-      color: AppColors.glassBorderLight,
+      color: AppColors.lightBorder,
       thickness: 1,
     ),
     snackBarTheme: SnackBarThemeData(
@@ -122,12 +129,13 @@ ThemeData buildDriveFlowLightTheme() {
 
 ThemeData buildDriveFlowDarkTheme() {
   final colorScheme = ColorScheme.fromSeed(
-    seedColor: AppColors.skyBlue,
+    seedColor: AppColors.brandBlue,
     brightness: Brightness.dark,
-    primary: AppColors.skyBlue,
-    onPrimary: AppColors.deepNavy,
-    secondary: const Color(0xFF818CF8),
+    primary: AppColors.brandBlue,
+    onPrimary: Colors.white,
+    secondary: AppColors.brandGlow,
     surface: AppColors.midnight,
+    onSurface: Colors.white,
   );
 
   return ThemeData(
@@ -135,7 +143,7 @@ ThemeData buildDriveFlowDarkTheme() {
     brightness: Brightness.dark,
     colorScheme: colorScheme,
     textTheme: AppTypography.build(Brightness.dark),
-    scaffoldBackgroundColor: AppColors.deepNavy,
+    scaffoldBackgroundColor: AppColors.brandNavy,
     pageTransitionsTheme: driveFlowPageTransitionsTheme,
     appBarTheme: AppBarTheme(
       elevation: 0,
@@ -146,26 +154,29 @@ ThemeData buildDriveFlowDarkTheme() {
       titleTextStyle: AppTypography.build(Brightness.dark).titleLarge?.copyWith(
             color: Colors.white,
             fontWeight: FontWeight.w700,
+            letterSpacing: -0.4,
           ),
     ),
     cardTheme: CardThemeData(
       elevation: 0,
-      color: AppColors.slate.withValues(alpha: 0.5),
+      color: AppColors.slate.withValues(alpha: 0.55),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(14),
         side: const BorderSide(color: AppColors.glassBorder),
       ),
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
+        backgroundColor: AppColors.brandBlue,
+        foregroundColor: Colors.white,
         minimumSize: const Size.fromHeight(52),
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(14),
         ),
         textStyle: const TextStyle(
           fontWeight: FontWeight.w700,
-          letterSpacing: 0.3,
+          letterSpacing: 0.2,
         ),
       ),
     ),
@@ -182,10 +193,12 @@ ThemeData buildDriveFlowDarkTheme() {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
-        borderSide: const BorderSide(color: AppColors.skyBlue, width: 2),
+        borderSide: const BorderSide(color: AppColors.brandBlue, width: 2),
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      hintStyle: TextStyle(color: AppColors.textSecondary.withValues(alpha: 0.8)),
+      hintStyle: TextStyle(
+        color: AppColors.textSecondary.withValues(alpha: 0.85),
+      ),
     ),
     dividerTheme: const DividerThemeData(
       color: AppColors.glassBorder,
