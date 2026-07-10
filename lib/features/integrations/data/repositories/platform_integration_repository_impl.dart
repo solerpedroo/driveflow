@@ -56,46 +56,80 @@ class PlatformIntegrationRepositoryImpl implements PlatformIntegrationRepository
 
   @override
   Future<PlatformSyncResult> syncPlatform(RidePlatform platform) async {
-    final data = await _sync.syncPlatform(platform: platform);
-    final imported = (data['imported_count'] as num?)?.toInt() ?? 0;
-    final skipped = (data['skipped_count'] as num?)?.toInt() ?? 0;
-    final syncedAt = DateTime.tryParse(data['synced_at'] as String? ?? '') ??
-        DateTime.now();
+    try {
+      final data = await _sync.syncPlatform(platform: platform);
+      final tripsImported = (data['trips_imported'] as num?)?.toInt() ??
+          (data['imported_count'] as num?)?.toInt() ??
+          0;
+      final earningsImported =
+          (data['earnings_imported'] as num?)?.toInt() ?? 0;
+      final skipped = (data['skipped_count'] as num?)?.toInt() ?? 0;
+      final syncedAt = DateTime.tryParse(data['synced_at'] as String? ?? '') ??
+          DateTime.now();
 
-    await _connections.updateConnection(
-      platform: platform,
-      status: IntegrationStatus.connected,
-      lastSyncedAt: syncedAt,
-      lastSyncError: null,
-    );
+      await _connections.updateConnection(
+        platform: platform,
+        status: IntegrationStatus.connected,
+        lastSyncedAt: syncedAt,
+        lastSyncError: null,
+      );
 
-    return PlatformSyncResult(
-      platform: platform,
-      importedCount: imported,
-      skippedCount: skipped,
-      syncedAt: syncedAt,
-      message: data['message'] as String?,
-    );
+      return PlatformSyncResult(
+        platform: platform,
+        importedCount: tripsImported + earningsImported,
+        skippedCount: skipped,
+        syncedAt: syncedAt,
+        tripsImported: tripsImported,
+        earningsImported: earningsImported,
+        message: data['message'] as String?,
+      );
+    } catch (e) {
+      final errorMessage = e.toString();
+      try {
+        await _connections.updateConnection(
+          platform: platform,
+          status: IntegrationStatus.error,
+          lastSyncError: errorMessage,
+        );
+      } catch (_) {
+        // Mantém erro original se falhar ao persistir status.
+      }
+      rethrow;
+    }
   }
 
   @override
   Future<PlatformSyncResult> syncAllConnected() async {
     final connections = await fetchConnections();
-    final connected = connections
+    final syncable = connections
         .where((c) => c.status.canSync)
         .map((c) => c.platform)
         .toList();
 
+    if (syncable.isEmpty) {
+      return PlatformSyncResult(
+        platform: RidePlatform.uber,
+        importedCount: 0,
+        skippedCount: 0,
+        syncedAt: DateTime.now(),
+        message: 'Nenhuma plataforma conectada para sincronizar.',
+      );
+    }
+
     var totalImported = 0;
     var totalSkipped = 0;
+    var totalTrips = 0;
+    var totalEarnings = 0;
     RidePlatform? lastPlatform;
     String? lastMessage;
     final syncedAt = DateTime.now();
 
-    for (final platform in connected) {
+    for (final platform in syncable) {
       final result = await syncPlatform(platform);
       totalImported += result.importedCount;
       totalSkipped += result.skippedCount;
+      totalTrips += result.tripsImported;
+      totalEarnings += result.earningsImported;
       lastPlatform = platform;
       lastMessage = result.message;
     }
@@ -105,6 +139,8 @@ class PlatformIntegrationRepositoryImpl implements PlatformIntegrationRepository
       importedCount: totalImported,
       skippedCount: totalSkipped,
       syncedAt: syncedAt,
+      tripsImported: totalTrips,
+      earningsImported: totalEarnings,
       message: lastMessage,
     );
   }
