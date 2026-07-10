@@ -6,6 +6,7 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../../shared/widgets/design_system/df_movimentacao_tile.dart';
+import '../../../../shared/widgets/platform_brand_icon.dart';
 import '../../domain/entities/earning_entity.dart';
 import '../providers/earnings_providers.dart';
 
@@ -23,6 +24,13 @@ class EarningTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return DfMovimentacaoTile(
+      leading: PlatformBrandIcon.hasBrandAsset(earning.platform)
+          ? PlatformBrandIcon(
+              platform: earning.platform,
+              size: 40,
+              borderRadius: 12,
+            )
+          : null,
       title: earning.platform.label,
       detailCaps:
           '${earning.rides} corridas · ${earning.workedHours}h trabalhadas',
