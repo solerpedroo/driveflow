@@ -5,15 +5,18 @@ import '../../../analytics/presentation/widgets/expense_pie_chart.dart';
 import '../../../analytics/presentation/widgets/period_comparison_card.dart';
 import '../../../goals/domain/entities/goal_entity.dart';
 import '../../../vehicle/presentation/widgets/vehicle_scope_chip.dart';
+import '../../../../core/utils/currency_formatter.dart';
+import '../../../../core/utils/value_visibility_provider.dart';
 import '../../../../shared/widgets/design_system/df_header_row.dart';
+import '../../../../shared/widgets/design_system/df_hero_wealth_card.dart';
+import '../../../../shared/widgets/design_system/df_section_header.dart';
 import '../../../../shared/widgets/design_system/df_segmented_control.dart';
 import '../../../../shared/widgets/design_system/df_tab_scroll_view.dart';
-import '../../../analytics/presentation/providers/analytics_providers.dart';
 import '../providers/reports_providers.dart';
 import '../widgets/report_export_actions.dart';
 import '../widgets/report_indicators_card.dart';
 
-/// Relatórios no padrão Mescla — logo, período, indicadores, gráficos.
+/// Relatórios no padrão Mescla — hero, período, indicadores, gráficos.
 class ReportsScreen extends ConsumerWidget {
   const ReportsScreen({super.key});
 
@@ -23,15 +26,17 @@ class ReportsScreen extends ConsumerWidget {
     final reportAsync = ref.watch(reportSnapshotProvider);
     final comparisonAsync = ref.watch(reportComparisonProvider);
     final breakdownAsync = ref.watch(reportCategoryBreakdownProvider);
+    final hidden = ref.watch(valueVisibilityHiddenProvider);
 
     return DfTabScrollView(
       children: [
         const DfHeaderRow(),
-        Text(
-          'Relatórios',
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.w700,
-              ),
+        DfScreenTitleRow(
+          title: 'Relatórios',
+          hidden: hidden,
+          onToggleVisibility: () => ref
+              .read(valueVisibilityHiddenProvider.notifier)
+              .state = !hidden,
         ),
         const Align(
           alignment: Alignment.centerLeft,
@@ -50,12 +55,27 @@ class ReportsScreen extends ConsumerWidget {
         reportAsync.when(
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (e, _) => Text('Erro: $e'),
+          data: (report) => DfHeroWealthCard(
+            label: 'Lucro no período',
+            value: CurrencyFormatter.formatSigned(report.summary.profit),
+            badge: '${report.summary.rides} corridas',
+            hideValue: hidden,
+          ),
+        ),
+        reportAsync.when(
+          loading: () => const SizedBox.shrink(),
+          error: (_, __) => const SizedBox.shrink(),
           data: (report) => ReportIndicatorsCard(report: report),
         ),
+        const DfSectionHeader(title: 'Comparação', eyebrow: 'Período'),
         comparisonAsync.when(
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (e, _) => Text('Erro: $e'),
           data: (comparison) => PeriodComparisonCard(comparison: comparison),
+        ),
+        const DfSectionHeader(
+          title: 'Distribuição de despesas',
+          eyebrow: 'Categorias',
         ),
         breakdownAsync.when(
           loading: () => const Center(child: CircularProgressIndicator()),
