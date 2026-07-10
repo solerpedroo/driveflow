@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../../core/constants/product_story.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/utils/value_visibility_provider.dart';
 import '../../../../shared/widgets/design_system/df_button.dart';
 import '../../../../shared/widgets/design_system/df_card.dart';
 import '../../../../shared/widgets/design_system/df_hero_wealth_card.dart';
@@ -10,15 +12,20 @@ import '../../../../shared/widgets/design_system/df_section_header.dart';
 import '../../../../shared/widgets/design_system/df_subpage_scaffold.dart';
 
 /// Paywall narrativo — layout Mescla com hero e features.
-class PaywallScreen extends StatelessWidget {
+class PaywallScreen extends ConsumerWidget {
   const PaywallScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final hidden = ref.watch(valueVisibilityHiddenProvider);
 
     return DfSubpageScaffold(
       title: 'DriveFlow Pro',
+      valueHidden: hidden,
+      onToggleValueVisibility: () => ref
+          .read(valueVisibilityHiddenProvider.notifier)
+          .state = !hidden,
       children: [
         Text(
           'Seu cockpit completo',
@@ -34,10 +41,11 @@ class PaywallScreen extends StatelessWidget {
             height: 1.45,
           ),
         ),
-        const DfHeroWealthCard(
+        DfHeroWealthCard(
           label: 'Lucro médio Pro',
           value: 'R\$ 248',
           badge: 'por dia',
+          hideValue: hidden,
         ),
         const DfSectionHeader(title: 'Recursos', eyebrow: 'Pro'),
         for (final feature in ProductStory.proFeatures) ...[
