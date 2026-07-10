@@ -11,6 +11,7 @@ class PlatformConnectionEntity {
     this.externalAccountId,
     this.lastSyncedAt,
     this.lastSyncError,
+    this.metadata = const {},
     this.createdAt,
     this.updatedAt,
   });
@@ -22,6 +23,7 @@ class PlatformConnectionEntity {
   final String? externalAccountId;
   final DateTime? lastSyncedAt;
   final String? lastSyncError;
+  final Map<String, dynamic> metadata;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -35,6 +37,7 @@ class PlatformConnectionEntity {
     String? externalAccountId,
     DateTime? lastSyncedAt,
     String? lastSyncError,
+    Map<String, dynamic>? metadata,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -46,6 +49,7 @@ class PlatformConnectionEntity {
       externalAccountId: externalAccountId ?? this.externalAccountId,
       lastSyncedAt: lastSyncedAt ?? this.lastSyncedAt,
       lastSyncError: lastSyncError ?? this.lastSyncError,
+      metadata: metadata ?? this.metadata,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
