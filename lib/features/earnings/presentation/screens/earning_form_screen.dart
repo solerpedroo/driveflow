@@ -8,6 +8,7 @@ import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../shared/widgets/design_system/df_text_field.dart';
+import '../../../../shared/widgets/platform_brand_icon.dart';
 import '../../domain/entities/earning_entity.dart';
 import '../providers/earnings_providers.dart';
 import '../../../../shared/widgets/design_system/df_card.dart';
@@ -96,6 +97,13 @@ class EarningFormScreen extends HookConsumerWidget {
                       return DfFilterPill(
                         label: platform.label,
                         selected: selectedPlatform.value == platform,
+                        leading: PlatformBrandIcon.hasBrandAsset(platform)
+                            ? PlatformBrandIcon(
+                                platform: platform,
+                                size: 20,
+                                borderRadius: 6,
+                              )
+                            : null,
                         onSelected: () =>
                             selectedPlatform.value = platform,
                       );
