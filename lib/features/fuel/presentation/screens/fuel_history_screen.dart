@@ -32,14 +32,11 @@ class FuelHistoryScreen extends ConsumerWidget {
 
     return DfSubpageScaffold(
       title: 'Abastecimentos',
+      valueHidden: hidden,
+      onToggleValueVisibility: () => ref
+          .read(valueVisibilityHiddenProvider.notifier)
+          .state = !hidden,
       children: [
-        DfScreenTitleRow(
-          title: 'Combustível',
-          hidden: hidden,
-          onToggleVisibility: () => ref
-              .read(valueVisibilityHiddenProvider.notifier)
-              .state = !hidden,
-        ),
         DfHeroWealthCard(
           label: 'Total abastecido',
           value: CurrencyFormatter.format(totalSpent),
