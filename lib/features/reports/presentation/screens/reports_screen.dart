@@ -13,6 +13,7 @@ import '../../../../shared/widgets/design_system/df_hero_wealth_card.dart';
 import '../../../../shared/widgets/design_system/df_section_header.dart';
 import '../../../../shared/widgets/design_system/df_skeleton.dart';
 import '../../../../shared/widgets/design_system/df_tab_scroll_view.dart';
+import '../../../analytics/presentation/providers/analytics_providers.dart';
 import '../providers/reports_providers.dart';
 import '../widgets/report_export_actions.dart';
 import '../widgets/report_indicators_card.dart';
