@@ -12,7 +12,6 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../../core/utils/validators.dart';
-import '../../../authentication/presentation/widgets/auth_primary_button.dart';
 import '../../../authentication/presentation/widgets/auth_text_field.dart';
 import '../../../vehicle/presentation/providers/vehicle_providers.dart';
 import '../../domain/entities/expense_entity.dart';
@@ -22,6 +21,7 @@ import '../widgets/receipt_scan_review_sheet.dart';
 import '../../../../shared/widgets/design_system/df_button.dart';
 import '../../../../shared/widgets/design_system/df_filter_pill.dart';
 import '../../../../shared/widgets/design_system/df_card.dart';
+import '../../../../shared/widgets/design_system/df_form_scaffold.dart';
 
 /// Formulário de criação/edição de despesa com comprovante e OCR.
 class ExpenseFormScreen extends HookConsumerWidget {
@@ -145,14 +145,12 @@ class ExpenseFormScreen extends HookConsumerWidget {
       if (saved != null && context.mounted) context.pop();
     }
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(isEditing ? 'Editar despesa' : 'Nova despesa'),
-        backgroundColor: Colors.transparent,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(24, 8, 24, 32),
-        child: Form(
+    return DfFormScaffold(
+      title: isEditing ? 'Editar despesa' : 'Nova despesa',
+      submitLabel: isEditing ? 'Salvar alterações' : 'Registrar despesa',
+      isLoading: mutation.isLoading,
+      onSubmit: submit,
+      child: Form(
           key: formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -259,16 +257,9 @@ class ExpenseFormScreen extends HookConsumerWidget {
                   ),
                 ),
               ],
-              const SizedBox(height: 20),
-              AuthPrimaryButton(
-                label: isEditing ? 'Salvar alterações' : 'Registrar despesa',
-                isLoading: mutation.isLoading,
-                onPressed: submit,
-              ),
             ],
           ),
         ),
-      ),
     );
   }
 }
