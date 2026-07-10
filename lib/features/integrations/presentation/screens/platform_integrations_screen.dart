@@ -15,6 +15,7 @@ import '../providers/integrations_providers.dart';
 import '../widgets/platform_connect_sheet.dart';
 import '../widgets/platform_connection_card.dart';
 import '../widgets/platform_insights_panel.dart';
+import '../widgets/platform_recent_trips_card.dart';
 
 /// Hub de integrações Uber, 99 e InDrive.
 class PlatformIntegrationsScreen extends ConsumerWidget {
@@ -58,7 +59,8 @@ class PlatformIntegrationsScreen extends ConsumerWidget {
         final message = result == null
             ? 'Não foi possível sincronizar ${platform.label}.'
             : result.hasImports
-                ? '${result.importedCount} registros importados de ${platform.label}.'
+                ? '${result.tripsImported} corridas e ${result.earningsImported} '
+                    'ganhos importados de ${platform.label}.'
                 : result.message ??
                     'Sincronização concluída (${result.skippedCount} ignorados).';
         ScaffoldMessenger.of(context).showSnackBar(
@@ -77,7 +79,8 @@ class PlatformIntegrationsScreen extends ConsumerWidget {
             content: Text(
               result == null
                   ? 'Nenhuma plataforma sincronizada.'
-                  : '${result.importedCount} registros importados no total.',
+                  : '${result.tripsImported} corridas e ${result.earningsImported} '
+                      'ganhos importados no total.',
             ),
           ),
         );
@@ -152,6 +155,10 @@ class PlatformIntegrationsScreen extends ConsumerWidget {
             SliverPadding(
               padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
               sliver: const SliverToBoxAdapter(child: PlatformInsightsPanel()),
+            ),
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+              sliver: const SliverToBoxAdapter(child: PlatformRecentTripsCard()),
             ),
             SliverPadding(
               padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
