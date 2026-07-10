@@ -112,7 +112,7 @@ class ExpensesScreen extends ConsumerWidget {
                     eyebrow: 'Categoria',
                     itemCount: items.length,
                     itemBuilder: (context, index) =>
-                        ExpenseTile(expense: items[index]),
+                        ExpenseTile(expense: items[index], hideValue: hidden),
                     seeAllLabel: 'Ver todas',
                   );
                 }),
