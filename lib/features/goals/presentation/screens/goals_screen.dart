@@ -5,15 +5,16 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/validators.dart';
-import '../../../authentication/presentation/widgets/auth_primary_button.dart';
 import '../../../authentication/presentation/widgets/auth_text_field.dart';
 import '../../domain/entities/goal_entity.dart';
 import '../providers/goals_providers.dart';
-import '../widgets/goal_progress_card.dart';
+import '../../../../shared/widgets/design_system/df_button.dart';
 import '../../../../shared/widgets/design_system/df_card.dart';
 import '../../../../shared/widgets/design_system/df_hero_wealth_card.dart';
 import '../../../../shared/widgets/design_system/df_section_header.dart';
 import '../../../../shared/widgets/design_system/df_subpage_scaffold.dart';
+import '../widgets/goal_progress_card.dart';
+import '../widgets/goals_story_header.dart';
 
 /// Metas financeiras — hero de progresso + formulário agrupado.
 class GoalsScreen extends HookConsumerWidget {
@@ -71,6 +72,7 @@ class GoalsScreen extends HookConsumerWidget {
     return DfSubpageScaffold(
       title: 'Metas',
       children: [
+        const GoalsStoryHeader(),
         progressAsync.when(
           loading: () => const SizedBox.shrink(),
           error: (_, __) => const SizedBox.shrink(),
@@ -169,7 +171,7 @@ class GoalsScreen extends HookConsumerWidget {
                   ),
                 ],
                 const SizedBox(height: 16),
-                AuthPrimaryButton(
+                DfButton(
                   label: 'Salvar metas',
                   isLoading: mutation.isLoading,
                   onPressed: submit,
