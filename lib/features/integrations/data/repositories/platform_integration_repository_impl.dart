@@ -1,21 +1,27 @@
 import '../../../../core/constants/ride_platforms.dart';
 import '../../domain/entities/integration_status.dart';
 import '../../domain/entities/platform_connection_entity.dart';
+import '../../domain/entities/platform_oauth_session.dart';
 import '../../domain/repositories/platform_integration_repository.dart';
 import '../datasources/platform_connections_remote_datasource.dart';
+import '../datasources/platform_oauth_remote_datasource.dart';
 import '../datasources/platform_sync_remote_datasource.dart';
+import '../../domain/services/platform_oauth_service.dart';
 import '../mappers/platform_connection_mapper.dart';
 
 class PlatformIntegrationRepositoryImpl implements PlatformIntegrationRepository {
   PlatformIntegrationRepositoryImpl({
     PlatformConnectionsRemoteDataSource? connectionsDataSource,
     PlatformSyncRemoteDataSource? syncDataSource,
+    PlatformOAuthRemoteDataSource? oauthDataSource,
   })  : _connections =
             connectionsDataSource ?? PlatformConnectionsRemoteDataSource(),
-        _sync = syncDataSource ?? PlatformSyncRemoteDataSource();
+        _sync = syncDataSource ?? PlatformSyncRemoteDataSource(),
+        _oauth = oauthDataSource ?? PlatformOAuthRemoteDataSource();
 
   final PlatformConnectionsRemoteDataSource _connections;
   final PlatformSyncRemoteDataSource _sync;
+  final PlatformOAuthRemoteDataSource _oauth;
 
   @override
   Stream<List<PlatformConnectionEntity>> watchConnections() {
@@ -28,6 +34,14 @@ class PlatformIntegrationRepositoryImpl implements PlatformIntegrationRepository
   Future<List<PlatformConnectionEntity>> fetchConnections() async {
     final rows = await _connections.fetchConnections();
     return rows.map(PlatformConnectionMapper.fromRow).toList();
+  }
+
+  @override
+  Future<PlatformOAuthSession> startOAuth(RidePlatform platform) {
+    return _oauth.startOAuth(
+      platform: platform,
+      redirectUri: PlatformOAuthService.redirectUri(),
+    );
   }
 
   @override
