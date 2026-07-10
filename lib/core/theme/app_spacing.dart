@@ -1,4 +1,4 @@
-/// Escala de espaçamento — HIG Apple (margens 16pt).
+/// Escala de espaçamento — HIG Apple (margens 16pt, seções 20pt).
 abstract final class AppSpacing {
   static const double xs = 4;
   static const double sm = 8;
@@ -10,6 +10,6 @@ abstract final class AppSpacing {
 
   static const screenHorizontal = lg;
   static const screenTop = lg;
-  static const sectionGap = lg;
+  static const sectionGap = xl;
   static const cardPadding = lg;
 }
