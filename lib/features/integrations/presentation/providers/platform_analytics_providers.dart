@@ -18,7 +18,6 @@ import '../../domain/entities/platform_region_snapshot.dart';
 import '../../domain/entities/platform_revenue_trend_point.dart';
 import '../../domain/entities/platform_shift_plan.dart';
 import '../../domain/entities/platform_take_rate_point.dart';
-import '../../domain/entities/platform_trip_entity.dart';
 import '../../domain/services/platform_analytics_breakdown.dart';
 import '../../domain/services/platform_consistency_analyzer.dart';
 import '../../domain/services/platform_efficiency_analyzer.dart';
@@ -66,22 +65,12 @@ List<EarningEntity> _scopedEarnings(Ref ref) {
   );
 }
 
-List<PlatformTripEntity> _scopedTrips(Ref ref) {
-  final trips = ref.watch(platformTripsStreamProvider).valueOrNull ?? const [];
-  final vehicleId = ref.watch(scopedVehicleIdProvider);
-  return VehicleScopeFilter.byVehicle(
-    items: trips,
-    vehicleId: vehicleId,
-    vehicleIdOf: (t) => t.vehicleId,
-  );
-}
-
 final platformRevenueTrendProvider =
     Provider<AsyncValue<List<PlatformRevenueTrendPoint>>>((ref) {
   final tripsAsync = ref.watch(platformTripsStreamProvider);
   final window = ref.watch(platformTrendWindowProvider);
   final earnings = _scopedEarnings(ref);
-  final trips = _scopedTrips(ref);
+  final trips = ref.watch(platformScopedTripsProvider);
 
   if (tripsAsync.isLoading) return const AsyncLoading();
   if (tripsAsync.hasError) {
@@ -118,7 +107,7 @@ final platformNetProfitProvider =
     Provider<AsyncValue<List<PlatformNetProfitSlice>>>((ref) {
   final tripsAsync = ref.watch(platformTripsStreamProvider);
   final fuel = ref.watch(lastFuelLogProvider);
-  final trips = _scopedTrips(ref);
+  final trips = ref.watch(platformScopedTripsProvider);
 
   if (tripsAsync.isLoading) return const AsyncLoading();
   if (tripsAsync.hasError) {
@@ -139,7 +128,7 @@ final platformNetProfitProvider =
 final platformEfficiencyProvider =
     Provider<AsyncValue<List<PlatformEfficiencySnapshot>>>((ref) {
   final tripsAsync = ref.watch(platformTripsStreamProvider);
-  final trips = _scopedTrips(ref);
+  final trips = ref.watch(platformScopedTripsProvider);
 
   if (tripsAsync.isLoading) return const AsyncLoading();
   if (tripsAsync.hasError) {
@@ -156,7 +145,7 @@ final platformTodayMixProvider =
     Provider<AsyncValue<List<PlatformRevenueSlice>>>((ref) {
   final earnings = _scopedEarnings(ref);
   final tripsAsync = ref.watch(platformTripsStreamProvider);
-  final trips = _scopedTrips(ref);
+  final trips = ref.watch(platformScopedTripsProvider);
 
   if (tripsAsync.isLoading) return const AsyncLoading();
   if (tripsAsync.hasError) {
@@ -178,7 +167,7 @@ final platformHeatmapProvider =
     Provider<AsyncValue<List<PlatformHeatmapSlot>>>((ref) {
   final tripsAsync = ref.watch(platformTripsStreamProvider);
   final filter = ref.watch(platformHeatmapFilterProvider);
-  final trips = _scopedTrips(ref);
+  final trips = ref.watch(platformScopedTripsProvider);
 
   if (tripsAsync.isLoading) return const AsyncLoading();
   if (tripsAsync.hasError) {
@@ -256,7 +245,7 @@ final platformPayoutCalendarProvider =
   final tripsAsync = ref.watch(platformTripsStreamProvider);
   final connections = ref.watch(platformConnectionsProvider).valueOrNull ?? [];
   final overrides = PlatformPayoutRules.overridesFromConnections(connections);
-  final trips = _scopedTrips(ref);
+  final trips = ref.watch(platformScopedTripsProvider);
 
   if (tripsAsync.isLoading) return const AsyncLoading();
   if (tripsAsync.hasError) {
@@ -285,7 +274,7 @@ final platformGoalProgressProvider =
   final goals = ref.watch(goalsStreamProvider).valueOrNull;
   final earnings = _scopedEarnings(ref);
   final tripsAsync = ref.watch(platformTripsStreamProvider);
-  final trips = _scopedTrips(ref);
+  final trips = ref.watch(platformScopedTripsProvider);
 
   if (tripsAsync.isLoading) return const AsyncLoading();
   if (tripsAsync.hasError) {
@@ -307,7 +296,7 @@ final platformGoalProgressProvider =
 final platformTakeRateTrendProvider =
     Provider<AsyncValue<List<PlatformTakeRatePoint>>>((ref) {
   final tripsAsync = ref.watch(platformTripsStreamProvider);
-  final trips = _scopedTrips(ref);
+  final trips = ref.watch(platformScopedTripsProvider);
 
   if (tripsAsync.isLoading) return const AsyncLoading();
   if (tripsAsync.hasError) {
@@ -325,7 +314,7 @@ final platformTakeRateTrendProvider =
 final platformRegionTopProvider =
     Provider<AsyncValue<List<PlatformRegionSnapshot>>>((ref) {
   final tripsAsync = ref.watch(platformTripsStreamProvider);
-  final trips = _scopedTrips(ref);
+  final trips = ref.watch(platformScopedTripsProvider);
 
   if (tripsAsync.isLoading) return const AsyncLoading();
   if (tripsAsync.hasError) {
@@ -341,7 +330,7 @@ final platformRegionTopProvider =
 final platformConsistencyProvider =
     Provider<AsyncValue<List<PlatformConsistencySnapshot>>>((ref) {
   final tripsAsync = ref.watch(platformTripsStreamProvider);
-  final trips = _scopedTrips(ref);
+  final trips = ref.watch(platformScopedTripsProvider);
 
   if (tripsAsync.isLoading) return const AsyncLoading();
   if (tripsAsync.hasError) {
