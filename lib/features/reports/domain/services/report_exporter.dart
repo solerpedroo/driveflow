@@ -127,6 +127,16 @@ abstract final class ReportExporter {
             ),
           ],
           pw.SizedBox(height: 16),
+          _pdfSection('Receita por app', [
+            for (final slice in PlatformAnalyticsBreakdown.fromEarnings(earnings))
+              _pdfRow(
+                slice.platform.label,
+                '${CurrencyFormatter.format(slice.amount)} · '
+                '${slice.rides} corridas · '
+                '${slice.sharePercent.toStringAsFixed(0)}%',
+              ),
+          ]),
+          pw.SizedBox(height: 16),
           _pdfSection('Ganhos (${earnings.length})', [
             for (final earning in earnings)
               pw.Text(

@@ -1,8 +1,8 @@
 # DriveFlow — implementation-plan.md
 
-Plano de implementação em **29 ondas** (0–29) para o DriveFlow (Flutter + Supabase + Groq), partindo de repositório vazio, combinando Clean Architecture feature-first do escopo com os padrões de organização do projeto MesclaInvest (screens/widgets/services separados, shell de navegação, mappers, test hooks).
+Plano de implementação em **33 ondas** (0–33) para o DriveFlow (Flutter + Supabase + Groq), partindo de repositório vazio, combinando Clean Architecture feature-first do escopo com os padrões de organização do projeto MesclaInvest (screens/widgets/services separados, shell de navegação, mappers, test hooks).
 
-**Fases:** ondas **0–9** = MVP v1.0 · ondas **10–14** = features pós-MVP · ondas **15–23** = Design System + Premium UI · ondas **24–29** = Integrações Uber/99/InDrive + inteligência cross-platform.
+**Fases:** ondas **0–9** = MVP v1.0 · ondas **10–14** = features pós-MVP · ondas **15–23** = Design System + Premium UI · ondas **24–29** = Integrações Uber/99/InDrive + inteligência cross-platform · ondas **30–33** = Analytics avançado por app + turno inteligente + caixa/metas + Pro analytics.
 
 **Repositório:** `driveflow`  
 **Referência:** `ES-PI3-2026-T2-G03` (MesclaInvest)
@@ -34,10 +34,14 @@ Plano de implementação em **29 ondas** (0–29) para o DriveFlow (Flutter + Su
 | 18 | Product Storytelling — narrativa, métricas de valor, upsell Pro | em andamento |
 | 24 | Integrações foundation — hub Uber/99/InDrive, conexões OAuth, proveniência | concluída |
 | 25 | Histórico de corridas + rollup automático de ganhos diários | concluída |
-| 26 | Adapters OAuth Uber/99/InDrive (Edge Functions + tokens seguros) | em andamento |
-| 27 | Inteligência cross-platform — shift advisor, take rate, gaps de sync | em andamento |
-| 28 | Sync em background + webhooks + notificações de repasse | em andamento |
-| 29 | Analytics por plataforma + IA com contexto de corridas | em andamento |
+| 26 | Adapters OAuth Uber/99/InDrive (Edge Functions + tokens seguros) | concluída |
+| 27 | Inteligência cross-platform — shift advisor, take rate, gaps de sync | concluída |
+| 28 | Sync em background + webhooks + notificações de repasse | concluída |
+| 29 | Analytics por plataforma + IA com contexto de corridas | concluída |
+| 30 | Gráficos por app — evolução temporal, lucro líquido, R$/km, donut dashboard | em andamento |
+| 31 | Turno inteligente — heatmap 7×24, plano de turno, simulador de mix | em andamento |
+| 32 | Caixa e metas — calendário de repasses, metas por app, take rate temporal | em andamento |
+| 33 | Pro analytics — regiões, consistência, PDF visual, IA com séries temporais | em andamento |
 
 ---
 
@@ -1350,6 +1354,90 @@ Substituir `electricTeal` como cor de marca por tons de azul-claro. Verde perman
 
 ---
 
+## Onda 30 — Gráficos por app (evolução, lucro líquido, eficiência)
+
+**Objetivo:** Responder perguntas reais do motorista multi-app — não só "quanto ganhei", mas "onde está evoluindo" e "o que sobra depois dos custos".
+
+### Escopo
+
+| Feature | Descrição | Entrega |
+|---|---|---|
+| Evolução temporal | Linha empilhada de ganhos por Uber/99/InDrive (7/30/90 dias) | `PlatformRevenueTrendCalculator` + chart |
+| Lucro líquido | Barras bruto vs líquido (payout − combustível/km) | `PlatformNetProfitCalculator` |
+| R$/km e R$/corrida | Barras horizontais de eficiência por app | `PlatformEfficiencyAnalyzer` |
+| Mix do dia | Donut no Dashboard com share de hoje | `PlatformRevenueDonutChart` + `DashboardPlatformMixCard` |
+| Variação período | Chips `+18% Uber` vs período anterior | delta no trend calculator |
+
+### Critérios de conclusão
+
+- Tela Análises exibe evolução, lucro líquido e eficiência por app
+- Dashboard exibe donut do mix de hoje quando há dados
+- Breakdown por app respeita escopo de veículo e período
+
+---
+
+## Onda 31 — Turno inteligente (heatmap, plano, simulador)
+
+**Objetivo:** Transformar histórico em **decisão de turno** — qual app abrir em qual horário.
+
+### Escopo
+
+| Feature | Descrição | Entrega |
+|---|---|---|
+| Heatmap 7×24 | Grade dia×hora colorida por R$/h **por app** | `PlatformHeatmapBuilder` + widget |
+| Plano de turno | Timeline sugerida para próximas 6h | `PlatformShiftPlanBuilder` |
+| Simulador de mix | Slider Uber/99/InDrive → projeção mensal | `PlatformMixSimulator` |
+
+### Critérios de conclusão
+
+- Hub de integrações ou Análises exibe heatmap com abas por app
+- Card de plano de turno com blocos horários acionáveis
+- Simulador projeta lucro com base na média histórica por app
+
+---
+
+## Onda 32 — Caixa e metas por app
+
+**Objetivo:** Fluxo de caixa e metas desmembradas — dinheiro na mão e progresso por plataforma.
+
+### Escopo
+
+| Feature | Descrição | Entrega |
+|---|---|---|
+| Calendário de repasses | Corridas → data estimada de crédito (D+N por app) | `PlatformPayoutCalendarBuilder` |
+| Metas por app | Meta diária dividida por share histórico | `PlatformGoalProgressCalculator` |
+| Take rate temporal | Linha semanal de taxa % por app | `PlatformTakeRateTrendCalculator` |
+| Gorjetas | Média de gorjeta por corrida por app | no take rate / efficiency |
+
+### Critérios de conclusão
+
+- Card "A receber" com valor e data por app
+- Dashboard ou Metas exibe progresso por Uber/99/InDrive
+- Gráfico de take rate nas Análises
+
+---
+
+## Onda 33 — Pro analytics (regiões, consistência, PDF, IA)
+
+**Objetivo:** Analytics de decisão avançada — onde rodar, qual app é estável, relatório visual.
+
+### Escopo
+
+| Feature | Descrição | Entrega |
+|---|---|---|
+| Top regiões | Bairros/zonas com melhor R$/corrida por app | `PlatformRegionAnalyzer` |
+| Consistência | Score de estabilidade (desvio diário) por app | `PlatformConsistencyAnalyzer` |
+| PDF visual | Seção por app no relatório mensal | `ReportExporter` |
+| IA enriquecida | Séries temporais + lucro líquido + heatmap no prompt | `AiContextBuilder` |
+
+### Critérios de conclusão
+
+- Card de top regiões no hub de integrações
+- IA recebe tendência semanal e consistência por app
+- PDF mensal inclui breakdown visual por Uber/99/InDrive
+
+---
+
 ## Mapa de requisitos funcionais → ondas
 
 | RF | Descrição | Onda |
@@ -1391,6 +1479,10 @@ Substituir `electricTeal` como cor de marca por tons de azul-claro. Verde perman
 | RF26 | Inteligência cross-platform (shift advisor, take rate) | 27 |
 | RF27 | Sync background + webhooks + push repasse | 28 |
 | RF28 | Analytics e relatórios por plataforma | 29 |
+| RF29 | Gráficos evolução e lucro líquido por app | 30 |
+| RF30 | Heatmap turno + simulador de mix | 31 |
+| RF31 | Repasses e metas desmembradas por app | 32 |
+| RF32 | Regiões, consistência e PDF Pro por app | 33 |
 
 ---
 
@@ -1440,7 +1532,8 @@ PLATFORM_OAUTH_REDIRECT_URL=
 | **v2.0** | Importação extratos, previsão IA, melhor horário, comparação períodos | 12–14 |
 | **v2.1** | Metas por veículo, remoção aliases `driveflow_*` deprecated | pós-15 |
 | **v3.0** | Integrações Uber/99/InDrive + inteligência cross-platform | 24–29 |
-| **v3.1** | Comunidade, parceiros, painel web | fora do plano atual |
+| **v3.1** | Analytics avançado por app — gráficos, turno, caixa, Pro | 30–33 |
+| **v3.2** | Comunidade, parceiros, painel web | fora do plano atual |
 
 ---
 

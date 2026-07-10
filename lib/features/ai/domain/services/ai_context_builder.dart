@@ -1,4 +1,8 @@
 import '../../../../core/constants/ride_platforms.dart';
+import '../../../integrations/domain/entities/platform_consistency_snapshot.dart';
+import '../../../integrations/domain/entities/platform_revenue_trend_point.dart';
+import '../../../integrations/domain/services/platform_consistency_analyzer.dart';
+import '../../../integrations/domain/services/platform_revenue_trend_calculator.dart';
 import '../../../integrations/domain/services/platform_analytics_breakdown.dart';
 import '../../../integrations/domain/entities/platform_trip_entity.dart';
 import '../../../earnings/domain/entities/earning_entity.dart';
@@ -28,6 +32,8 @@ class AiContextSnapshot {
     this.platformBreakdown = const [],
     this.platformTripCount = 0,
     this.lowestTakeRatePlatform,
+    this.platformTrendSummary = const [],
+    this.platformConsistency = const [],
   });
 
   final int periodDays;
@@ -44,6 +50,8 @@ class AiContextSnapshot {
   final List<PlatformRevenueSlice> platformBreakdown;
   final int platformTripCount;
   final String? lowestTakeRatePlatform;
+  final List<PlatformRevenueTrendPoint> platformTrendSummary;
+  final List<PlatformConsistencySnapshot> platformConsistency;
 
   Map<String, dynamic> toJson() {
     return {
@@ -72,6 +80,34 @@ class AiContextSnapshot {
               'weekday': slot.weekdayLabel,
               'hour': slot.hourLabel,
               'profitPerHour': slot.profitPerHour,
+            },
+          )
+          .toList(growable: false),
+      'platformBreakdown': platformBreakdown
+          .map(
+            (s) => {
+              'platform': s.platform.label,
+              'amount': s.amount,
+              'rides': s.rides,
+            },
+          )
+          .toList(growable: false),
+      'platformTripCount': platformTripCount,
+      'platformTrend': platformTrendSummary
+          .take(7)
+          .map(
+            (p) => {
+              'date': p.date.toIso8601String(),
+              'total': p.total,
+            },
+          )
+          .toList(growable: false),
+      'platformConsistency': platformConsistency
+          .map(
+            (c) => {
+              'platform': c.platform.label,
+              'score': c.consistencyScore,
+              'avgDaily': c.avgDailyProfit,
             },
           )
           .toList(growable: false),
@@ -155,6 +191,18 @@ abstract final class AiContextBuilder {
       platformBreakdown: PlatformAnalyticsBreakdown.fromEarnings(earnings),
       platformTripCount: platformTrips.length,
       lowestTakeRatePlatform: _lowestTakeRate(platformTrips),
+      platformTrendSummary: platformTrips.isNotEmpty
+          ? PlatformRevenueTrendCalculator.fromTrips(
+              trips: platformTrips,
+              days: 7,
+            )
+          : PlatformRevenueTrendCalculator.fromEarnings(
+              earnings: earnings,
+              days: 7,
+            ),
+      platformConsistency: PlatformConsistencyAnalyzer.analyze(
+        trips: platformTrips,
+      ),
     );
   }
 
@@ -209,6 +257,10 @@ abstract final class AiContextBuilder {
         'Corridas sincronizadas: ${snapshot.platformTripCount}',
       if (snapshot.lowestTakeRatePlatform != null)
         'Menor taxa de plataforma: ${snapshot.lowestTakeRatePlatform}',
+      if (snapshot.platformConsistency.isNotEmpty)
+        'Consistência: ${snapshot.platformConsistency.map((c) => '${c.platform.label} ${c.consistencyScore.round()}').join(', ')}',
+      if (snapshot.platformTrendSummary.isNotEmpty)
+        'Tendência 7d: ${snapshot.platformTrendSummary.map((p) => '${p.weekdayLabel} ${p.total.toStringAsFixed(0)}').join(', ')}',
     ].join('\n');
   }
 }

@@ -257,5 +257,21 @@ final reportCategoryBreakdownProvider =
 final analyticsPlatformBreakdownProvider =
     Provider<AsyncValue<List<PlatformRevenueSlice>>>((ref) {
   final earnings = ref.watch(earningsStreamProvider);
-  return earnings.whenData(PlatformAnalyticsBreakdown.fromEarnings);
+  final period = ref.watch(analyticsPeriodProvider);
+  final scopedVehicleId = ref.watch(scopedVehicleIdProvider);
+  final range = dateRangeForGoalPeriod(period);
+
+  return earnings.whenData((all) {
+    final scoped = _scoped(
+      items: all,
+      vehicleId: scopedVehicleId,
+      vehicleIdOf: (e) => e.vehicleId,
+    );
+    final filtered = scoped
+        .where(
+          (e) => !e.date.isBefore(range.start) && !e.date.isAfter(range.end),
+        )
+        .toList();
+    return PlatformAnalyticsBreakdown.fromEarnings(filtered);
+  });
 });

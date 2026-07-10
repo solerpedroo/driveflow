@@ -17,6 +17,8 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../shared/widgets/design_system/df_skeleton.dart';
 import '../providers/dashboard_providers.dart';
 import '../../../integrations/presentation/widgets/dashboard_platform_chip.dart';
+import '../../../integrations/presentation/widgets/dashboard_platform_mix_card.dart';
+import '../../../integrations/presentation/widgets/platform_goal_progress_card.dart';
 import '../widgets/dashboard_fuel_card.dart';
 import '../widgets/dashboard_header.dart';
 import '../widgets/dashboard_hero_section.dart';
@@ -91,6 +93,28 @@ class DashboardScreen extends HookConsumerWidget {
               0,
             ),
             child: DashboardPlatformChip(),
+          ),
+        ),
+        const SliverToBoxAdapter(
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(
+              AppSpacing.screenHorizontal,
+              AppSpacing.sm,
+              AppSpacing.screenHorizontal,
+              0,
+            ),
+            child: DashboardPlatformMixCard(),
+          ),
+        ),
+        const SliverToBoxAdapter(
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(
+              AppSpacing.screenHorizontal,
+              AppSpacing.sm,
+              AppSpacing.screenHorizontal,
+              0,
+            ),
+            child: PlatformGoalProgressCard(),
           ),
         ),
         SliverPadding(
