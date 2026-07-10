@@ -18,6 +18,7 @@ import '../../domain/entities/platform_region_snapshot.dart';
 import '../../domain/entities/platform_revenue_trend_point.dart';
 import '../../domain/entities/platform_shift_plan.dart';
 import '../../domain/entities/platform_take_rate_point.dart';
+import '../../domain/entities/platform_trip_entity.dart';
 import '../../domain/services/platform_analytics_breakdown.dart';
 import '../../domain/services/platform_consistency_analyzer.dart';
 import '../../domain/services/platform_efficiency_analyzer.dart';
@@ -65,31 +66,44 @@ List<EarningEntity> _scopedEarnings(Ref ref) {
   );
 }
 
+List<PlatformTripEntity> _scopedTrips(Ref ref) {
+  final trips = ref.watch(platformTripsStreamProvider).valueOrNull ?? const [];
+  final vehicleId = ref.watch(scopedVehicleIdProvider);
+  return VehicleScopeFilter.byVehicle(
+    items: trips,
+    vehicleId: vehicleId,
+    vehicleIdOf: (t) => t.vehicleId,
+  );
+}
+
 final platformRevenueTrendProvider =
     Provider<AsyncValue<List<PlatformRevenueTrendPoint>>>((ref) {
-  final trips = ref.watch(platformTripsStreamProvider);
+  final tripsAsync = ref.watch(platformTripsStreamProvider);
   final window = ref.watch(platformTrendWindowProvider);
   final earnings = _scopedEarnings(ref);
+  final trips = _scopedTrips(ref);
 
-  return trips.when(
-    loading: () => const AsyncLoading(),
-    error: (e, st) => AsyncError(e, st),
-    data: (tripList) {
-      if (tripList.isNotEmpty) {
-        return AsyncData(
-          PlatformRevenueTrendCalculator.fromTrips(
-            trips: tripList,
-            days: window.days,
-          ),
-        );
-      }
-      return AsyncData(
-        PlatformRevenueTrendCalculator.fromEarnings(
-          earnings: earnings,
-          days: window.days,
-        ),
-      );
-    },
+  if (tripsAsync.isLoading) return const AsyncLoading();
+  if (tripsAsync.hasError) {
+    return AsyncError(
+      tripsAsync.error!,
+      tripsAsync.stackTrace ?? StackTrace.current,
+    );
+  }
+
+  if (trips.isNotEmpty) {
+    return AsyncData(
+      PlatformRevenueTrendCalculator.fromTrips(
+        trips: trips,
+        days: window.days,
+      ),
+    );
+  }
+  return AsyncData(
+    PlatformRevenueTrendCalculator.fromEarnings(
+      earnings: earnings,
+      days: window.days,
+    ),
   );
 });
 
@@ -102,48 +116,81 @@ final platformTrendDeltaProvider =
 
 final platformNetProfitProvider =
     Provider<AsyncValue<List<PlatformNetProfitSlice>>>((ref) {
-  final trips = ref.watch(platformTripsStreamProvider);
+  final tripsAsync = ref.watch(platformTripsStreamProvider);
   final fuel = ref.watch(lastFuelLogProvider);
+  final trips = _scopedTrips(ref);
 
-  return trips.whenData((tripList) {
-    return PlatformNetProfitCalculator.fromTrips(
-      trips: tripList,
-      fuelCostPerKm: fuel.valueOrNull?.costPerKm ?? 0,
+  if (tripsAsync.isLoading) return const AsyncLoading();
+  if (tripsAsync.hasError) {
+    return AsyncError(
+      tripsAsync.error!,
+      tripsAsync.stackTrace ?? StackTrace.current,
     );
-  });
+  }
+
+  return AsyncData(
+    PlatformNetProfitCalculator.fromTrips(
+      trips: trips,
+      fuelCostPerKm: fuel.valueOrNull?.costPerKm ?? 0,
+    ),
+  );
 });
 
 final platformEfficiencyProvider =
     Provider<AsyncValue<List<PlatformEfficiencySnapshot>>>((ref) {
-  final trips = ref.watch(platformTripsStreamProvider);
-  return trips.whenData(PlatformEfficiencyAnalyzer.analyze);
+  final tripsAsync = ref.watch(platformTripsStreamProvider);
+  final trips = _scopedTrips(ref);
+
+  if (tripsAsync.isLoading) return const AsyncLoading();
+  if (tripsAsync.hasError) {
+    return AsyncError(
+      tripsAsync.error!,
+      tripsAsync.stackTrace ?? StackTrace.current,
+    );
+  }
+
+  return AsyncData(PlatformEfficiencyAnalyzer.analyze(trips));
 });
 
 final platformTodayMixProvider =
     Provider<AsyncValue<List<PlatformRevenueSlice>>>((ref) {
   final earnings = _scopedEarnings(ref);
-  final trips = ref.watch(platformTripsStreamProvider);
+  final tripsAsync = ref.watch(platformTripsStreamProvider);
+  final trips = _scopedTrips(ref);
 
-  return trips.when(
-    loading: () => const AsyncLoading(),
-    error: (e, st) => AsyncError(e, st),
-    data: (tripList) => AsyncData(
-      PlatformAnalyticsBreakdown.todayMix(
-        earnings: earnings,
-        trips: tripList,
-      ),
+  if (tripsAsync.isLoading) return const AsyncLoading();
+  if (tripsAsync.hasError) {
+    return AsyncError(
+      tripsAsync.error!,
+      tripsAsync.stackTrace ?? StackTrace.current,
+    );
+  }
+
+  return AsyncData(
+    PlatformAnalyticsBreakdown.todayMix(
+      earnings: earnings,
+      trips: trips,
     ),
   );
 });
 
 final platformHeatmapProvider =
     Provider<AsyncValue<List<PlatformHeatmapSlot>>>((ref) {
-  final trips = ref.watch(platformTripsStreamProvider);
+  final tripsAsync = ref.watch(platformTripsStreamProvider);
   final filter = ref.watch(platformHeatmapFilterProvider);
+  final trips = _scopedTrips(ref);
 
-  return trips.whenData(
-    (tripList) => PlatformHeatmapBuilder.build(
-      trips: tripList,
+  if (tripsAsync.isLoading) return const AsyncLoading();
+  if (tripsAsync.hasError) {
+    return AsyncError(
+      tripsAsync.error!,
+      tripsAsync.stackTrace ?? StackTrace.current,
+    );
+  }
+
+  return AsyncData(
+    PlatformHeatmapBuilder.build(
+      trips: trips,
       filterPlatform: filter,
     ),
   );
@@ -206,13 +253,22 @@ final platformMixSimulationProvider =
 
 final platformPayoutCalendarProvider =
     Provider<AsyncValue<List<PlatformPayoutEntry>>>((ref) {
-  final trips = ref.watch(platformTripsStreamProvider);
+  final tripsAsync = ref.watch(platformTripsStreamProvider);
   final connections = ref.watch(platformConnectionsProvider).valueOrNull ?? [];
   final overrides = PlatformPayoutRules.overridesFromConnections(connections);
+  final trips = _scopedTrips(ref);
 
-  return trips.whenData(
-    (tripList) => PlatformPayoutCalendarBuilder.build(
-      trips: tripList,
+  if (tripsAsync.isLoading) return const AsyncLoading();
+  if (tripsAsync.hasError) {
+    return AsyncError(
+      tripsAsync.error!,
+      tripsAsync.stackTrace ?? StackTrace.current,
+    );
+  }
+
+  return AsyncData(
+    PlatformPayoutCalendarBuilder.build(
+      trips: trips,
       policyOverrides: overrides,
     ),
   );
@@ -228,37 +284,72 @@ final platformGoalProgressProvider =
     Provider<AsyncValue<List<PlatformGoalProgress>>>((ref) {
   final goals = ref.watch(goalsStreamProvider).valueOrNull;
   final earnings = _scopedEarnings(ref);
-  final trips = ref.watch(platformTripsStreamProvider);
+  final tripsAsync = ref.watch(platformTripsStreamProvider);
+  final trips = _scopedTrips(ref);
 
-  return trips.when(
-    loading: () => const AsyncLoading(),
-    error: (e, st) => AsyncError(e, st),
-    data: (tripList) => AsyncData(
-      PlatformGoalProgressCalculator.calculate(
-        goals: goals,
-        earnings: earnings,
-        trips: tripList,
-      ),
+  if (tripsAsync.isLoading) return const AsyncLoading();
+  if (tripsAsync.hasError) {
+    return AsyncError(
+      tripsAsync.error!,
+      tripsAsync.stackTrace ?? StackTrace.current,
+    );
+  }
+
+  return AsyncData(
+    PlatformGoalProgressCalculator.calculate(
+      goals: goals,
+      earnings: earnings,
+      trips: trips,
     ),
   );
 });
 
 final platformTakeRateTrendProvider =
     Provider<AsyncValue<List<PlatformTakeRatePoint>>>((ref) {
-  final trips = ref.watch(platformTripsStreamProvider);
-  return trips.whenData(
-    (tripList) => PlatformTakeRateTrendCalculator.build(trips: tripList),
+  final tripsAsync = ref.watch(platformTripsStreamProvider);
+  final trips = _scopedTrips(ref);
+
+  if (tripsAsync.isLoading) return const AsyncLoading();
+  if (tripsAsync.hasError) {
+    return AsyncError(
+      tripsAsync.error!,
+      tripsAsync.stackTrace ?? StackTrace.current,
+    );
+  }
+
+  return AsyncData(
+    PlatformTakeRateTrendCalculator.build(trips: trips),
   );
 });
 
 final platformRegionTopProvider =
     Provider<AsyncValue<List<PlatformRegionSnapshot>>>((ref) {
-  final trips = ref.watch(platformTripsStreamProvider);
-  return trips.whenData(PlatformRegionAnalyzer.topRegions);
+  final tripsAsync = ref.watch(platformTripsStreamProvider);
+  final trips = _scopedTrips(ref);
+
+  if (tripsAsync.isLoading) return const AsyncLoading();
+  if (tripsAsync.hasError) {
+    return AsyncError(
+      tripsAsync.error!,
+      tripsAsync.stackTrace ?? StackTrace.current,
+    );
+  }
+
+  return AsyncData(PlatformRegionAnalyzer.topRegions(trips));
 });
 
 final platformConsistencyProvider =
     Provider<AsyncValue<List<PlatformConsistencySnapshot>>>((ref) {
-  final trips = ref.watch(platformTripsStreamProvider);
-  return trips.whenData(PlatformConsistencyAnalyzer.analyze);
+  final tripsAsync = ref.watch(platformTripsStreamProvider);
+  final trips = _scopedTrips(ref);
+
+  if (tripsAsync.isLoading) return const AsyncLoading();
+  if (tripsAsync.hasError) {
+    return AsyncError(
+      tripsAsync.error!,
+      tripsAsync.stackTrace ?? StackTrace.current,
+    );
+  }
+
+  return AsyncData(PlatformConsistencyAnalyzer.analyze(trips));
 });
