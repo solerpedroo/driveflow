@@ -96,7 +96,7 @@ class _DfButtonState extends State<DfButton> {
             backgroundColor: AppColors.brandBlue,
             foregroundColor: Colors.white,
             minimumSize: const Size(0, 50),
-            shape: RoundedRectangleBorder(borderRadius: AppRadius.lgAll),
+            shape: const RoundedRectangleBorder(borderRadius: AppRadius.lgAll),
             elevation: 0,
           ),
           child: child,
@@ -108,7 +108,7 @@ class _DfButtonState extends State<DfButton> {
             side: BorderSide(
               color: AppColors.brandBlue.withValues(alpha: 0.35),
             ),
-            shape: RoundedRectangleBorder(borderRadius: AppRadius.lgAll),
+            shape: const RoundedRectangleBorder(borderRadius: AppRadius.lgAll),
           ),
           child: child,
         ),
