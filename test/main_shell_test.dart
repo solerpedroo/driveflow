@@ -77,19 +77,30 @@ void main() {
     await tester.pump(const Duration(milliseconds: 300));
 
     expect(find.text('COCKPIT ATIVO'), findsOneWidget);
-    expect(find.text('GANHOS'), findsOneWidget);
+    expect(find.text('Ganhos'), findsWidgets);
 
-    await tester.tap(find.text('GANHOS'));
+    await tester.tap(
+      find.descendant(
+        of: find.byType(DriveFlowBottomNavBar),
+        matching: find.text('Ganhos'),
+      ),
+    );
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
 
     expect(find.text('Ganhos'), findsWidgets);
 
-    await tester.tap(find.text('PERFIL'));
+    await tester.tap(
+      find.descendant(
+        of: find.byType(DriveFlowBottomNavBar),
+        matching: find.text('Perfil'),
+      ),
+    );
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
 
     expect(find.text('Perfil'), findsOneWidget);
+    expect(find.text('Meus veículos'), findsOneWidget);
     expect(find.byType(DriveFlowBottomNavBar), findsOneWidget);
   });
 
