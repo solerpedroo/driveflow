@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_elevation.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
-import 'df_card.dart';
 
-/// Linha de movimentação estilo Mescla — +/- , caps, valor, ver detalhes.
+/// Linha de movimentação — row flat (Wallet), sem card por item.
 class DfMovimentacaoTile extends StatelessWidget {
   const DfMovimentacaoTile({
     required this.title,
@@ -33,85 +33,85 @@ class DfMovimentacaoTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final brightness = theme.brightness;
     final color = isCredit ? AppColors.profitGreen : AppColors.expenseCoral;
     final symbol = isCredit ? '+' : '−';
     final displayAmount = hideValue ? 'R\$ ••••' : amount;
 
-    return DfCard(
-      padding: const EdgeInsets.all(AppSpacing.lg),
+    return Material(
+      color: AppColors.secondaryGrouped(brightness),
+      borderRadius: AppRadius.grouped,
       child: InkWell(
         borderRadius: AppRadius.grouped,
         onTap: onTap,
         onLongPress: onLongPress,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            leading ??
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: color.withValues(alpha: 0.14),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  alignment: Alignment.center,
-                  child: Text(
-                    symbol,
-                    style: theme.textTheme.titleLarge?.copyWith(
-                      color: color,
-                      fontWeight: FontWeight.w800,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.lg,
+            vertical: AppSpacing.md,
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              leading ??
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: color.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.fromBorderSide(
+                        AppElevation.hairline(brightness),
+                      ),
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      symbol,
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        color: color,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
-                ),
-            const SizedBox(width: AppSpacing.md),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    detailCaps.toUpperCase(),
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: AppColors.secondaryLabel(theme),
-                      letterSpacing: 0.6,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    dateLabel,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: AppColors.secondaryLabel(theme),
-                    ),
-                  ),
-                  if (onTap != null) ...[
-                    const SizedBox(height: 8),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                     Text(
-                      'Ver detalhes',
-                      style: theme.textTheme.labelMedium?.copyWith(
-                        color: AppColors.brandBlue,
+                      title,
+                      style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w600,
                       ),
                     ),
+                    const SizedBox(height: 2),
+                    Text(
+                      detailCaps,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: AppColors.secondaryLabel(theme),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    Text(
+                      dateLabel,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: AppColors.secondaryLabel(theme),
+                      ),
+                    ),
                   ],
-                ],
+                ),
               ),
-            ),
-            const SizedBox(width: AppSpacing.sm),
-            Text(
-              displayAmount,
-              style: theme.textTheme.titleMedium?.copyWith(
-                color: color,
-                fontWeight: FontWeight.w800,
+              const SizedBox(width: AppSpacing.sm),
+              Text(
+                displayAmount,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  color: color,
+                  fontWeight: FontWeight.w700,
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
