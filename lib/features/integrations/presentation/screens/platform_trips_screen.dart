@@ -10,7 +10,7 @@ import '../../../../shared/widgets/design_system/df_filter_pill.dart';
 import '../../../../shared/widgets/design_system/df_section_header.dart';
 import '../../../../shared/widgets/design_system/df_subpage_scaffold.dart';
 import '../providers/platform_trips_providers.dart';
-import 'platform_trip_tile.dart';
+import '../widgets/platform_trip_tile.dart';
 
 /// Histórico de corridas sincronizadas — layout Mescla.
 class PlatformTripsScreen extends ConsumerWidget {
