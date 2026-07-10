@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../../../shared/widgets/design_system/df_period_pill_chip.dart';
 import '../../../../shared/widgets/design_system/df_section_header.dart';
-import '../../../../shared/widgets/design_system/df_segmented_control.dart';
 import '../../../../shared/widgets/design_system/df_skeleton.dart';
 import '../../../../shared/widgets/design_system/df_subpage_scaffold.dart';
 import '../../../vehicle/presentation/widgets/vehicle_scope_chip.dart';
@@ -32,15 +32,12 @@ class InsightsScreen extends ConsumerWidget {
         ),
         const InsightsStoryHeader(),
         const DfSectionHeader(title: 'Melhor horário', eyebrow: 'Operação'),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: DfSegmentedControl<InsightsSlotsLimit>(
-            segments: InsightsSlotsLimit.values,
-            selected: slotsLimit,
-            labelBuilder: (l) => l.label,
-            onChanged: (l) =>
-                ref.read(insightsSlotsLimitProvider.notifier).state = l,
-          ),
+        DfPeriodPillRow<InsightsSlotsLimit>(
+          segments: InsightsSlotsLimit.values,
+          selected: slotsLimit,
+          labelBuilder: (l) => l.label,
+          onChanged: (l) =>
+              ref.read(insightsSlotsLimitProvider.notifier).state = l,
         ),
         slotsAsync.when(
           loading: () => const DfSkeleton(itemCount: 3),
