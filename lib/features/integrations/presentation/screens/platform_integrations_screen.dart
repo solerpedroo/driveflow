@@ -167,7 +167,7 @@ class PlatformIntegrationsScreen extends ConsumerWidget {
             DfPillActionButton(
               icon: Icons.route_outlined,
               label: 'Corridas',
-              onTap: () => context.push(AppRoutes.platformTrips),
+              onTap: () => context.push(AppRoutes.platformTripHistory),
             ),
             DfPillActionButton(
               icon: Icons.upload_file_outlined,
