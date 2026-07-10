@@ -117,7 +117,9 @@ class PlatformConnectionCard extends StatelessWidget {
           const SizedBox(height: AppSpacing.md),
           Row(
             children: [
-              if (status.isActive || status == IntegrationStatus.error) ...[
+              if (status.isActive ||
+                  status == IntegrationStatus.error ||
+                  status == IntegrationStatus.tokenExpired) ...[
                 Expanded(
                   child: DfButton(
                     label: 'Sincronizar',
@@ -138,9 +140,11 @@ class PlatformConnectionCard extends StatelessWidget {
               ] else
                 Expanded(
                   child: DfButton(
-                    label: status == IntegrationStatus.pending
-                        ? 'Continuar conexão'
-                        : 'Conectar ${entry.platform.label}',
+                    label: status == IntegrationStatus.tokenExpired
+                        ? 'Renovar acesso'
+                        : status == IntegrationStatus.pending
+                            ? 'Continuar conexão'
+                            : 'Conectar ${entry.platform.label}',
                     icon: Icons.link_rounded,
                     isLoading: isBusy,
                     onPressed: isBusy ? null : onConnect,
