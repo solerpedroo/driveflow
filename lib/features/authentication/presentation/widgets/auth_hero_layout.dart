@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_gradients.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/widgets/design_system/df_card.dart';
 import '../../../../shared/widgets/driveflow_brand_logo.dart';
 import '../../../../shared/widgets/driveflow_gradient_background.dart';
 
-/// Layout auth editorial — hero headline + form card sobreposto (FitCal pattern).
+/// Layout auth editorial — headline premium + form card elevado.
 class AuthHeroLayout extends StatelessWidget {
   const AuthHeroLayout({
     required this.headline,
@@ -30,6 +32,7 @@ class AuthHeroLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final brightness = theme.brightness;
 
     return DriveFlowGradientBackground(
       child: Scaffold(
@@ -62,20 +65,40 @@ class AuthHeroLayout extends StatelessWidget {
                         ),
                         const SizedBox(height: AppSpacing.xxl),
                       ],
-                      Text(
-                        headline,
-                        style: theme.textTheme.displaySmall?.copyWith(
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: -0.8,
-                          height: 1.1,
+                      Container(
+                        padding: const EdgeInsets.all(AppSpacing.lg),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          gradient: AppGradients.heroCardAccent(brightness),
+                          border: Border.all(
+                            color: AppColors.brandBlue.withValues(alpha: 0.14),
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: AppSpacing.md),
-                      Text(
-                        subtitle,
-                        style: theme.textTheme.bodyLarge?.copyWith(
-                          color: AppColors.secondaryLabel(theme),
-                          height: 1.5,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'DRIVEFLOW',
+                              style: AppTypography.labelCaps(brightness),
+                            ),
+                            const SizedBox(height: AppSpacing.sm),
+                            Text(
+                              headline,
+                              style: theme.textTheme.displaySmall?.copyWith(
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: -0.8,
+                                height: 1.1,
+                              ),
+                            ),
+                            const SizedBox(height: AppSpacing.md),
+                            Text(
+                              subtitle,
+                              style: theme.textTheme.bodyLarge?.copyWith(
+                                color: AppColors.secondaryLabel(theme),
+                                height: 1.5,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                       if (middleChild != null) ...[
