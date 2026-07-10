@@ -83,10 +83,11 @@ class _EntryRow extends StatelessWidget {
           ),
           const SizedBox(width: AppSpacing.sm),
           Expanded(
-            child: Text(
-              '${entry.platform.label} · ${entry.tripCount} corridas',
-              style: theme.textTheme.bodySmall,
-            ),
+            child:                 Text(
+                  '${entry.platform.label} · ${entry.tripCount} corridas'
+                  '${entry.cycleLabel != null ? ' · ${entry.cycleLabel}' : ''}',
+                  style: theme.textTheme.bodySmall,
+                ),
           ),
           Text(
             CurrencyFormatter.format(entry.amount),
