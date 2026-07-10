@@ -1,13 +1,16 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_elevation.dart';
+import '../../../core/theme/app_gradients.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
-import '../../../core/theme/app_typography.dart';
 
 enum DfCardVariant { grouped, elevated, glass, hero, brand }
 
-/// Cartão estilo iOS — grouped inset, sem sombra pesada.
+/// Cartão híbrido — grouped iOS + surface ReuniAI + hero Mescla.
 class DfCard extends StatelessWidget {
   const DfCard({
     required this.child,
@@ -28,11 +31,12 @@ class DfCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final brightness = theme.brightness;
 
     final Widget card = switch (variant) {
       DfCardVariant.brand => _BrandCard(padding: padding, child: child),
       DfCardVariant.hero => _HeroCard(
-          isDark: isDark,
+          brightness: brightness,
           padding: padding,
           child: child,
         ),
@@ -41,8 +45,13 @@ class DfCard extends StatelessWidget {
           padding: padding,
           child: child,
         ),
-      DfCardVariant.elevated || DfCardVariant.grouped => _GroupedCard(
-          isDark: isDark,
+      DfCardVariant.elevated => _ElevatedCard(
+          brightness: brightness,
+          padding: padding,
+          child: child,
+        ),
+      DfCardVariant.grouped => _GroupedCard(
+          brightness: brightness,
           padding: padding,
           child: child,
         ),
@@ -55,7 +64,7 @@ class DfCard extends StatelessWidget {
             child: InkWell(
               onTap: onTap,
               borderRadius: AppRadius.grouped,
-              splashColor: AppColors.systemBlue.withValues(alpha: 0.08),
+              splashColor: AppColors.brandBlue.withValues(alpha: 0.08),
               child: card,
             ),
           );
@@ -67,23 +76,50 @@ class DfCard extends StatelessWidget {
 
 class _GroupedCard extends StatelessWidget {
   const _GroupedCard({
-    required this.isDark,
+    required this.brightness,
     required this.padding,
     required this.child,
   });
 
-  final bool isDark;
+  final Brightness brightness;
   final EdgeInsetsGeometry padding;
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
-    final brightness = isDark ? Brightness.dark : Brightness.light;
-
     return DecoratedBox(
       decoration: BoxDecoration(
         color: AppColors.secondaryGrouped(brightness),
         borderRadius: AppRadius.grouped,
+      ),
+      child: Padding(padding: padding, child: child),
+    );
+  }
+}
+
+class _ElevatedCard extends StatelessWidget {
+  const _ElevatedCard({
+    required this.brightness,
+    required this.padding,
+    required this.child,
+  });
+
+  final Brightness brightness;
+  final EdgeInsetsGeometry padding;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        gradient: AppGradients.surfaceCardTopLight(brightness),
+        borderRadius: AppRadius.grouped,
+        border: Border.all(
+          color: brightness == Brightness.dark
+              ? AppColors.glassBorder
+              : AppColors.lightBorder.withValues(alpha: 0.6),
+        ),
+        boxShadow: AppElevation.surfaceCard(brightness),
       ),
       child: Padding(padding: padding, child: child),
     );
@@ -103,26 +139,40 @@ class _GlassCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: AppColors.secondaryGrouped(
-          isDark ? Brightness.dark : Brightness.light,
+    final fill = isDark
+        ? AppColors.slate.withValues(alpha: 0.55)
+        : Colors.white.withValues(alpha: 0.78);
+
+    return ClipRRect(
+      borderRadius: AppRadius.grouped,
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: fill,
+            borderRadius: AppRadius.grouped,
+            border: Border.all(
+              color: isDark ? AppColors.glassBorder : AppColors.lightBorder,
+            ),
+            boxShadow: AppElevation.glassShadow(
+              isDark ? Brightness.dark : Brightness.light,
+            ),
+          ),
+          child: Padding(padding: padding, child: child),
         ),
-        borderRadius: AppRadius.grouped,
       ),
-      child: Padding(padding: padding, child: child),
     );
   }
 }
 
 class _HeroCard extends StatelessWidget {
   const _HeroCard({
-    required this.isDark,
+    required this.brightness,
     required this.padding,
     required this.child,
   });
 
-  final bool isDark;
+  final Brightness brightness;
   final EdgeInsetsGeometry padding;
   final Widget child;
 
@@ -131,12 +181,11 @@ class _HeroCard extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         borderRadius: AppRadius.grouped,
-        color: AppColors.secondaryGrouped(
-          isDark ? Brightness.dark : Brightness.light,
-        ),
+        gradient: AppGradients.heroCardAccent(brightness),
         border: Border.all(
-          color: AppColors.systemBlue.withValues(alpha: 0.12),
+          color: AppColors.brandBlue.withValues(alpha: 0.15),
         ),
+        boxShadow: AppElevation.surfaceCard(brightness),
       ),
       child: Padding(padding: padding, child: child),
     );
@@ -154,9 +203,26 @@ class _BrandCard extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         borderRadius: AppRadius.xlAll,
-        color: AppColors.systemBlue,
+        gradient: AppGradients.heroWealth,
+        boxShadow: AppElevation.brandGlow(Theme.of(context).brightness),
       ),
-      child: Padding(padding: padding, child: child),
+      child: Stack(
+        children: [
+          Positioned(
+            right: -16,
+            top: -24,
+            child: Container(
+              width: 120,
+              height: 120,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withValues(alpha: 0.12),
+              ),
+            ),
+          ),
+          Padding(padding: padding, child: child),
+        ],
+      ),
     );
   }
 }
