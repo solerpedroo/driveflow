@@ -37,6 +37,27 @@ void main() {
       expect(rec?.confidence, greaterThan(0.5));
     });
 
+    test('usa hora local para rollups em UTC', () {
+      final earnings = [
+        EarningEntity(
+          id: '1',
+          userId: 'u1',
+          platform: RidePlatform.uber,
+          amount: 200,
+          rides: 4,
+          workedHours: 2,
+          date: DateTime.utc(2026, 7, 11, 2),
+        ),
+      ];
+
+      final rec = PlatformShiftAdvisor.recommend(
+        earnings: earnings,
+        at: DateTime(2026, 7, 10, 22),
+      );
+
+      expect(rec, isNotNull);
+    });
+
     test('detecta plataformas conectadas sem dados recentes', () {
       final earnings = [
         EarningEntity(

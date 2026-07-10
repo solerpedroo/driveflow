@@ -20,7 +20,7 @@ abstract final class PlatformShiftAdvisor {
     final now = at ?? DateTime.now();
     final slot = _slotForHour(now.hour);
     final slotEarnings = earnings.where((e) {
-      final hour = e.date.hour;
+      final hour = e.date.toLocal().hour;
       return hour >= slot.start && hour < slot.end;
     }).toList();
 

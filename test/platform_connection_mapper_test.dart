@@ -36,5 +36,29 @@ void main() {
       expect(map['platform'], 'indrive');
       expect(map['status'], 'pending');
     });
+    test('fromRow remove tokens OAuth do metadata', () {
+      final entity = PlatformConnectionMapper.fromRow({
+        'id': 'c1',
+        'user_id': 'u1',
+        'platform': 'uber',
+        'status': 'connected',
+        'metadata': {
+          'oauth': {'access_token': 'secret'},
+          'settlement_days': 2,
+        },
+        'created_at': '2026-07-01T12:00:00Z',
+        'updated_at': '2026-07-10T12:00:00Z',
+      });
+
+      expect(entity.metadata.containsKey('oauth'), isFalse);
+      expect(entity.metadata['settlement_days'], 2);
+    });
+
+    test('toDisconnect limpa credenciais e status', () {
+      final map = PlatformConnectionMapper.toDisconnect();
+      expect(map['status'], 'disconnected');
+      expect(map['external_account_id'], isNull);
+      expect(map['metadata'], isEmpty);
+    });
   });
 }

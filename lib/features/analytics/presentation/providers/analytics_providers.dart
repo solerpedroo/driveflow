@@ -1,9 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../earnings/domain/entities/earning_entity.dart';
+import '../../../earnings/presentation/providers/earnings_providers.dart';
 import '../../../integrations/domain/services/platform_analytics_breakdown.dart';
 import '../../../integrations/presentation/providers/platform_trips_providers.dart';
-import '../../../earnings/presentation/providers/earnings_providers.dart';
 import '../../../expenses/domain/entities/expense_entity.dart';
 import '../../../expenses/presentation/providers/expenses_providers.dart';
 import '../../../fuel/domain/entities/fuel_log_entity.dart';
@@ -257,21 +257,51 @@ final reportCategoryBreakdownProvider =
 final analyticsPlatformBreakdownProvider =
     Provider<AsyncValue<List<PlatformRevenueSlice>>>((ref) {
   final earnings = ref.watch(earningsStreamProvider);
+  final trips = ref.watch(platformTripsStreamProvider);
   final period = ref.watch(analyticsPeriodProvider);
   final scopedVehicleId = ref.watch(scopedVehicleIdProvider);
   final range = dateRangeForGoalPeriod(period);
 
-  return earnings.whenData((all) {
-    final scoped = _scoped(
-      items: all,
-      vehicleId: scopedVehicleId,
-      vehicleIdOf: (e) => e.vehicleId,
+  if (earnings.isLoading || trips.isLoading) {
+    return const AsyncLoading();
+  }
+
+  final error = earnings.error ?? trips.error;
+  if (error != null) {
+    return AsyncError(
+      error,
+      earnings.stackTrace ?? trips.stackTrace ?? StackTrace.current,
     );
-    final filtered = scoped
-        .where(
-          (e) => !e.date.isBefore(range.start) && !e.date.isAfter(range.end),
-        )
-        .toList();
-    return PlatformAnalyticsBreakdown.fromEarnings(filtered);
-  });
+  }
+
+  final scopedEarnings = _scoped(
+    items: earnings.valueOrNull ?? const <EarningEntity>[],
+    vehicleId: scopedVehicleId,
+    vehicleIdOf: (e) => e.vehicleId,
+  );
+  final scopedTrips = _scoped(
+    items: trips.valueOrNull ?? const [],
+    vehicleId: scopedVehicleId,
+    vehicleIdOf: (t) => t.vehicleId,
+  );
+
+  final filteredEarnings = scopedEarnings
+      .where(
+        (e) => !e.date.isBefore(range.start) && !e.date.isAfter(range.end),
+      )
+      .toList();
+  final filteredTrips = scopedTrips
+      .where(
+        (t) =>
+            !t.startedAt.isBefore(range.start) &&
+            !t.startedAt.isAfter(range.end),
+      )
+      .toList();
+
+  return AsyncData(
+    PlatformAnalyticsBreakdown.fromTripsOrEarnings(
+      trips: filteredTrips,
+      earnings: filteredEarnings,
+    ),
+  );
 });

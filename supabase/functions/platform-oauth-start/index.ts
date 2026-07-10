@@ -22,6 +22,11 @@ function json(body: unknown, status = 200) {
   });
 }
 
+function oauthCallbackUri(): string {
+  const base = Deno.env.get("SUPABASE_URL") ?? "";
+  return `${base}/functions/v1/platform-oauth-callback`;
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (req.method !== "POST") return json({ error: "Método não suportado" }, 405);
@@ -38,14 +43,20 @@ Deno.serve(async (req) => {
   const { data: userData, error: userError } = await supabase.auth.getUser();
   if (userError || !userData.user) return json({ error: "Sessão inválida" }, 401);
 
-  const body = await req.json();
+  let body: { platform?: string; redirect_uri?: string };
+  try {
+    body = await req.json();
+  } catch {
+    return json({ error: "JSON inválido" }, 400);
+  }
+
   const platform = (body.platform as string)?.toLowerCase();
-  const redirectUri = body.redirect_uri as string;
+  const appRedirectUri = body.redirect_uri as string;
 
   if (!platform || !PLATFORMS.has(platform)) {
     return json({ error: "Plataforma inválida" }, 400);
   }
-  if (!redirectUri) return json({ error: "redirect_uri obrigatório" }, 400);
+  if (!appRedirectUri) return json({ error: "redirect_uri obrigatório" }, 400);
 
   const stateToken = crypto.randomUUID();
   const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
@@ -54,7 +65,7 @@ Deno.serve(async (req) => {
     user_id: userData.user.id,
     platform,
     state_token: stateToken,
-    redirect_uri: redirectUri,
+    redirect_uri: appRedirectUri,
     expires_at: expiresAt,
   });
 
@@ -72,7 +83,7 @@ Deno.serve(async (req) => {
   const authUrl = new URL(base);
   authUrl.searchParams.set("client_id", clientId);
   authUrl.searchParams.set("response_type", "code");
-  authUrl.searchParams.set("redirect_uri", redirectUri);
+  authUrl.searchParams.set("redirect_uri", oauthCallbackUri());
   authUrl.searchParams.set("state", stateToken);
   authUrl.searchParams.set("scope", "earnings trips profile");
 

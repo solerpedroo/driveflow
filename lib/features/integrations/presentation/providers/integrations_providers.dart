@@ -1,7 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/ride_platforms.dart';
+import '../../../../core/utils/vehicle_scope_filter.dart';
 import '../../../earnings/presentation/providers/earnings_providers.dart';
+import '../../../vehicle/presentation/providers/vehicle_providers.dart';
 import '../../data/repositories/platform_integration_repository_impl.dart';
 import '../../domain/entities/integration_status.dart';
 import '../../domain/entities/platform_connection_entity.dart';
@@ -49,22 +51,44 @@ final connectedPlatformsProvider = Provider<Set<RidePlatform>>((ref) {
 final platformPerformanceProvider =
     Provider<AsyncValue<List<PlatformPerformanceSnapshot>>>((ref) {
   final earnings = ref.watch(earningsStreamProvider);
-  return earnings.whenData(PlatformPerformanceAnalyzer.analyze);
+  final vehicleId = ref.watch(scopedVehicleIdProvider);
+
+  return earnings.whenData((items) {
+    final scoped = VehicleScopeFilter.byVehicle(
+      items: items,
+      vehicleId: vehicleId,
+      vehicleIdOf: (e) => e.vehicleId,
+    );
+    return PlatformPerformanceAnalyzer.analyze(scoped);
+  });
 });
 
 final platformShiftRecommendationProvider =
     Provider<AsyncValue<PlatformShiftRecommendation?>>((ref) {
   final earnings = ref.watch(earningsStreamProvider);
-  return earnings.whenData(
-    (items) => PlatformShiftAdvisor.recommend(earnings: items),
-  );
+  final vehicleId = ref.watch(scopedVehicleIdProvider);
+
+  return earnings.whenData((items) {
+    final scoped = VehicleScopeFilter.byVehicle(
+      items: items,
+      vehicleId: vehicleId,
+      vehicleIdOf: (e) => e.vehicleId,
+    );
+    return PlatformShiftAdvisor.recommend(earnings: scoped);
+  });
 });
 
 final missingSyncPlatformsProvider = Provider<List<RidePlatform>>((ref) {
+  final vehicleId = ref.watch(scopedVehicleIdProvider);
   final earnings = ref.watch(earningsStreamProvider).valueOrNull ?? [];
+  final scoped = VehicleScopeFilter.byVehicle(
+    items: earnings,
+    vehicleId: vehicleId,
+    vehicleIdOf: (e) => e.vehicleId,
+  );
   final connected = ref.watch(connectedPlatformsProvider);
   return PlatformShiftAdvisor.missingSyncPlatforms(
-    earnings: earnings,
+    earnings: scoped,
     connected: connected,
   );
 });

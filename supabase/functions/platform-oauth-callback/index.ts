@@ -38,7 +38,13 @@ Deno.serve(async (req) => {
     return new Response("Estado OAuth inválido", { status: 400 });
   }
 
-  const redirectUri = oauthState.redirect_uri as string;
+  const appRedirectUri = oauthState.redirect_uri as string;
+  const expiresAt = new Date(oauthState.expires_at as string);
+
+  if (Number.isNaN(expiresAt.getTime()) || expiresAt.getTime() < Date.now()) {
+    await supabase.from("platform_oauth_states").delete().eq("id", oauthState.id);
+    return new Response("Estado OAuth expirado", { status: 400 });
+  }
 
   if (error) {
     await supabase.from("platform_connections").update({
@@ -46,7 +52,7 @@ Deno.serve(async (req) => {
       last_sync_error: error,
     }).eq("user_id", oauthState.user_id).eq("platform", oauthState.platform);
 
-    return redirectToApp(redirectUri, { status: "error", message: error });
+    return redirectToApp(appRedirectUri, { status: "error", message: error });
   }
 
   if (!code) return new Response("code ausente", { status: 400 });
@@ -70,5 +76,8 @@ Deno.serve(async (req) => {
 
   await supabase.from("platform_oauth_states").delete().eq("id", oauthState.id);
 
-  return redirectToApp(redirectUri, { status: "connected", platform: oauthState.platform });
+  return redirectToApp(appRedirectUri, {
+    status: "connected",
+    platform: oauthState.platform as string,
+  });
 });

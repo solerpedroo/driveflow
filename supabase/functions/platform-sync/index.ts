@@ -6,7 +6,7 @@ const allowedOrigin = Deno.env.get("ALLOWED_ORIGIN") ?? "";
 const corsHeaders = {
   "Access-Control-Allow-Origin": allowedOrigin || "null",
   "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
+    "authorization, x-client-info, apikey, content-type, x-sync-user-id",
 };
 
 const INTEGRATABLE_PLATFORMS = new Set(["uber", "99", "indrive"]);
@@ -51,6 +51,20 @@ function dayKey(platform: string, isoDate: string) {
   return `${platform}:${day}`;
 }
 
+function rollupDateForDay(dayTrips: SyncTripRow[]): string {
+  const timestamps = dayTrips
+    .map((trip) => new Date(trip.started_at).getTime())
+    .filter((value) => !Number.isNaN(value))
+    .sort((a, b) => a - b);
+
+  if (timestamps.length === 0) {
+    return `${dayTrips[0].started_at.substring(0, 10)}T18:00:00.000Z`;
+  }
+
+  const median = timestamps[Math.floor(timestamps.length / 2)];
+  return new Date(median).toISOString();
+}
+
 function rollupDaily(platform: string, trips: SyncTripRow[]): DailyRollup[] {
   const buckets = new Map<string, SyncTripRow[]>();
 
@@ -76,7 +90,7 @@ function rollupDaily(platform: string, trips: SyncTripRow[]): DailyRollup[] {
       amount: Number(amount.toFixed(2)),
       rides: dayTrips.length,
       worked_hours: Number(hours.toFixed(2)),
-      date: `${day}T12:00:00.000Z`,
+      date: rollupDateForDay(dayTrips),
       note: `Sync automático · ${dayTrips.length} corridas`,
     });
   }
@@ -105,6 +119,33 @@ async function fetchPlatformTrips(
     default:
       return [];
   }
+}
+
+async function dayHasConflictingEarnings(
+  supabase: ReturnType<typeof createClient>,
+  userId: string,
+  platform: string,
+  day: string,
+): Promise<boolean> {
+  const dayStart = `${day}T00:00:00.000Z`;
+  const dayEnd = `${day}T23:59:59.999Z`;
+
+  const { data: dayEarnings } = await supabase
+    .from("earnings")
+    .select("source, external_id")
+    .eq("user_id", userId)
+    .eq("platform", platform)
+    .gte("date", dayStart)
+    .lte("date", dayEnd);
+
+  if (!dayEarnings?.length) return false;
+
+  return dayEarnings.some((earning) => {
+    if (earning.source === "manual") return true;
+    const externalId = earning.external_id as string | null;
+    return earning.source !== "api_sync" ||
+      (externalId != null && !externalId.startsWith("rollup:"));
+  });
 }
 
 Deno.serve(async (req) => {
@@ -137,18 +178,32 @@ Deno.serve(async (req) => {
 
   const lookbackDays = Math.min(Math.max(body.lookback_days ?? 30, 1), 90);
 
-  const supabase = createClient(
-    Deno.env.get("SUPABASE_URL") ?? "",
-    Deno.env.get("SUPABASE_ANON_KEY") ?? "",
-    { global: { headers: { Authorization: authHeader } } },
-  );
+  const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+  const bearerToken = authHeader.replace(/^Bearer\s+/i, "");
+  const syncUserId = req.headers.get("x-sync-user-id");
 
-  const { data: userData, error: userError } = await supabase.auth.getUser();
-  if (userError || !userData.user) {
-    return clientError("Sessão inválida.", 401);
+  let userId: string;
+  let supabase: ReturnType<typeof createClient>;
+
+  if (syncUserId && bearerToken === serviceRoleKey) {
+    userId = syncUserId;
+    supabase = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      serviceRoleKey,
+    );
+  } else {
+    supabase = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+      { global: { headers: { Authorization: authHeader } } },
+    );
+
+    const { data: userData, error: userError } = await supabase.auth.getUser();
+    if (userError || !userData.user) {
+      return clientError("Sessão inválida.", 401);
+    }
+    userId = userData.user.id;
   }
-
-  const userId = userData.user.id;
 
   const { data: connection, error: connError } = await supabase
     .from("platform_connections")
@@ -201,6 +256,13 @@ Deno.serve(async (req) => {
 
   const rollups = rollupDaily(platform, tripRows);
   for (const rollup of rollups) {
+    const day = rollup.date.substring(0, 10);
+
+    if (await dayHasConflictingEarnings(supabase, userId, platform, day)) {
+      skippedCount += 1;
+      continue;
+    }
+
     const { data: existing } = await supabase
       .from("earnings")
       .select("source")
@@ -247,6 +309,16 @@ Deno.serve(async (req) => {
     .eq("user_id", userId)
     .eq("platform", platform);
 
+  const stubPending = tripRows.length === 0;
+  const importedTotal = tripsImported + earningsImported;
+  const syncStatus = stubPending
+    ? "partial"
+    : skippedCount > 0 && importedTotal > 0
+    ? "partial"
+    : skippedCount > 0
+    ? "error"
+    : "success";
+
   await supabase.from("platform_sync_logs").insert({
     user_id: userId,
     platform,
@@ -254,17 +326,13 @@ Deno.serve(async (req) => {
     trips_imported: tripsImported,
     earnings_imported: earningsImported,
     skipped_count: skippedCount,
-    status: skippedCount > 0 && tripsImported + earningsImported > 0
-      ? "partial"
-      : skippedCount > 0
-      ? "error"
-      : "success",
-    message: tripRows.length === 0
+    status: syncStatus,
+    message: stubPending
       ? `Adapter ${platform} pronto — aguardando credenciais OAuth.`
       : null,
   });
 
-  const message = tripRows.length === 0
+  const message = stubPending
     ? `Adapter ${platform} pronto — aguardando credenciais OAuth. Corridas e ganhos serão sincronizados automaticamente.`
     : undefined;
 

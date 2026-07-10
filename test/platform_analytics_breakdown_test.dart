@@ -52,6 +52,25 @@ void main() {
     expect(slices.single.amount, 27);
   });
 
+  test('fromTripsOrEarnings prioriza trips', () {
+    final slices = PlatformAnalyticsBreakdown.fromTripsOrEarnings(
+      trips: [trip],
+      earnings: [
+        EarningEntity(
+          id: 'e1',
+          userId: 'u',
+          platform: RidePlatform.uber,
+          amount: 99,
+          rides: 9,
+          workedHours: 1,
+          date: today,
+        ),
+      ],
+    );
+    expect(slices.single.amount, 27);
+    expect(slices.single.rides, 1);
+  });
+
   test('goal progress não duplica trip + earning rollup', () {
     final progress = PlatformGoalProgressCalculator.calculate(
       goals: const GoalEntity(

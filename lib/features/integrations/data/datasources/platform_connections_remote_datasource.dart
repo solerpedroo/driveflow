@@ -69,6 +69,27 @@ class PlatformConnectionsRemoteDataSource {
     }
   }
 
+  Future<Map<String, dynamic>> disconnectConnection({
+    required RidePlatform platform,
+  }) async {
+    final userId = _userId;
+    if (userId == null) {
+      throw const AuthFailure(message: 'Sessão expirada. Entre novamente.');
+    }
+
+    try {
+      return await _client
+          .from(PlatformConnectionsSchema.table)
+          .update(PlatformConnectionMapper.toDisconnect())
+          .eq(PlatformConnectionsSchema.userId, userId)
+          .eq(PlatformConnectionsSchema.platform, platform.value)
+          .select()
+          .single();
+    } on PostgrestException catch (e) {
+      throw ServerFailure(message: e.message, cause: e);
+    }
+  }
+
   Future<Map<String, dynamic>> updateConnection({
     required RidePlatform platform,
     required IntegrationStatus status,

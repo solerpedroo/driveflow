@@ -27,4 +27,24 @@ void main() {
     expect(slots, isNotEmpty);
     expect(slots.first.platform, RidePlatform.ninetyNine);
   });
+
+  test('sem durationMinutes não infla R$/h com 1h fictícia', () {
+    final trips = [
+      PlatformTripEntity(
+        id: '1',
+        userId: 'u1',
+        platform: RidePlatform.uber,
+        externalId: 't1',
+        fareAmount: 30,
+        tipAmount: 0,
+        platformFee: 6,
+        driverPayout: 24,
+        startedAt: DateTime(2026, 7, 10, 19),
+        status: PlatformTripStatus.completed,
+      ),
+    ];
+
+    final slots = PlatformGoldenHourAnalyzer.analyze(trips);
+    expect(slots, isEmpty);
+  });
 }

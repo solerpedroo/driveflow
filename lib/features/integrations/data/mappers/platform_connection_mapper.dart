@@ -63,6 +63,15 @@ abstract final class PlatformConnectionMapper {
     };
   }
 
+  static Map<String, dynamic> toDisconnect() {
+    return {
+      PlatformConnectionsSchema.status: IntegrationStatus.disconnected.value,
+      PlatformConnectionsSchema.externalAccountId: null,
+      PlatformConnectionsSchema.metadata: <String, dynamic>{},
+      PlatformConnectionsSchema.lastSyncError: null,
+    };
+  }
+
   static DateTime? _toDateTime(Object? value) {
     if (value == null) return null;
     if (value is DateTime) return value.toLocal();
@@ -70,8 +79,18 @@ abstract final class PlatformConnectionMapper {
   }
 
   static Map<String, dynamic> _metadata(Object? value) {
-    if (value is Map<String, dynamic>) return value;
-    if (value is Map) return Map<String, dynamic>.from(value);
-    return const {};
+    final Map<String, dynamic> raw;
+    if (value is Map<String, dynamic>) {
+      raw = value;
+    } else if (value is Map) {
+      raw = Map<String, dynamic>.from(value);
+    } else {
+      return const {};
+    }
+
+    if (!raw.containsKey('oauth')) return raw;
+
+    final sanitized = Map<String, dynamic>.from(raw)..remove('oauth');
+    return sanitized;
   }
 }

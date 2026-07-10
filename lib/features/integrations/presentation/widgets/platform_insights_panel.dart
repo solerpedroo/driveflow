@@ -124,7 +124,12 @@ class PlatformInsightsPanel extends ConsumerWidget {
                     ...withData.map(
                       (snapshot) => Padding(
                         padding: const EdgeInsets.only(bottom: 8),
-                        child: _PerformanceRow(snapshot: snapshot),
+                        child: _PerformanceRow(
+                          snapshot: snapshot,
+                          maxAvgPerHour: withData
+                              .map((s) => s.avgPerHour)
+                              .fold<double>(0, (a, b) => a > b ? a : b),
+                        ),
                       ),
                     ),
                   ],
@@ -206,15 +211,20 @@ class _RecommendationCard extends StatelessWidget {
 }
 
 class _PerformanceRow extends StatelessWidget {
-  const _PerformanceRow({required this.snapshot});
+  const _PerformanceRow({
+    required this.snapshot,
+    required this.maxAvgPerHour,
+  });
 
   final PlatformPerformanceSnapshot snapshot;
+  final double maxAvgPerHour;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final maxHourly = snapshot.avgPerHour;
-    final barWidth = maxHourly > 0 ? (snapshot.sharePercent / 100) : 0.0;
+    final barWidth = maxAvgPerHour > 0
+        ? snapshot.avgPerHour / maxAvgPerHour
+        : 0.0;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

@@ -31,6 +31,7 @@ Deno.serve(async (req) => {
   if (error) return new Response(error.message, { status: 500 });
 
   let triggered = 0;
+  let failed = 0;
   for (const conn of connections ?? []) {
     const response = await fetch(
       `${Deno.env.get("SUPABASE_URL")}/functions/v1/platform-sync`,
@@ -48,14 +49,30 @@ Deno.serve(async (req) => {
         }),
       },
     );
-    if (response.ok) triggered += 1;
 
-    await supabase.from("platform_connections").update({
-      next_scheduled_sync_at: new Date(Date.now() + 24 * 3600 * 1000).toISOString(),
-    }).eq("user_id", conn.user_id).eq("platform", conn.platform);
+    if (response.ok) {
+      triggered += 1;
+      await supabase.from("platform_connections").update({
+        next_scheduled_sync_at: new Date(Date.now() + 24 * 3600 * 1000).toISOString(),
+        last_sync_error: null,
+      }).eq("user_id", conn.user_id).eq("platform", conn.platform);
+    } else {
+      failed += 1;
+      const errorText = await response.text();
+      await supabase.from("platform_connections").update({
+        last_sync_error: `Cron sync falhou (${response.status}): ${errorText.slice(0, 200)}`,
+      }).eq("user_id", conn.user_id).eq("platform", conn.platform);
+    }
   }
 
-  return new Response(JSON.stringify({ triggered, checked: connections?.length ?? 0 }), {
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
-  });
+  return new Response(
+    JSON.stringify({
+      triggered,
+      failed,
+      checked: connections?.length ?? 0,
+    }),
+    {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    },
+  );
 });
