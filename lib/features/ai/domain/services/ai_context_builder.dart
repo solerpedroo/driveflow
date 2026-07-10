@@ -176,6 +176,15 @@ abstract final class AiContextBuilder {
       }
     }
 
+    final anchor = DateTime.now();
+    final cutoff = anchor.subtract(Duration(days: periodDays));
+    final periodEarnings = earnings
+        .where((e) => !e.date.isBefore(cutoff))
+        .toList();
+    final periodTrips = platformTrips
+        .where((t) => !t.startedAt.isBefore(cutoff))
+        .toList();
+
     return AiContextSnapshot(
       periodDays: periodDays,
       today: today,
@@ -188,20 +197,23 @@ abstract final class AiContextBuilder {
       maintenanceAlerts: alerts,
       lastFuelCostPerKm: fuelLogs.isEmpty ? null : fuelLogs.first.costPerKm,
       topEarningSlots: topEarningSlots,
-      platformBreakdown: PlatformAnalyticsBreakdown.fromEarnings(earnings),
-      platformTripCount: platformTrips.length,
-      lowestTakeRatePlatform: _lowestTakeRate(platformTrips),
-      platformTrendSummary: platformTrips.isNotEmpty
+      platformBreakdown: PlatformAnalyticsBreakdown.fromTripsOrEarnings(
+        trips: periodTrips,
+        earnings: periodEarnings,
+      ),
+      platformTripCount: periodTrips.length,
+      lowestTakeRatePlatform: _lowestTakeRate(periodTrips),
+      platformTrendSummary: periodTrips.isNotEmpty
           ? PlatformRevenueTrendCalculator.fromTrips(
-              trips: platformTrips,
+              trips: periodTrips,
               days: 7,
             )
           : PlatformRevenueTrendCalculator.fromEarnings(
-              earnings: earnings,
+              earnings: periodEarnings,
               days: 7,
             ),
       platformConsistency: PlatformConsistencyAnalyzer.analyze(
-        trips: platformTrips,
+        trips: periodTrips,
       ),
     );
   }
