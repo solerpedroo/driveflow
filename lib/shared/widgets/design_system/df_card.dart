@@ -8,9 +8,9 @@ import '../../../core/theme/app_gradients.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 
-enum DfCardVariant { glass, elevated, hero }
+enum DfCardVariant { glass, elevated, hero, brand }
 
-/// Cartão do Design System v2 — glass, elevated e hero (FitCal tier).
+/// Cartão premium — surface-card, glass, hero tint e brand gradient.
 class DfCard extends StatelessWidget {
   const DfCard({
     required this.child,
@@ -18,7 +18,7 @@ class DfCard extends StatelessWidget {
     this.padding = const EdgeInsets.all(AppSpacing.cardPadding),
     this.onTap,
     this.semanticLabel,
-    this.variant = DfCardVariant.glass,
+    this.variant = DfCardVariant.elevated,
   });
 
   final Widget child;
@@ -33,6 +33,7 @@ class DfCard extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
 
     final Widget card = switch (variant) {
+      DfCardVariant.brand => _BrandCard(padding: padding, child: child),
       DfCardVariant.hero => _HeroCard(
           isDark: isDark,
           padding: padding,
@@ -56,7 +57,7 @@ class DfCard extends StatelessWidget {
             color: Colors.transparent,
             child: InkWell(
               onTap: onTap,
-              borderRadius: AppRadius.xlAll,
+              borderRadius: AppRadius.lgAll,
               child: card,
             ),
           );
@@ -79,21 +80,21 @@ class _GlassCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final borderColor =
-        isDark ? AppColors.glassBorder : AppColors.glassBorderLight;
     final fill = isDark
-        ? AppColors.slate.withValues(alpha: 0.45)
+        ? AppColors.slate.withValues(alpha: 0.55)
         : Colors.white.withValues(alpha: 0.78);
 
     return ClipRRect(
-      borderRadius: AppRadius.xlAll,
+      borderRadius: AppRadius.lgAll,
       child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+        filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
         child: DecoratedBox(
           decoration: BoxDecoration(
             color: fill,
-            borderRadius: AppRadius.xlAll,
-            border: Border.all(color: borderColor),
+            borderRadius: AppRadius.lgAll,
+            border: Border.all(
+              color: isDark ? AppColors.glassBorder : AppColors.lightBorder,
+            ),
             boxShadow: AppElevation.glassShadow(
               isDark ? Brightness.dark : Brightness.light,
             ),
@@ -118,23 +119,16 @@ class _ElevatedCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final brightness = isDark ? Brightness.dark : Brightness.light;
+
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: isDark ? AppColors.midnight : Colors.white,
-        borderRadius: AppRadius.xlAll,
+        gradient: AppGradients.surfaceCardTopLight(brightness),
+        borderRadius: AppRadius.lgAll,
         border: Border.all(
-          color: isDark
-              ? AppColors.glassBorder
-              : AppColors.glassBorderLight,
+          color: isDark ? AppColors.glassBorder : AppColors.lightBorder,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: (isDark ? Colors.black : AppColors.skyBlue)
-                .withValues(alpha: isDark ? 0.28 : 0.10),
-            blurRadius: 28,
-            offset: const Offset(0, 12),
-          ),
-        ],
+        boxShadow: AppElevation.surfaceCard(brightness),
       ),
       child: Padding(padding: padding, child: child),
     );
@@ -156,27 +150,52 @@ class _HeroCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        borderRadius: AppRadius.xlAll,
+        borderRadius: AppRadius.lgAll,
         gradient: AppGradients.heroCardAccent(
           isDark ? Brightness.dark : Brightness.light,
         ),
         border: Border.all(
-          color: AppColors.skyBlue.withValues(alpha: isDark ? 0.28 : 0.16),
+          color: AppColors.brandBlue.withValues(alpha: isDark ? 0.30 : 0.15),
         ),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.skyBlue.withValues(alpha: isDark ? 0.18 : 0.12),
-            blurRadius: 32,
-            offset: const Offset(0, 16),
-          ),
-        ],
+        boxShadow: AppElevation.surfaceCard(
+          isDark ? Brightness.dark : Brightness.light,
+        ),
       ),
-      child: ClipRRect(
+      child: Padding(padding: padding, child: child),
+    );
+  }
+}
+
+class _BrandCard extends StatelessWidget {
+  const _BrandCard({required this.padding, required this.child});
+
+  final EdgeInsetsGeometry padding;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
         borderRadius: AppRadius.xlAll,
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-          child: Padding(padding: padding, child: child),
-        ),
+        gradient: AppGradients.brand,
+        boxShadow: AppElevation.brandGlow(Theme.of(context).brightness),
+      ),
+      child: Stack(
+        children: [
+          Positioned(
+            right: -20,
+            top: -30,
+            child: Container(
+              width: 140,
+              height: 140,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withValues(alpha: 0.10),
+              ),
+            ),
+          ),
+          Padding(padding: padding, child: child),
+        ],
       ),
     );
   }
