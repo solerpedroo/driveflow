@@ -1,12 +1,14 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/router/app_router.dart';
+import 'core/theme/app_cupertino_theme.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_mode_provider.dart';
 
-/// Raiz do app — ProviderScope + MaterialApp.router.
+/// Raiz do app — Material + Cupertino unificados (HIG Apple).
 class DriveFlowApp extends ConsumerWidget {
   const DriveFlowApp({super.key});
 
@@ -15,20 +17,25 @@ class DriveFlowApp extends ConsumerWidget {
     final themeMode = ref.watch(themeModeProvider);
     final router = ref.watch(routerProvider);
 
-    return MaterialApp.router(
-      title: 'DriveFlow',
-      debugShowCheckedModeBanner: false,
-      themeMode: themeMode,
-      theme: buildDriveFlowLightTheme(),
-      darkTheme: buildDriveFlowDarkTheme(),
-      routerConfig: router,
-      locale: const Locale('pt', 'BR'),
-      supportedLocales: const [Locale('pt', 'BR')],
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
+    return CupertinoTheme(
+      data: themeMode == ThemeMode.dark
+          ? buildDriveFlowCupertinoDarkTheme()
+          : buildDriveFlowCupertinoLightTheme(),
+      child: MaterialApp.router(
+        title: 'DriveFlow',
+        debugShowCheckedModeBanner: false,
+        themeMode: themeMode,
+        theme: buildDriveFlowLightTheme(),
+        darkTheme: buildDriveFlowDarkTheme(),
+        routerConfig: router,
+        locale: const Locale('pt', 'BR'),
+        supportedLocales: const [Locale('pt', 'BR')],
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+      ),
     );
   }
 }

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_gradients.dart';
 
-/// Fundo mesh animado — referência FitCal / FitFolio premium backgrounds.
+/// Fundo híbrido — shell Mescla + bloom ReuniAI sobre grouped Cupertino.
 class DriveFlowGradientBackground extends StatefulWidget {
   const DriveFlowGradientBackground({
     required this.child,
@@ -27,7 +27,7 @@ class _DriveFlowGradientBackgroundState
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 10),
+      duration: const Duration(seconds: 14),
     )..repeat(reverse: true);
   }
 
@@ -40,13 +40,12 @@ class _DriveFlowGradientBackgroundState
   @override
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
-    final ambient = AppColors.ambientGradient(brightness);
+    final shell = AppColors.shellGradient(brightness);
 
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
-        final t = _controller.value;
-        final meshGlows = AppGradients.meshGlows(brightness, t);
+        final mesh = AppGradients.meshGlows(brightness, _controller.value);
 
         return Stack(
           fit: StackFit.expand,
@@ -56,11 +55,11 @@ class _DriveFlowGradientBackgroundState
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: ambient,
+                  colors: shell,
                 ),
               ),
             ),
-            for (final glow in meshGlows)
+            for (final glow in mesh)
               DecoratedBox(decoration: BoxDecoration(gradient: glow)),
             child!,
           ],

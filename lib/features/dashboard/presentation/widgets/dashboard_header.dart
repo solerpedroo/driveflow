@@ -3,11 +3,13 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../authentication/domain/entities/user_entity.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_gradients.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../../../../core/theme/theme_mode_provider.dart';
 import '../../../../core/utils/df_haptics.dart';
 
-/// Cabeçalho premium — avatar com anel luminoso.
+/// Header híbrido — Large Title iOS + eyebrow ReuniAI + avatar Mescla glow.
 class DashboardHeader extends ConsumerWidget {
   const DashboardHeader({required this.user, super.key});
 
@@ -22,7 +24,8 @@ class DashboardHeader extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
+    final brightness = theme.brightness;
+    final isDark = brightness == Brightness.dark;
     final hour = DateTime.now().hour;
     final greeting = _greetingForHour(hour);
     final name = user?.displayName ?? 'motorista';
@@ -36,75 +39,77 @@ class DashboardHeader extends ConsumerWidget {
         0,
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Row(
+                  children: [
+                    Container(
+                      width: 5,
+                      height: 5,
+                      decoration: BoxDecoration(
+                        color: AppColors.brandBlue.withValues(alpha: 0.5),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'DASHBOARD',
+                      style: AppTypography.labelCaps(brightness),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.sm),
                 Text(
-                  '$greeting,',
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    color: AppColors.secondaryLabel(theme),
-                  ),
+                  greeting,
+                  style: AppTypography.iosFootnote(brightness),
                 ),
                 Text(
                   name,
-                  style: theme.textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: -0.5,
-                  ),
-                  maxLines: 1,
+                  style: AppTypography.iosLargeTitle(brightness),
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
           ),
           const SizedBox(width: AppSpacing.md),
-          Semantics(
-            button: true,
-            label: 'Alternar tema',
-            child: IconButton.filledTonal(
-              tooltip: 'Alternar tema',
-              onPressed: () {
-                DfHaptics.light();
-                ref.read(themeModeProvider.notifier).toggle();
-              },
-              icon: Icon(
-                isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
-                size: 20,
-              ),
-              style: IconButton.styleFrom(
-                minimumSize: const Size(40, 40),
-              ),
+          IconButton(
+            tooltip: 'Alternar tema',
+            onPressed: () {
+              DfHaptics.light();
+              ref.read(themeModeProvider.notifier).toggle();
+            },
+            icon: Icon(
+              isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
+              size: 22,
+              color: AppColors.brandBlue,
             ),
           ),
-          const SizedBox(width: AppSpacing.sm),
           Container(
-            padding: const EdgeInsets.all(2.5),
+            padding: const EdgeInsets.all(2),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              gradient: LinearGradient(
-                colors: [
-                  AppColors.skyBlue,
-                  AppColors.skyBlueSoft,
-                ],
-              ),
+              gradient: AppGradients.brand,
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.skyBlue.withValues(alpha: 0.35),
-                  blurRadius: 12,
+                  color: AppColors.brandBlue.withValues(alpha: 0.30),
+                  blurRadius: 10,
                 ),
               ],
             ),
             child: CircleAvatar(
-              radius: 20,
-              backgroundColor: AppColors.skyBlue.withValues(alpha: 0.15),
+              radius: 19,
+              backgroundColor: isDark
+                  ? AppColors.brandNavy
+                  : Colors.white.withValues(alpha: 0.95),
               child: Text(
                 initial,
-                style: theme.textTheme.titleMedium?.copyWith(
-                  color: AppColors.skyBlue,
-                  fontWeight: FontWeight.w800,
+                style: AppTypography.iosHeadline(brightness).copyWith(
+                  color: AppColors.brandBlue,
                 ),
               ),
             ),

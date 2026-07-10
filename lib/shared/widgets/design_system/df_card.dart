@@ -8,9 +8,9 @@ import '../../../core/theme/app_gradients.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 
-enum DfCardVariant { glass, elevated, hero }
+enum DfCardVariant { grouped, elevated, glass, hero, brand }
 
-/// Cartão do Design System v2 — glass, elevated e hero (FitCal tier).
+/// Cartão híbrido — grouped iOS + surface ReuniAI + hero Mescla.
 class DfCard extends StatelessWidget {
   const DfCard({
     required this.child,
@@ -18,7 +18,7 @@ class DfCard extends StatelessWidget {
     this.padding = const EdgeInsets.all(AppSpacing.cardPadding),
     this.onTap,
     this.semanticLabel,
-    this.variant = DfCardVariant.glass,
+    this.variant = DfCardVariant.grouped,
   });
 
   final Widget child;
@@ -31,20 +31,27 @@ class DfCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final brightness = theme.brightness;
 
     final Widget card = switch (variant) {
+      DfCardVariant.brand => _BrandCard(padding: padding, child: child),
       DfCardVariant.hero => _HeroCard(
-          isDark: isDark,
-          padding: padding,
-          child: child,
-        ),
-      DfCardVariant.elevated => _ElevatedCard(
-          isDark: isDark,
+          brightness: brightness,
           padding: padding,
           child: child,
         ),
       DfCardVariant.glass => _GlassCard(
           isDark: isDark,
+          padding: padding,
+          child: child,
+        ),
+      DfCardVariant.elevated => _ElevatedCard(
+          brightness: brightness,
+          padding: padding,
+          child: child,
+        ),
+      DfCardVariant.grouped => _GroupedCard(
+          brightness: brightness,
           padding: padding,
           child: child,
         ),
@@ -56,13 +63,66 @@ class DfCard extends StatelessWidget {
             color: Colors.transparent,
             child: InkWell(
               onTap: onTap,
-              borderRadius: AppRadius.xlAll,
+              borderRadius: AppRadius.grouped,
+              splashColor: AppColors.brandBlue.withValues(alpha: 0.08),
               child: card,
             ),
           );
 
     if (semanticLabel == null) return content;
     return Semantics(label: semanticLabel, button: onTap != null, child: content);
+  }
+}
+
+class _GroupedCard extends StatelessWidget {
+  const _GroupedCard({
+    required this.brightness,
+    required this.padding,
+    required this.child,
+  });
+
+  final Brightness brightness;
+  final EdgeInsetsGeometry padding;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: AppColors.secondaryGrouped(brightness),
+        borderRadius: AppRadius.grouped,
+      ),
+      child: Padding(padding: padding, child: child),
+    );
+  }
+}
+
+class _ElevatedCard extends StatelessWidget {
+  const _ElevatedCard({
+    required this.brightness,
+    required this.padding,
+    required this.child,
+  });
+
+  final Brightness brightness;
+  final EdgeInsetsGeometry padding;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        gradient: AppGradients.surfaceCardTopLight(brightness),
+        borderRadius: AppRadius.grouped,
+        border: Border.all(
+          color: brightness == Brightness.dark
+              ? AppColors.glassBorder
+              : AppColors.lightBorder.withValues(alpha: 0.6),
+        ),
+        boxShadow: AppElevation.surfaceCard(brightness),
+      ),
+      child: Padding(padding: padding, child: child),
+    );
   }
 }
 
@@ -79,21 +139,21 @@ class _GlassCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final borderColor =
-        isDark ? AppColors.glassBorder : AppColors.glassBorderLight;
     final fill = isDark
-        ? AppColors.slate.withValues(alpha: 0.45)
+        ? AppColors.slate.withValues(alpha: 0.55)
         : Colors.white.withValues(alpha: 0.78);
 
     return ClipRRect(
-      borderRadius: AppRadius.xlAll,
+      borderRadius: AppRadius.grouped,
       child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+        filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
         child: DecoratedBox(
           decoration: BoxDecoration(
             color: fill,
-            borderRadius: AppRadius.xlAll,
-            border: Border.all(color: borderColor),
+            borderRadius: AppRadius.grouped,
+            border: Border.all(
+              color: isDark ? AppColors.glassBorder : AppColors.lightBorder,
+            ),
             boxShadow: AppElevation.glassShadow(
               isDark ? Brightness.dark : Brightness.light,
             ),
@@ -105,14 +165,14 @@ class _GlassCard extends StatelessWidget {
   }
 }
 
-class _ElevatedCard extends StatelessWidget {
-  const _ElevatedCard({
-    required this.isDark,
+class _HeroCard extends StatelessWidget {
+  const _HeroCard({
+    required this.brightness,
     required this.padding,
     required this.child,
   });
 
-  final bool isDark;
+  final Brightness brightness;
   final EdgeInsetsGeometry padding;
   final Widget child;
 
@@ -120,35 +180,21 @@ class _ElevatedCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: isDark ? AppColors.midnight : Colors.white,
-        borderRadius: AppRadius.xlAll,
+        borderRadius: AppRadius.grouped,
+        gradient: AppGradients.heroCardAccent(brightness),
         border: Border.all(
-          color: isDark
-              ? AppColors.glassBorder
-              : AppColors.glassBorderLight,
+          color: AppColors.brandBlue.withValues(alpha: 0.15),
         ),
-        boxShadow: [
-          BoxShadow(
-            color: (isDark ? Colors.black : AppColors.skyBlue)
-                .withValues(alpha: isDark ? 0.28 : 0.10),
-            blurRadius: 28,
-            offset: const Offset(0, 12),
-          ),
-        ],
+        boxShadow: AppElevation.surfaceCard(brightness),
       ),
       child: Padding(padding: padding, child: child),
     );
   }
 }
 
-class _HeroCard extends StatelessWidget {
-  const _HeroCard({
-    required this.isDark,
-    required this.padding,
-    required this.child,
-  });
+class _BrandCard extends StatelessWidget {
+  const _BrandCard({required this.padding, required this.child});
 
-  final bool isDark;
   final EdgeInsetsGeometry padding;
   final Widget child;
 
@@ -157,26 +203,25 @@ class _HeroCard extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         borderRadius: AppRadius.xlAll,
-        gradient: AppGradients.heroCardAccent(
-          isDark ? Brightness.dark : Brightness.light,
-        ),
-        border: Border.all(
-          color: AppColors.skyBlue.withValues(alpha: isDark ? 0.28 : 0.16),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.skyBlue.withValues(alpha: isDark ? 0.18 : 0.12),
-            blurRadius: 32,
-            offset: const Offset(0, 16),
-          ),
-        ],
+        gradient: AppGradients.heroWealth,
+        boxShadow: AppElevation.brandGlow(Theme.of(context).brightness),
       ),
-      child: ClipRRect(
-        borderRadius: AppRadius.xlAll,
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-          child: Padding(padding: padding, child: child),
-        ),
+      child: Stack(
+        children: [
+          Positioned(
+            right: -16,
+            top: -24,
+            child: Container(
+              width: 120,
+              height: 120,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withValues(alpha: 0.12),
+              ),
+            ),
+          ),
+          Padding(padding: padding, child: child),
+        ],
       ),
     );
   }

@@ -5,6 +5,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/currency_formatter.dart';
+import '../../../../core/theme/app_gradients.dart';
 import '../../../../shared/widgets/design_system/df_card.dart';
 import '../../domain/entities/platform_performance_snapshot.dart';
 import '../../domain/entities/platform_shift_recommendation.dart';
@@ -161,9 +162,7 @@ class _RecommendationCard extends StatelessWidget {
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [AppColors.profitGreen, AppColors.skyBlue],
-              ),
+              gradient: AppGradients.brand,
               borderRadius: AppRadius.mdAll,
             ),
             child: const Icon(
@@ -196,7 +195,7 @@ class _RecommendationCard extends StatelessWidget {
                     'Turno: ${recommendation.bestHourSlot} · '
                     'Confiança ${(recommendation.confidence * 100).round()}%',
                     style: theme.textTheme.labelSmall?.copyWith(
-                      color: AppColors.skyBlue,
+                      color: AppColors.brandBlue,
                       fontWeight: FontWeight.w600,
                     ),
                   ),

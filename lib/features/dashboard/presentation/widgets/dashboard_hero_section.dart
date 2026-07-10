@@ -39,7 +39,7 @@ class DashboardHeroSection extends StatelessWidget {
         : 0.0;
     final ringColor = goalProgress.isComplete
         ? AppSemanticColors.success
-        : AppColors.skyBlue;
+        : AppColors.brandBlue;
     final storyLine = StoryMetrics.heroSubtitle(
       today: summary,
       goalProgress: goalProgress,
@@ -51,18 +51,33 @@ class DashboardHeroSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            greeting,
-            style: theme.textTheme.titleMedium?.copyWith(
-              color: AppColors.secondaryLabel(theme),
-              fontWeight: FontWeight.w500,
-            ),
+          Row(
+            children: [
+              Container(
+                width: 6,
+                height: 6,
+                decoration: BoxDecoration(
+                  color: AppColors.brandBlue.withValues(alpha: 0.50),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                greeting.toUpperCase(),
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: AppColors.brandBlue,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.6,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: AppSpacing.xs),
+          const SizedBox(height: AppSpacing.sm),
           Text(
             'Seu lucro hoje',
             style: theme.textTheme.headlineSmall?.copyWith(
               fontWeight: FontWeight.w700,
+              letterSpacing: -0.4,
             ),
           ),
           const SizedBox(height: AppSpacing.xs),
@@ -207,7 +222,7 @@ class _StatChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 14, color: AppColors.skyBlue),
+          Icon(icon, size: 14, color: AppColors.brandBlue),
           const SizedBox(width: 6),
           Text(label, style: theme.textTheme.labelMedium),
         ],

@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_gradients.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/widgets/design_system/df_card.dart';
 import '../../../../shared/widgets/driveflow_brand_logo.dart';
 import '../../../../shared/widgets/driveflow_gradient_background.dart';
 
-/// Layout auth editorial — hero headline + form card sobreposto (FitCal pattern).
+/// Auth híbrido — grouped iOS + painel editorial ReuniAI.
 class AuthHeroLayout extends StatelessWidget {
   const AuthHeroLayout({
     required this.headline,
@@ -29,7 +31,7 @@ class AuthHeroLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final brightness = Theme.of(context).brightness;
 
     return DriveFlowGradientBackground(
       child: Scaffold(
@@ -62,20 +64,46 @@ class AuthHeroLayout extends StatelessWidget {
                         ),
                         const SizedBox(height: AppSpacing.xxl),
                       ],
-                      Text(
-                        headline,
-                        style: theme.textTheme.displaySmall?.copyWith(
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: -0.8,
-                          height: 1.1,
-                        ),
-                      ),
-                      const SizedBox(height: AppSpacing.md),
-                      Text(
-                        subtitle,
-                        style: theme.textTheme.bodyLarge?.copyWith(
-                          color: AppColors.secondaryLabel(theme),
-                          height: 1.5,
+                      DfCard(
+                        variant: DfCardVariant.hero,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  width: 5,
+                                  height: 5,
+                                  decoration: BoxDecoration(
+                                    color: AppColors.brandBlue.withValues(
+                                      alpha: 0.5,
+                                    ),
+                                    borderRadius: BorderRadius.circular(2),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'DRIVEFLOW',
+                                  style: AppTypography.labelCaps(brightness),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: AppSpacing.sm),
+                            Text(
+                              headline,
+                              style: AppTypography.iosLargeTitle(brightness),
+                            ),
+                            const SizedBox(height: AppSpacing.md),
+                            Text(
+                              subtitle,
+                              style: AppTypography.iosBody(brightness).copyWith(
+                                color: AppColors.secondaryLabel(
+                                  Theme.of(context),
+                                ),
+                                height: 1.5,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                       if (middleChild != null) ...[

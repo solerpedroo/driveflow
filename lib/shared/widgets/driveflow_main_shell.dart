@@ -9,7 +9,7 @@ import 'driveflow_bottom_nav_bar.dart' show DriveFlowBottomNavBar, kDriveFlowTab
 import 'driveflow_connectivity_banner.dart';
 import 'driveflow_gradient_background.dart';
 
-/// Shell pós-login — mesh animado + nav glass (tier outlier).
+/// Shell pós-login — fundo grouped iOS + tab bar Cupertino.
 class DriveFlowMainShell extends StatelessWidget {
   const DriveFlowMainShell({
     required this.selectedIndex,
@@ -58,7 +58,7 @@ class DriveFlowMainShell extends StatelessWidget {
                                 curve: DriveFlowMotion.spring,
                                 offset: active
                                     ? Offset.zero
-                                    : const Offset(0, 0.025),
+                                    : const Offset(0.02, 0),
                                 child: AnimatedOpacity(
                                   duration: kDriveFlowTabSwitchDuration,
                                   curve: DriveFlowMotion.snap,

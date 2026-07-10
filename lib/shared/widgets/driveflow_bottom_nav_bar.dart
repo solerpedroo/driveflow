@@ -1,12 +1,17 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_elevation.dart';
+import '../../core/theme/app_gradients.dart';
 import '../../core/theme/app_motion.dart';
+import '../../core/utils/df_haptics.dart';
 import 'design_system/df_glass_surface.dart';
 
 const Duration kDriveFlowTabSwitchDuration = DriveFlowMotion.normal;
 
-/// Bottom navigation premium — cápsula flutuante com animação suave.
+/// Tab bar híbrido — blur Cupertino + cápsula flutuante Mescla + pill ReuniAI.
 class DriveFlowBottomNavBar extends StatelessWidget {
   const DriveFlowBottomNavBar({
     required this.selectedIndex,
@@ -35,20 +40,19 @@ class DriveFlowBottomNavBar extends StatelessWidget {
     'Perfil',
   ];
 
-  static const double _itemTrackHeight = 56;
-  static const double _chipVerticalMargin = 4;
+  static const double _itemTrackHeight = 52;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final primary = theme.colorScheme.primary;
+    final inactive = AppColors.bottomNavInactive(theme);
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 0, 20, 14),
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
       child: DfGlassSurface(
         borderRadius: BorderRadius.circular(100),
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
-        sigma: 24,
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+        sigma: 20,
         child: SizedBox(
           height: _itemTrackHeight,
           child: Row(
@@ -59,11 +63,11 @@ class DriveFlowBottomNavBar extends StatelessWidget {
                     icon: _icons[i],
                     label: _labels[i],
                     isActive: selectedIndex == i,
-                    trackHeight: _itemTrackHeight,
-                    chipVertMargin: _chipVerticalMargin,
-                    activeColor: primary,
-                    inactiveColor: AppColors.bottomNavInactive(theme),
-                    onTap: () => onItemTap(i),
+                    inactiveColor: inactive,
+                    onTap: () {
+                      DfHaptics.selection();
+                      onItemTap(i);
+                    },
                   ),
                 ),
             ],
@@ -79,9 +83,6 @@ class _NavItem extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.isActive,
-    required this.trackHeight,
-    required this.chipVertMargin,
-    required this.activeColor,
     required this.inactiveColor,
     required this.onTap,
   });
@@ -89,46 +90,12 @@ class _NavItem extends StatelessWidget {
   final IconData icon;
   final String label;
   final bool isActive;
-  final double trackHeight;
-  final double chipVertMargin;
-  final Color activeColor;
   final Color inactiveColor;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final contentColor = isActive ? Colors.white : inactiveColor;
-
-    final textStyle = Theme.of(context).textTheme.labelSmall?.copyWith(
-          color: contentColor,
-          fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
-          fontSize: 10,
-        );
-
-    final column = Column(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        AnimatedScale(
-          scale: isActive ? 1.05 : 1.0,
-          duration: DriveFlowMotion.fast,
-          child: Icon(icon, color: contentColor, size: 22),
-        ),
-        const SizedBox(height: 3),
-        AnimatedDefaultTextStyle(
-          duration: DriveFlowMotion.fast,
-          style: textStyle!,
-          child: Text(
-            label,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            textAlign: TextAlign.center,
-          ),
-        ),
-      ],
-    );
-
-    final chipHeight = trackHeight - 2 * chipVertMargin;
 
     return Material(
       color: Colors.transparent,
@@ -138,30 +105,41 @@ class _NavItem extends StatelessWidget {
         child: Center(
           child: AnimatedContainer(
             duration: DriveFlowMotion.fast,
-            curve: DriveFlowMotion.standard,
+            curve: Curves.easeInOut,
             constraints: BoxConstraints(
-              minWidth: isActive ? 72 : 48,
-              minHeight: chipHeight,
-              maxHeight: chipHeight,
+              minWidth: isActive ? 68 : 44,
+              minHeight: 40,
             ),
             decoration: isActive
                 ? BoxDecoration(
-                    color: activeColor,
+                    gradient: AppGradients.brand,
                     borderRadius: BorderRadius.circular(100),
-                    boxShadow: [
-                      BoxShadow(
-                        color: activeColor.withValues(alpha: 0.35),
-                        blurRadius: 12,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
+                    boxShadow: AppElevation.brandGlow(
+                      Theme.of(context).brightness,
+                    ),
                   )
                 : null,
             child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: isActive ? 12 : 4,
+              padding: EdgeInsets.symmetric(horizontal: isActive ? 10 : 4),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(icon, size: 22, color: contentColor),
+                  const SizedBox(height: 2),
+                  Text(
+                    label,
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+                      letterSpacing: 0.1,
+                      color: contentColor,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
               ),
-              child: Center(child: column),
             ),
           ),
         ),
