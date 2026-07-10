@@ -9,6 +9,9 @@ import '../../../../shared/widgets/design_system/df_card.dart';
 import '../../domain/entities/platform_performance_snapshot.dart';
 import '../../domain/entities/platform_shift_recommendation.dart';
 import '../providers/integrations_providers.dart';
+import '../providers/platform_trips_providers.dart';
+import 'platform_golden_hour_card.dart';
+import 'platform_score_card.dart';
 
 /// Painel de insights cross-platform — valor agregado para o motorista.
 class PlatformInsightsPanel extends ConsumerWidget {
@@ -30,6 +33,30 @@ class PlatformInsightsPanel extends ConsumerWidget {
           data: (rec) => rec == null
               ? const SizedBox.shrink()
               : _RecommendationCard(recommendation: rec),
+        ),
+        const SizedBox(height: AppSpacing.md),
+        const PlatformGoldenHourCard(),
+        const SizedBox(height: AppSpacing.md),
+        const PlatformScoreCard(),
+        ref.watch(platformFeeAnalysisProvider).when(
+          loading: () => const SizedBox.shrink(),
+          error: (_, __) => const SizedBox.shrink(),
+          data: (fees) {
+            if (fees.isEmpty) return const SizedBox.shrink();
+            final best = fees.first;
+            return Padding(
+              padding: const EdgeInsets.only(bottom: AppSpacing.md),
+              child: DfCard(
+                child: Text(
+                  'Menor taxa: ${best.platform.label} '
+                  '(${best.avgTakeRatePercent.toStringAsFixed(1)}%)',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: AppColors.secondaryLabel(theme),
+                  ),
+                ),
+              ),
+            );
+          },
         ),
         if (missing.isNotEmpty) ...[
           const SizedBox(height: AppSpacing.md),
