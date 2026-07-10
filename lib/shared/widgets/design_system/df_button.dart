@@ -91,7 +91,7 @@ class _DfButtonState extends State<DfButton> {
           style: FilledButton.styleFrom(
             backgroundColor: AppColors.brandBlue,
             foregroundColor: Colors.white,
-            minimumSize: const Size.fromHeight(50),
+            minimumSize: const Size(0, 50),
             shape: RoundedRectangleBorder(borderRadius: AppRadius.lgAll),
             elevation: 0,
           ),
@@ -100,7 +100,7 @@ class _DfButtonState extends State<DfButton> {
       DfButtonVariant.outlined => OutlinedButton(
           onPressed: enabled ? widget.onPressed : null,
           style: OutlinedButton.styleFrom(
-            minimumSize: const Size.fromHeight(50),
+            minimumSize: const Size(0, 50),
             side: const BorderSide(color: AppColors.brandBlue),
             shape: RoundedRectangleBorder(borderRadius: AppRadius.lgAll),
           ),
@@ -109,7 +109,7 @@ class _DfButtonState extends State<DfButton> {
       DfButtonVariant.tonal => TextButton(
           onPressed: enabled ? widget.onPressed : null,
           style: TextButton.styleFrom(
-            minimumSize: const Size.fromHeight(44),
+            minimumSize: const Size(0, 44),
             foregroundColor: AppColors.brandBlue,
           ),
           child: child,
@@ -139,7 +139,14 @@ class _DfButtonState extends State<DfButton> {
     return Semantics(
       button: true,
       label: widget.label,
-      child: SizedBox(width: double.infinity, child: button),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final width = constraints.hasBoundedWidth && constraints.maxWidth.isFinite
+              ? constraints.maxWidth
+              : MediaQuery.sizeOf(context).width;
+          return SizedBox(width: width, child: button);
+        },
+      ),
     );
   }
 }
