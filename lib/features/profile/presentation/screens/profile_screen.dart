@@ -118,10 +118,6 @@ class ProfileScreen extends HookConsumerWidget {
               isBusy: vehicleMutation.isLoading,
               onAdd: () => context.push(AppRoutes.addVehicle),
               onEdit: (id) => context.push('${AppRoutes.editVehicle}?id=$id'),
-              onSetDefault: (id) => ref
-                  .read(vehicleControllerProvider.notifier)
-                  .setDefault(id),
-              onDelete: (vehicle) => _confirmDelete(context, ref, vehicle),
             ),
           ),
           DfGroupedSection(
@@ -244,36 +240,6 @@ class ProfileScreen extends HookConsumerWidget {
         ],
       ),
     );
-  }
-
-  Future<void> _confirmDelete(
-    BuildContext context,
-    WidgetRef ref,
-    VehicleEntity vehicle,
-  ) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Excluir veículo'),
-        content: Text(
-          'Remover ${vehicle.displayName}? Abastecimentos e manutenções vinculados também serão apagados.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Excluir'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed == true && context.mounted) {
-      await ref.read(vehicleControllerProvider.notifier).delete(vehicle.id);
-    }
   }
 }
 
@@ -439,16 +405,12 @@ class _VehiclesSection extends StatelessWidget {
     required this.isBusy,
     required this.onAdd,
     required this.onEdit,
-    required this.onSetDefault,
-    required this.onDelete,
   });
 
   final List<VehicleEntity> vehicles;
   final bool isBusy;
   final VoidCallback onAdd;
   final ValueChanged<String> onEdit;
-  final ValueChanged<String> onSetDefault;
-  final Future<void> Function(VehicleEntity) onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -487,90 +449,34 @@ class _VehiclesSection extends StatelessWidget {
             ),
           )
         else
-          ...vehicles.map((vehicle) {
-            return Padding(
-              padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-              child: DfCard(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            vehicle.displayName,
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                        if (vehicle.isDefault)
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: AppColors.brandBlue.withValues(alpha: 0.14),
-                              borderRadius: BorderRadius.circular(100),
-                            ),
-                            child: Text(
-                              'Padrão',
-                              style: theme.textTheme.labelSmall?.copyWith(
-                                color: AppColors.brandBlue,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
+          DfGroupedSection(
+            header: 'Veículos',
+            margin: EdgeInsets.zero,
+            children: [
+              for (final vehicle in vehicles)
+                DfGroupedRow(
+                  title: vehicle.displayName,
+                  subtitle:
                       '${vehicle.year} · ${vehicle.fuelLabel}'
-                      '${vehicle.plate != null ? ' · ${vehicle.plate}' : ''}'
-                      ' · ${vehicle.odometerKm.toStringAsFixed(0)} km',
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: AppColors.secondaryLabel(theme),
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-                    Wrap(
-                      spacing: AppSpacing.sm,
-                      runSpacing: AppSpacing.sm,
-                      children: [
-                        DfButton(
-                          label: 'Editar',
-                          icon: Icons.edit_outlined,
-                          variant: DfButtonVariant.tonal,
-                          onPressed:
-                              isBusy ? null : () => onEdit(vehicle.id),
-                          expand: false,
-                        ),
-                        if (!vehicle.isDefault)
-                          DfButton(
-                            label: 'Tornar padrão',
-                            variant: DfButtonVariant.outlined,
-                            onPressed: isBusy
-                                ? null
-                                : () => onSetDefault(vehicle.id),
-                            expand: false,
+                      '${vehicle.plate != null ? ' · ${vehicle.plate}' : ''}',
+                  leading: Icon(
+                    Icons.directions_car_outlined,
+                    color: AppColors.brandBlue,
+                  ),
+                  trailing: vehicle.isDefault
+                      ? Text(
+                          'Padrão',
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: AppColors.brandBlue,
+                            fontWeight: FontWeight.w700,
                           ),
-                        if (vehicles.length > 1)
-                          DfButton(
-                            label: 'Excluir',
-                            variant: DfButtonVariant.outlined,
-                            onPressed: isBusy
-                                ? null
-                                : () => onDelete(vehicle),
-                            expand: false,
-                          ),
-                      ],
-                    ),
-                  ],
+                        )
+                      : null,
+                  showChevron: true,
+                  onTap: isBusy ? null : () => onEdit(vehicle.id),
                 ),
-              ),
-            );
-          }),
+            ],
+          ),
       ],
     );
   }
