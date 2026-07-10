@@ -40,7 +40,7 @@ final platformConnectionForProvider =
 final connectedPlatformsProvider = Provider<Set<RidePlatform>>((ref) {
   final connections = ref.watch(platformConnectionsProvider).valueOrNull ?? [];
   return connections
-      .where((c) => c.status.isActive)
+      .where((c) => c.status.canSync)
       .map((c) => c.platform)
       .toSet();
 });
