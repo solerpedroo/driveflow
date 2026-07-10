@@ -44,11 +44,11 @@ class DriveFlowBottomNavBar extends StatelessWidget {
     final primary = theme.colorScheme.primary;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 0, 20, 14),
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
       child: DfGlassSurface(
         borderRadius: BorderRadius.circular(100),
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
-        sigma: 24,
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        sigma: 18,
         child: SizedBox(
           height: _itemTrackHeight,
           child: Row(
@@ -146,12 +146,19 @@ class _NavItem extends StatelessWidget {
             ),
             decoration: isActive
                 ? BoxDecoration(
-                    color: activeColor,
+                    gradient: const LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        AppColors.brandBlue,
+                        AppColors.brandBlueDark,
+                      ],
+                    ),
                     borderRadius: BorderRadius.circular(100),
                     boxShadow: [
                       BoxShadow(
-                        color: activeColor.withValues(alpha: 0.35),
-                        blurRadius: 12,
+                        color: AppColors.brandBlue.withValues(alpha: 0.40),
+                        blurRadius: 14,
                         offset: const Offset(0, 4),
                       ),
                     ],
