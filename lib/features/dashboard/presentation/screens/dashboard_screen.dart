@@ -28,13 +28,13 @@ import '../../../../shared/domain/models/dashboard_snapshot.dart';
 import '../../../../shared/widgets/design_system/df_expandable_list_section.dart';
 import '../../../../shared/widgets/design_system/df_header_row.dart';
 import '../../../../shared/widgets/design_system/df_hero_wealth_card.dart';
-import '../../../../shared/widgets/design_system/df_muted_summary_card.dart';
 import '../../../../shared/widgets/design_system/df_pill_action_button.dart';
 import '../../../../shared/widgets/design_system/df_section_header.dart';
 import '../../../../shared/widgets/design_system/df_skeleton.dart';
 import '../../../../shared/widgets/design_system/df_tab_scroll_view.dart';
 import '../providers/dashboard_providers.dart';
 import '../../../integrations/presentation/widgets/dashboard_platform_mix_card.dart';
+import '../../../integrations/presentation/widgets/dashboard_platform_chip.dart';
 import '../widgets/dashboard_fuel_card.dart';
 import '../widgets/dashboard_maintenance_card.dart';
 import '../../../integrations/presentation/widgets/platform_goal_progress_card.dart';
@@ -190,30 +190,13 @@ class _DashboardBody extends StatelessWidget {
             ],
           ),
         ),
-        DfMutedSummaryCard(
-          icon: Icons.payments_outlined,
-          iconColor: AppColors.profitGreen,
-          title: maskCurrency(
-            CurrencyFormatter.formatSigned(today.profit),
-            hidden: hidden,
-          ),
-          subtitle: 'Lucro de hoje · ${today.rides} corridas',
-        ),
-        DfMutedSummaryCard(
-          icon: Icons.flag_outlined,
-          title: goal.hasTarget
-              ? maskPlain(goal.progressLabel, hidden: hidden)
-              : 'Sem meta diária',
-          subtitle: goal.hasTarget
-              ? 'Progresso da meta de hoje'
-              : 'Defina metas em Perfil → Metas',
-        ),
         DashboardHeroSection(
           summary: today,
           goalProgress: goal,
           greeting: greeting.split(',').first,
           weekProfits: snapshot.weekProfits,
         ),
+        const DashboardPlatformChip(),
         const PlatformGoalProgressCard(),
         const Align(
           alignment: Alignment.centerLeft,
