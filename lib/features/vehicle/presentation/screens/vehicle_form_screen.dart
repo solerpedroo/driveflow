@@ -6,10 +6,10 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/validators.dart';
-import '../../../authentication/presentation/widgets/auth_primary_button.dart';
 import '../../../authentication/presentation/widgets/auth_text_field.dart';
 import '../../domain/entities/vehicle_entity.dart';
 import '../providers/vehicle_providers.dart';
+import '../../../../shared/widgets/design_system/df_button.dart';
 import '../../../../shared/widgets/design_system/df_card.dart';
 import '../../../../shared/widgets/design_system/df_filter_pill.dart';
 import '../../../../shared/widgets/design_system/df_form_scaffold.dart';
@@ -243,7 +243,7 @@ class VehicleFormScreen extends HookConsumerWidget {
           ],
           if (embedded) ...[
             const SizedBox(height: 20),
-            AuthPrimaryButton(
+            DfButton(
               label: submitLabel,
               isLoading: mutation.isLoading,
               onPressed: submit,
