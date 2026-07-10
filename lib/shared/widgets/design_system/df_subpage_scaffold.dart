@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../core/theme/app_colors.dart';
-import '../../driveflow_gradient_background.dart';
+import '../driveflow_gradient_background.dart';
 import 'df_hero_wealth_card.dart';
 import 'df_tab_scroll_view.dart';
 
