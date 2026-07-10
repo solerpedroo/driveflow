@@ -13,6 +13,7 @@ import '../../../../core/constants/driveflow_tab_count.dart';
 import '../../../reports/presentation/screens/reports_screen.dart';
 import '../../../dashboard/presentation/screens/dashboard_screen.dart';
 import '../../../profile/presentation/screens/profile_screen.dart';
+import '../../../../shared/widgets/design_system/df_subpage_scaffold.dart';
 import '../../../../shared/widgets/driveflow_main_shell.dart';
 
 /// Shell principal pós-login com 5 abas e lazy mount.
@@ -112,22 +113,29 @@ class EditVehicleScreen extends ConsumerWidget {
     final theme = Theme.of(context);
 
     return vehiclesAsync.when(
-      loading: () => const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
+      loading: () => const DfSubpageScaffold(
+        title: 'Editar veículo',
+        children: [
+          Center(child: CircularProgressIndicator()),
+        ],
       ),
-      error: (e, _) => Scaffold(
-        body: Center(child: Text('Erro: $e')),
+      error: (e, _) => DfSubpageScaffold(
+        title: 'Editar veículo',
+        children: [
+          Text('Erro: $e'),
+        ],
       ),
       data: (vehicles) {
         final vehicle = _resolveVehicle(vehicles, vehicleId);
         if (vehicle == null) {
-          return Scaffold(
-            body: Center(
-              child: Text(
+          return DfSubpageScaffold(
+            title: 'Editar veículo',
+            children: [
+              Text(
                 'Nenhum veículo encontrado.',
                 style: theme.textTheme.bodyLarge,
               ),
-            ),
+            ],
           );
         }
         return VehicleFormScreen(
