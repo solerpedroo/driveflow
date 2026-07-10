@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_elevation.dart';
+import '../../../core/theme/app_gradients.dart';
 import '../../../core/theme/app_motion.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
@@ -72,7 +74,7 @@ class _DfButtonState extends State<DfButton> {
                           color: Colors.white,
                         )
                       : AppTypography.iosHeadline(theme.brightness).copyWith(
-                          color: AppColors.systemBlue,
+                          color: AppColors.brandBlue,
                         ),
                 ),
               ),
@@ -80,10 +82,14 @@ class _DfButtonState extends State<DfButton> {
           );
 
     Widget button = switch (widget.variant) {
-      DfButtonVariant.gradient || DfButtonVariant.primary => FilledButton(
+      DfButtonVariant.gradient => _GradientButton(
+          onPressed: enabled ? widget.onPressed : null,
+          child: child,
+        ),
+      DfButtonVariant.primary => FilledButton(
           onPressed: enabled ? widget.onPressed : null,
           style: FilledButton.styleFrom(
-            backgroundColor: AppColors.systemBlue,
+            backgroundColor: AppColors.brandBlue,
             foregroundColor: Colors.white,
             minimumSize: const Size.fromHeight(50),
             shape: RoundedRectangleBorder(borderRadius: AppRadius.lgAll),
@@ -95,7 +101,7 @@ class _DfButtonState extends State<DfButton> {
           onPressed: enabled ? widget.onPressed : null,
           style: OutlinedButton.styleFrom(
             minimumSize: const Size.fromHeight(50),
-            side: const BorderSide(color: AppColors.systemBlue),
+            side: const BorderSide(color: AppColors.brandBlue),
             shape: RoundedRectangleBorder(borderRadius: AppRadius.lgAll),
           ),
           child: child,
@@ -104,7 +110,7 @@ class _DfButtonState extends State<DfButton> {
           onPressed: enabled ? widget.onPressed : null,
           style: TextButton.styleFrom(
             minimumSize: const Size.fromHeight(44),
-            foregroundColor: AppColors.systemBlue,
+            foregroundColor: AppColors.brandBlue,
           ),
           child: child,
         ),
@@ -134,6 +140,36 @@ class _DfButtonState extends State<DfButton> {
       button: true,
       label: widget.label,
       child: SizedBox(width: double.infinity, child: button),
+    );
+  }
+}
+
+class _GradientButton extends StatelessWidget {
+  const _GradientButton({required this.onPressed, required this.child});
+
+  final VoidCallback? onPressed;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius: AppRadius.lgAll,
+        child: Ink(
+          decoration: BoxDecoration(
+            gradient: AppGradients.brand,
+            borderRadius: AppRadius.lgAll,
+            boxShadow: AppElevation.brandGlow(Theme.of(context).brightness),
+          ),
+          child: SizedBox(
+            width: double.infinity,
+            height: 50,
+            child: Center(child: child),
+          ),
+        ),
+      ),
     );
   }
 }
