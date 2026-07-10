@@ -6,14 +6,16 @@ import '../../../../core/utils/currency_formatter.dart';
 import '../../../../shared/domain/models/period_summary.dart';
 import '../../../../shared/widgets/design_system/df_card.dart';
 
-/// Resumo do mês — lucro hero + métricas secundárias.
+/// Resumo do mês — breakdown Stripe-like (sem repetir lucro hero).
 class MonthSummaryCard extends StatelessWidget {
   const MonthSummaryCard({
     required this.summary,
+    this.hideHeroProfit = false,
     super.key,
   });
 
   final PeriodSummary summary;
+  final bool hideHeroProfit;
 
   @override
   Widget build(BuildContext context) {
@@ -22,32 +24,34 @@ class MonthSummaryCard extends StatelessWidget {
         summary.profit >= 0 ? AppColors.profitGreen : AppColors.expenseCoral;
 
     return DfCard(
-      variant: DfCardVariant.glass,
+      variant: DfCardVariant.elevated,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Resumo do mês',
+            'Detalhes do mês',
             style: theme.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.w700,
             ),
           ),
-          const SizedBox(height: AppSpacing.md),
-          Text(
-            CurrencyFormatter.formatSigned(summary.profit),
-            style: theme.textTheme.displaySmall?.copyWith(
-              fontWeight: FontWeight.w800,
-              color: profitColor,
-              letterSpacing: -1,
-              fontFeatures: const [FontFeature.tabularFigures()],
+          if (!hideHeroProfit) ...[
+            const SizedBox(height: AppSpacing.md),
+            Text(
+              CurrencyFormatter.formatSigned(summary.profit),
+              style: theme.textTheme.displaySmall?.copyWith(
+                fontWeight: FontWeight.w700,
+                color: profitColor,
+                letterSpacing: -1,
+                fontFeatures: const [FontFeature.tabularFigures()],
+              ),
             ),
-          ),
-          Text(
-            'lucro líquido do mês',
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: AppColors.secondaryLabel(theme),
+            Text(
+              'lucro líquido do mês',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: AppColors.secondaryLabel(theme),
+              ),
             ),
-          ),
+          ],
           const SizedBox(height: AppSpacing.lg),
           _Row(label: 'Receita', value: CurrencyFormatter.format(summary.revenue)),
           _Row(label: 'Despesas', value: CurrencyFormatter.format(summary.expenses)),
@@ -94,7 +98,7 @@ class _Row extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
+      padding: const EdgeInsets.only(bottom: 8),
       child: Row(
         children: [
           Expanded(
@@ -111,7 +115,7 @@ class _Row extends StatelessWidget {
                     ? theme.textTheme.titleSmall
                     : theme.textTheme.bodyLarge)
                 ?.copyWith(
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w600,
               fontFeatures: const [FontFeature.tabularFigures()],
             ),
           ),
