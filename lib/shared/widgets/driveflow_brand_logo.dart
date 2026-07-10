@@ -3,8 +3,9 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../core/constants/app_constants.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_gradients.dart';
 
-/// Logotipo tipográfico DriveFlow com acento neon.
+/// Logotipo tipográfico DriveFlow — marca azul premium.
 class DriveFlowBrandLogo extends StatelessWidget {
   const DriveFlowBrandLogo({
     super.key,
@@ -36,17 +37,10 @@ class DriveFlowBrandLogo extends StatelessWidget {
               height: titleSize * 0.55,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
-                gradient: const LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    AppColors.skyBlue,
-                    AppColors.skyBlueDim,
-                  ],
-                ),
+                gradient: AppGradients.brand,
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.skyBlue.withValues(alpha: 0.35),
+                    color: AppColors.brandBlue.withValues(alpha: 0.35),
                     blurRadius: 16,
                     offset: const Offset(0, 4),
                   ),
@@ -54,7 +48,7 @@ class DriveFlowBrandLogo extends StatelessWidget {
               ),
               child: Icon(
                 Icons.speed_rounded,
-                color: AppColors.deepNavy,
+                color: Colors.white,
                 size: titleSize * 0.32,
               ),
             ),
@@ -71,7 +65,7 @@ class DriveFlowBrandLogo extends StatelessWidget {
                   TextSpan(text: 'Drive'),
                   TextSpan(
                     text: 'Flow',
-                    style: TextStyle(color: AppColors.skyBlue),
+                    style: TextStyle(color: AppColors.brandBlue),
                   ),
                 ],
               ),
