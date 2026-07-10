@@ -40,6 +40,7 @@ class VehicleOnboardingScreen extends ConsumerWidget {
               ),
               Expanded(
                 child: VehicleFormScreen(
+                  embedded: true,
                   title: 'Cadastre seu veículo',
                   subtitle:
                       'Precisamos dos dados básicos do carro para calcular consumo, custo por km e relatórios.',
