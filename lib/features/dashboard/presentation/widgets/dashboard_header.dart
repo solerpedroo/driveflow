@@ -3,12 +3,13 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../authentication/domain/entities/user_entity.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_gradients.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/theme/theme_mode_provider.dart';
 import '../../../../core/utils/df_haptics.dart';
 
-/// Cabeçalho Large Title estilo iOS.
+/// Header híbrido — Large Title iOS + eyebrow ReuniAI + avatar Mescla glow.
 class DashboardHeader extends ConsumerWidget {
   const DashboardHeader({required this.user, super.key});
 
@@ -44,11 +45,28 @@ class DashboardHeader extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Row(
+                  children: [
+                    Container(
+                      width: 5,
+                      height: 5,
+                      decoration: BoxDecoration(
+                        color: AppColors.brandBlue.withValues(alpha: 0.5),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'DASHBOARD',
+                      style: AppTypography.labelCaps(brightness),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.sm),
                 Text(
                   greeting,
                   style: AppTypography.iosFootnote(brightness),
                 ),
-                const SizedBox(height: 2),
                 Text(
                   name,
                   style: AppTypography.iosLargeTitle(brightness),
@@ -59,29 +77,40 @@ class DashboardHeader extends ConsumerWidget {
             ),
           ),
           const SizedBox(width: AppSpacing.md),
-          Semantics(
-            button: true,
-            label: 'Alternar tema',
-            child: IconButton(
-              tooltip: 'Alternar tema',
-              onPressed: () {
-                DfHaptics.light();
-                ref.read(themeModeProvider.notifier).toggle();
-              },
-              icon: Icon(
-                isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
-                size: 22,
-                color: AppColors.systemBlue,
-              ),
+          IconButton(
+            tooltip: 'Alternar tema',
+            onPressed: () {
+              DfHaptics.light();
+              ref.read(themeModeProvider.notifier).toggle();
+            },
+            icon: Icon(
+              isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
+              size: 22,
+              color: AppColors.brandBlue,
             ),
           ),
-          CircleAvatar(
-            radius: 20,
-            backgroundColor: AppColors.systemBlue.withValues(alpha: 0.12),
-            child: Text(
-              initial,
-              style: AppTypography.iosHeadline(brightness).copyWith(
-                color: AppColors.systemBlue,
+          Container(
+            padding: const EdgeInsets.all(2),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: AppGradients.brand,
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.brandBlue.withValues(alpha: 0.30),
+                  blurRadius: 10,
+                ),
+              ],
+            ),
+            child: CircleAvatar(
+              radius: 19,
+              backgroundColor: isDark
+                  ? AppColors.brandNavy
+                  : Colors.white.withValues(alpha: 0.95),
+              child: Text(
+                initial,
+                style: AppTypography.iosHeadline(brightness).copyWith(
+                  color: AppColors.brandBlue,
+                ),
               ),
             ),
           ),
