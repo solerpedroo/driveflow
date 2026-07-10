@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/ride_platforms.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/utils/iterable_extensions.dart';
 import '../../../integrations/domain/entities/platform_take_rate_point.dart';
 import '../../../../shared/widgets/design_system/df_card.dart';
 
@@ -91,13 +92,5 @@ class PlatformTakeRateTrendChart extends StatelessWidget {
         ],
       ),
     );
-  }
-}
-
-extension _FirstOrNull<E> on Iterable<E> {
-  E? get firstOrNull {
-    final iterator = this.iterator;
-    if (!iterator.moveNext()) return null;
-    return iterator.current;
   }
 }
