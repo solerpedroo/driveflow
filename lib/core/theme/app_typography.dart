@@ -1,108 +1,118 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
-/// Tipografia estilo SF Pro / iOS Human Interface Guidelines.
+import 'app_colors.dart';
+
+/// Tipografia híbrida — escala iOS + Plus Jakarta/Inter (ReuniAI editorial).
 abstract final class AppTypography {
   static TextTheme build(Brightness brightness) {
-    final label = brightness == Brightness.dark ? Colors.white : Colors.black;
+    final label = brightness == Brightness.dark ? Colors.white : AppColors.brandNavy;
     final secondary = const Color(0xFF8E8E93);
+    final base = brightness == Brightness.dark
+        ? ThemeData.dark().textTheme
+        : ThemeData.light().textTheme;
+
+    final display = GoogleFonts.plusJakartaSansTextTheme(base);
+    final body = GoogleFonts.interTextTheme(base);
 
     return TextTheme(
-      displayLarge: iosLargeTitle(brightness).copyWith(color: label),
-      displayMedium: TextStyle(
+      displayLarge: display.displayLarge?.copyWith(
+        fontSize: 34,
+        fontWeight: FontWeight.w700,
+        letterSpacing: -0.8,
+        color: label,
+      ),
+      displayMedium: display.displayMedium?.copyWith(
         fontSize: 28,
         fontWeight: FontWeight.w700,
-        letterSpacing: 0.36,
+        letterSpacing: -0.5,
         color: label,
       ),
-      displaySmall: TextStyle(
+      displaySmall: display.displaySmall?.copyWith(
         fontSize: 22,
         fontWeight: FontWeight.w700,
-        letterSpacing: 0.35,
+        letterSpacing: -0.4,
         color: label,
       ),
-      headlineLarge: TextStyle(
-        fontSize: 22,
-        fontWeight: FontWeight.w600,
-        letterSpacing: 0.35,
+      headlineLarge: iosHeadline(brightness).copyWith(
+        fontFamily: display.headlineLarge?.fontFamily,
         color: label,
       ),
-      headlineMedium: iosHeadline(brightness).copyWith(color: label),
-      headlineSmall: TextStyle(
+      headlineMedium: iosLargeTitle(brightness).copyWith(
+        fontFamily: display.headlineMedium?.fontFamily,
+        color: label,
+      ),
+      headlineSmall: display.headlineSmall?.copyWith(
         fontSize: 20,
         fontWeight: FontWeight.w600,
-        letterSpacing: 0.38,
+        letterSpacing: -0.3,
         color: label,
       ),
       titleLarge: iosHeadline(brightness).copyWith(color: label),
-      titleMedium: TextStyle(
-        fontSize: 16,
+      titleMedium: body.titleMedium?.copyWith(
         fontWeight: FontWeight.w600,
-        letterSpacing: -0.24,
+        letterSpacing: -0.2,
         color: label,
       ),
-      titleSmall: TextStyle(
-        fontSize: 15,
+      titleSmall: body.titleSmall?.copyWith(
         fontWeight: FontWeight.w600,
-        letterSpacing: -0.24,
         color: label,
       ),
-      bodyLarge: iosBody(brightness).copyWith(color: label),
-      bodyMedium: TextStyle(
-        fontSize: 15,
-        fontWeight: FontWeight.w400,
-        letterSpacing: -0.24,
+      bodyLarge: iosBody(brightness).copyWith(
+        fontFamily: body.bodyLarge?.fontFamily,
         color: label,
       ),
-      bodySmall: iosFootnote(brightness).copyWith(color: secondary),
-      labelLarge: TextStyle(
+      bodyMedium: body.bodyMedium?.copyWith(
         fontSize: 15,
+        color: label,
+      ),
+      bodySmall: iosFootnote(brightness),
+      labelLarge: body.labelLarge?.copyWith(
         fontWeight: FontWeight.w600,
-        letterSpacing: -0.24,
         color: label,
       ),
-      labelMedium: iosCaption(brightness).copyWith(color: secondary),
+      labelMedium: iosCaption(brightness),
       labelSmall: iosCaption(brightness).copyWith(color: secondary),
     );
   }
 
   static TextStyle iosLargeTitle(Brightness brightness) {
-    return TextStyle(
+    return GoogleFonts.plusJakartaSans(
       fontSize: 34,
       fontWeight: FontWeight.w700,
-      letterSpacing: 0.37,
-      color: brightness == Brightness.dark ? Colors.white : Colors.black,
+      letterSpacing: -0.8,
+      color: brightness == Brightness.dark ? Colors.white : AppColors.brandNavy,
     );
   }
 
   static TextStyle iosHeadline(Brightness brightness) {
-    return TextStyle(
+    return GoogleFonts.plusJakartaSans(
       fontSize: 17,
       fontWeight: FontWeight.w600,
-      letterSpacing: -0.41,
-      color: brightness == Brightness.dark ? Colors.white : Colors.black,
+      letterSpacing: -0.3,
+      color: brightness == Brightness.dark ? Colors.white : AppColors.brandNavy,
     );
   }
 
   static TextStyle iosBody(Brightness brightness) {
-    return TextStyle(
+    return GoogleFonts.inter(
       fontSize: 17,
       fontWeight: FontWeight.w400,
-      letterSpacing: -0.41,
-      color: brightness == Brightness.dark ? Colors.white : Colors.black,
+      letterSpacing: -0.2,
+      color: brightness == Brightness.dark ? Colors.white : AppColors.textPrimary,
     );
   }
 
   static TextStyle iosFootnote(Brightness brightness) {
-    return TextStyle(
+    return GoogleFonts.inter(
       fontSize: 13,
       fontWeight: FontWeight.w400,
-      letterSpacing: -0.08,
       color: const Color(0xFF8E8E93),
     );
   }
 
   static TextStyle iosCaption(Brightness brightness) {
-    return TextStyle(
+    return GoogleFonts.inter(
       fontSize: 10,
       fontWeight: FontWeight.w500,
       letterSpacing: 0.12,
@@ -110,20 +120,22 @@ abstract final class AppTypography {
     );
   }
 
-  /// Cabeçalho de seção agrupada iOS (Settings).
   static TextStyle iosSectionHeader(Brightness brightness) {
-    return TextStyle(
+    return GoogleFonts.inter(
       fontSize: 13,
-      fontWeight: FontWeight.w400,
-      letterSpacing: -0.08,
+      fontWeight: FontWeight.w500,
+      letterSpacing: 0.4,
       color: const Color(0xFF8E8E93),
     );
   }
 
+  /// ReuniAI — label caps editorial.
   static TextStyle labelCaps(Brightness brightness) {
-    return iosSectionHeader(brightness).copyWith(
+    return GoogleFonts.inter(
+      fontSize: 11,
       fontWeight: FontWeight.w600,
-      letterSpacing: 0.6,
+      letterSpacing: 1.0,
+      color: const Color(0xFF737373),
     );
   }
 }
