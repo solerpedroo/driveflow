@@ -19,9 +19,9 @@ import '../../../../core/utils/validators.dart';
 import '../../../../shared/widgets/design_system/df_button.dart';
 import '../../../../shared/widgets/design_system/df_card.dart';
 import '../../../../shared/widgets/design_system/df_empty_state.dart';
+import '../../../../shared/widgets/design_system/df_hero_wealth_card.dart';
 import '../../../../shared/widgets/design_system/df_grouped_section.dart';
 import '../../../../shared/widgets/design_system/df_header_row.dart';
-import '../../../../shared/widgets/design_system/df_settings_row.dart';
 import '../../../../shared/widgets/design_system/df_tab_scroll_view.dart';
 import '../../../../shared/widgets/design_system/df_text_field.dart';
 import '../../../dashboard/presentation/providers/dashboard_providers.dart';
@@ -79,18 +79,11 @@ class ProfileScreen extends HookConsumerWidget {
       }
     }
 
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: DfTabScrollView(
-        children: [
-          const DfHeaderRow(),
-          Text(
-            'Perfil',
-            style: theme.textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          _PerfilUserCard(
+    return DfTabScrollView(
+      children: [
+        const DfHeaderRow(),
+        const DfScreenTitleRow(title: 'Perfil'),
+        _PerfilUserCard(
             user: user,
             isLoading: mutation.isLoading,
             editingName: editingName.value,
@@ -236,9 +229,8 @@ class ProfileScreen extends HookConsumerWidget {
             variant: DfButtonVariant.outlined,
             onPressed: () =>
                 ref.read(authControllerProvider.notifier).signOut(),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
