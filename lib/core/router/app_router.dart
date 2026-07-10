@@ -20,6 +20,7 @@ import '../../features/fuel/presentation/screens/fuel_log_screen.dart';
 import '../../features/ai/presentation/screens/ai_chat_screen.dart';
 import '../../features/analytics/presentation/screens/analytics_screen.dart';
 import '../../features/import/presentation/screens/import_statement_screen.dart';
+import '../../features/integrations/presentation/screens/platform_integrations_screen.dart';
 import '../../features/insights/presentation/screens/insights_screen.dart';
 import '../../features/goals/presentation/screens/goals_screen.dart';
 import '../../features/maintenance/domain/entities/maintenance_entity.dart';
@@ -272,6 +273,14 @@ final routerProvider = Provider<GoRouter>((ref) {
         pageBuilder: (context, state) => _fadePage(
           key: state.pageKey,
           child: const ImportStatementScreen(),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.platformIntegrations,
+        name: 'platformIntegrations',
+        pageBuilder: (context, state) => _fadePage(
+          key: state.pageKey,
+          child: const PlatformIntegrationsScreen(),
         ),
       ),
       GoRoute(
