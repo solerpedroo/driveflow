@@ -63,58 +63,6 @@ class DfSectionHeader extends StatelessWidget {
   }
 }
 
-/// Título grande estilo iOS Large Title.
-///
-/// Preferir [DfScreenTitleRow] nas abas do shell Mescla.
-@Deprecated('Use DfScreenTitleRow no padrão Mescla')
-class DfScreenTitle extends StatelessWidget {
-  const DfScreenTitle({
-    required this.title,
-    super.key,
-    this.subtitle,
-    this.eyebrow,
-  });
-
-  final String title;
-  final Widget? subtitle;
-  final String? eyebrow;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final brightness = theme.brightness;
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.screenHorizontal,
-        AppSpacing.screenTop,
-        AppSpacing.screenHorizontal,
-        0,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (eyebrow != null) ...[
-            Text(
-              eyebrow!.toUpperCase(),
-              style: AppTypography.iosSectionHeader(brightness).copyWith(
-                fontWeight: FontWeight.w600,
-                letterSpacing: 0.4,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.sm),
-          ],
-          Text(title, style: AppTypography.iosLargeTitle(brightness)),
-          if (subtitle != null) ...[
-            const SizedBox(height: AppSpacing.md),
-            subtitle!,
-          ],
-        ],
-      ),
-    );
-  }
-}
-
 /// Link azul system estilo iOS.
 class CupertinoStyleTextButton extends StatelessWidget {
   const CupertinoStyleTextButton({
