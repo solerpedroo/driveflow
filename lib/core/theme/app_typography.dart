@@ -13,16 +13,16 @@ abstract final class AppTypography {
 
     return TextTheme(
       displayLarge: display.displayLarge?.copyWith(
-        fontWeight: FontWeight.w800,
-        letterSpacing: -1.2,
+        fontWeight: FontWeight.w700,
+        letterSpacing: -1.4,
       ),
       displayMedium: display.displayMedium?.copyWith(
         fontWeight: FontWeight.w700,
-        letterSpacing: -0.8,
+        letterSpacing: -1.0,
       ),
       displaySmall: display.displaySmall?.copyWith(
         fontWeight: FontWeight.w700,
-        letterSpacing: -0.4,
+        letterSpacing: -0.6,
       ),
       headlineLarge: display.headlineLarge?.copyWith(
         fontWeight: FontWeight.w700,
@@ -54,6 +54,18 @@ abstract final class AppTypography {
         fontWeight: FontWeight.w500,
         letterSpacing: 0.2,
       ),
+    );
+  }
+
+  /// Label caps premium — hierarquia editorial (ReuniAI).
+  static TextStyle labelCaps(Brightness brightness) {
+    return TextStyle(
+      fontSize: 11,
+      fontWeight: FontWeight.w600,
+      letterSpacing: 1.1,
+      color: brightness == Brightness.dark
+          ? const Color(0xFF94A3B8)
+          : const Color(0xFF737373),
     );
   }
 }
