@@ -12,6 +12,12 @@ import '../providers/integrations_providers.dart';
 import '../providers/platform_trips_providers.dart';
 import 'platform_golden_hour_card.dart';
 import 'platform_score_card.dart';
+import 'platform_heatmap_widget.dart';
+import 'platform_shift_plan_card.dart';
+import 'platform_mix_simulator_card.dart';
+import 'platform_payout_calendar_card.dart';
+import 'platform_region_card.dart';
+import 'platform_consistency_card.dart';
 
 /// Painel de insights cross-platform — valor agregado para o motorista.
 class PlatformInsightsPanel extends ConsumerWidget {
@@ -38,6 +44,18 @@ class PlatformInsightsPanel extends ConsumerWidget {
         const PlatformGoldenHourCard(),
         const SizedBox(height: AppSpacing.md),
         const PlatformScoreCard(),
+        const SizedBox(height: AppSpacing.md),
+        const PlatformHeatmapWidget(),
+        const SizedBox(height: AppSpacing.md),
+        const PlatformShiftPlanCard(),
+        const SizedBox(height: AppSpacing.md),
+        const PlatformMixSimulatorCard(),
+        const SizedBox(height: AppSpacing.md),
+        const PlatformPayoutCalendarCard(),
+        const SizedBox(height: AppSpacing.md),
+        const PlatformRegionCard(),
+        const SizedBox(height: AppSpacing.md),
+        const PlatformConsistencyCard(),
         ref.watch(platformFeeAnalysisProvider).when(
           loading: () => const SizedBox.shrink(),
           error: (_, __) => const SizedBox.shrink(),
