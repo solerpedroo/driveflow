@@ -47,11 +47,12 @@ void main() {
     expect(slots.first.revenuePerHour, greaterThan(0));
   });
 
-  test('mix simulator normalizes percentages', () {
+  test('mix simulator normalizes percentages and uses real duration', () {
     final net = PlatformNetProfitCalculator.fromTrips(
       trips: trips,
       fuelCostPerKm: 0.3,
     );
+    expect(net.every((s) => s.workedHours > 0), isTrue);
     final sim = PlatformMixSimulator.simulate(
       mixPercent: {
         RidePlatform.uber: 50,
