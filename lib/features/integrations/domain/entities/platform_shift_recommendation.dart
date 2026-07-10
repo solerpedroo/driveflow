@@ -1,4 +1,5 @@
 import '../../../../core/constants/ride_platforms.dart';
+import 'platform_performance_snapshot.dart';
 
 /// Recomendação de qual app abrir em um turno.
 class PlatformShiftRecommendation {
