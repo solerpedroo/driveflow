@@ -9,6 +9,7 @@ import 'platform_revenue_chart.dart';
 import 'platform_revenue_trend_chart.dart';
 import 'platform_take_rate_trend_chart.dart';
 import '../../../../shared/widgets/design_system/df_period_pill_chip.dart';
+import '../../../../shared/widgets/design_system/df_skeleton.dart';
 import '../providers/analytics_providers.dart';
 
 /// Seção completa de analytics por plataforma (ondas 30–33).
@@ -57,7 +58,7 @@ class PlatformAnalyticsSection extends ConsumerWidget {
         ),
         const SizedBox(height: 12),
         trend.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => const DfSkeleton(itemCount: 2),
           error: (e, _) => Text('Erro: $e'),
           data: (points) => PlatformRevenueTrendChart(
             points: points,

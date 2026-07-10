@@ -9,7 +9,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../../core/utils/validators.dart';
-import '../../../authentication/presentation/widgets/auth_text_field.dart';
+import '../../../../shared/widgets/design_system/df_text_field.dart';
 import '../../../vehicle/presentation/providers/vehicle_providers.dart';
 import '../../domain/entities/maintenance_entity.dart';
 import '../providers/maintenance_providers.dart';
@@ -155,7 +155,7 @@ class MaintenanceFormScreen extends HookConsumerWidget {
                     }).toList(growable: false),
                   ),
                   const SizedBox(height: 16),
-                  AuthTextField(
+                  DfTextField(
                     controller: costController,
                     label: 'Custo (R\$)',
                     hint: 'R\$ 350,00',
@@ -174,7 +174,7 @@ class MaintenanceFormScreen extends HookConsumerWidget {
                     onTap: pickServiceDate,
                   ),
                   const SizedBox(height: 12),
-                  AuthTextField(
+                  DfTextField(
                     controller: nextKmController,
                     label: 'Próxima revisão em km (opcional)',
                     hint: '55000',
@@ -205,7 +205,7 @@ class MaintenanceFormScreen extends HookConsumerWidget {
                     onTap: pickNextDueDate,
                   ),
                   const SizedBox(height: 12),
-                  AuthTextField(
+                  DfTextField(
                     controller: notesController,
                     label: 'Observação (opcional)',
                     hint: 'Troca de óleo sintético 5W30',

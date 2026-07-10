@@ -11,6 +11,7 @@ import '../../../../shared/widgets/design_system/df_goal_period_chips.dart';
 import '../../../../shared/widgets/design_system/df_header_row.dart';
 import '../../../../shared/widgets/design_system/df_hero_wealth_card.dart';
 import '../../../../shared/widgets/design_system/df_section_header.dart';
+import '../../../../shared/widgets/design_system/df_skeleton.dart';
 import '../../../../shared/widgets/design_system/df_tab_scroll_view.dart';
 import '../providers/reports_providers.dart';
 import '../widgets/report_export_actions.dart';
@@ -48,7 +49,7 @@ class ReportsScreen extends ConsumerWidget {
               ref.read(reportPeriodProvider.notifier).state = p,
         ),
         reportAsync.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => const DfSkeleton(itemCount: 1),
           error: (e, _) => Text('Erro: $e'),
           data: (report) => DfHeroWealthCard(
             label: 'Lucro no período',
@@ -64,7 +65,7 @@ class ReportsScreen extends ConsumerWidget {
         ),
         const DfSectionHeader(title: 'Comparação', eyebrow: 'Período'),
         comparisonAsync.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => const DfSkeleton(itemCount: 2),
           error: (e, _) => Text('Erro: $e'),
           data: (comparison) => PeriodComparisonCard(comparison: comparison),
         ),
@@ -73,7 +74,7 @@ class ReportsScreen extends ConsumerWidget {
           eyebrow: 'Categorias',
         ),
         breakdownAsync.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => const DfSkeleton(itemCount: 3),
           error: (e, _) => Text('Erro: $e'),
           data: (slices) => ExpensePieChart(slices: slices),
         ),

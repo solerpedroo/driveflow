@@ -9,8 +9,9 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../../core/utils/validators.dart';
-import '../../../authentication/presentation/widgets/auth_primary_button.dart';
-import '../../../authentication/presentation/widgets/auth_text_field.dart';
+
+import '../../../../shared/widgets/design_system/df_button.dart';
+import '../../../../shared/widgets/design_system/df_text_field.dart';
 import '../../domain/entities/receipt_scan_result.dart';
 import '../providers/receipt_ocr_providers.dart';
 import '../../../../shared/widgets/design_system/df_filter_pill.dart';
@@ -141,7 +142,7 @@ class ReceiptScanReviewSheet extends HookConsumerWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              AuthTextField(
+              DfTextField(
                 controller: amountController,
                 label: 'Valor (R\$)',
                 hint: 'R\$ 45,00',
@@ -159,7 +160,7 @@ class ReceiptScanReviewSheet extends HookConsumerWidget {
                 ),
               ],
               const SizedBox(height: 12),
-              AuthTextField(
+              DfTextField(
                 controller: descriptionController,
                 label: 'Estabelecimento / descrição',
                 hint: 'Nome do local',
@@ -196,7 +197,7 @@ class ReceiptScanReviewSheet extends HookConsumerWidget {
                 }).toList(growable: false),
               ),
               const SizedBox(height: 20),
-              AuthPrimaryButton(
+              DfButton(
                 label: 'Usar estes dados',
                 onPressed: confirm,
               ),

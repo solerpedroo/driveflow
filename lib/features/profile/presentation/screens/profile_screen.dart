@@ -22,6 +22,7 @@ import '../../../../shared/widgets/design_system/df_empty_state.dart';
 import '../../../../shared/widgets/design_system/df_hero_wealth_card.dart';
 import '../../../../shared/widgets/design_system/df_grouped_section.dart';
 import '../../../../shared/widgets/design_system/df_header_row.dart';
+import '../../../../shared/widgets/design_system/df_skeleton.dart';
 import '../../../../shared/widgets/design_system/df_tab_scroll_view.dart';
 import '../../../../shared/widgets/design_system/df_text_field.dart';
 import '../../../dashboard/presentation/providers/dashboard_providers.dart';
@@ -104,7 +105,7 @@ class ProfileScreen extends HookConsumerWidget {
           ),
           const ProfilePlanCard(),
           vehiclesAsync.when(
-            loading: () => const Center(child: CircularProgressIndicator()),
+            loading: () => const DfSkeleton(itemCount: 2),
             error: (e, _) => Text('Erro ao carregar veículos: $e'),
             data: (vehicles) => _VehiclesSection(
               vehicles: vehicles,

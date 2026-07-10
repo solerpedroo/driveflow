@@ -11,6 +11,7 @@ import '../../../../shared/widgets/design_system/df_expandable_list_section.dart
 import '../../../../shared/widgets/design_system/df_hero_wealth_card.dart';
 import '../../../../shared/widgets/design_system/df_movimentacao_tile.dart';
 import '../../../../shared/widgets/design_system/df_pill_action_button.dart';
+import '../../../../shared/widgets/design_system/df_skeleton.dart';
 import '../../../../shared/widgets/design_system/df_subpage_scaffold.dart';
 import '../../../vehicle/presentation/providers/vehicle_providers.dart';
 import '../../domain/entities/maintenance_entity.dart';
@@ -71,7 +72,7 @@ class MaintenanceHistoryScreen extends ConsumerWidget {
           ],
         ),
         recordsAsync.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => const DfSkeleton(itemCount: 3),
           error: (e, _) => Text('Erro: $e'),
           data: (records) {
             if (records.isEmpty) {

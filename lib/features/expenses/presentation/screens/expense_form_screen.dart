@@ -12,7 +12,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../../core/utils/validators.dart';
-import '../../../authentication/presentation/widgets/auth_text_field.dart';
+import '../../../../shared/widgets/design_system/df_text_field.dart';
 import '../../../vehicle/presentation/providers/vehicle_providers.dart';
 import '../../domain/entities/expense_entity.dart';
 import '../providers/expenses_providers.dart';
@@ -188,7 +188,7 @@ class ExpenseFormScreen extends HookConsumerWidget {
                       }).toList(growable: false),
                     ),
                     const SizedBox(height: 16),
-                    AuthTextField(
+                    DfTextField(
                       controller: amountController,
                       label: 'Valor (R\$)',
                       hint: 'R\$ 45,00',
@@ -197,7 +197,7 @@ class ExpenseFormScreen extends HookConsumerWidget {
                       validator: Validators.brlAmount,
                     ),
                     const SizedBox(height: 12),
-                    AuthTextField(
+                    DfTextField(
                       controller: descriptionController,
                       label: 'Descrição (opcional)',
                       hint: 'Pedágio BR-101',

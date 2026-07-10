@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../shared/widgets/driveflow_gradient_background.dart';
 import '../providers/auth_providers.dart';
 import 'login_screen.dart';
 
@@ -13,18 +14,27 @@ class AuthGateScreen extends ConsumerWidget {
     final auth = ref.watch(authStateProvider);
 
     return auth.when(
-      loading: () => const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
+      loading: () => const DriveFlowGradientBackground(
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          body: Center(child: CircularProgressIndicator()),
+        ),
       ),
-      error: (error, _) => Scaffold(
-        body: Center(child: Text('Erro ao verificar sessão: $error')),
+      error: (error, _) => DriveFlowGradientBackground(
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          body: Center(child: Text('Erro ao verificar sessão: $error')),
+        ),
       ),
       data: (user) {
         if (user == null) {
           return const LoginScreen();
         }
-        return const Scaffold(
-          body: Center(child: CircularProgressIndicator()),
+        return const DriveFlowGradientBackground(
+          child: Scaffold(
+            backgroundColor: Colors.transparent,
+            body: Center(child: CircularProgressIndicator()),
+          ),
         );
       },
     );

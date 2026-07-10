@@ -7,11 +7,11 @@ import '../../../../core/constants/ride_platforms.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/value_visibility_provider.dart';
+import '../../../../shared/widgets/design_system/df_hero_wealth_card.dart';
 import '../../../../shared/widgets/design_system/df_empty_state.dart';
 import '../../../../shared/widgets/design_system/df_expandable_list_section.dart';
 import '../../../../shared/widgets/design_system/df_filter_pill.dart';
 import '../../../../shared/widgets/design_system/df_header_row.dart';
-import '../../../../shared/widgets/design_system/df_hero_wealth_card.dart';
 import '../../../../shared/widgets/design_system/df_pill_action_button.dart';
 import '../../../../shared/widgets/design_system/df_skeleton.dart';
 import '../../../../shared/widgets/design_system/df_tab_scroll_view.dart';
@@ -32,8 +32,20 @@ class EarningsScreen extends ConsumerWidget {
     final hidden = ref.watch(valueVisibilityHiddenProvider);
 
     return earningsAsync.when(
-      loading: () => const Center(child: DfSkeleton(itemCount: 4)),
-      error: (e, _) => Center(child: Text('Erro: $e')),
+      loading: () => const DfTabScrollView(
+        children: [
+          DfHeaderRow(),
+          DfScreenTitleRow(title: 'Ganhos'),
+          DfSkeleton(itemCount: 4),
+        ],
+      ),
+      error: (e, _) => DfTabScrollView(
+        children: [
+          const DfHeaderRow(),
+          const DfScreenTitleRow(title: 'Ganhos'),
+          Text('Erro: $e'),
+        ],
+      ),
       data: (earnings) => DfTabScrollView(
           onRefresh: () async {
             await ref.read(earningsRepositoryProvider).fetchEarnings();
@@ -50,7 +62,7 @@ class EarningsScreen extends ConsumerWidget {
             totalAsync.when(
               loading: () => const SizedBox(
                 height: 140,
-                child: Center(child: CircularProgressIndicator()),
+                child: DfSkeleton(itemCount: 1),
               ),
               error: (_, __) => const SizedBox.shrink(),
               data: (total) => DfHeroWealthCard(

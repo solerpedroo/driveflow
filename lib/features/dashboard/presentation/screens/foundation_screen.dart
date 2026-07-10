@@ -9,10 +9,10 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/theme_mode_provider.dart';
 import '../../../../shared/widgets/driveflow_brand_logo.dart';
 import '../../../../shared/widgets/design_system/df_button.dart';
+import '../../../../shared/widgets/design_system/df_chip.dart';
 import '../../../../shared/widgets/design_system/df_filter_pill.dart';
 import '../../../../shared/widgets/design_system/df_card.dart';
 import '../../../../shared/widgets/driveflow_gradient_background.dart';
-import '../../../../shared/widgets/driveflow_metric_chip.dart';
 
 /// Tela foundation da Onda 0 — showcase do design system + status do projeto.
 class FoundationScreen extends HookConsumerWidget {
@@ -53,19 +53,11 @@ class FoundationScreen extends HookConsumerWidget {
                       if (user != null)
                         Padding(
                           padding: const EdgeInsets.only(right: 8),
-                          child: Chip(
-                            avatar: CircleAvatar(
-                              backgroundColor:
-                                  AppColors.electricTeal.withValues(alpha: 0.2),
-                              child: Text(
-                                user.displayName.characters.first.toUpperCase(),
-                                style: const TextStyle(
-                                  color: AppColors.electricTeal,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                            label: Text(user.displayName),
+                          child: DfChip(
+                            label: 'Motorista',
+                            value: user.displayName,
+                            accentColor: AppColors.electricTeal,
+                            icon: Icons.person_outline_rounded,
                           ),
                         ),
                       IconButton.filledTonal(
@@ -137,25 +129,25 @@ class FoundationScreen extends HookConsumerWidget {
                     childAspectRatio: 1.65,
                   ),
                   delegate: SliverChildListDelegate.fixed([
-                    const DriveFlowMetricChip(
+                    const DfChip(
                       label: 'Lucro hoje',
                       value: 'R\$ 248,50',
                       accentColor: AppColors.profitGreen,
                       icon: Icons.trending_up_rounded,
                     ),
-                    const DriveFlowMetricChip(
+                    const DfChip(
                       label: 'Custo / km',
                       value: 'R\$ 0,42',
                       accentColor: AppColors.expenseCoral,
                       icon: Icons.route_rounded,
                     ),
-                    DriveFlowMetricChip(
+                    const DfChip(
                       label: 'Horas',
                       value: '6h 20m',
                       accentColor: AppColors.infoBlue,
                       icon: Icons.schedule_rounded,
                     ),
-                    DriveFlowMetricChip(
+                    const DfChip(
                       label: 'Meta diária',
                       value: '72%',
                       accentColor: AppColors.warningAmber,

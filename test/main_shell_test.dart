@@ -76,7 +76,7 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
 
-    expect(find.text('COCKPIT ATIVO'), findsOneWidget);
+    expect(find.text('Seu painel financeiro'), findsOneWidget);
     expect(find.text('Ganhos'), findsWidgets);
 
     await tester.tap(

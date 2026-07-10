@@ -10,7 +10,6 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../shared/widgets/design_system/df_button.dart';
 import '../../../../shared/widgets/design_system/df_card.dart';
 import '../../../../shared/widgets/design_system/df_expandable_list_section.dart';
-import '../../../../shared/widgets/design_system/df_header_row.dart';
 import '../../../../shared/widgets/design_system/df_pill_action_button.dart';
 import '../../../../shared/widgets/design_system/df_section_header.dart';
 import '../../../../shared/widgets/design_system/df_subpage_scaffold.dart';
@@ -117,7 +116,6 @@ class PlatformIntegrationsScreen extends ConsumerWidget {
         await ref.read(platformIntegrationRepositoryProvider).fetchConnections();
       },
       children: [
-        const DfHeaderRow(showTagline: false),
         DfCard(
           variant: DfCardVariant.hero,
           child: Row(

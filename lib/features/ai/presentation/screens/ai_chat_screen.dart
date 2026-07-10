@@ -1,24 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../../core/theme/app_colors.dart';
-import '../../../../shared/widgets/driveflow_gradient_background.dart';
+import '../../../../shared/widgets/design_system/df_skeleton.dart';
+import '../../../../shared/widgets/design_system/df_subpage_scaffold.dart';
 import '../providers/ai_providers.dart';
 import '../widgets/ai_chat_composer.dart';
 import '../widgets/ai_chat_story_hero.dart';
 import '../widgets/ai_message_bubble.dart';
 import '../widgets/ai_suggestion_chips.dart';
 
-/// Chat contextual com assistente DriveFlow — layout Mescla (gradiente + header).
+/// Chat contextual com assistente DriveFlow — DfSubpageScaffold + composer fixo.
 class AiChatScreen extends HookConsumerWidget {
   const AiChatScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final brightness = theme.brightness;
     final historyAsync = ref.watch(aiHistoryStreamProvider);
     final mutation = ref.watch(aiChatControllerProvider);
     final controller = useTextEditingController();
@@ -49,92 +48,75 @@ class AiChatScreen extends HookConsumerWidget {
       }
     }
 
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: brightness == Brightness.dark
-          ? AppColors.darkOverlay
-          : AppColors.lightOverlay,
-      child: DriveFlowGradientBackground(
-        child: Scaffold(
-          backgroundColor: Colors.transparent,
-          appBar: AppBar(
-            backgroundColor: Colors.transparent,
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
-              onPressed: () => Navigator.maybePop(context),
-            ),
-            title: Text(
-              'Assistente DriveFlow',
-              style: theme.textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w700,
-              ),
-            ),
+    return DfSubpageScaffold(
+      title: 'Assistente DriveFlow',
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+            child: AiSuggestionChips(onSelected: submit),
           ),
-          body: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
-                child: AiSuggestionChips(onSelected: submit),
+          Expanded(
+            child: historyAsync.when(
+              loading: () => const Padding(
+                padding: EdgeInsets.all(16),
+                child: DfSkeleton(itemCount: 3),
               ),
-              Expanded(
-                child: historyAsync.when(
-                  loading: () => const Center(child: CircularProgressIndicator()),
-                  error: (e, _) => Center(child: Text('Erro: $e')),
-                  data: (history) {
-                    if (history.isEmpty && !mutation.isLoading) {
-                      return const AiChatStoryHero();
+              error: (e, _) => Center(child: Text('Erro: $e')),
+              data: (history) {
+                if (history.isEmpty && !mutation.isLoading) {
+                  return const AiChatStoryHero();
+                }
+
+                return ListView.builder(
+                  controller: scrollController,
+                  reverse: true,
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                  itemCount: history.length + (mutation.isLoading ? 1 : 0),
+                  itemBuilder: (context, index) {
+                    if (mutation.isLoading && index == 0) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        child: Row(
+                          children: [
+                            const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            ),
+                            const SizedBox(width: 10),
+                            Text(
+                              'Analisando seus dados...',
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: AppColors.secondaryLabel(theme),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
                     }
 
-                    return ListView.builder(
-                      controller: scrollController,
-                      reverse: true,
-                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                      itemCount: history.length + (mutation.isLoading ? 1 : 0),
-                      itemBuilder: (context, index) {
-                        if (mutation.isLoading && index == 0) {
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            child: Row(
-                              children: [
-                                const SizedBox(
-                                  width: 18,
-                                  height: 18,
-                                  child: CircularProgressIndicator(strokeWidth: 2),
-                                ),
-                                const SizedBox(width: 10),
-                                Text(
-                                  'Analisando seus dados...',
-                                  style: theme.textTheme.bodyMedium?.copyWith(
-                                    color: AppColors.secondaryLabel(theme),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        }
-
-                        final itemIndex = mutation.isLoading ? index - 1 : index;
-                        final message = history[itemIndex];
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            AiMessageBubble(text: message.question, isUser: true),
-                            AiMessageBubble(text: message.answer, isUser: false),
-                            const SizedBox(height: 8),
-                          ],
-                        );
-                      },
+                    final itemIndex = mutation.isLoading ? index - 1 : index;
+                    final message = history[itemIndex];
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        AiMessageBubble(text: message.question, isUser: true),
+                        AiMessageBubble(text: message.answer, isUser: false),
+                        const SizedBox(height: 8),
+                      ],
                     );
                   },
-                ),
-              ),
-              AiChatComposer(
-                controller: controller,
-                isLoading: mutation.isLoading,
-                onSubmit: () => submit(),
-              ),
-            ],
+                );
+              },
+            ),
           ),
-        ),
+          AiChatComposer(
+            controller: controller,
+            isLoading: mutation.isLoading,
+            onSubmit: () => submit(),
+          ),
+        ],
       ),
     );
   }

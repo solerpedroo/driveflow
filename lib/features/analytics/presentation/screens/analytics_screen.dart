@@ -19,6 +19,7 @@ import '../../../../shared/widgets/design_system/df_hero_wealth_card.dart';
 import '../../../../shared/widgets/design_system/df_section_header.dart';
 import '../../../../shared/widgets/design_system/df_goal_period_chips.dart';
 import '../../../../shared/widgets/design_system/df_period_pill_chip.dart';
+import '../../../../shared/widgets/design_system/df_skeleton.dart';
 import '../../../../shared/widgets/design_system/df_subpage_scaffold.dart';
 
 /// Análises avançadas — layout Mescla com hero e seções.
@@ -69,7 +70,7 @@ class AnalyticsScreen extends ConsumerWidget {
               ref.read(analyticsTrendWindowProvider.notifier).state = w,
         ),
         trendAsync.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => const DfSkeleton(itemCount: 3),
           error: (e, _) => Text('Erro: $e'),
           data: (points) => ProfitTrendChart(
             points: points,
@@ -77,7 +78,7 @@ class AnalyticsScreen extends ConsumerWidget {
           ),
         ),
         forecastAsync.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => const DfSkeleton(itemCount: 3),
           error: (e, _) => Text('Erro: $e'),
           data: (forecast) => ProfitForecastCard(
             forecast: forecast,
@@ -102,7 +103,7 @@ class AnalyticsScreen extends ConsumerWidget {
               .state = r,
         ),
         comparisonAsync.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => const DfSkeleton(itemCount: 3),
           error: (e, _) => Text('Erro: $e'),
           data: (comparison) => Column(
             children: [
@@ -118,7 +119,7 @@ class AnalyticsScreen extends ConsumerWidget {
           eyebrow: 'Categorias',
         ),
         breakdownAsync.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => const DfSkeleton(itemCount: 3),
           error: (e, _) => Text('Erro: $e'),
           data: (slices) => ExpensePieChart(slices: slices),
         ),

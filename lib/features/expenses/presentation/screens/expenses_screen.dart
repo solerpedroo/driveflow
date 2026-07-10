@@ -6,10 +6,10 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/value_visibility_provider.dart';
+import '../../../../shared/widgets/design_system/df_hero_wealth_card.dart';
 import '../../../../shared/widgets/design_system/df_empty_state.dart';
 import '../../../../shared/widgets/design_system/df_expandable_list_section.dart';
 import '../../../../shared/widgets/design_system/df_header_row.dart';
-import '../../../../shared/widgets/design_system/df_hero_wealth_card.dart';
 import '../../../../shared/widgets/design_system/df_pill_action_button.dart';
 import '../../../../shared/widgets/design_system/df_skeleton.dart';
 import '../../../../shared/widgets/design_system/df_tab_scroll_view.dart';
@@ -29,8 +29,20 @@ class ExpensesScreen extends ConsumerWidget {
     final hidden = ref.watch(valueVisibilityHiddenProvider);
 
     return groupedAsync.when(
-      loading: () => const Center(child: DfSkeleton(itemCount: 4)),
-      error: (e, _) => Center(child: Text('Erro: $e')),
+      loading: () => const DfTabScrollView(
+        children: [
+          DfHeaderRow(),
+          DfScreenTitleRow(title: 'Despesas'),
+          DfSkeleton(itemCount: 4),
+        ],
+      ),
+      error: (e, _) => DfTabScrollView(
+        children: [
+          const DfHeaderRow(),
+          const DfScreenTitleRow(title: 'Despesas'),
+          Text('Erro: $e'),
+        ],
+      ),
       data: (grouped) {
           final categories = grouped.keys.toList()
             ..sort((a, b) => a.label.compareTo(b.label));
@@ -55,7 +67,7 @@ class ExpensesScreen extends ConsumerWidget {
               totalAsync.when(
                 loading: () => const SizedBox(
                   height: 140,
-                  child: Center(child: CircularProgressIndicator()),
+                  child: DfSkeleton(itemCount: 1),
                 ),
                 error: (_, __) => const SizedBox.shrink(),
                 data: (total) => DfHeroWealthCard(
