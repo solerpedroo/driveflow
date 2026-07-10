@@ -17,7 +17,8 @@ import '../widgets/profit_forecast_card.dart';
 import '../widgets/profit_trend_chart.dart';
 import '../../../../shared/widgets/design_system/df_hero_wealth_card.dart';
 import '../../../../shared/widgets/design_system/df_section_header.dart';
-import '../../../../shared/widgets/design_system/df_segmented_control.dart';
+import '../../../../shared/widgets/design_system/df_goal_period_chips.dart';
+import '../../../../shared/widgets/design_system/df_period_pill_chip.dart';
 import '../../../../shared/widgets/design_system/df_subpage_scaffold.dart';
 
 /// Análises avançadas — layout Mescla com hero e seções.
@@ -63,15 +64,12 @@ class AnalyticsScreen extends ConsumerWidget {
           ),
         ),
         const DfSectionHeader(title: 'Tendência de lucro', eyebrow: 'Gráfico'),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: DfSegmentedControl<TrendWindow>(
-            segments: TrendWindow.values,
-            selected: trendWindow,
-            labelBuilder: (w) => w.label,
-            onChanged: (w) =>
-                ref.read(analyticsTrendWindowProvider.notifier).state = w,
-          ),
+        DfPeriodPillRow<TrendWindow>(
+          segments: TrendWindow.values,
+          selected: trendWindow,
+          labelBuilder: (w) => w.label,
+          onChanged: (w) =>
+              ref.read(analyticsTrendWindowProvider.notifier).state = w,
         ),
         trendAsync.when(
           loading: () => const Center(child: CircularProgressIndicator()),
@@ -93,26 +91,18 @@ class AnalyticsScreen extends ConsumerWidget {
           ),
         ),
         const DfSectionHeader(title: 'Comparar períodos', eyebrow: 'Análise'),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: DfSegmentedControl<GoalPeriod>(
-            segments: GoalPeriod.values,
-            selected: period,
-            labelBuilder: (p) => p.label,
-            onChanged: (p) =>
-                ref.read(analyticsPeriodProvider.notifier).state = p,
-          ),
+        DfGoalPeriodChips(
+          selected: period,
+          onChanged: (p) =>
+              ref.read(analyticsPeriodProvider.notifier).state = p,
         ),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: DfSegmentedControl<ComparisonReference>(
-            segments: ComparisonReference.values,
-            selected: reference,
-            labelBuilder: (r) => r.label,
-            onChanged: (r) => ref
-                .read(analyticsComparisonReferenceProvider.notifier)
-                .state = r,
-          ),
+        DfPeriodPillRow<ComparisonReference>(
+          segments: ComparisonReference.values,
+          selected: reference,
+          labelBuilder: (r) => r.label,
+          onChanged: (r) => ref
+              .read(analyticsComparisonReferenceProvider.notifier)
+              .state = r,
         ),
         comparisonAsync.when(
           loading: () => const Center(child: CircularProgressIndicator()),
