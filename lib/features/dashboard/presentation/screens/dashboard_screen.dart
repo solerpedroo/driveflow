@@ -31,6 +31,7 @@ import '../../../../shared/widgets/design_system/df_pill_action_button.dart';
 import '../../../../shared/widgets/design_system/df_section_header.dart';
 import '../../../../shared/widgets/design_system/df_skeleton.dart';
 import '../../../../shared/widgets/design_system/df_tab_scroll_view.dart';
+import '../../../onboarding/presentation/providers/onboarding_providers.dart';
 import '../providers/dashboard_providers.dart';
 import '../../../integrations/presentation/widgets/dashboard_platform_mix_card.dart';
 import '../../../integrations/presentation/widgets/dashboard_platform_chip.dart';
@@ -70,6 +71,7 @@ class DashboardScreen extends HookConsumerWidget {
     final topPrediction =
         ref.watch(topMaintenancePredictionProvider).valueOrNull;
     final hidden = ref.watch(valueVisibilityHiddenProvider);
+    final isTaxiDriver = ref.watch(isTaxiDriverProvider);
 
     final displayName = user?.displayName ?? 'motorista';
     final greeting = useMemoized(
@@ -84,6 +86,7 @@ class DashboardScreen extends HookConsumerWidget {
         data: (goal) => _DashboardBody(
           greeting: greeting,
           hidden: hidden,
+          isTaxiDriver: isTaxiDriver,
           onToggleVisibility: () => ref
               .read(valueVisibilityHiddenProvider.notifier)
               .state = !hidden,
@@ -99,6 +102,7 @@ class DashboardScreen extends HookConsumerWidget {
         error: (_, __) => _DashboardBody(
           greeting: greeting,
           hidden: hidden,
+          isTaxiDriver: isTaxiDriver,
           onToggleVisibility: () => ref
               .read(valueVisibilityHiddenProvider.notifier)
               .state = !hidden,
@@ -124,6 +128,7 @@ class _DashboardBody extends StatelessWidget {
   const _DashboardBody({
     required this.greeting,
     required this.hidden,
+    required this.isTaxiDriver,
     required this.onToggleVisibility,
     required this.snapshot,
     required this.goal,
@@ -136,6 +141,7 @@ class _DashboardBody extends StatelessWidget {
 
   final String greeting;
   final bool hidden;
+  final bool isTaxiDriver;
   final VoidCallback onToggleVisibility;
   final DashboardSnapshot snapshot;
   final GoalProgress goal;
@@ -198,8 +204,10 @@ class _DashboardBody extends StatelessWidget {
           weekProfits: snapshot.weekProfits,
           hideValue: hidden,
         ),
-        const DashboardPlatformChip(),
-        const PlatformGoalProgressCard(),
+        if (!isTaxiDriver) ...[
+          const DashboardPlatformChip(),
+          const PlatformGoalProgressCard(),
+        ],
         const Align(
           alignment: Alignment.centerLeft,
           child: VehicleScopeChip(),
@@ -221,24 +229,32 @@ class _DashboardBody extends StatelessWidget {
               label: 'Relatórios',
               onTap: () => context.go('${AppRoutes.home}?tab=reports'),
             ),
-            DfPillActionButton(
-              icon: Icons.hub_outlined,
-              label: 'Integrações',
-              onTap: () => context.push(AppRoutes.platformIntegrations),
-            ),
+            if (isTaxiDriver)
+              DfPillActionButton(
+                icon: Icons.flag_outlined,
+                label: 'Metas',
+                onTap: () => context.push(AppRoutes.goals),
+              )
+            else
+              DfPillActionButton(
+                icon: Icons.hub_outlined,
+                label: 'Integrações',
+                onTap: () => context.push(AppRoutes.platformIntegrations),
+              ),
           ],
         ),
-        const Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            DfSectionHeader(
-              title: 'Mix de plataformas',
-              eyebrow: 'Hoje',
-            ),
-            SizedBox(height: AppSpacing.md),
-            DashboardPlatformMixCard(),
-          ],
-        ),
+        if (!isTaxiDriver)
+          const Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              DfSectionHeader(
+                title: 'Mix de plataformas',
+                eyebrow: 'Hoje',
+              ),
+              SizedBox(height: AppSpacing.md),
+              DashboardPlatformMixCard(),
+            ],
+          ),
         WeeklyProfitChart(points: snapshot.weekProfits),
         MonthSummaryCard(summary: month, hideHeroProfit: true),
         if (topSlots.isNotEmpty || topPrediction != null)
