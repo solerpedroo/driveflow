@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:driveflow/core/theme/app_theme.dart';
 import 'package:driveflow/features/authentication/presentation/screens/login_screen.dart';
+import 'package:driveflow/shared/widgets/design_system/df_button.dart';
 
 void main() {
   testWidgets('LoginScreen renders form fields and actions', (tester) async {
@@ -32,8 +33,9 @@ void main() {
       ),
     );
 
-    await tester.tap(find.widgetWithText(FilledButton, 'Entrar'));
-    await tester.pump();
+    await tester.ensureVisible(find.byType(DfButton).first);
+    await tester.tap(find.byType(DfButton).first);
+    await tester.pumpAndSettle();
 
     expect(find.text('Informe seu e-mail'), findsOneWidget);
   });

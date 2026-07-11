@@ -5,14 +5,14 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_elevation.dart';
 import '../../../core/theme/app_radius.dart';
 
-/// Superfície glass reutilizável — frosted blur para nav, composer, sheets.
+/// Superfície glass — frosted translúcido para nav, composer e sheets.
 class DfGlassSurface extends StatelessWidget {
   const DfGlassSurface({
     required this.child,
     super.key,
     this.borderRadius,
     this.padding,
-    this.sigma = 22,
+    this.sigma = 24,
   });
 
   final Widget child;
@@ -25,8 +25,8 @@ class DfGlassSurface extends StatelessWidget {
     final brightness = Theme.of(context).brightness;
     final radius = borderRadius ?? AppRadius.xlAll;
     final fill = brightness == Brightness.dark
-        ? Colors.white.withValues(alpha: 0.06)
-        : Colors.white.withValues(alpha: 0.72);
+        ? Colors.white.withValues(alpha: 0.08)
+        : Colors.white.withValues(alpha: 0.62);
 
     return ClipRRect(
       borderRadius: radius,
@@ -39,7 +39,9 @@ class DfGlassSurface extends StatelessWidget {
             border: AppElevation.rimLight(brightness),
             boxShadow: AppElevation.navShellShadow(brightness),
           ),
-          child: padding == null ? child : Padding(padding: padding!, child: child),
+          child: padding == null
+              ? child
+              : Padding(padding: padding!, child: child),
         ),
       ),
     );

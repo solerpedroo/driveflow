@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_spacing.dart';
 
-/// Padding padrão das abas — alinhado ao Mescla (20h, 8t, 24 entre seções).
+/// Padding padrão das abas — ritmo vertical unificado.
 abstract final class DfScreenBody {
   static const EdgeInsets padding = EdgeInsets.fromLTRB(
     AppSpacing.screenHorizontal,
-    AppSpacing.sm,
+    AppSpacing.md,
     AppSpacing.screenHorizontal,
-    AppSpacing.lg,
+    AppSpacing.xl,
   );
 
-  static const double sectionGap = 24;
+  static const double sectionGap = AppSpacing.sectionGap;
 }

@@ -14,7 +14,7 @@ import '../../../../shared/widgets/design_system/df_card.dart';
 import '../../../../shared/widgets/design_system/df_hero_metric.dart';
 import '../../../../shared/widgets/design_system/df_progress_ring.dart';
 
-/// Hero do dashboard — anel de meta + lucro central (padrão FitCal calorie ring).
+/// Seção Hoje — anel de meta + lucro do dia (narrativa única).
 class DashboardHeroSection extends StatelessWidget {
   const DashboardHeroSection({
     required this.summary,
@@ -57,12 +57,12 @@ class DashboardHeroSection extends StatelessWidget {
         : 'Lucro do dia';
 
     return DfCard(
-      variant: DfCardVariant.hero,
+      variant: DfCardVariant.elevated,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Seu lucro hoje',
+            'Hoje',
             style: theme.textTheme.headlineSmall?.copyWith(
               fontWeight: FontWeight.w700,
               letterSpacing: -0.4,
@@ -80,8 +80,8 @@ class DashboardHeroSection extends StatelessWidget {
           Center(
             child: DfProgressRing(
               progress: ringProgress,
-              size: 196,
-              strokeWidth: 12,
+              size: 180,
+              strokeWidth: 11,
               accentColor: ringColor,
               child: DfHeroMetric(
                 value: profitDisplay,
@@ -164,9 +164,9 @@ class _MacroPill extends StatelessWidget {
         vertical: AppSpacing.md,
       ),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.10),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withValues(alpha: 0.22)),
+        color: color.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: color.withValues(alpha: 0.16)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

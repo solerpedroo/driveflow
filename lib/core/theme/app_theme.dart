@@ -65,7 +65,7 @@ ThemeData buildDriveFlowLightTheme() {
     scaffoldBackgroundColor: AppColors.iosGroupedBackground,
     pageTransitionsTheme: driveFlowPageTransitionsTheme,
     splashFactory: NoSplash.splashFactory,
-    highlightColor: AppColors.brandBlue.withValues(alpha: 0.08),
+    highlightColor: AppColors.brandBlue.withValues(alpha: 0.06),
     appBarTheme: AppBarTheme(
       elevation: 0,
       scrolledUnderElevation: 0,
@@ -92,7 +92,7 @@ ThemeData buildDriveFlowLightTheme() {
         minimumSize: const Size.fromHeight(50),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(14),
         ),
         textStyle: AppTypography.iosHeadline(Brightness.light).copyWith(
           color: Colors.white,
@@ -104,20 +104,20 @@ ThemeData buildDriveFlowLightTheme() {
       filled: true,
       fillColor: AppColors.iosSecondaryGrouped,
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(12),
         borderSide: BorderSide.none,
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: AppColors.iosSeparator),
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: AppColors.lightBorder),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(12),
         borderSide: const BorderSide(color: AppColors.brandBlue, width: 1.5),
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       hintStyle: AppTypography.iosBody(Brightness.light).copyWith(
-        color: const Color(0xFF8E8E93),
+        color: const Color(0xFF6B7280),
       ),
     ),
     listTileTheme: const ListTileThemeData(
@@ -153,7 +153,7 @@ ThemeData buildDriveFlowDarkTheme() {
     scaffoldBackgroundColor: AppColors.iosGroupedBackgroundDark,
     pageTransitionsTheme: driveFlowPageTransitionsTheme,
     splashFactory: NoSplash.splashFactory,
-    highlightColor: AppColors.brandBlue.withValues(alpha: 0.12),
+    highlightColor: AppColors.brandBlue.withValues(alpha: 0.10),
     appBarTheme: AppBarTheme(
       elevation: 0,
       scrolledUnderElevation: 0,
@@ -180,7 +180,7 @@ ThemeData buildDriveFlowDarkTheme() {
         minimumSize: const Size.fromHeight(50),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(14),
         ),
         textStyle: AppTypography.iosHeadline(Brightness.dark).copyWith(
           color: Colors.white,
@@ -192,20 +192,20 @@ ThemeData buildDriveFlowDarkTheme() {
       filled: true,
       fillColor: AppColors.iosSecondaryGroupedDark,
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(12),
         borderSide: BorderSide.none,
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(12),
         borderSide: const BorderSide(color: AppColors.iosSeparatorDark),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(12),
         borderSide: const BorderSide(color: AppColors.brandBlue, width: 1.5),
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       hintStyle: AppTypography.iosBody(Brightness.dark).copyWith(
-        color: const Color(0xFF8E8E93),
+        color: const Color(0xFF98989F),
       ),
     ),
     listTileTheme: const ListTileThemeData(

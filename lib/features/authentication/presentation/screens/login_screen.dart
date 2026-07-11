@@ -17,7 +17,7 @@ import '../providers/auth_providers.dart';
 import '../widgets/auth_benefits_strip.dart';
 import '../widgets/auth_hero_layout.dart';
 
-/// Login premium — layout editorial FitCal com CTA gradiente.
+/// Login — tipografia limpa, CTA com profundidade, Google mark oficial.
 class LoginScreen extends HookConsumerWidget {
   const LoginScreen({
     super.key,
@@ -69,7 +69,7 @@ class LoginScreen extends HookConsumerWidget {
     return AuthHeroLayout(
       headline: 'Controle seu\nlucro diário',
       subtitle:
-          'Acompanhe ganhos, despesas e metas com a precisão de um app premium.',
+          'Ganhos, despesas e metas em um painel feito para a rotina do motorista.',
       middleChild: const AuthBenefitsStrip(),
       formChild: Form(
         key: formKey,
@@ -157,23 +157,49 @@ class _GoogleMark extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 20,
-      height: 20,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: const Color(0xFFE8EAED)),
-      ),
-      child: const Text(
-        'G',
-        style: TextStyle(
-          color: Color(0xFF4285F4),
-          fontWeight: FontWeight.w700,
-          fontSize: 13,
-        ),
-      ),
+    return SizedBox(
+      width: 18,
+      height: 18,
+      child: CustomPaint(painter: _GoogleGPainter()),
     );
   }
+}
+
+/// Marca Google simplificada com cores oficiais (não “G” tipográfico).
+class _GoogleGPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final stroke = size.width * 0.18;
+    final rect = Offset(stroke / 2, stroke / 2) &
+        Size(size.width - stroke, size.height - stroke);
+    final paint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = stroke
+      ..strokeCap = StrokeCap.butt;
+
+    paint.color = const Color(0xFF4285F4);
+    canvas.drawArc(rect, -0.4, 1.6, false, paint);
+    paint.color = const Color(0xFF34A853);
+    canvas.drawArc(rect, 1.2, 1.2, false, paint);
+    paint.color = const Color(0xFFFBBC05);
+    canvas.drawArc(rect, 2.4, 0.9, false, paint);
+    paint.color = const Color(0xFFEA4335);
+    canvas.drawArc(rect, 3.3, 1.0, false, paint);
+
+    final bar = Paint()
+      ..color = const Color(0xFF4285F4)
+      ..style = PaintingStyle.fill;
+    canvas.drawRect(
+      Rect.fromLTWH(
+        size.width * 0.48,
+        size.height * 0.42,
+        size.width * 0.42,
+        stroke,
+      ),
+      bar,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

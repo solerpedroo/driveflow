@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../core/theme/app_typography.dart';
 
-/// Métrica hero com tipografia editorial — padrão FitCal daily summary.
+/// Métrica hero — tipografia Geist com tabular figures.
 class DfHeroMetric extends StatelessWidget {
   const DfHeroMetric({
     required this.value,
@@ -23,6 +24,7 @@ class DfHeroMetric extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final brightness = theme.brightness;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -30,11 +32,10 @@ class DfHeroMetric extends StatelessWidget {
       children: [
         Text(
           value,
-          style: theme.textTheme.displaySmall?.copyWith(
-            fontWeight: FontWeight.w800,
-            letterSpacing: -1.2,
+          style: AppTypography.metric(
+            brightness,
+            fontSize: 26,
             color: valueColor ?? theme.colorScheme.onSurface,
-            height: 1.0,
           ),
           textAlign: alignment == CrossAxisAlignment.center
               ? TextAlign.center
@@ -47,6 +48,9 @@ class DfHeroMetric extends StatelessWidget {
             color: AppColors.secondaryLabel(theme),
             fontWeight: FontWeight.w500,
           ),
+          textAlign: alignment == CrossAxisAlignment.center
+              ? TextAlign.center
+              : TextAlign.start,
         ),
         if (subtitle != null) ...[
           const SizedBox(height: AppSpacing.xs),

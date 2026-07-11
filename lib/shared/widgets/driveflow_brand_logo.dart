@@ -3,9 +3,10 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../core/constants/app_constants.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_elevation.dart';
 import '../../core/theme/app_gradients.dart';
 
-/// Logotipo DriveFlow — ReuniAI editorial + gradiente Mescla/ReuniAI.
+/// Logotipo DriveFlow — Geist + mark com profundidade sutil.
 class DriveFlowBrandLogo extends StatelessWidget {
   const DriveFlowBrandLogo({
     super.key,
@@ -19,9 +20,10 @@ class DriveFlowBrandLogo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final brightness = theme.brightness;
     final titleSize = switch (size) {
       LogoSize.small => 22.0,
-      LogoSize.medium => 28.0,
+      LogoSize.medium => 26.0,
       LogoSize.large => 34.0,
     };
 
@@ -38,13 +40,7 @@ class DriveFlowBrandLogo extends StatelessWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
                 gradient: AppGradients.brand,
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.brandBlue.withValues(alpha: 0.28),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
+                boxShadow: AppElevation.brandGlow(brightness),
               ),
               child: Icon(
                 Icons.speed_rounded,
@@ -55,10 +51,10 @@ class DriveFlowBrandLogo extends StatelessWidget {
             const SizedBox(width: 10),
             RichText(
               text: TextSpan(
-                style: GoogleFonts.plusJakartaSans(
+                style: GoogleFonts.geist(
                   fontSize: titleSize,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: -0.8,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: -0.9,
                   color: theme.colorScheme.onSurface,
                 ),
                 children: const [

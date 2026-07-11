@@ -63,6 +63,7 @@ void main() {
             ),
           ),
           vehiclesStreamProvider.overrideWith((ref) => Stream.value(const [])),
+          activeVehicleProvider.overrideWith((ref) => const AsyncData(null)),
           isOnlineProvider.overrideWith((ref) => Stream.value(true)),
           syncStatusProvider.overrideWith((ref) => Stream.value(SyncStatus.idle)),
           pendingSyncCountProvider.overrideWith((ref) => Future.value(0)),
@@ -76,7 +77,7 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
 
-    expect(find.text('Seu painel financeiro'), findsOneWidget);
+    expect(find.text('Seu painel'), findsOneWidget);
     expect(find.text('Ganhos'), findsWidgets);
 
     await tester.tap(
@@ -99,7 +100,7 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
 
-    expect(find.text('Perfil'), findsOneWidget);
+    expect(find.text('Perfil'), findsWidgets);
     expect(find.text('Meus veículos'), findsOneWidget);
     expect(find.byType(DriveFlowBottomNavBar), findsOneWidget);
   });
@@ -144,6 +145,7 @@ void main() {
             ),
           ),
           vehiclesStreamProvider.overrideWith((ref) => Stream.value(const [])),
+          activeVehicleProvider.overrideWith((ref) => const AsyncData(null)),
           isOnlineProvider.overrideWith((ref) => Stream.value(true)),
           syncStatusProvider.overrideWith((ref) => Stream.value(SyncStatus.idle)),
           pendingSyncCountProvider.overrideWith((ref) => Future.value(0)),
@@ -158,7 +160,7 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
 
-    expect(find.text('Perfil'), findsOneWidget);
+    expect(find.text('Perfil'), findsWidgets);
     expect(find.text('Meus veículos'), findsOneWidget);
   });
 }
