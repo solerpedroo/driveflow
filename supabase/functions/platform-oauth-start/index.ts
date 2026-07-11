@@ -1,5 +1,11 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import {
+  getClientCredentials,
+  getPlatformDefinition,
+  oauthCallbackUri,
+  platformNotConfiguredMessage,
+} from "../_shared/platform_config.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": Deno.env.get("ALLOWED_ORIGIN") ?? "null",
@@ -9,22 +15,11 @@ const corsHeaders = {
 
 const PLATFORMS = new Set(["uber", "99", "indrive"]);
 
-const OAUTH_BASE: Record<string, string> = {
-  uber: "https://login.uber.com/oauth/v2/authorize",
-  "99": "https://oauth.99app.com/authorize",
-  indrive: "https://oauth.indrive.com/authorize",
-};
-
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
-}
-
-function oauthCallbackUri(): string {
-  const base = Deno.env.get("SUPABASE_URL") ?? "";
-  return `${base}/functions/v1/platform-oauth-callback`;
 }
 
 Deno.serve(async (req) => {
@@ -58,6 +53,16 @@ Deno.serve(async (req) => {
   }
   if (!appRedirectUri) return json({ error: "redirect_uri obrigatório" }, 400);
 
+  const definition = getPlatformDefinition(platform);
+  if (!definition) {
+    return json({ error: platformNotConfiguredMessage(platform) }, 503);
+  }
+
+  const credentials = getClientCredentials(definition);
+  if (!credentials) {
+    return json({ error: platformNotConfiguredMessage(platform) }, 503);
+  }
+
   const stateToken = crypto.randomUUID();
   const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
 
@@ -71,26 +76,18 @@ Deno.serve(async (req) => {
 
   if (stateError) return json({ error: stateError.message }, 500);
 
-  const clientId = Deno.env.get(
-    platform === "uber"
-      ? "UBER_CLIENT_ID"
-      : platform === "99"
-      ? "NINETY_NINE_CLIENT_ID"
-      : "INDRIVE_CLIENT_ID",
-  ) ?? "stub-client-id";
-
-  const base = OAUTH_BASE[platform];
-  const authUrl = new URL(base);
-  authUrl.searchParams.set("client_id", clientId);
+  const authUrl = new URL(definition.authorizeUrl);
+  authUrl.searchParams.set("client_id", credentials.clientId);
   authUrl.searchParams.set("response_type", "code");
   authUrl.searchParams.set("redirect_uri", oauthCallbackUri());
   authUrl.searchParams.set("state", stateToken);
-  authUrl.searchParams.set("scope", "earnings trips profile");
+  authUrl.searchParams.set("scope", definition.scopes.join(" "));
 
   await supabase.from("platform_connections").upsert({
     user_id: userData.user.id,
     platform,
     status: "pending",
+    last_sync_error: null,
   }, { onConflict: "user_id,platform" });
 
   return json({
