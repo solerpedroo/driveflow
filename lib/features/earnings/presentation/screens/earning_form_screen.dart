@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../../core/constants/ride_platforms.dart';
+import '../../../onboarding/presentation/providers/onboarding_providers.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../../core/utils/validators.dart';
@@ -37,7 +38,13 @@ class EarningFormScreen extends HookConsumerWidget {
       text: earning?.workedHours.toString() ?? '0',
     );
     final noteController = useTextEditingController(text: earning?.note ?? '');
-    final selectedPlatform = useState(earning?.platform ?? RidePlatform.uber);
+    final selectedPlatform = useState(
+      earning?.platform ??
+          (ref.read(driverTypeProvider).isTaxi
+              ? RidePlatform.taximeter
+              : RidePlatform.uber),
+    );
+    final platforms = ridePlatformsFor(ref.watch(driverTypeProvider));
     final selectedDate = useState(earning?.date ?? DateTime.now());
     final mutation = ref.watch(earningsControllerProvider);
 
@@ -88,12 +95,15 @@ class EarningFormScreen extends HookConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Plataforma', style: theme.textTheme.labelLarge),
+                  Text(
+                    ref.watch(isTaxiDriverProvider) ? 'Canal' : 'Plataforma',
+                    style: theme.textTheme.labelLarge,
+                  ),
                   const SizedBox(height: 8),
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
-                    children: kRidePlatforms.map((platform) {
+                    children: platforms.map((platform) {
                       return DfFilterPill(
                         label: platform.label,
                         selected: selectedPlatform.value == platform,
@@ -121,7 +131,9 @@ class EarningFormScreen extends HookConsumerWidget {
                   const SizedBox(height: 12),
                   DfTextField(
                     controller: ridesController,
-                    label: 'Corridas',
+                    label: ref.watch(isTaxiDriverProvider)
+                        ? 'Corridas / viagens'
+                        : 'Corridas',
                     hint: '12',
                     keyboardType: TextInputType.number,
                     validator: (v) {
