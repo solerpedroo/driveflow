@@ -1,8 +1,8 @@
 # DriveFlow — implementation-plan.md
 
-Plano de implementação em **34 ondas** (0–34) para o DriveFlow (Flutter + Supabase + Groq), partindo de repositório vazio, combinando Clean Architecture feature-first do escopo com os padrões de organização do projeto MesclaInvest (screens/widgets/services separados, shell de navegação, mappers, test hooks).
+Plano de implementação em **35 ondas** (0–35) para o DriveFlow (Flutter + Supabase + Groq), partindo de repositório vazio, combinando Clean Architecture feature-first do escopo com os padrões de organização do projeto MesclaInvest (screens/widgets/services separados, shell de navegação, mappers, test hooks).
 
-**Fases:** ondas **0–9** = MVP v1.0 · ondas **10–14** = features pós-MVP · ondas **15–23** = Design System + Premium UI · ondas **24–29** = Integrações Uber/99/InDrive + inteligência cross-platform · ondas **30–33** = Analytics avançado por app + turno inteligente + caixa/metas + Pro analytics · onda **34** = Apple Premium UI (Geist + profundidade + hierarquia).
+**Fases:** ondas **0–9** = MVP v1.0 · ondas **10–14** = features pós-MVP · ondas **15–23** = Design System + Premium UI · ondas **24–29** = Integrações Uber/99/InDrive + inteligência cross-platform · ondas **30–33** = Analytics avançado por app + turno inteligente + caixa/metas + Pro analytics · onda **34** = Apple Premium UI (Geist + profundidade + hierarquia) · onda **35** = Taxista + onboarding editorial Mescla Invest.
 
 **Repositório:** `driveflow`  
 **Referência:** `ES-PI3-2026-T2-G03` (MesclaInvest)
@@ -43,6 +43,7 @@ Plano de implementação em **34 ondas** (0–34) para o DriveFlow (Flutter + Su
 | 32 | Caixa e metas — calendário de repasses, metas por app, take rate temporal | em andamento |
 | 33 | Pro analytics — regiões, consistência, PDF visual, IA com séries temporais | em andamento |
 | 34 | Apple Premium UI — Geist, profundidade Wallet/Cash App, anti–vibe-coding | concluída |
+| 35 | Taxista + onboarding editorial Mescla Invest (app vs táxi, UX manual) | concluída |
 
 ---
 
@@ -1541,6 +1542,78 @@ Substituir `electricTeal` como cor de marca por tons de azul-claro. Verde perman
 
 ---
 
+## Onda 35 — Taxista + onboarding editorial (Mescla Invest)
+
+**Objetivo:** Permitir que o usuário escolha entre **motorista de aplicativo** e **taxista** no cadastro (ou gate OAuth), com UX distinta para taxistas — preenchimento **manual**, **sem integrações** Uber/99/InDrive — e onboarding de boas-vindas editorial no padrão **Mescla Invest** (PageView, dots, slides por persona).
+
+### Escopo de domínio
+
+| Item | Detalhe |
+|---|---|
+| `driver_type` | Coluna `profiles.driver_type` — `ride_share` \| `taxi` |
+| `onboarding_completed_at` | Marca conclusão do onboarding editorial de boas-vindas |
+| Migration 008 | Backfill usuários existentes como `ride_share` + onboarding já concluído |
+| `DriverType` | Enum Flutter + metadata OAuth no `signUp` |
+| `RidePlatform` | Canais de táxi: taxímetro, bandeira, hotel, aeroporto, particular |
+
+### Fluxo de onboarding (router)
+
+```
+Auth → Driver type (se null, OAuth) → Welcome onboarding → Vehicle → Home
+```
+
+| Rota | Tela |
+|---|---|
+| `/onboarding/driver-type` | `DriverTypeGateScreen` — escolha app vs táxi |
+| `/onboarding/welcome` | `WelcomeOnboardingScreen` — slides Mescla Invest |
+| `/onboarding/vehicle` | `VehicleOnboardingScreen` — copy adaptada para táxi |
+
+### UX taxista (sem integrações)
+
+| Superfície | Comportamento |
+|---|---|
+| Dashboard | Oculta chip de apps, mix de plataformas, metas por app; ação Metas no lugar de Integrações |
+| Ganhos | Filtros por canal de táxi; sem botão Integrações |
+| Form ganho | Label "Canal"; plataformas `kTaxiPlatforms`; default taxímetro |
+| Perfil | Badge "Taxista"; oculta "Apps conectados" |
+| Cadastro | `DriverTypePicker` + subtitle conforme tipo |
+
+### Feature `onboarding/`
+
+- `OnboardingCatalog` — 4 slides ride-share (integrações, metas, IA) vs 4 slides táxi (manual, custos, lucro)
+- `OnboardingSlideView`, `OnboardingProgressDots`, `DriverTypePicker`
+- Providers: `driverTypeProvider`, `needsDriverTypeSelectionProvider`, `needsWelcomeOnboardingProvider`
+
+### Critérios de conclusão
+
+- [x] Migration `008_driver_type_onboarding.sql` com trigger `handle_new_user`
+- [x] Cadastro email com escolha motorista de app vs taxista
+- [x] Gate OAuth para usuários sem `driver_type`
+- [x] Onboarding editorial PageView estilo Mescla Invest
+- [x] Dashboard/earnings/profile adaptados para taxista (sem integrações)
+- [x] Plataformas de ganho filtradas por `DriverType`
+- [x] Testes: `driver_type_test`, `onboarding_catalog_test`, `user_mapper_test`, `register_screen_test`
+- [x] Commits atômicos por arquivo
+- [x] `flutter analyze` + testes das áreas alteradas passando
+
+### Ordem de commits (atômicos)
+
+1. `implementation-plan.md` — documentação Onda 35  
+2. `supabase/migrations/008_driver_type_onboarding.sql`  
+3. `lib/core/constants/driver_type.dart`  
+4. `lib/core/constants/ride_platforms.dart`  
+5. `lib/core/constants/earning_platforms.dart`  
+6. `lib/core/constants/app_constants.dart` — rotas onboarding  
+7. Domínio auth: `user_entity`, `profile_schema`, `user_mapper`, datasource, repository, usecases, providers  
+8. Profile: `profile_repository`, `profile_providers`  
+9. Feature `onboarding/` — domain, providers, widgets, screens  
+10. `register_screen.dart` — picker no cadastro  
+11. `app_router.dart` — guards de onboarding  
+12. Shell taxi: `dashboard_screen`, `earnings_screen`, `earning_form_screen`, `earning_tile`, `profile_screen`, `vehicle_onboarding_screen`  
+13. Testes: `driver_type_test`, `onboarding_catalog_test`, `user_mapper_test`, `register_screen_test`
+
+---
+
 ## Mapa de requisitos funcionais → ondas
 
 | RF | Descrição | Onda |
@@ -1576,6 +1649,7 @@ Substituir `electricTeal` como cor de marca por tons de azul-claro. Verde perman
 | RNF-Forms | Forms polish + final FilterChip cleanup | 22 |
 | RNF-Final | Final outlier polish — 100% design system | 23 |
 | RNF-Apple | Apple Premium UI — Geist, profundidade, hierarquia | 34 |
+| RF33 | Perfil taxista — cadastro, onboarding, UX manual sem integrações | 35 |
 | RF22 | Conexão apps Uber/99/InDrive | 24 |
 | RF23 | Sync ganhos e corridas via API | 25–26 |
 | RF24 | Histórico de corridas sincronizadas | 25 |
@@ -1638,7 +1712,8 @@ PLATFORM_OAUTH_REDIRECT_URL=
 | **v3.0** | Integrações Uber/99/InDrive + inteligência cross-platform | 24–29 |
 | **v3.1** | Analytics avançado por app — gráficos, turno, caixa, Pro | 30–33 |
 | **v3.2** | Apple Premium UI — Geist + profundidade Wallet/Cash App | 34 |
-| **v3.3** | Comunidade, parceiros, painel web | fora do plano atual |
+| **v3.3** | Taxista + onboarding editorial Mescla Invest | 35 |
+| **v3.4** | Comunidade, parceiros, painel web | fora do plano atual |
 
 ---
 
