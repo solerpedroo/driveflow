@@ -6,6 +6,7 @@ import '../../../authentication/data/datasources/supabase_auth_datasource.dart';
 import '../../../authentication/data/mappers/user_mapper.dart';
 import '../../../authentication/domain/entities/user_entity.dart';
 import '../../../authentication/presentation/providers/auth_providers.dart';
+import '../../../../core/constants/driver_type.dart';
 import '../../data/repositories/profile_repository.dart';
 
 final profileRepositoryProvider = Provider<ProfileRepository>((ref) {
@@ -27,6 +28,40 @@ class ProfileController extends Notifier<AsyncValue<void>> {
             userId: user.id,
             name: name,
           );
+    });
+    if (state.hasError) return null;
+    ref.invalidate(userProfileProvider);
+    return updated;
+  }
+
+  Future<UserEntity?> updateDriverType(DriverType driverType) async {
+    final user = ref.read(authStateProvider).valueOrNull;
+    if (user == null) return null;
+
+    state = const AsyncLoading();
+    UserEntity? updated;
+    state = await AsyncValue.guard(() async {
+      updated = await ref.read(profileRepositoryProvider).updateDriverType(
+            userId: user.id,
+            driverType: driverType,
+          );
+    });
+    if (state.hasError) return null;
+    ref.invalidate(userProfileProvider);
+    return updated;
+  }
+
+  Future<UserEntity?> completeWelcomeOnboarding() async {
+    final user = ref.read(authStateProvider).valueOrNull;
+    if (user == null) return null;
+
+    state = const AsyncLoading();
+    UserEntity? updated;
+    state = await AsyncValue.guard(() async {
+      updated =
+          await ref.read(profileRepositoryProvider).completeWelcomeOnboarding(
+                userId: user.id,
+              );
     });
     if (state.hasError) return null;
     ref.invalidate(userProfileProvider);
@@ -56,7 +91,7 @@ class ProfileController extends Notifier<AsyncValue<void>> {
 final profileControllerProvider =
     NotifierProvider<ProfileController, AsyncValue<void>>(ProfileController.new);
 
-/// Perfil atualizado do Supabase (nome/foto), complementa auth metadata.
+/// Perfil atualizado do Supabase (nome/foto/tipo), complementa auth metadata.
 final userProfileProvider = FutureProvider<UserEntity?>((ref) async {
   final authUser = ref.watch(authStateProvider).valueOrNull;
   if (authUser == null) return null;

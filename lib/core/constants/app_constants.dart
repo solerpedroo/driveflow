@@ -70,6 +70,8 @@ abstract final class AppRoutes {
   static const login = '/login';
   static const register = '/register';
   static const home = '/';
+  static const driverTypeOnboarding = '/onboarding/driver-type';
+  static const welcomeOnboarding = '/onboarding/welcome';
   static const vehicleOnboarding = '/onboarding/vehicle';
   static const addVehicle = '/vehicle/add';
   static const editVehicle = '/vehicle/edit';

@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:driveflow/core/constants/driver_type.dart';
 import 'package:driveflow/features/authentication/data/mappers/user_mapper.dart';
 import 'package:driveflow/features/authentication/data/schema/profile_schema.dart';
 import 'package:driveflow/features/authentication/domain/entities/user_entity.dart';
@@ -12,6 +13,8 @@ void main() {
         ProfileSchema.email: 'driver@test.com',
         ProfileSchema.name: 'João Motorista',
         ProfileSchema.photo: 'https://photo.url',
+        ProfileSchema.driverType: 'taxi',
+        ProfileSchema.onboardingCompletedAt: '2026-07-01T12:00:00.000Z',
       });
 
       expect(entity.id, 'uuid-1');
@@ -19,6 +22,9 @@ void main() {
       expect(entity.name, 'João Motorista');
       expect(entity.photoUrl, 'https://photo.url');
       expect(entity.displayName, 'João Motorista');
+      expect(entity.driverType, DriverType.taxi);
+      expect(entity.onboardingCompletedAt, isNotNull);
+      expect(entity.hasCompletedWelcomeOnboarding, isTrue);
     });
 
     test('fromAuthUser uses email prefix as displayName fallback', () {
@@ -35,11 +41,13 @@ void main() {
         id: 'uuid-3',
         email: 'a@b.com',
         name: 'Ana',
+        driverType: DriverType.taxi,
       );
 
       expect(map[ProfileSchema.id], 'uuid-3');
       expect(map[ProfileSchema.email], 'a@b.com');
       expect(map[ProfileSchema.name], 'Ana');
+      expect(map[ProfileSchema.driverType], 'taxi');
       expect(map.containsKey(ProfileSchema.photo), isFalse);
     });
   });

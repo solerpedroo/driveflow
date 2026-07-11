@@ -27,25 +27,33 @@ import '../../features/goals/presentation/screens/goals_screen.dart';
 import '../../features/maintenance/domain/entities/maintenance_entity.dart';
 import '../../features/maintenance/presentation/screens/maintenance_form_screen.dart';
 import '../../features/maintenance/presentation/screens/maintenance_history_screen.dart';
+import '../../features/onboarding/presentation/providers/onboarding_providers.dart';
+import '../../features/onboarding/presentation/screens/driver_type_gate_screen.dart';
+import '../../features/onboarding/presentation/screens/welcome_onboarding_screen.dart';
+import '../../features/profile/presentation/providers/profile_providers.dart';
 import '../../features/vehicle/presentation/providers/vehicle_providers.dart';
 import '../../features/subscription/presentation/screens/paywall_screen.dart';
 import '../../features/vehicle/presentation/screens/vehicle_onboarding_screen.dart';
 
-/// Notifica GoRouter quando auth ou veículos mudam.
+/// Notifica GoRouter quando auth, perfil ou veículos mudam.
 class AppRouterRefresh extends ChangeNotifier {
   AppRouterRefresh(this._ref) {
     _authSub = _ref.listen(authStateProvider, (_, __) => notifyListeners());
+    _profileSub =
+        _ref.listen(userProfileProvider, (_, __) => notifyListeners());
     _vehicleSub =
         _ref.listen(vehiclesStreamProvider, (_, __) => notifyListeners());
   }
 
   final Ref _ref;
   late final ProviderSubscription<AsyncValue<dynamic>> _authSub;
+  late final ProviderSubscription<AsyncValue<dynamic>> _profileSub;
   late final ProviderSubscription<AsyncValue<dynamic>> _vehicleSub;
 
   @override
   void dispose() {
     _authSub.close();
+    _profileSub.close();
     _vehicleSub.close();
     super.dispose();
   }
@@ -78,6 +86,7 @@ final routerProvider = Provider<GoRouter>((ref) {
     refreshListenable: refresh,
     redirect: (context, state) {
       final authAsync = ref.read(authStateProvider);
+      final profileAsync = ref.read(userProfileProvider);
       final vehiclesAsync = ref.read(vehiclesStreamProvider);
       final location = state.matchedLocation;
 
@@ -85,9 +94,14 @@ final routerProvider = Provider<GoRouter>((ref) {
       final isLogin = location == AppRoutes.login;
       final isRegister = location == AppRoutes.register;
       final isAuthRoute = isLogin || isRegister;
-      final isOnboarding = location == AppRoutes.vehicleOnboarding;
+      final isDriverTypeOnboarding = location == AppRoutes.driverTypeOnboarding;
+      final isWelcomeOnboarding = location == AppRoutes.welcomeOnboarding;
+      final isVehicleOnboarding = location == AppRoutes.vehicleOnboarding;
       final isAddVehicle = location == AppRoutes.addVehicle;
       final isEditVehicle = location.startsWith(AppRoutes.editVehicle);
+      final isPreShellOnboarding = isDriverTypeOnboarding ||
+          isWelcomeOnboarding ||
+          isVehicleOnboarding;
 
       if (authAsync.isLoading) {
         return isSplash ? null : AppRoutes.splash;
@@ -99,26 +113,47 @@ final routerProvider = Provider<GoRouter>((ref) {
         return AppRoutes.login;
       }
 
-      if (vehiclesAsync.isLoading) {
-        return isSplash ? null : AppRoutes.splash;
+      if (profileAsync.isLoading || vehiclesAsync.isLoading) {
+        return isSplash || isPreShellOnboarding ? null : AppRoutes.splash;
       }
 
+      final profile = profileAsync.valueOrNull;
+      final needsDriverType = ref.read(needsDriverTypeSelectionProvider);
+      final needsWelcome = ref.read(needsWelcomeOnboardingProvider);
       final hasVehicle = vehiclesAsync.valueOrNull?.isNotEmpty ?? false;
 
       if (isAuthRoute || isSplash) {
+        if (needsDriverType) return AppRoutes.driverTypeOnboarding;
+        if (needsWelcome) return AppRoutes.welcomeOnboarding;
         return hasVehicle ? AppRoutes.home : AppRoutes.vehicleOnboarding;
       }
 
-      if (!hasVehicle && !isOnboarding && !isAddVehicle) {
+      if (needsDriverType && !isDriverTypeOnboarding) {
+        return AppRoutes.driverTypeOnboarding;
+      }
+
+      if (!needsDriverType && needsWelcome && !isWelcomeOnboarding) {
+        return AppRoutes.welcomeOnboarding;
+      }
+
+      if (!needsDriverType &&
+          !needsWelcome &&
+          !hasVehicle &&
+          !isVehicleOnboarding &&
+          !isAddVehicle) {
         return AppRoutes.vehicleOnboarding;
       }
 
-      if (hasVehicle && isOnboarding) {
+      if (hasVehicle && isVehicleOnboarding) {
         return AppRoutes.home;
       }
 
       if (!hasVehicle && (isEditVehicle || isAddVehicle)) {
         return AppRoutes.vehicleOnboarding;
+      }
+
+      if (hasVehicle && (isDriverTypeOnboarding || isWelcomeOnboarding)) {
+        return AppRoutes.home;
       }
 
       return null;
@@ -148,6 +183,22 @@ final routerProvider = Provider<GoRouter>((ref) {
           key: state.pageKey,
           child: const RegisterScreen(),
           slideFromRight: true,
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.driverTypeOnboarding,
+        name: 'driverTypeOnboarding',
+        pageBuilder: (context, state) => _fadePage(
+          key: state.pageKey,
+          child: const DriverTypeGateScreen(),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.welcomeOnboarding,
+        name: 'welcomeOnboarding',
+        pageBuilder: (context, state) => _fadePage(
+          key: state.pageKey,
+          child: const WelcomeOnboardingScreen(),
         ),
       ),
       GoRoute(

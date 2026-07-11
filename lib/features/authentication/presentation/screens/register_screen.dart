@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/constants/driver_type.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_motion.dart';
@@ -14,11 +15,12 @@ import '../../../../shared/widgets/design_system/df_button.dart';
 import '../../../../shared/widgets/design_system/df_password_checklist.dart';
 import '../../../../shared/widgets/design_system/df_staggered_entrance.dart';
 import '../../../../shared/widgets/design_system/df_text_field.dart';
+import '../../../onboarding/presentation/widgets/driver_type_picker.dart';
 import '../providers/auth_providers.dart';
 import '../widgets/auth_benefits_strip.dart';
 import '../widgets/auth_hero_layout.dart';
 
-/// Cadastro premium — hero editorial + checklist animado de senha.
+/// Cadastro — escolha motorista de app ou taxista + checklist de senha.
 class RegisterScreen extends HookConsumerWidget {
   const RegisterScreen({super.key});
 
@@ -33,6 +35,7 @@ class RegisterScreen extends HookConsumerWidget {
     final obscurePassword = useState(true);
     final obscureConfirm = useState(true);
     final passwordText = useState('');
+    final driverType = useState(DriverType.rideShare);
     final authState = ref.watch(authControllerProvider);
     final isLoading = authState.isLoading;
 
@@ -70,13 +73,15 @@ class RegisterScreen extends HookConsumerWidget {
             email: emailController.text.trim(),
             password: passwordController.text,
             name: nameController.text.trim(),
+            driverType: driverType.value,
           );
     }
 
     return AuthHeroLayout(
       headline: 'Crie sua\nconta DriveFlow',
-      subtitle:
-          'Comece a controlar lucro, custos e metas com uma experiência de alto nível.',
+      subtitle: driverType.value.isTaxi
+          ? 'Painel manual para taxistas — corridas, custos e lucro sem integrações.'
+          : 'Controle ganhos de app, despesas e metas com integrações opcionais.',
       middleChild: const AuthBenefitsStrip(),
       leading: IconButton(
         icon: const Icon(Icons.arrow_back_rounded),
@@ -86,6 +91,11 @@ class RegisterScreen extends HookConsumerWidget {
         key: formKey,
         child: DfStaggeredEntrance(
           children: [
+            DriverTypePicker(
+              selected: driverType.value,
+              onChanged: (type) => driverType.value = type,
+            ),
+            const SizedBox(height: AppSpacing.xl),
             DfTextField(
               controller: nameController,
               label: 'Nome completo',

@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../../core/constants/driver_type.dart';
 import '../../../../core/errors/failure.dart';
 import '../../domain/entities/user_entity.dart';
 import '../mappers/user_mapper.dart';
@@ -40,12 +41,17 @@ class SupabaseAuthDataSource {
     required String email,
     required String password,
     required String name,
+    required DriverType driverType,
   }) async {
     try {
       return await _auth.signUp(
         email: email,
         password: password,
-        data: {'name': name, 'full_name': name},
+        data: {
+          'name': name,
+          'full_name': name,
+          'driver_type': driverType.value,
+        },
       );
     } on AuthException catch (e) {
       throw AuthFailure(message: AuthFailure.messageForError(e));
@@ -98,6 +104,8 @@ class ProfileRemoteDataSource {
     String? email,
     String? name,
     String? photoUrl,
+    DriverType? driverType,
+    DateTime? onboardingCompletedAt,
   }) async {
     await _client.from(ProfileSchema.table).upsert(
           UserMapper.toProfileUpsert(
@@ -105,8 +113,26 @@ class ProfileRemoteDataSource {
             email: email,
             name: name,
             photoUrl: photoUrl,
+            driverType: driverType,
+            onboardingCompletedAt: onboardingCompletedAt,
           ),
         );
+  }
+
+  Future<void> updateDriverType({
+    required String userId,
+    required DriverType driverType,
+  }) async {
+    await _client.from(ProfileSchema.table).update({
+      ProfileSchema.driverType: driverType.value,
+    }).eq(ProfileSchema.id, userId);
+  }
+
+  Future<void> markWelcomeOnboardingComplete(String userId) async {
+    await _client.from(ProfileSchema.table).update({
+      ProfileSchema.onboardingCompletedAt:
+          DateTime.now().toUtc().toIso8601String(),
+    }).eq(ProfileSchema.id, userId);
   }
 }
 

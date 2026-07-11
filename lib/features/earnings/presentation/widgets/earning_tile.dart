@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../../shared/widgets/design_system/df_movimentacao_tile.dart';
@@ -23,6 +24,8 @@ class EarningTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final platformIcon = earning.platform.icon;
+
     return DfMovimentacaoTile(
       leading: PlatformBrandIcon.hasBrandAsset(earning.platform)
           ? PlatformBrandIcon(
@@ -30,7 +33,18 @@ class EarningTile extends ConsumerWidget {
               size: 40,
               borderRadius: 12,
             )
-          : null,
+          : platformIcon != null
+              ? CircleAvatar(
+                  radius: 20,
+                  backgroundColor:
+                      AppColors.brandBlue.withValues(alpha: 0.12),
+                  child: Icon(
+                    platformIcon,
+                    size: 20,
+                    color: AppColors.brandBlue,
+                  ),
+                )
+              : null,
       title: earning.platform.label,
       detailCaps:
           '${earning.rides} corridas · ${earning.workedHours}h trabalhadas',

@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/constants/driver_type.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../../core/services/session_secure_storage.dart';
 import '../../../../core/storage/hive_storage.dart';
@@ -78,11 +79,13 @@ class AuthRepositoryImpl implements AuthRepository {
     required String email,
     required String password,
     required String name,
+    required DriverType driverType,
   }) async {
     final response = await _auth.signUp(
       email: email,
       password: password,
       name: name,
+      driverType: driverType,
     );
     final user = response.user;
     if (user == null) {
@@ -97,10 +100,16 @@ class AuthRepositoryImpl implements AuthRepository {
       id: user.id,
       email: email,
       name: name,
+      driverType: driverType,
     );
     final resolved = await _resolveUser(user.id);
     return resolved ??
-        UserMapper.fromAuthUser(id: user.id, email: email, name: name);
+        UserMapper.fromAuthUser(
+          id: user.id,
+          email: email,
+          name: name,
+          driverType: driverType,
+        );
   }
 
   @override

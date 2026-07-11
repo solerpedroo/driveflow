@@ -6,6 +6,7 @@ import '../../../authentication/data/datasources/supabase_auth_datasource.dart';
 import '../../../authentication/data/mappers/user_mapper.dart';
 import '../../../authentication/data/schema/profile_schema.dart';
 import '../../../authentication/domain/entities/user_entity.dart';
+import '../../../../core/constants/driver_type.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../../core/storage/supabase_storage_urls.dart';
 
@@ -27,6 +28,29 @@ class ProfileRepository {
     required String name,
   }) async {
     await _profiles.upsertProfile(id: userId, name: name.trim());
+    final row = await _profiles.fetchProfile(userId);
+    if (row == null) {
+      throw const ServerFailure(message: 'Perfil não encontrado.');
+    }
+    return UserMapper.fromProfileRow(row);
+  }
+
+  Future<UserEntity> updateDriverType({
+    required String userId,
+    required DriverType driverType,
+  }) async {
+    await _profiles.updateDriverType(userId: userId, driverType: driverType);
+    final row = await _profiles.fetchProfile(userId);
+    if (row == null) {
+      throw const ServerFailure(message: 'Perfil não encontrado.');
+    }
+    return UserMapper.fromProfileRow(row);
+  }
+
+  Future<UserEntity> completeWelcomeOnboarding({
+    required String userId,
+  }) async {
+    await _profiles.markWelcomeOnboardingComplete(userId);
     final row = await _profiles.fetchProfile(userId);
     if (row == null) {
       throw const ServerFailure(message: 'Perfil não encontrado.');

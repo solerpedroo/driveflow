@@ -29,6 +29,7 @@ import '../../../../shared/widgets/design_system/df_tab_scroll_view.dart';
 import '../../../../shared/widgets/design_system/df_text_field.dart';
 import '../../../dashboard/presentation/providers/dashboard_providers.dart';
 import '../../../earnings/presentation/providers/earnings_providers.dart';
+import '../../../onboarding/presentation/providers/onboarding_providers.dart';
 import '../providers/profile_providers.dart';
 import '../widgets/profile_plan_card.dart';
 import '../widgets/profile_value_stats_card.dart';
@@ -43,6 +44,7 @@ class ProfileScreen extends HookConsumerWidget {
     final hidden = ref.watch(valueVisibilityHiddenProvider);
     final user = ref.watch(userProfileProvider).valueOrNull ??
         ref.watch(authStateProvider).valueOrNull;
+    final isTaxiDriver = ref.watch(isTaxiDriverProvider);
     final vehiclesAsync = ref.watch(vehiclesListProvider);
     final monthAsync = ref.watch(dashboardMonthProvider);
     final earningsAsync = ref.watch(earningsStreamProvider);
@@ -142,13 +144,14 @@ class ProfileScreen extends HookConsumerWidget {
         DfGroupedSection(
           header: 'Conta',
           children: [
-            DfGroupedRow(
-              title: 'Apps conectados',
-              subtitle: 'Uber, 99 e InDrive',
-              leading: Icon(Icons.hub_outlined, color: AppColors.brandBlue),
-              showChevron: true,
-              onTap: () => context.push(AppRoutes.platformIntegrations),
-            ),
+            if (!isTaxiDriver)
+              DfGroupedRow(
+                title: 'Apps conectados',
+                subtitle: 'Uber, 99 e InDrive',
+                leading: Icon(Icons.hub_outlined, color: AppColors.brandBlue),
+                showChevron: true,
+                onTap: () => context.push(AppRoutes.platformIntegrations),
+              ),
             DfGroupedRow(
               title: 'Abastecimentos',
               subtitle: 'Histórico e custo por km',
@@ -346,7 +349,7 @@ class _PerfilUserCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(100),
               ),
               child: Text(
-                'Motorista',
+                user?.roleBadgeLabel ?? 'Motorista',
                 style: AppTypography.labelCaps(brightness).copyWith(
                   color: AppColors.brandBlue,
                   fontWeight: FontWeight.w600,

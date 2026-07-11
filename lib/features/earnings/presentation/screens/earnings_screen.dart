@@ -4,6 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/constants/ride_platforms.dart';
+import '../../../onboarding/presentation/providers/onboarding_providers.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/value_visibility_provider.dart';
@@ -31,6 +32,9 @@ class EarningsScreen extends ConsumerWidget {
     final earningsAsync = ref.watch(earningsListProvider);
     final totalAsync = ref.watch(earningsTotalProvider);
     final hidden = ref.watch(valueVisibilityHiddenProvider);
+    final isTaxiDriver = ref.watch(isTaxiDriverProvider);
+    final driverType = ref.watch(driverTypeProvider);
+    final platforms = ridePlatformsFor(driverType);
 
     return earningsAsync.when(
       loading: () => const DfTabScrollView(
@@ -80,11 +84,12 @@ class EarningsScreen extends ConsumerWidget {
                   label: 'Novo ganho',
                   onTap: () => context.push(AppRoutes.earningForm),
                 ),
-                DfPillActionButton(
-                  icon: Icons.hub_outlined,
-                  label: 'Integrações',
-                  onTap: () => context.push(AppRoutes.platformIntegrations),
-                ),
+                if (!isTaxiDriver)
+                  DfPillActionButton(
+                    icon: Icons.hub_outlined,
+                    label: 'Integrações',
+                    onTap: () => context.push(AppRoutes.platformIntegrations),
+                  ),
                 DfPillActionButton(
                   icon: Icons.flag_outlined,
                   label: 'Metas',
@@ -113,7 +118,7 @@ class EarningsScreen extends ConsumerWidget {
                         .read(earningsPlatformFilterProvider.notifier)
                         .state = null,
                   ),
-                  ...kRidePlatforms.map(
+                  ...platforms.map(
                     (platform) => Padding(
                       padding: const EdgeInsets.only(left: AppSpacing.sm),
                       child: DfFilterPill(

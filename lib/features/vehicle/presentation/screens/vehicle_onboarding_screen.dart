@@ -4,6 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../onboarding/presentation/providers/onboarding_providers.dart';
 import '../../../../shared/widgets/driveflow_brand_logo.dart';
 import '../../../../shared/widgets/driveflow_gradient_background.dart';
 import 'vehicle_form_screen.dart';
@@ -15,6 +16,7 @@ class VehicleOnboardingScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final isTaxiDriver = ref.watch(isTaxiDriverProvider);
 
     return DriveFlowGradientBackground(
       child: Scaffold(
@@ -30,7 +32,7 @@ class VehicleOnboardingScreen extends ConsumerWidget {
               Padding(
                 padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
                 child: Text(
-                  'Antes de começar',
+                  isTaxiDriver ? 'Seu táxi no DriveFlow' : 'Antes de começar',
                   style: theme.textTheme.labelMedium?.copyWith(
                     color: AppColors.electricTeal,
                     letterSpacing: 1.1,
@@ -41,9 +43,12 @@ class VehicleOnboardingScreen extends ConsumerWidget {
               Expanded(
                 child: VehicleFormScreen(
                   embedded: true,
-                  title: 'Cadastre seu veículo',
-                  subtitle:
-                      'Precisamos dos dados básicos do carro para calcular consumo, custo por km e relatórios.',
+                  title: isTaxiDriver
+                      ? 'Cadastre seu veículo de táxi'
+                      : 'Cadastre seu veículo',
+                  subtitle: isTaxiDriver
+                      ? 'Placa, combustível e ano ajudam a calcular custo por km e lucro líquido da bandeira.'
+                      : 'Precisamos dos dados básicos do carro para calcular consumo, custo por km e relatórios.',
                   submitLabel: 'Continuar para o app',
                   markAsDefault: true,
                   onSaved: () => context.go(AppRoutes.home),

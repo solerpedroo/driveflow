@@ -1,5 +1,6 @@
 import '../entities/user_entity.dart';
 import '../repositories/auth_repository.dart';
+import '../../../../core/constants/driver_type.dart';
 
 class SignInWithEmail {
   const SignInWithEmail(this._repository);
@@ -23,11 +24,13 @@ class SignUpWithEmail {
     required String email,
     required String password,
     required String name,
+    required DriverType driverType,
   }) {
     return _repository.signUpWithEmail(
       email: email,
       password: password,
       name: name,
+      driverType: driverType,
     );
   }
 }
