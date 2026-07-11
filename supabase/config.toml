@@ -29,7 +29,7 @@ file_size_limit = "50MiB"
 [auth]
 enabled = true
 site_url = "http://127.0.0.1:3000"
-additional_redirect_urls = ["io.supabase.driveflow://login-callback/"]
+additional_redirect_urls = ["io.supabase.driveflow://login-callback/", "io.supabase.driveflow://platform-oauth/"]
 jwt_expiry = 3600
 enable_signup = true
 
@@ -43,6 +43,21 @@ verify_jwt = true
 
 [functions.ai-forecast]
 verify_jwt = true
+
+[functions.platform-oauth-start]
+verify_jwt = true
+
+[functions.platform-oauth-callback]
+verify_jwt = false
+
+[functions.platform-sync]
+verify_jwt = true
+
+[functions.platform-sync-cron]
+verify_jwt = false
+
+[functions.platform-webhook]
+verify_jwt = false
 
 [auth.external.google]
 enabled = true
