@@ -1,5 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import { exchangeAuthorizationCode } from "../_shared/platform_oauth.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": Deno.env.get("ALLOWED_ORIGIN") ?? "null",
@@ -20,6 +21,7 @@ Deno.serve(async (req) => {
   const code = url.searchParams.get("code");
   const state = url.searchParams.get("state");
   const error = url.searchParams.get("error");
+  const errorDescription = url.searchParams.get("error_description");
 
   const supabase = createClient(
     Deno.env.get("SUPABASE_URL") ?? "",
@@ -39,45 +41,96 @@ Deno.serve(async (req) => {
   }
 
   const appRedirectUri = oauthState.redirect_uri as string;
+  const platform = oauthState.platform as string;
   const expiresAt = new Date(oauthState.expires_at as string);
 
   if (Number.isNaN(expiresAt.getTime()) || expiresAt.getTime() < Date.now()) {
     await supabase.from("platform_oauth_states").delete().eq("id", oauthState.id);
-    return new Response("Estado OAuth expirado", { status: 400 });
+    return redirectToApp(appRedirectUri, {
+      status: "error",
+      platform,
+      message: "Autorização expirada. Tente conectar novamente.",
+    });
   }
 
   if (error) {
+    const message = errorDescription ?? error;
     await supabase.from("platform_connections").update({
       status: "error",
-      last_sync_error: error,
-    }).eq("user_id", oauthState.user_id).eq("platform", oauthState.platform);
+      last_sync_error: message,
+    }).eq("user_id", oauthState.user_id).eq("platform", platform);
 
-    return redirectToApp(appRedirectUri, { status: "error", message: error });
+    await supabase.from("platform_oauth_states").delete().eq("id", oauthState.id);
+
+    return redirectToApp(appRedirectUri, {
+      status: "error",
+      platform,
+      message,
+    });
   }
 
   if (!code) return new Response("code ausente", { status: 400 });
 
-  // TODO: trocar code por tokens com API da plataforma
-  const tokenPayload = {
-    access_token: `stub_${oauthState.platform}_${Date.now()}`,
-    refresh_token: `refresh_${oauthState.platform}`,
-    expires_at: new Date(Date.now() + 3600 * 1000).toISOString(),
-  };
+  try {
+    const tokenPayload = await exchangeAuthorizationCode(platform, code);
 
-  await supabase.from("platform_connections").upsert({
-    user_id: oauthState.user_id,
-    platform: oauthState.platform,
-    status: "connected",
-    external_account_id: `acct_${oauthState.platform}`,
-    metadata: { oauth: tokenPayload },
-    last_sync_error: null,
-    next_scheduled_sync_at: new Date(Date.now() + 24 * 3600 * 1000).toISOString(),
-  }, { onConflict: "user_id,platform" });
+    const { data: profile } = await supabase
+      .from("platform_connections")
+      .select("metadata")
+      .eq("user_id", oauthState.user_id)
+      .eq("platform", platform)
+      .maybeSingle();
 
-  await supabase.from("platform_oauth_states").delete().eq("id", oauthState.id);
+    let externalAccountId = `acct_${platform}`;
+    if (platform === "uber") {
+      try {
+        const meResponse = await fetch("https://api.uber.com/v1/partners/me", {
+          headers: { Authorization: `Bearer ${tokenPayload.access_token}` },
+        });
+        if (meResponse.ok) {
+          const me = await meResponse.json() as { driver_id?: string };
+          if (me.driver_id) externalAccountId = me.driver_id;
+        }
+      } catch {
+        // Perfil opcional — conexão segue com id genérico.
+      }
+    }
 
-  return redirectToApp(appRedirectUri, {
-    status: "connected",
-    platform: oauthState.platform as string,
-  });
+    await supabase.from("platform_connections").upsert({
+      user_id: oauthState.user_id,
+      platform,
+      status: "connected",
+      external_account_id: externalAccountId,
+      metadata: {
+        ...(profile?.metadata as Record<string, unknown> | null ?? {}),
+        oauth: tokenPayload,
+      },
+      last_sync_error: null,
+      next_scheduled_sync_at: new Date(Date.now() + 24 * 3600 * 1000).toISOString(),
+    }, { onConflict: "user_id,platform" });
+
+    await supabase.from("platform_oauth_states").delete().eq("id", oauthState.id);
+
+    return redirectToApp(appRedirectUri, {
+      status: "connected",
+      platform,
+    });
+  } catch (exchangeError) {
+    const message = exchangeError instanceof Error
+      ? exchangeError.message
+      : "Falha ao concluir autorização.";
+
+    await supabase.from("platform_connections").update({
+      status: "error",
+      last_sync_error: message,
+    }).eq("user_id", oauthState.user_id).eq("platform", platform);
+
+    await supabase.from("platform_oauth_states").delete().eq("id", oauthState.id);
+
+    return redirectToApp(appRedirectUri, {
+      status: "error",
+      platform,
+      message,
+    });
+  }
 });
