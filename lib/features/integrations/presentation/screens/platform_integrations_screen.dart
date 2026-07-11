@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/constants/ride_platforms.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/errors/failure.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../shared/widgets/design_system/df_button.dart';
@@ -47,10 +48,12 @@ class PlatformIntegrationsScreen extends ConsumerWidget {
               .startOAuth(platform);
           if (session == null) {
             if (context.mounted) {
+              final error = ref.read(platformIntegrationControllerProvider).error;
+              final message = error is Failure
+                  ? error.message
+                  : 'Não foi possível iniciar a conexão.';
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Não foi possível iniciar a conexão.'),
-                ),
+                SnackBar(content: Text(message)),
               );
             }
             return;
