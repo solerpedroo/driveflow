@@ -39,7 +39,13 @@ class PlatformOAuthRemoteDataSource {
         expiresAt: DateTime.parse(data['expires_at'] as String),
       );
     } on FunctionException catch (e) {
-      throw ServerFailure(message: e.reasonPhrase ?? e.toString(), cause: e);
+      final details = e.details;
+      final message = details is Map
+          ? (details['error'] as String?) ??
+              e.reasonPhrase ??
+              'Falha ao iniciar OAuth.'
+          : e.reasonPhrase ?? 'Falha ao iniciar OAuth.';
+      throw ServerFailure(message: message, cause: e);
     }
   }
 }
