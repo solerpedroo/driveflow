@@ -1,5 +1,18 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import {
+  isTokenExpired,
+  refreshAccessToken,
+  type StoredOAuthTokens,
+} from "../_shared/platform_oauth.ts";
+import {
+  AdapterAuthError,
+  AdapterNotConfiguredError,
+  fetchInDriveTrips,
+  fetchNinetyNineTrips,
+  fetchUberTrips,
+  type SyncTripRow,
+} from "./adapters.ts";
 
 const allowedOrigin = Deno.env.get("ALLOWED_ORIGIN") ?? "";
 
@@ -10,21 +23,6 @@ const corsHeaders = {
 };
 
 const INTEGRATABLE_PLATFORMS = new Set(["uber", "99", "indrive"]);
-
-type SyncTripRow = {
-  external_id: string;
-  fare_amount: number;
-  tip_amount: number;
-  platform_fee: number;
-  driver_payout: number;
-  distance_km?: number;
-  duration_minutes?: number;
-  started_at: string;
-  ended_at?: string;
-  pickup_label?: string;
-  dropoff_label?: string;
-  status?: string;
-};
 
 type DailyRollup = {
   external_id: string;
@@ -98,27 +96,64 @@ function rollupDaily(platform: string, trips: SyncTripRow[]): DailyRollup[] {
   return rollups;
 }
 
-/**
- * Stub — adapters reais em adapters.ts
- */
 async function fetchPlatformTrips(
   platform: string,
   userId: string,
   lookbackDays: number,
+  accessToken: string,
 ): Promise<SyncTripRow[]> {
-  const { fetchUberTrips, fetchNinetyNineTrips, fetchInDriveTrips } = await import(
-    "./adapters.ts"
-  );
   switch (platform) {
     case "uber":
-      return fetchUberTrips(userId, lookbackDays);
+      return fetchUberTrips(userId, lookbackDays, accessToken);
     case "99":
-      return fetchNinetyNineTrips(userId, lookbackDays);
+      return fetchNinetyNineTrips(userId, lookbackDays, accessToken);
     case "indrive":
-      return fetchInDriveTrips(userId, lookbackDays);
+      return fetchInDriveTrips(userId, lookbackDays, accessToken);
     default:
       return [];
   }
+}
+
+async function resolveAccessToken(
+  supabase: ReturnType<typeof createClient>,
+  userId: string,
+  platform: string,
+  metadata: Record<string, unknown> | null,
+): Promise<string> {
+  const oauth = metadata?.oauth as StoredOAuthTokens | undefined;
+  if (!oauth?.access_token) {
+    throw new AdapterAuthError(platform, "Token OAuth ausente. Reconecte o app.");
+  }
+
+  if (!isTokenExpired(oauth.expires_at)) {
+    return oauth.access_token;
+  }
+
+  if (!oauth.refresh_token) {
+    await supabase.from("platform_connections").update({
+      status: "token_expired",
+      last_sync_error: "Token expirado. Reconecte o app.",
+    }).eq("user_id", userId).eq("platform", platform);
+    throw new AdapterAuthError(platform, "Token expirado. Reconecte o app.");
+  }
+
+  const refreshed = await refreshAccessToken(platform, oauth.refresh_token);
+  const nextMetadata = {
+    ...(metadata ?? {}),
+    oauth: {
+      ...oauth,
+      ...refreshed,
+      refresh_token: refreshed.refresh_token ?? oauth.refresh_token,
+    },
+  };
+
+  await supabase.from("platform_connections").update({
+    metadata: nextMetadata,
+    status: "connected",
+    last_sync_error: null,
+  }).eq("user_id", userId).eq("platform", platform);
+
+  return refreshed.access_token;
 }
 
 async function dayHasConflictingEarnings(
@@ -170,7 +205,6 @@ Deno.serve(async (req) => {
   }
 
   const triggerSource = body.trigger_source ?? "manual";
-
   const platform = body.platform?.toLowerCase();
   if (!platform || !INTEGRATABLE_PLATFORMS.has(platform)) {
     return clientError("Plataforma inválida. Use uber, 99 ou indrive.");
@@ -207,7 +241,7 @@ Deno.serve(async (req) => {
 
   const { data: connection, error: connError } = await supabase
     .from("platform_connections")
-    .select("id, status")
+    .select("id, status, metadata")
     .eq("user_id", userId)
     .eq("platform", platform)
     .maybeSingle();
@@ -220,7 +254,65 @@ Deno.serve(async (req) => {
     return clientError("Plataforma não conectada.", 409);
   }
 
-  const tripRows = await fetchPlatformTrips(platform, userId, lookbackDays);
+  if (connection.status === "token_expired") {
+    return clientError("Token expirado. Reconecte o app.", 401);
+  }
+
+  let tripRows: SyncTripRow[] = [];
+  let syncMessage: string | undefined;
+  let syncStatus: "success" | "partial" | "error" = "success";
+
+  try {
+    const accessToken = await resolveAccessToken(
+      supabase,
+      userId,
+      platform,
+      connection.metadata as Record<string, unknown> | null,
+    );
+    tripRows = await fetchPlatformTrips(
+      platform,
+      userId,
+      lookbackDays,
+      accessToken,
+    );
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Falha na sincronização.";
+    syncMessage = message;
+    syncStatus = error instanceof AdapterAuthError ? "error" : "partial";
+
+    if (error instanceof AdapterAuthError) {
+      await supabase.from("platform_connections").update({
+        status: "token_expired",
+        last_sync_error: message,
+      }).eq("user_id", userId).eq("platform", platform);
+
+      await supabase.from("platform_sync_logs").insert({
+        user_id: userId,
+        platform,
+        trigger_source: triggerSource,
+        trips_imported: 0,
+        earnings_imported: 0,
+        skipped_count: 0,
+        status: syncStatus,
+        message,
+      });
+
+      return clientError(message, 401);
+    }
+
+    if (error instanceof AdapterNotConfiguredError) {
+      await supabase.from("platform_connections").update({
+        status: "connected",
+        last_sync_error: message,
+      }).eq("user_id", userId).eq("platform", platform);
+    } else {
+      await supabase.from("platform_connections").update({
+        status: "error",
+        last_sync_error: message,
+      }).eq("user_id", userId).eq("platform", platform);
+    }
+  }
+
   let tripsImported = 0;
   let earningsImported = 0;
   let skippedCount = 0;
@@ -298,26 +390,28 @@ Deno.serve(async (req) => {
     }
   }
 
+  const importedTotal = tripsImported + earningsImported;
+  if (!syncMessage) {
+    if (importedTotal === 0) {
+      syncMessage = tripRows.length === 0
+        ? `Nenhuma corrida encontrada em ${platform} no período.`
+        : "Nenhum registro novo importado.";
+      syncStatus = "partial";
+    } else if (skippedCount > 0) {
+      syncStatus = "partial";
+    }
+  }
+
   await supabase
     .from("platform_connections")
     .update({
-      status: "connected",
+      status: syncStatus === "error" ? "error" : "connected",
       last_synced_at: syncedAt,
-      last_sync_error: null,
+      last_sync_error: syncStatus === "error" ? syncMessage : null,
       next_scheduled_sync_at: new Date(Date.now() + 24 * 3600 * 1000).toISOString(),
     })
     .eq("user_id", userId)
     .eq("platform", platform);
-
-  const stubPending = tripRows.length === 0;
-  const importedTotal = tripsImported + earningsImported;
-  const syncStatus = stubPending
-    ? "partial"
-    : skippedCount > 0 && importedTotal > 0
-    ? "partial"
-    : skippedCount > 0
-    ? "error"
-    : "success";
 
   await supabase.from("platform_sync_logs").insert({
     user_id: userId,
@@ -327,22 +421,16 @@ Deno.serve(async (req) => {
     earnings_imported: earningsImported,
     skipped_count: skippedCount,
     status: syncStatus,
-    message: stubPending
-      ? `Adapter ${platform} pronto — aguardando credenciais OAuth.`
-      : null,
+    message: syncMessage ?? null,
   });
-
-  const message = stubPending
-    ? `Adapter ${platform} pronto — aguardando credenciais OAuth. Corridas e ganhos serão sincronizados automaticamente.`
-    : undefined;
 
   return jsonResponse({
     platform,
     trips_imported: tripsImported,
     earnings_imported: earningsImported,
-    imported_count: tripsImported + earningsImported,
+    imported_count: importedTotal,
     skipped_count: skippedCount,
     synced_at: syncedAt,
-    message,
+    message: syncMessage,
   });
 });
