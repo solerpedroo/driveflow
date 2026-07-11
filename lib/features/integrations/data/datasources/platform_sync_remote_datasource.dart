@@ -37,7 +37,13 @@ class PlatformSyncRemoteDataSource {
       }
       return data;
     } on FunctionException catch (e) {
-      throw ServerFailure(message: e.reasonPhrase ?? e.toString(), cause: e);
+      final details = e.details;
+      final message = details is Map
+          ? (details['error'] as String?) ??
+              e.reasonPhrase ??
+              'Falha na sincronização.'
+          : e.reasonPhrase ?? 'Falha na sincronização.';
+      throw ServerFailure(message: message, cause: e);
     }
   }
 }
