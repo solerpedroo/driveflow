@@ -6,6 +6,7 @@ import '../../data/repositories/auth_repository_impl.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../../domain/usecases/auth_usecases.dart';
+import '../../../../core/constants/driver_type.dart';
 
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
   return AuthRepositoryImpl();
@@ -51,6 +52,7 @@ class AuthController extends Notifier<AsyncValue<void>> {
     required String email,
     required String password,
     required String name,
+    required DriverType driverType,
   }) async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
@@ -58,6 +60,7 @@ class AuthController extends Notifier<AsyncValue<void>> {
         email: email,
         password: password,
         name: name,
+        driverType: driverType,
       );
     });
   }
