@@ -1,4 +1,5 @@
 import '../entities/user_entity.dart';
+import '../../../../core/constants/driver_type.dart';
 
 /// Contrato de autenticação — isolado do Supabase.
 abstract interface class AuthRepository {
@@ -15,6 +16,7 @@ abstract interface class AuthRepository {
     required String email,
     required String password,
     required String name,
+    required DriverType driverType,
   });
 
   Future<void> signInWithGoogle();
