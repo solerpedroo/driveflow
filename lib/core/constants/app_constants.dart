@@ -95,6 +95,9 @@ const kCurrentWave = 15;
 /// Deep link OAuth Supabase (Google).
 const kOAuthRedirectUrl = 'io.supabase.driveflow://login-callback/';
 
+/// Deep link OAuth das plataformas de corrida.
+const kPlatformOAuthRedirectUrl = 'io.supabase.driveflow://platform-oauth/';
+
 /// Nome do app e versão foundation.
 const kAppName = 'DriveFlow';
 const kAppTagline = 'Lucro claro. Decisão inteligente.';
