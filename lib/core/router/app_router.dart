@@ -32,7 +32,6 @@ import '../../features/onboarding/presentation/screens/driver_type_gate_screen.d
 import '../../features/onboarding/presentation/screens/welcome_onboarding_screen.dart';
 import '../../features/profile/presentation/providers/profile_providers.dart';
 import '../../features/vehicle/presentation/providers/vehicle_providers.dart';
-import '../../features/subscription/presentation/screens/paywall_screen.dart';
 import '../../features/vehicle/presentation/screens/vehicle_onboarding_screen.dart';
 
 /// Notifica GoRouter quando auth, perfil ou veículos mudam.
@@ -351,19 +350,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           child: const AiChatScreen(),
         ),
       ),
-      GoRoute(
-        path: AppRoutes.paywall,
-        name: 'paywall',
-        pageBuilder: (context, state) => driveFlowAuthSlidePage(
-          key: state.pageKey,
-          child: const PaywallScreen(),
-          slideFromRight: true,
-        ),
-      ),
     ],
-    errorBuilder: (context, state) => Scaffold(
+    errorBuilder: (context, state) => const Scaffold(
       body: Center(
-        child: Text('Rota não encontrada: ${state.uri}'),
+        child: Text('Página não encontrada.'),
       ),
     ),
   );
