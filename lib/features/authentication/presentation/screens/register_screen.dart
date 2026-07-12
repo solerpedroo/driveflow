@@ -441,9 +441,8 @@ class RegisterScreen extends HookConsumerWidget {
                                     label: step.isLast
                                         ? 'Criar conta'
                                         : 'Continuar',
-                                    icon: step.isLast
-                                        ? Icons.rocket_launch_rounded
-                                        : Icons.arrow_forward_rounded,
+                                    icon: Icons.arrow_forward_rounded,
+                                    trailingIcon: true,
                                     isLoading: isLoading && step.isLast,
                                     variant: DfButtonVariant.gradient,
                                     onPressed: isLoading ? null : goNext,
@@ -475,11 +474,11 @@ class RegisterScreen extends HookConsumerWidget {
                             ),
                           ),
                           if (stepIndex.value > 0) ...[
-                            const SizedBox(height: AppSpacing.md),
+                            const SizedBox(height: AppSpacing.sm),
                             DfButton(
                               label: 'Voltar',
                               icon: Icons.arrow_back_rounded,
-                              variant: DfButtonVariant.outlined,
+                              variant: DfButtonVariant.tonal,
                               onPressed: isLoading ? null : goBack,
                             ),
                           ],
@@ -696,13 +695,23 @@ class _LoginFooter extends StatelessWidget {
                 color: AppColors.secondaryLabel(theme),
               ),
             ),
-            TextButton(
-              onPressed: enabled ? onPressed : null,
-              child: Text(
-                'Entrar',
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: AppColors.brandBlue,
-                  fontWeight: FontWeight.w700,
+            const SizedBox(width: 4),
+            GestureDetector(
+              onTap: enabled ? onPressed : null,
+              behavior: HitTestBehavior.opaque,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 4,
+                  vertical: 8,
+                ),
+                child: Text(
+                  'Entrar',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: enabled
+                        ? AppColors.brandBlue
+                        : AppColors.secondaryLabel(theme),
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
             ),
