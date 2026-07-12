@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'app_colors.dart';
+import 'app_motion.dart';
 import 'app_radius.dart';
 import 'app_typography.dart';
 
@@ -18,14 +19,14 @@ class DriveFlowFadeSlideTransitionsBuilder extends PageTransitionsBuilder {
   ) {
     final curved = CurvedAnimation(
       parent: animation,
-      curve: Curves.easeInOutCubic,
-      reverseCurve: Curves.easeInOutCubic,
+      curve: DriveFlowMotion.enter,
+      reverseCurve: DriveFlowMotion.exit,
     );
     return FadeTransition(
       opacity: curved,
       child: SlideTransition(
         position: Tween<Offset>(
-          begin: const Offset(0.03, 0),
+          begin: const Offset(0.03, 0.015),
           end: Offset.zero,
         ).animate(curved),
         child: child,
