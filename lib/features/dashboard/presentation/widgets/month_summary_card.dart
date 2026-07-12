@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../shared/domain/models/period_summary.dart';
 import '../../../../shared/widgets/design_system/df_card.dart';
 
-/// Resumo do mês — breakdown Stripe-like (sem repetir lucro hero).
+/// Resumo do mês — breakdown sem repetir o lucro do hero.
 class MonthSummaryCard extends StatelessWidget {
   const MonthSummaryCard({
     required this.summary,
@@ -20,6 +21,7 @@ class MonthSummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final brightness = theme.brightness;
     final profitColor =
         summary.profit >= 0 ? AppColors.profitGreen : AppColors.expenseCoral;
 
@@ -30,7 +32,7 @@ class MonthSummaryCard extends StatelessWidget {
         children: [
           Text(
             'Detalhes do mês',
-            style: theme.textTheme.titleMedium?.copyWith(
+            style: AppTypography.iosHeadline(brightness).copyWith(
               fontWeight: FontWeight.w700,
             ),
           ),
@@ -38,18 +40,15 @@ class MonthSummaryCard extends StatelessWidget {
             const SizedBox(height: AppSpacing.md),
             Text(
               CurrencyFormatter.formatSigned(summary.profit),
-              style: theme.textTheme.displaySmall?.copyWith(
-                fontWeight: FontWeight.w700,
+              style: AppTypography.metric(
+                brightness,
+                fontSize: 32,
                 color: profitColor,
-                letterSpacing: -1,
-                fontFeatures: const [FontFeature.tabularFigures()],
               ),
             ),
             Text(
               'lucro líquido do mês',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: AppColors.secondaryLabel(theme),
-              ),
+              style: AppTypography.iosFootnote(brightness),
             ),
           ],
           const SizedBox(height: AppSpacing.lg),
@@ -96,7 +95,8 @@ class _Row extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final brightness = Theme.of(context).brightness;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
@@ -104,17 +104,17 @@ class _Row extends StatelessWidget {
           Expanded(
             child: Text(
               label,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: AppColors.secondaryLabel(theme),
+              style: AppTypography.iosBody(brightness).copyWith(
+                color: AppColors.secondaryLabel(Theme.of(context)),
               ),
             ),
           ),
           Text(
             value,
             style: (emphasized
-                    ? theme.textTheme.titleSmall
-                    : theme.textTheme.bodyLarge)
-                ?.copyWith(
+                    ? AppTypography.iosHeadline(brightness)
+                    : AppTypography.iosBody(brightness))
+                .copyWith(
               fontWeight: FontWeight.w600,
               fontFeatures: const [FontFeature.tabularFigures()],
             ),
