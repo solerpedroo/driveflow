@@ -1792,6 +1792,29 @@ Após as ondas 15–34 e refatorações por tela (Início, Ganhos, Despesas, etc
 
 ---
 
+## Onda 41 — Cobertura de testes (Sprint 4)
+
+**Objetivo:** Fechar gaps de cobertura da auditoria — relatórios, integração e goldens.
+
+### Escopo
+
+| Item | Correção |
+|---|---|
+| T4 | `reports_providers_test` — snapshot, escopo veículo, filtro período |
+| T5 | `report_indicators_card_test` + `reports_screen_test` |
+| T6 | `integration_test/app_smoke_test.dart` — boot deslogado → login |
+| T3 | `design_system_golden_test` com `matchesGoldenFile` |
+| T7 | `test/support/shell_provider_overrides.dart` — DRY main_shell |
+
+### Critérios
+
+- [x] Feature reports com testes de lógica e widget
+- [x] CI roda `flutter test` + `flutter test integration_test`
+- [x] Golden files em `test/goldens/`
+- [x] Overrides compartilhados no main_shell
+
+---
+
 ## Mapa de requisitos funcionais → ondas
 
 | RF | Descrição | Onda |
