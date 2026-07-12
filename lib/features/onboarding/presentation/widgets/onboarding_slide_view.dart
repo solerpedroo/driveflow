@@ -9,10 +9,12 @@ import '../../domain/entities/onboarding_slide.dart';
 class OnboardingSlideView extends StatelessWidget {
   const OnboardingSlideView({
     required this.slide,
+    this.compact = false,
     super.key,
   });
 
   final OnboardingSlide slide;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
@@ -20,27 +22,33 @@ class OnboardingSlideView extends StatelessWidget {
     final brightness = theme.brightness;
     final accent = slide.accent ?? AppColors.brandBlue;
 
+    final orb = Container(
+      width: compact ? 96 : 88,
+      height: compact ? 96 : 88,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(24),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            accent.withValues(alpha: 0.22),
+            accent.withValues(alpha: 0.08),
+          ],
+        ),
+        border: Border.fromBorderSide(AppElevation.hairline(brightness)),
+        boxShadow: AppElevation.surfaceCard(brightness),
+      ),
+      child: Icon(slide.icon, size: compact ? 44 : 40, color: accent),
+    );
+
+    if (compact) {
+      return Center(child: orb);
+    }
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Container(
-          width: 88,
-          height: 88,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(24),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                accent.withValues(alpha: 0.22),
-                accent.withValues(alpha: 0.08),
-              ],
-            ),
-            border: Border.fromBorderSide(AppElevation.hairline(brightness)),
-            boxShadow: AppElevation.surfaceCard(brightness),
-          ),
-          child: Icon(slide.icon, size: 40, color: accent),
-        ),
+        orb,
         const SizedBox(height: AppSpacing.xxl),
         Text(
           slide.title,
