@@ -1,42 +1,61 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_elevation.dart';
+import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../domain/entities/period_comparison_result.dart';
 import '../../../../shared/widgets/design_system/df_card.dart';
 
-/// Card com variação de indicadores vs período de referência.
+/// Comparativo vs período de referência — módulo elevado.
 class PeriodComparisonCard extends StatelessWidget {
   const PeriodComparisonCard({
     required this.comparison,
+    this.hideValue = false,
     super.key,
   });
 
   final PeriodComparisonResult comparison;
+  final bool hideValue;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final brightness = Theme.of(context).brightness;
 
     return DfCard(
+      variant: DfCardVariant.elevated,
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.xl,
+        AppSpacing.lg,
+        AppSpacing.xl,
+        AppSpacing.md,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Comparativo — ${comparison.period.label}',
-            style: theme.textTheme.titleMedium,
+            'Comparação',
+            style: AppTypography.labelCaps(brightness),
           ),
           const SizedBox(height: 4),
           Text(
-            'vs ${comparison.reference.label.toLowerCase()}',
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: AppColors.secondaryLabel(theme),
+            '${comparison.period.label} vs ${comparison.reference.label.toLowerCase()}',
+            style: AppTypography.iosFootnote(brightness),
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          for (var i = 0; i < comparison.metrics.length; i++) ...[
+            if (i > 0)
+              Divider(
+                height: 1,
+                thickness: 0.5,
+                color: AppElevation.hairline(brightness).color,
+              ),
+            _MetricRow(
+              metric: comparison.metrics[i],
+              hideValue: hideValue,
             ),
-          ),
-          const SizedBox(height: 12),
-          ...comparison.metrics.map(
-            (metric) => _MetricRow(metric: metric),
-          ),
+          ],
         ],
       ),
     );
@@ -44,34 +63,43 @@ class PeriodComparisonCard extends StatelessWidget {
 }
 
 class _MetricRow extends StatelessWidget {
-  const _MetricRow({required this.metric});
+  const _MetricRow({
+    required this.metric,
+    required this.hideValue,
+  });
 
   final PeriodMetricDelta metric;
+  final bool hideValue;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isMoney = !metric.label.contains('/ km') &&
-        metric.label != 'Lucro / hora';
+    final brightness = Theme.of(context).brightness;
+    final isMoney =
+        !metric.label.contains('/ km') && metric.label != 'Lucro / hora';
 
-    final currentText = _formatValue(metric.current, isMoney: isMoney);
-    final deltaColor = metric.improved
-        ? AppColors.profitGreen
-        : AppColors.expenseCoral;
+    final currentText = hideValue
+        ? (isMoney ? 'R\$ ••••••' : '•••')
+        : _formatValue(metric.current, isMoney: isMoney);
+    final deltaColor =
+        metric.improved ? AppColors.profitGreen : AppColors.expenseCoral;
     final deltaPrefix = metric.delta >= 0 ? '+' : '';
     final percentText = metric.deltaPercent != null
         ? ' (${deltaPrefix}${metric.deltaPercent!.toStringAsFixed(1)}%)'
         : '';
+    final deltaText = hideValue
+        ? '•••'
+        : '$deltaPrefix${_formatValue(metric.delta, isMoney: isMoney)}$percentText';
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.symmetric(vertical: 12),
       child: Row(
         children: [
           Expanded(
             child: Text(
               metric.label,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: AppColors.secondaryLabel(theme),
+              style: AppTypography.iosBody(brightness).copyWith(
+                color: AppColors.secondaryLabel(Theme.of(context)),
+                fontSize: 15,
               ),
             ),
           ),
@@ -80,13 +108,21 @@ class _MetricRow extends StatelessWidget {
             children: [
               Text(
                 currentText,
-                style: theme.textTheme.bodyLarge?.copyWith(
-                  fontWeight: FontWeight.w600,
+                style: AppTypography.iosHeadline(brightness).copyWith(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  fontFeatures: const [FontFeature.tabularFigures()],
                 ),
               ),
+              const SizedBox(height: 2),
               Text(
-                '$deltaPrefix${_formatValue(metric.delta, isMoney: isMoney)}$percentText',
-                style: theme.textTheme.labelSmall?.copyWith(color: deltaColor),
+                deltaText,
+                style: AppTypography.iosCaption(brightness).copyWith(
+                  color: hideValue
+                      ? AppColors.secondaryLabel(Theme.of(context))
+                      : deltaColor,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ],
           ),
