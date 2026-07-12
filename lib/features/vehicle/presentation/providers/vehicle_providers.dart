@@ -16,7 +16,8 @@ final vehicleRepositoryProvider = Provider<VehicleRepository>((ref) {
   );
 });
 
-final vehiclesStreamProvider = StreamProvider<List<VehicleEntity>>((ref) {
+final vehiclesStreamProvider =
+    StreamProvider.autoDispose<List<VehicleEntity>>((ref) {
   final watch = WatchVehicles(ref.watch(vehicleRepositoryProvider));
   return watch();
 });
