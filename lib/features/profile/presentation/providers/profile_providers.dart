@@ -92,11 +92,20 @@ final profileControllerProvider =
     NotifierProvider<ProfileController, AsyncValue<void>>(ProfileController.new);
 
 /// Perfil atualizado do Supabase (nome/foto/tipo), complementa auth metadata.
+///
+/// Faz retries curtos após login — o row pode atrasar um instante após o auth.
 final userProfileProvider = FutureProvider<UserEntity?>((ref) async {
   final authUser = ref.watch(authStateProvider).valueOrNull;
   if (authUser == null) return null;
 
-  final row = await ProfileRemoteDataSource().fetchProfile(authUser.id);
+  final remote = ProfileRemoteDataSource();
+  Map<String, dynamic>? row;
+  for (var attempt = 0; attempt < 3; attempt++) {
+    row = await remote.fetchProfile(authUser.id);
+    if (row != null) break;
+    await Future<void>.delayed(Duration(milliseconds: 200 * (attempt + 1)));
+  }
+
   if (row == null) return authUser;
   return UserMapper.fromProfileRow(row);
 });
