@@ -52,13 +52,15 @@ class DfChip extends StatelessWidget {
               ),
             ),
             child: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
                 if (icon != null) ...[
                   Icon(icon, size: 18, color: accentColor),
                   const SizedBox(width: AppSpacing.sm),
                 ],
-                Expanded(
+                Flexible(
                   child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
