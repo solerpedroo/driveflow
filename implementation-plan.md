@@ -1,8 +1,8 @@
 # DriveFlow — implementation-plan.md
 
-Plano de implementação em **35 ondas** (0–35) para o DriveFlow (Flutter + Supabase + Groq), partindo de repositório vazio, combinando Clean Architecture feature-first do escopo com os padrões de organização do projeto MesclaInvest (screens/widgets/services separados, shell de navegação, mappers, test hooks).
+Plano de implementação em **36 ondas** (0–36) para o DriveFlow (Flutter + Supabase + Groq), partindo de repositório vazio, combinando Clean Architecture feature-first do escopo com os padrões de organização do projeto MesclaInvest (screens/widgets/services separados, shell de navegação, mappers, test hooks).
 
-**Fases:** ondas **0–9** = MVP v1.0 · ondas **10–14** = features pós-MVP · ondas **15–23** = Design System + Premium UI · ondas **24–29** = Integrações Uber/99/InDrive + inteligência cross-platform · ondas **30–33** = Analytics avançado por app + turno inteligente + caixa/metas + Pro analytics · onda **34** = Apple Premium UI (Geist + profundidade + hierarquia) · onda **35** = Taxista + onboarding editorial Mescla Invest.
+**Fases:** ondas **0–9** = MVP v1.0 · ondas **10–14** = features pós-MVP · ondas **15–23** = Design System + Premium UI · ondas **24–29** = Integrações Uber/99/InDrive + inteligência cross-platform · ondas **30–33** = Analytics avançado por app + turno inteligente + caixa/metas + Pro analytics · onda **34** = Apple Premium UI (Geist + profundidade + hierarquia) · onda **35** = Taxista + onboarding editorial Mescla Invest · onda **36** = Cadastro em etapas (padrão Mescla Invest).
 
 **Repositório:** `driveflow`  
 **Referência:** `ES-PI3-2026-T2-G03` (MesclaInvest)
@@ -44,6 +44,7 @@ Plano de implementação em **35 ondas** (0–35) para o DriveFlow (Flutter + Su
 | 33 | Pro analytics — regiões, consistência, PDF visual, IA com séries temporais | em andamento |
 | 34 | Apple Premium UI — Geist, profundidade Wallet/Cash App, anti–vibe-coding | concluída |
 | 35 | Taxista + onboarding editorial Mescla Invest (app vs táxi, UX manual) | concluída |
+| 36 | Cadastro em etapas — uma pergunta por tela, progresso Mescla Invest | concluída |
 
 ---
 
@@ -1614,6 +1615,61 @@ Auth → Driver type (se null, OAuth) → Welcome onboarding → Vehicle → Hom
 
 ---
 
+## Onda 36 — Cadastro em etapas (padrão Mescla Invest)
+
+**Objetivo:** Substituir o formulário monolítico de criar conta por um fluxo **uma pergunta por etapa**, no mesmo padrão do Mescla Invest (`CreateAccountScreen`): progresso linear, `AnimatedSwitcher`, CTA Continuar → Cadastrar, sem novas rotas no GoRouter.
+
+### Referência UX
+
+| Padrão Mescla | DriveFlow |
+|---|---|
+| `int _currentStep` local | `useState` de step na `RegisterScreen` |
+| `LinearProgressIndicator` + chip `N/total` | `AuthStepProgress` |
+| `AnimatedSwitcher` (~220ms) | `DriveFlowMotion.normal` + `ValueKey(step)` |
+| Voltar step 0 → login | `context.go(AppRoutes.login)` |
+| Validação só da etapa atual | Validators por step; submit final no last |
+
+### Etapas (5)
+
+| Step | Headline | Conteúdo |
+|---|---|---|
+| 0 | Como você trabalha? | `DriverTypePicker` |
+| 1 | Qual é o seu nome? | Nome completo |
+| 2 | Qual é o seu e-mail? | E-mail |
+| 3 | Crie uma senha segura | Senha + `DfPasswordChecklist` |
+| 4 | Confirme sua senha | Confirmar → `signUpWithEmail` |
+
+### Escopo técnico
+
+| Item | Detalhe |
+|---|---|
+| `AuthStepProgress` | Barra + chip `N/5` + caption “Etapa X de 5” |
+| `AuthHeroLayout` | Slot `headerChild` opcional (progresso) |
+| `RegisterScreen` | Controllers vivos entre steps; headline/subtitle dinâmicos |
+| Backend | Sem mudanças — mesmo `signUpWithEmail` + `driverType` |
+| Router | Continua `/register` único |
+
+### Critérios de conclusão
+
+- [x] Progresso visível em todas as etapas
+- [x] Uma pergunta por etapa com transição `AnimatedSwitcher`
+- [x] Voltar / Continuar / Cadastrar no padrão Mescla
+- [x] Dados preservados ao navegar entre etapas
+- [x] `signUpWithEmail` inalterado (nome, e-mail, senha, driverType)
+- [x] Testes `register_screen_test` atualizados para o fluxo em etapas
+- [x] `flutter analyze` + testes da área passando
+
+### Ordem de commits (atômicos)
+
+1. `implementation-plan.md` — documentação Onda 36  
+2. `auth_step_progress.dart`  
+3. `auth_hero_layout.dart` — `headerChild`  
+4. `driver_type_picker.dart` — `showHeader` opcional  
+5. `register_screen.dart` — fluxo em 5 etapas  
+6. `register_screen_test.dart`
+
+---
+
 ## Mapa de requisitos funcionais → ondas
 
 | RF | Descrição | Onda |
@@ -1650,6 +1706,7 @@ Auth → Driver type (se null, OAuth) → Welcome onboarding → Vehicle → Hom
 | RNF-Final | Final outlier polish — 100% design system | 23 |
 | RNF-Apple | Apple Premium UI — Geist, profundidade, hierarquia | 34 |
 | RF33 | Perfil taxista — cadastro, onboarding, UX manual sem integrações | 35 |
+| RNF-AuthSteps | Cadastro em etapas — progresso Mescla, uma pergunta por tela | 36 |
 | RF22 | Conexão apps Uber/99/InDrive | 24 |
 | RF23 | Sync ganhos e corridas via API | 25–26 |
 | RF24 | Histórico de corridas sincronizadas | 25 |
@@ -1713,7 +1770,8 @@ PLATFORM_OAUTH_REDIRECT_URL=
 | **v3.1** | Analytics avançado por app — gráficos, turno, caixa, Pro | 30–33 |
 | **v3.2** | Apple Premium UI — Geist + profundidade Wallet/Cash App | 34 |
 | **v3.3** | Taxista + onboarding editorial Mescla Invest | 35 |
-| **v3.4** | Comunidade, parceiros, painel web | fora do plano atual |
+| **v3.4** | Cadastro em etapas (padrão Mescla Invest) | 36 |
+| **v3.5** | Comunidade, parceiros, painel web | fora do plano atual |
 
 ---
 
