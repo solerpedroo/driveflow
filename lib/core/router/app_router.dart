@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../constants/app_constants.dart';
 import 'transitions.dart';
 import '../../features/authentication/presentation/providers/auth_providers.dart';
+import '../../features/authentication/presentation/providers/brand_intro_provider.dart';
 import '../../features/authentication/presentation/screens/login_screen.dart';
 import '../../features/authentication/presentation/screens/register_screen.dart';
 import '../../features/authentication/presentation/screens/splash_screen.dart';
@@ -34,7 +35,7 @@ import '../../features/profile/presentation/providers/profile_providers.dart';
 import '../../features/vehicle/presentation/providers/vehicle_providers.dart';
 import '../../features/vehicle/presentation/screens/vehicle_onboarding_screen.dart';
 
-/// Notifica GoRouter quando auth, perfil ou veículos mudam.
+/// Notifica GoRouter quando auth, perfil, veículos ou intro de marca mudam.
 class AppRouterRefresh extends ChangeNotifier {
   AppRouterRefresh(this._ref) {
     _authSub = _ref.listen(authStateProvider, (_, __) => notifyListeners());
@@ -42,18 +43,22 @@ class AppRouterRefresh extends ChangeNotifier {
         _ref.listen(userProfileProvider, (_, __) => notifyListeners());
     _vehicleSub =
         _ref.listen(vehiclesStreamProvider, (_, __) => notifyListeners());
+    _introSub =
+        _ref.listen(brandIntroCompleteProvider, (_, __) => notifyListeners());
   }
 
   final Ref _ref;
   late final ProviderSubscription<AsyncValue<dynamic>> _authSub;
   late final ProviderSubscription<AsyncValue<dynamic>> _profileSub;
   late final ProviderSubscription<AsyncValue<dynamic>> _vehicleSub;
+  late final ProviderSubscription<bool> _introSub;
 
   @override
   void dispose() {
     _authSub.close();
     _profileSub.close();
     _vehicleSub.close();
+    _introSub.close();
     super.dispose();
   }
 }
@@ -84,6 +89,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       final authAsync = ref.read(authStateProvider);
       final profileAsync = ref.read(userProfileProvider);
       final vehiclesAsync = ref.read(vehiclesStreamProvider);
+      final brandIntroDone = ref.read(brandIntroCompleteProvider);
       final location = state.matchedLocation;
 
       final isSplash = location == AppRoutes.splash;
@@ -95,6 +101,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       final isVehicleOnboarding = location == AppRoutes.vehicleOnboarding;
       final isAddVehicle = location == AppRoutes.addVehicle;
       final isEditVehicle = location.startsWith(AppRoutes.editVehicle);
+
+      // Intro de marca: permanece no splash até o minHold.
+      if (isSplash && !brandIntroDone) {
+        return null;
+      }
 
       if (authAsync.isLoading) {
         return isSplash ? null : AppRoutes.splash;
