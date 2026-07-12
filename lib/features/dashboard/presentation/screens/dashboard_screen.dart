@@ -22,16 +22,11 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
-import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/value_visibility_provider.dart';
 import '../../../../shared/domain/models/dashboard_snapshot.dart';
 import '../../../../shared/widgets/design_system/df_expandable_list_section.dart';
-import '../../../../shared/widgets/design_system/df_hero_wealth_card.dart';
-import '../../../../shared/widgets/design_system/df_pill_action_button.dart';
-import '../../../../shared/widgets/design_system/df_screen_body.dart';
 import '../../../../shared/widgets/design_system/df_section_header.dart';
 import '../../../../shared/widgets/design_system/df_skeleton.dart';
-import '../../../../shared/widgets/design_system/df_staggered_entrance.dart';
 import '../../../../shared/widgets/design_system/df_tab_scroll_view.dart';
 import '../../../onboarding/presentation/providers/onboarding_providers.dart';
 import '../providers/dashboard_providers.dart';
@@ -40,12 +35,13 @@ import '../../../integrations/presentation/widgets/dashboard_platform_chip.dart'
 import '../widgets/dashboard_editorial_header.dart';
 import '../widgets/dashboard_fuel_card.dart';
 import '../widgets/dashboard_maintenance_card.dart';
+import '../widgets/dashboard_quick_actions.dart';
+import '../widgets/dashboard_wealth_stage.dart';
 import '../../../integrations/presentation/widgets/platform_goal_progress_card.dart';
-import '../widgets/dashboard_hero_section.dart';
 import '../widgets/month_summary_card.dart';
 import '../widgets/weekly_profit_chart.dart';
 
-/// Início — composição editorial (auth-level) + um KPI dominante.
+/// Início minimalista — saudação, um KPI, ações leves.
 class DashboardScreen extends HookConsumerWidget {
   const DashboardScreen({super.key});
 
@@ -57,23 +53,6 @@ class DashboardScreen extends HookConsumerWidget {
     if (hour < 12) return 'Bom dia, $capitalized';
     if (hour < 18) return 'Boa tarde, $capitalized';
     return 'Boa noite, $capitalized';
-  }
-
-  static String _subtitle({
-    required bool hidden,
-    required double monthProfit,
-    required int todayRides,
-  }) {
-    if (hidden) {
-      return 'Valores ocultos. Toque no olho para revelar o mês e o dia.';
-    }
-    if (todayRides == 0 && monthProfit == 0) {
-      return 'Registre o primeiro ganho e o painel ganha vida.';
-    }
-    if (monthProfit >= 0) {
-      return 'Mês no azul. Confira o dia e as próximas ações abaixo.';
-    }
-    return 'Mês apertado — olhe o dia e ajuste ganhos e gastos.';
   }
 
   @override
@@ -102,11 +81,9 @@ class DashboardScreen extends HookConsumerWidget {
         ref.read(valueVisibilityHiddenProvider.notifier).state = !hidden;
 
     return dashboardAsync.when(
-      loading: () => _DashboardLoading(greeting: greeting, hidden: hidden),
+      loading: () => _DashboardLoading(greeting: greeting),
       error: (_, __) => _DashboardError(
         greeting: greeting,
-        hidden: hidden,
-        onToggleVisibility: toggleVisibility,
         onRetry: () => ref.invalidate(dashboardSnapshotProvider),
       ),
       data: (snapshot) => dailyGoal.when(
@@ -123,7 +100,7 @@ class DashboardScreen extends HookConsumerWidget {
           topSlots: topSlots,
           topPrediction: topPrediction,
         ),
-        loading: () => _DashboardLoading(greeting: greeting, hidden: hidden),
+        loading: () => _DashboardLoading(greeting: greeting),
         error: (_, __) => _DashboardBody(
           greeting: greeting,
           hidden: hidden,
@@ -148,25 +125,17 @@ class DashboardScreen extends HookConsumerWidget {
 }
 
 class _DashboardLoading extends StatelessWidget {
-  const _DashboardLoading({
-    required this.greeting,
-    required this.hidden,
-  });
+  const _DashboardLoading({required this.greeting});
 
   final String greeting;
-  final bool hidden;
 
   @override
   Widget build(BuildContext context) {
     return DfTabScrollView(
       children: [
-        DashboardEditorialHeader(
-          greeting: greeting,
-          subtitle: 'Carregando seu resumo…',
-          hidden: hidden,
-          onToggleVisibility: () {},
-        ),
-        const DfSkeleton(itemCount: 3),
+        const DashboardBrandBar(),
+        DashboardGreeting(text: greeting),
+        const DfSkeleton(itemCount: 2),
       ],
     );
   }
@@ -175,14 +144,10 @@ class _DashboardLoading extends StatelessWidget {
 class _DashboardError extends StatelessWidget {
   const _DashboardError({
     required this.greeting,
-    required this.hidden,
-    required this.onToggleVisibility,
     required this.onRetry,
   });
 
   final String greeting;
-  final bool hidden;
-  final VoidCallback onToggleVisibility;
   final VoidCallback onRetry;
 
   @override
@@ -191,17 +156,12 @@ class _DashboardError extends StatelessWidget {
 
     return DfTabScrollView(
       children: [
-        DashboardEditorialHeader(
-          greeting: greeting,
-          subtitle: 'Não foi possível carregar o resumo agora.',
-          hidden: hidden,
-          onToggleVisibility: onToggleVisibility,
-        ),
+        const DashboardBrandBar(),
+        DashboardGreeting(text: greeting),
         Text(
-          'Verifique a conexão e tente de novo. Seus dados continuam salvos.',
+          'Não foi possível carregar. Tente de novo.',
           style: AppTypography.iosBody(brightness).copyWith(
             color: AppColors.secondaryLabel(Theme.of(context)),
-            height: 1.45,
           ),
         ),
         Align(
@@ -247,94 +207,47 @@ class _DashboardBody extends StatelessWidget {
   Widget build(BuildContext context) {
     final month = snapshot.month;
     final today = snapshot.today;
-    final profitBadge = goal.hasTarget
-        ? 'Meta ${goal.progressLabel}'
-        : '${today.rides} corridas hoje';
-    final subtitle = DashboardScreen._subtitle(
-      hidden: hidden,
-      monthProfit: month.profit,
-      todayRides: today.rides,
-    );
 
     return DfTabScrollView(
       children: [
-        DfStaggeredEntrance(
-          children: [
-            DashboardEditorialHeader(
-              greeting: greeting,
-              subtitle: subtitle,
-              hidden: hidden,
-              onToggleVisibility: onToggleVisibility,
+        const DashboardBrandBar(),
+        DashboardGreeting(text: greeting),
+        DashboardWealthStage(
+          month: month,
+          today: today,
+          goal: goal,
+          hideValue: hidden,
+          onToggleVisibility: onToggleVisibility,
+        ),
+        DashboardQuickActions(
+          actions: [
+            DashboardQuickAction(
+              icon: Icons.add_rounded,
+              label: 'Ganho',
+              onTap: () => context.push(AppRoutes.earningForm),
             ),
-            const SizedBox(height: DfScreenBody.sectionGap),
-            DfHeroWealthCard(
-              label: 'Lucro do mês',
-              value: CurrencyFormatter.formatSigned(month.profit),
-              badge: profitBadge,
-              hideValue: hidden,
-              footer: Row(
-                children: [
-                  Expanded(
-                    child: _HeroMiniStat(
-                      label: 'Ganhos',
-                      value: maskCurrency(
-                        CurrencyFormatter.format(month.revenue),
-                        hidden: hidden,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: AppSpacing.md),
-                  Expanded(
-                    child: _HeroMiniStat(
-                      label: 'Despesas',
-                      value: maskCurrency(
-                        CurrencyFormatter.format(month.expenses),
-                        hidden: hidden,
-                      ),
-                    ),
-                  ),
-                ],
+            DashboardQuickAction(
+              icon: Icons.receipt_long_rounded,
+              label: 'Despesa',
+              onTap: () => context.push(AppRoutes.expenseForm),
+            ),
+            DashboardQuickAction(
+              icon: Icons.insights_rounded,
+              label: 'Relatório',
+              onTap: () => context.go('${AppRoutes.home}?tab=reports'),
+            ),
+            if (isTaxiDriver)
+              DashboardQuickAction(
+                icon: Icons.flag_rounded,
+                label: 'Metas',
+                onTap: () => context.push(AppRoutes.goals),
+              )
+            else
+              DashboardQuickAction(
+                icon: Icons.hub_rounded,
+                label: 'Apps',
+                onTap: () => context.push(AppRoutes.platformIntegrations),
               ),
-            ),
-            const SizedBox(height: DfScreenBody.sectionGap),
-            DashboardHeroSection(
-              summary: today,
-              goalProgress: goal,
-              weekProfits: snapshot.weekProfits,
-              hideValue: hidden,
-            ),
-            const SizedBox(height: DfScreenBody.sectionGap),
-            DfPillActionGrid(
-              actions: [
-                DfPillActionButton(
-                  icon: Icons.add_circle_outline,
-                  label: 'Novo ganho',
-                  onTap: () => context.push(AppRoutes.earningForm),
-                ),
-                DfPillActionButton(
-                  icon: Icons.receipt_long_outlined,
-                  label: 'Nova despesa',
-                  onTap: () => context.push(AppRoutes.expenseForm),
-                ),
-                DfPillActionButton(
-                  icon: Icons.bar_chart_rounded,
-                  label: 'Relatórios',
-                  onTap: () => context.go('${AppRoutes.home}?tab=reports'),
-                ),
-                if (isTaxiDriver)
-                  DfPillActionButton(
-                    icon: Icons.flag_outlined,
-                    label: 'Metas',
-                    onTap: () => context.push(AppRoutes.goals),
-                  )
-                else
-                  DfPillActionButton(
-                    icon: Icons.hub_outlined,
-                    label: 'Conectar apps',
-                    onTap: () => context.push(AppRoutes.platformIntegrations),
-                  ),
-              ],
-            ),
           ],
         ),
         if (!isTaxiDriver) ...[
@@ -350,8 +263,8 @@ class _DashboardBody extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               DfSectionHeader(
-                title: 'Onde você rodou hoje',
-                eyebrow: 'Apps',
+                title: 'Onde você rodou',
+                eyebrow: 'Hoje',
               ),
               SizedBox(height: AppSpacing.md),
               DashboardPlatformMixCard(),
@@ -366,7 +279,7 @@ class _DashboardBody extends StatelessWidget {
           ),
         DfExpandableListSection(
           title: 'Seu carro',
-          eyebrow: 'Combustível e revisão',
+          eyebrow: 'Cuidados',
           itemCount: 2,
           previewCount: 2,
           itemBuilder: (context, index) {
@@ -375,40 +288,6 @@ class _DashboardBody extends StatelessWidget {
             }
             return DashboardMaintenanceCard(alerts: maintenanceAlerts);
           },
-        ),
-      ],
-    );
-  }
-}
-
-class _HeroMiniStat extends StatelessWidget {
-  const _HeroMiniStat({required this.label, required this.value});
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    final brightness = Theme.of(context).brightness;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: AppTypography.iosFootnote(brightness).copyWith(
-            color: Colors.white.withValues(alpha: 0.70),
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: AppTypography.iosHeadline(brightness).copyWith(
-            color: Colors.white,
-            fontWeight: FontWeight.w700,
-            fontFeatures: const [FontFeature.tabularFigures()],
-          ),
         ),
       ],
     );
