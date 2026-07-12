@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -15,6 +16,8 @@ import 'supabase_dev_setup.dart';
 
 Future<void> main() async {
   await DriveFlowCrashReporting.bootstrap(() async {
+    FlutterNativeSplash.preserve(widgetsBinding: WidgetsBinding.instance);
+
     await HiveStorage.initialize();
     await initializeSupabase();
     await _restoreSessionIfAvailable();
