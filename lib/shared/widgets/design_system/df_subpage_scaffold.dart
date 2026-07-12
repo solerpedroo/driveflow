@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_typography.dart';
 import '../driveflow_gradient_background.dart';
-import 'df_hero_wealth_card.dart';
 import 'df_tab_scroll_view.dart';
 
 /// Scaffold de subpágina empurrada — gradiente + voltar + scroll Mescla.
+/// Privacidade monetária fica no [DfHeroWealthCard], não no AppBar.
 class DfSubpageScaffold extends StatelessWidget {
   const DfSubpageScaffold({
     required this.title,
@@ -17,7 +18,9 @@ class DfSubpageScaffold extends StatelessWidget {
     this.actions,
     this.leading,
     this.bottomPadding = 32,
+    @Deprecated('Use onToggleVisibility no DfHeroWealthCard')
     this.valueHidden,
+    @Deprecated('Use onToggleVisibility no DfHeroWealthCard')
     this.onToggleValueVisibility,
   }) : assert(
           (children != null) ^ (body != null),
@@ -32,21 +35,14 @@ class DfSubpageScaffold extends StatelessWidget {
   final Widget? leading;
   final double bottomPadding;
 
-  /// Toggle de visibilidade monetária no AppBar (subpáginas com valores).
+  @Deprecated('Use onToggleVisibility no DfHeroWealthCard')
   final bool? valueHidden;
+  @Deprecated('Use onToggleVisibility no DfHeroWealthCard')
   final VoidCallback? onToggleValueVisibility;
 
   @override
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
-    final appBarActions = <Widget>[
-      if (valueHidden != null && onToggleValueVisibility != null)
-        DfValueVisibilityButton(
-          hidden: valueHidden!,
-          onToggle: onToggleValueVisibility!,
-        ),
-      ...?actions,
-    ];
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: brightness == Brightness.dark
@@ -64,11 +60,13 @@ class DfSubpageScaffold extends StatelessWidget {
                 ),
             title: Text(
               title,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
+              style: AppTypography.iosHeadline(brightness).copyWith(
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                letterSpacing: -0.3,
+              ),
             ),
-            actions: appBarActions.isEmpty ? null : appBarActions,
+            actions: actions,
           ),
           body: body ??
               DfTabScrollView(
