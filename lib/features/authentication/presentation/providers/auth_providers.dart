@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../profile/presentation/providers/profile_providers.dart';
 import '../../../vehicle/presentation/providers/vehicle_providers.dart';
 import '../../data/repositories/auth_repository_impl.dart';
+import '../../domain/entities/sign_up_result.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../../domain/usecases/auth_usecases.dart';
@@ -50,22 +51,27 @@ class AuthController extends Notifier<AsyncValue<void>> {
     });
   }
 
-  Future<void> signUpWithEmail({
+  Future<SignUpResult?> signUpWithEmail({
     required String email,
     required String password,
     required String name,
     required DriverType driverType,
   }) async {
     state = const AsyncLoading();
+    SignUpResult? result;
     state = await AsyncValue.guard(() async {
-      await ref.read(signUpWithEmailProvider)(
+      result = await ref.read(signUpWithEmailProvider)(
         email: email,
         password: password,
         name: name,
         driverType: driverType,
       );
-      _warmupSessionProviders();
+      if (result is SignUpCompleted) {
+        _warmupSessionProviders();
+      }
     });
+    if (state.hasError) return null;
+    return result;
   }
 
   Future<void> signInWithGoogle() async {
