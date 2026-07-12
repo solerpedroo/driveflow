@@ -23,7 +23,7 @@ class AuthGateScreen extends ConsumerWidget {
       error: (error, _) => DriveFlowGradientBackground(
         child: Scaffold(
           backgroundColor: Colors.transparent,
-          body: Center(child: Text('Erro ao verificar sessão: $error')),
+          body: Center(child: Text('Não foi possível verificar sua sessão. Tente novamente.')),
         ),
       ),
       data: (user) {
