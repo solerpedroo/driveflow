@@ -24,7 +24,7 @@ class PlatformNetProfitChart extends StatelessWidget {
     final theme = Theme.of(context);
     if (slices.isEmpty) {
       return DfCard(
-        child: Text('Sem corridas sincronizadas.', style: theme.textTheme.bodyMedium),
+        child: Text('Sem corridas dos apps ainda.', style: theme.textTheme.bodyMedium),
       );
     }
 
