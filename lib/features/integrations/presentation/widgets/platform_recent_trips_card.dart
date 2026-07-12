@@ -33,7 +33,7 @@ class PlatformRecentTripsCard extends ConsumerWidget {
                 children: [
                   Expanded(
                     child: Text(
-                      'Últimas corridas sincronizadas',
+                      'Últimas corridas dos apps',
                       style: theme.textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.w700,
                       ),
