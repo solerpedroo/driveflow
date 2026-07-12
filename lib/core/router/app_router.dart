@@ -98,9 +98,6 @@ final routerProvider = Provider<GoRouter>((ref) {
       final isVehicleOnboarding = location == AppRoutes.vehicleOnboarding;
       final isAddVehicle = location == AppRoutes.addVehicle;
       final isEditVehicle = location.startsWith(AppRoutes.editVehicle);
-      final isPreShellOnboarding = isDriverTypeOnboarding ||
-          isWelcomeOnboarding ||
-          isVehicleOnboarding;
 
       if (authAsync.isLoading) {
         return isSplash ? null : AppRoutes.splash;
@@ -112,11 +109,13 @@ final routerProvider = Provider<GoRouter>((ref) {
         return AppRoutes.login;
       }
 
-      if (profileAsync.isLoading || vehiclesAsync.isLoading) {
-        return isSplash || isPreShellOnboarding ? null : AppRoutes.splash;
+      if (profileAsync.isLoading ||
+          vehiclesAsync.isLoading ||
+          !profileAsync.hasValue ||
+          !vehiclesAsync.hasValue) {
+        return isSplash ? null : AppRoutes.splash;
       }
 
-      final profile = profileAsync.valueOrNull;
       final needsDriverType = ref.read(needsDriverTypeSelectionProvider);
       final needsWelcome = ref.read(needsWelcomeOnboardingProvider);
       final hasVehicle = vehiclesAsync.valueOrNull?.isNotEmpty ?? false;
