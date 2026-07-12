@@ -4,6 +4,7 @@ import '../../../goals/domain/services/goal_progress_calculator.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_semantic_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/duration_formatter.dart';
 import '../../../../core/utils/story_metrics.dart';
@@ -14,7 +15,7 @@ import '../../../../shared/widgets/design_system/df_card.dart';
 import '../../../../shared/widgets/design_system/df_hero_metric.dart';
 import '../../../../shared/widgets/design_system/df_progress_ring.dart';
 
-/// Seção Hoje — anel de meta + lucro do dia (narrativa única).
+/// Seção Hoje — secundária ao hero do mês (anel + narrativa do dia).
 class DashboardHeroSection extends StatelessWidget {
   const DashboardHeroSection({
     required this.summary,
@@ -32,6 +33,7 @@ class DashboardHeroSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final brightness = theme.brightness;
     final profitColor = summary.profit >= 0
         ? AppSemanticColors.success
         : AppSemanticColors.error;
@@ -57,31 +59,30 @@ class DashboardHeroSection extends StatelessWidget {
         : 'Lucro do dia';
 
     return DfCard(
-      variant: DfCardVariant.elevated,
+      variant: DfCardVariant.glass,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Hoje',
-            style: theme.textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.w700,
-              letterSpacing: -0.4,
+            'HOJE',
+            style: AppTypography.labelCaps(brightness).copyWith(
+              color: AppColors.secondaryLabel(theme),
             ),
           ),
-          const SizedBox(height: AppSpacing.xs),
+          const SizedBox(height: AppSpacing.sm),
           Text(
             storyLine,
-            style: theme.textTheme.bodyMedium?.copyWith(
+            style: AppTypography.iosBody(brightness).copyWith(
               color: AppColors.secondaryLabel(theme),
               height: 1.4,
             ),
           ),
-          const SizedBox(height: AppSpacing.xl),
+          const SizedBox(height: AppSpacing.lg),
           Center(
             child: DfProgressRing(
               progress: ringProgress,
-              size: 180,
-              strokeWidth: 11,
+              size: 148,
+              strokeWidth: 10,
               accentColor: ringColor,
               child: DfHeroMetric(
                 value: profitDisplay,
@@ -90,7 +91,7 @@ class DashboardHeroSection extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: AppSpacing.xl),
+          const SizedBox(height: AppSpacing.lg),
           Row(
             children: [
               Expanded(
@@ -116,7 +117,7 @@ class DashboardHeroSection extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: AppSpacing.md),
           Wrap(
             spacing: AppSpacing.sm,
             runSpacing: AppSpacing.sm,
@@ -156,7 +157,7 @@ class _MacroPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final brightness = Theme.of(context).brightness;
 
     return Container(
       padding: const EdgeInsets.symmetric(
@@ -173,14 +174,14 @@ class _MacroPill extends StatelessWidget {
         children: [
           Text(
             label,
-            style: theme.textTheme.labelSmall?.copyWith(
-              color: AppColors.secondaryLabel(theme),
+            style: AppTypography.iosFootnote(brightness).copyWith(
+              color: AppColors.secondaryLabel(Theme.of(context)),
             ),
           ),
           const SizedBox(height: 2),
           Text(
             value,
-            style: theme.textTheme.titleSmall?.copyWith(
+            style: AppTypography.iosHeadline(brightness).copyWith(
               color: color,
               fontWeight: FontWeight.w700,
               fontFeatures: const [FontFeature.tabularFigures()],
@@ -200,7 +201,7 @@ class _StatChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final brightness = Theme.of(context).brightness;
 
     return Container(
       padding: const EdgeInsets.symmetric(
@@ -208,7 +209,7 @@ class _StatChip extends StatelessWidget {
         vertical: AppSpacing.sm,
       ),
       decoration: BoxDecoration(
-        color: AppColors.mutedSurface(theme),
+        color: AppColors.mutedSurface(Theme.of(context)),
         borderRadius: BorderRadius.circular(100),
       ),
       child: Row(
@@ -216,7 +217,12 @@ class _StatChip extends StatelessWidget {
         children: [
           Icon(icon, size: 14, color: AppColors.brandBlue),
           const SizedBox(width: 6),
-          Text(label, style: theme.textTheme.labelMedium),
+          Text(
+            label,
+            style: AppTypography.iosFootnote(brightness).copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+          ),
         ],
       ),
     );
