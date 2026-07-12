@@ -2,7 +2,7 @@
 enum EarningSource {
   manual('manual', 'Manual'),
   import_('import', 'Importação'),
-  apiSync('api_sync', 'Sincronização');
+  apiSync('api_sync', 'Automático');
 
   const EarningSource(this.value, this.label);
 
