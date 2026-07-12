@@ -78,8 +78,8 @@ class DfHeroWealthCard extends StatelessWidget {
                       visualDensity: VisualDensity.compact,
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(
-                        minWidth: 36,
-                        minHeight: 36,
+                        minWidth: 44,
+                        minHeight: 44,
                       ),
                       icon: Icon(
                         hideValue
@@ -99,7 +99,7 @@ class DfHeroWealthCard extends StatelessWidget {
                       ),
                       decoration: BoxDecoration(
                         color: Colors.white.withValues(alpha: 0.14),
-                        borderRadius: BorderRadius.circular(100),
+                        borderRadius: AppRadius.pillAll,
                         border: Border.all(
                           color: Colors.white.withValues(alpha: 0.16),
                         ),
