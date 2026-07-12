@@ -19,22 +19,25 @@ import '../../../vehicle/domain/entities/vehicle_entity.dart';
 import '../../../vehicle/presentation/providers/vehicle_providers.dart';
 import '../../../vehicle/presentation/widgets/vehicle_scope_chip.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/value_visibility_provider.dart';
 import '../../../../shared/domain/models/dashboard_snapshot.dart';
 import '../../../../shared/widgets/design_system/df_expandable_list_section.dart';
-import '../../../../shared/widgets/design_system/df_header_row.dart';
 import '../../../../shared/widgets/design_system/df_hero_wealth_card.dart';
 import '../../../../shared/widgets/design_system/df_pill_action_button.dart';
+import '../../../../shared/widgets/design_system/df_screen_body.dart';
 import '../../../../shared/widgets/design_system/df_section_header.dart';
 import '../../../../shared/widgets/design_system/df_skeleton.dart';
+import '../../../../shared/widgets/design_system/df_staggered_entrance.dart';
 import '../../../../shared/widgets/design_system/df_tab_scroll_view.dart';
 import '../../../onboarding/presentation/providers/onboarding_providers.dart';
 import '../providers/dashboard_providers.dart';
 import '../../../integrations/presentation/widgets/dashboard_platform_mix_card.dart';
 import '../../../integrations/presentation/widgets/dashboard_platform_chip.dart';
+import '../widgets/dashboard_editorial_header.dart';
 import '../widgets/dashboard_fuel_card.dart';
 import '../widgets/dashboard_maintenance_card.dart';
 import '../../../integrations/presentation/widgets/platform_goal_progress_card.dart';
@@ -42,7 +45,7 @@ import '../widgets/dashboard_hero_section.dart';
 import '../widgets/month_summary_card.dart';
 import '../widgets/weekly_profit_chart.dart';
 
-/// Dashboard — hierarquia Wallet: um hero de mês + seção Hoje.
+/// Início — composição editorial (auth-level) + um KPI dominante.
 class DashboardScreen extends HookConsumerWidget {
   const DashboardScreen({super.key});
 
@@ -54,6 +57,23 @@ class DashboardScreen extends HookConsumerWidget {
     if (hour < 12) return 'Bom dia, $capitalized';
     if (hour < 18) return 'Boa tarde, $capitalized';
     return 'Boa noite, $capitalized';
+  }
+
+  static String _subtitle({
+    required bool hidden,
+    required double monthProfit,
+    required int todayRides,
+  }) {
+    if (hidden) {
+      return 'Valores ocultos. Toque no olho para revelar o mês e o dia.';
+    }
+    if (todayRides == 0 && monthProfit == 0) {
+      return 'Registre o primeiro ganho e o painel ganha vida.';
+    }
+    if (monthProfit >= 0) {
+      return 'Mês no azul. Confira o dia e as próximas ações abaixo.';
+    }
+    return 'Mês apertado — olhe o dia e ajuste ganhos e gastos.';
   }
 
   @override
@@ -78,17 +98,23 @@ class DashboardScreen extends HookConsumerWidget {
       [displayName],
     );
 
+    void toggleVisibility() =>
+        ref.read(valueVisibilityHiddenProvider.notifier).state = !hidden;
+
     return dashboardAsync.when(
-      loading: () => const Center(child: DfSkeleton(itemCount: 4)),
-      error: (e, _) => Center(child: Text('Erro ao carregar dashboard: $e')),
+      loading: () => _DashboardLoading(greeting: greeting, hidden: hidden),
+      error: (_, __) => _DashboardError(
+        greeting: greeting,
+        hidden: hidden,
+        onToggleVisibility: toggleVisibility,
+        onRetry: () => ref.invalidate(dashboardSnapshotProvider),
+      ),
       data: (snapshot) => dailyGoal.when(
         data: (goal) => _DashboardBody(
           greeting: greeting,
           hidden: hidden,
           isTaxiDriver: isTaxiDriver,
-          onToggleVisibility: () => ref
-              .read(valueVisibilityHiddenProvider.notifier)
-              .state = !hidden,
+          onToggleVisibility: toggleVisibility,
           snapshot: snapshot,
           goal: goal,
           vehicle: vehicle,
@@ -97,14 +123,12 @@ class DashboardScreen extends HookConsumerWidget {
           topSlots: topSlots,
           topPrediction: topPrediction,
         ),
-        loading: () => const Center(child: DfSkeleton(itemCount: 4)),
+        loading: () => _DashboardLoading(greeting: greeting, hidden: hidden),
         error: (_, __) => _DashboardBody(
           greeting: greeting,
           hidden: hidden,
           isTaxiDriver: isTaxiDriver,
-          onToggleVisibility: () => ref
-              .read(valueVisibilityHiddenProvider.notifier)
-              .state = !hidden,
+          onToggleVisibility: toggleVisibility,
           snapshot: snapshot,
           goal: GoalProgressCalculator.calculate(
             period: GoalPeriod.daily,
@@ -119,6 +143,75 @@ class DashboardScreen extends HookConsumerWidget {
           topPrediction: topPrediction,
         ),
       ),
+    );
+  }
+}
+
+class _DashboardLoading extends StatelessWidget {
+  const _DashboardLoading({
+    required this.greeting,
+    required this.hidden,
+  });
+
+  final String greeting;
+  final bool hidden;
+
+  @override
+  Widget build(BuildContext context) {
+    return DfTabScrollView(
+      children: [
+        DashboardEditorialHeader(
+          greeting: greeting,
+          subtitle: 'Carregando seu resumo…',
+          hidden: hidden,
+          onToggleVisibility: () {},
+        ),
+        const DfSkeleton(itemCount: 3),
+      ],
+    );
+  }
+}
+
+class _DashboardError extends StatelessWidget {
+  const _DashboardError({
+    required this.greeting,
+    required this.hidden,
+    required this.onToggleVisibility,
+    required this.onRetry,
+  });
+
+  final String greeting;
+  final bool hidden;
+  final VoidCallback onToggleVisibility;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    final brightness = Theme.of(context).brightness;
+
+    return DfTabScrollView(
+      children: [
+        DashboardEditorialHeader(
+          greeting: greeting,
+          subtitle: 'Não foi possível carregar o resumo agora.',
+          hidden: hidden,
+          onToggleVisibility: onToggleVisibility,
+        ),
+        Text(
+          'Verifique a conexão e tente de novo. Seus dados continuam salvos.',
+          style: AppTypography.iosBody(brightness).copyWith(
+            color: AppColors.secondaryLabel(Theme.of(context)),
+            height: 1.45,
+          ),
+        ),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: TextButton(
+            onPressed: onRetry,
+            child: const Text('Tentar novamente'),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -152,56 +245,97 @@ class _DashboardBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final brightness = Theme.of(context).brightness;
     final month = snapshot.month;
     final today = snapshot.today;
     final profitBadge = goal.hasTarget
         ? 'Meta ${goal.progressLabel}'
         : '${today.rides} corridas hoje';
+    final subtitle = DashboardScreen._subtitle(
+      hidden: hidden,
+      monthProfit: month.profit,
+      todayRides: today.rides,
+    );
 
     return DfTabScrollView(
       children: [
-        const DfHeaderRow(),
-        Text(greeting, style: AppTypography.labelCaps(brightness)),
-        DfScreenTitleRow(
-          title: 'Seu painel',
-          hidden: hidden,
-          onToggleVisibility: onToggleVisibility,
-        ),
-        DfHeroWealthCard(
-          label: 'Lucro do mês',
-          value: CurrencyFormatter.formatSigned(month.profit),
-          badge: profitBadge,
-          hideValue: hidden,
-          footer: Row(
-            children: [
-              Expanded(
-                child: _HeroMiniStat(
-                  label: 'Ganhos',
-                  value: maskCurrency(
-                    CurrencyFormatter.format(month.revenue),
-                    hidden: hidden,
+        DfStaggeredEntrance(
+          children: [
+            DashboardEditorialHeader(
+              greeting: greeting,
+              subtitle: subtitle,
+              hidden: hidden,
+              onToggleVisibility: onToggleVisibility,
+            ),
+            const SizedBox(height: DfScreenBody.sectionGap),
+            DfHeroWealthCard(
+              label: 'Lucro do mês',
+              value: CurrencyFormatter.formatSigned(month.profit),
+              badge: profitBadge,
+              hideValue: hidden,
+              footer: Row(
+                children: [
+                  Expanded(
+                    child: _HeroMiniStat(
+                      label: 'Ganhos',
+                      value: maskCurrency(
+                        CurrencyFormatter.format(month.revenue),
+                        hidden: hidden,
+                      ),
+                    ),
                   ),
-                ),
-              ),
-              const SizedBox(width: AppSpacing.md),
-              Expanded(
-                child: _HeroMiniStat(
-                  label: 'Despesas',
-                  value: maskCurrency(
-                    CurrencyFormatter.format(month.expenses),
-                    hidden: hidden,
+                  const SizedBox(width: AppSpacing.md),
+                  Expanded(
+                    child: _HeroMiniStat(
+                      label: 'Despesas',
+                      value: maskCurrency(
+                        CurrencyFormatter.format(month.expenses),
+                        hidden: hidden,
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
-            ],
-          ),
-        ),
-        DashboardHeroSection(
-          summary: today,
-          goalProgress: goal,
-          weekProfits: snapshot.weekProfits,
-          hideValue: hidden,
+            ),
+            const SizedBox(height: DfScreenBody.sectionGap),
+            DashboardHeroSection(
+              summary: today,
+              goalProgress: goal,
+              weekProfits: snapshot.weekProfits,
+              hideValue: hidden,
+            ),
+            const SizedBox(height: DfScreenBody.sectionGap),
+            DfPillActionGrid(
+              actions: [
+                DfPillActionButton(
+                  icon: Icons.add_circle_outline,
+                  label: 'Novo ganho',
+                  onTap: () => context.push(AppRoutes.earningForm),
+                ),
+                DfPillActionButton(
+                  icon: Icons.receipt_long_outlined,
+                  label: 'Nova despesa',
+                  onTap: () => context.push(AppRoutes.expenseForm),
+                ),
+                DfPillActionButton(
+                  icon: Icons.bar_chart_rounded,
+                  label: 'Relatórios',
+                  onTap: () => context.go('${AppRoutes.home}?tab=reports'),
+                ),
+                if (isTaxiDriver)
+                  DfPillActionButton(
+                    icon: Icons.flag_outlined,
+                    label: 'Metas',
+                    onTap: () => context.push(AppRoutes.goals),
+                  )
+                else
+                  DfPillActionButton(
+                    icon: Icons.hub_outlined,
+                    label: 'Conectar apps',
+                    onTap: () => context.push(AppRoutes.platformIntegrations),
+                  ),
+              ],
+            ),
+          ],
         ),
         if (!isTaxiDriver) ...[
           const DashboardPlatformChip(),
@@ -211,44 +345,13 @@ class _DashboardBody extends StatelessWidget {
           alignment: Alignment.centerLeft,
           child: VehicleScopeChip(),
         ),
-        DfPillActionGrid(
-          actions: [
-            DfPillActionButton(
-              icon: Icons.add_circle_outline,
-              label: 'Novo ganho',
-              onTap: () => context.push(AppRoutes.earningForm),
-            ),
-            DfPillActionButton(
-              icon: Icons.receipt_long_outlined,
-              label: 'Nova despesa',
-              onTap: () => context.push(AppRoutes.expenseForm),
-            ),
-            DfPillActionButton(
-              icon: Icons.bar_chart_rounded,
-              label: 'Relatórios',
-              onTap: () => context.go('${AppRoutes.home}?tab=reports'),
-            ),
-            if (isTaxiDriver)
-              DfPillActionButton(
-                icon: Icons.flag_outlined,
-                label: 'Metas',
-                onTap: () => context.push(AppRoutes.goals),
-              )
-            else
-              DfPillActionButton(
-                icon: Icons.hub_outlined,
-                label: 'Integrações',
-                onTap: () => context.push(AppRoutes.platformIntegrations),
-              ),
-          ],
-        ),
         if (!isTaxiDriver)
           const Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               DfSectionHeader(
-                title: 'Mix de plataformas',
-                eyebrow: 'Hoje',
+                title: 'Onde você rodou hoje',
+                eyebrow: 'Apps',
               ),
               SizedBox(height: AppSpacing.md),
               DashboardPlatformMixCard(),
@@ -262,8 +365,8 @@ class _DashboardBody extends StatelessWidget {
             topPrediction: topPrediction,
           ),
         DfExpandableListSection(
-          title: 'Operação do veículo',
-          eyebrow: 'Manutenção',
+          title: 'Seu carro',
+          eyebrow: 'Combustível e revisão',
           itemCount: 2,
           previewCount: 2,
           itemBuilder: (context, index) {
@@ -286,24 +389,26 @@ class _HeroMiniStat extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final brightness = Theme.of(context).brightness;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: Colors.white.withValues(alpha: 0.70),
-                fontWeight: FontWeight.w500,
-              ),
+          style: AppTypography.iosFootnote(brightness).copyWith(
+            color: Colors.white.withValues(alpha: 0.70),
+            fontWeight: FontWeight.w500,
+          ),
         ),
         const SizedBox(height: 4),
         Text(
           value,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: Colors.white,
-                fontWeight: FontWeight.w700,
-                fontFeatures: const [FontFeature.tabularFigures()],
-              ),
+          style: AppTypography.iosHeadline(brightness).copyWith(
+            color: Colors.white,
+            fontWeight: FontWeight.w700,
+            fontFeatures: const [FontFeature.tabularFigures()],
+          ),
         ),
       ],
     );
