@@ -62,7 +62,7 @@ class AiChatScreen extends HookConsumerWidget {
                 padding: EdgeInsets.all(16),
                 child: DfSkeleton(itemCount: 3),
               ),
-              error: (e, _) => Center(child: Text('Erro: $e')),
+              error: (e, _) => Center(child: Text('Não foi possível carregar. Tente novamente.')),
               data: (history) {
                 if (history.isEmpty && !mutation.isLoading) {
                   return const AiChatStoryHero();
