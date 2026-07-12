@@ -73,7 +73,7 @@ class MaintenanceHistoryScreen extends ConsumerWidget {
         ),
         recordsAsync.when(
           loading: () => const DfSkeleton(itemCount: 3),
-          error: (e, _) => Text('Erro: $e'),
+          error: (e, _) => Text('Não foi possível carregar. Tente novamente.'),
           data: (records) {
             if (records.isEmpty) {
               return const DfEmptyState(
