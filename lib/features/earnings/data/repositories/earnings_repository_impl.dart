@@ -154,7 +154,7 @@ class EarningsRepositoryImpl implements EarningsRepository {
       }
     }
     if (existing == null) {
-      throw const ServerFailure(message: 'Ganho não encontrado no cache local.');
+      throw const ServerFailure(message: 'Ganho não encontrado. Tente novamente.');
     }
 
     final updated = {
