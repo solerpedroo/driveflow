@@ -4,8 +4,9 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../../vehicle/presentation/widgets/vehicle_scope_chip.dart';
 import '../../domain/entities/analytics_enums.dart';
 import '../../../ai/presentation/providers/ai_providers.dart';
-import '../../../goals/domain/entities/goal_entity.dart';
 import '../../../dashboard/presentation/providers/dashboard_providers.dart';
+import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/value_visibility_provider.dart';
 import '../providers/analytics_providers.dart';
@@ -15,14 +16,14 @@ import '../widgets/period_comparison_card.dart';
 import '../widgets/platform_analytics_section.dart';
 import '../widgets/profit_forecast_card.dart';
 import '../widgets/profit_trend_chart.dart';
+import '../../../../shared/widgets/design_system/df_card.dart';
 import '../../../../shared/widgets/design_system/df_hero_wealth_card.dart';
-import '../../../../shared/widgets/design_system/df_section_header.dart';
 import '../../../../shared/widgets/design_system/df_goal_period_chips.dart';
 import '../../../../shared/widgets/design_system/df_period_pill_chip.dart';
 import '../../../../shared/widgets/design_system/df_skeleton.dart';
 import '../../../../shared/widgets/design_system/df_subpage_scaffold.dart';
 
-/// Análises avançadas — layout Mescla com hero e seções.
+/// Análises avançadas — DNA Início / Relatórios.
 class AnalyticsScreen extends ConsumerWidget {
   const AnalyticsScreen({super.key});
 
@@ -32,6 +33,7 @@ class AnalyticsScreen extends ConsumerWidget {
     final period = ref.watch(analyticsPeriodProvider);
     final reference = ref.watch(analyticsComparisonReferenceProvider);
     final hidden = ref.watch(valueVisibilityHiddenProvider);
+    final brightness = Theme.of(context).brightness;
 
     final trendAsync = ref.watch(analyticsProfitTrendProvider);
     final forecastAsync = ref.watch(analyticsProfitForecastProvider);
@@ -40,38 +42,114 @@ class AnalyticsScreen extends ConsumerWidget {
     final comparisonAsync = ref.watch(analyticsComparisonProvider);
     final monthAsync = ref.watch(dashboardMonthProvider);
 
+    void toggleVisibility() =>
+        ref.read(valueVisibilityHiddenProvider.notifier).state = !hidden;
+
     return DfSubpageScaffold(
       title: 'Análises',
-      valueHidden: hidden,
-      onToggleValueVisibility: () => ref
-          .read(valueVisibilityHiddenProvider.notifier)
-          .state = !hidden,
       children: [
         const Align(
           alignment: Alignment.centerLeft,
           child: VehicleScopeChip(),
         ),
         monthAsync.when(
-          loading: () => const SizedBox.shrink(),
+          loading: () => const SizedBox(
+            height: 140,
+            child: DfSkeleton(itemCount: 1),
+          ),
           error: (_, __) => const SizedBox.shrink(),
           data: (month) => DfHeroWealthCard(
             label: 'Lucro do mês',
             value: CurrencyFormatter.formatSigned(month.profit),
             badge: 'Referência atual',
             hideValue: hidden,
+            onToggleVisibility: toggleVisibility,
+            footer: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Receita',
+                        style: AppTypography.iosFootnote(brightness).copyWith(
+                          color: Colors.white.withValues(alpha: 0.65),
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        hidden
+                            ? '•••'
+                            : CurrencyFormatter.format(month.revenue),
+                        style: AppTypography.iosHeadline(brightness).copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                          fontFeatures: const [FontFeature.tabularFigures()],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Despesas',
+                        style: AppTypography.iosFootnote(brightness).copyWith(
+                          color: Colors.white.withValues(alpha: 0.65),
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        hidden
+                            ? '•••'
+                            : CurrencyFormatter.format(month.expenses),
+                        style: AppTypography.iosHeadline(brightness).copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                          fontFeatures: const [FontFeature.tabularFigures()],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
-        const DfSectionHeader(title: 'Tendência de lucro', eyebrow: 'Gráfico'),
-        DfPeriodPillRow<TrendWindow>(
-          segments: TrendWindow.values,
-          selected: trendWindow,
-          labelBuilder: (w) => w.label,
-          onChanged: (w) =>
-              ref.read(analyticsTrendWindowProvider.notifier).state = w,
+        DfCard(
+          variant: DfCardVariant.elevated,
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.xl,
+            AppSpacing.lg,
+            AppSpacing.xl,
+            AppSpacing.lg,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Tendência',
+                style: AppTypography.labelCaps(brightness),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              DfPeriodPillRow<TrendWindow>(
+                segments: TrendWindow.values,
+                selected: trendWindow,
+                labelBuilder: (w) => w.label,
+                onChanged: (w) =>
+                    ref.read(analyticsTrendWindowProvider.notifier).state = w,
+              ),
+            ],
+          ),
         ),
         trendAsync.when(
           loading: () => const DfSkeleton(itemCount: 3),
-          error: (e, _) => Text('Não foi possível carregar. Tente novamente.'),
+          error: (e, _) => Text(
+            'Não foi possível carregar. Tente novamente.',
+            style: AppTypography.iosBody(brightness),
+          ),
           data: (points) => ProfitTrendChart(
             points: points,
             windowLabel: trendWindow.label,
@@ -79,7 +157,10 @@ class AnalyticsScreen extends ConsumerWidget {
         ),
         forecastAsync.when(
           loading: () => const DfSkeleton(itemCount: 3),
-          error: (e, _) => Text('Não foi possível carregar. Tente novamente.'),
+          error: (e, _) => Text(
+            'Não foi possível carregar. Tente novamente.',
+            style: AppTypography.iosBody(brightness),
+          ),
           data: (forecast) => ProfitForecastCard(
             forecast: forecast,
             aiSummary: aiForecastAsync.valueOrNull?.summary,
@@ -88,40 +169,67 @@ class AnalyticsScreen extends ConsumerWidget {
                 ref.read(aiForecastControllerProvider.notifier).generate(),
           ),
         ),
-        const DfSectionHeader(title: 'Comparar períodos', eyebrow: 'Análise'),
-        DfGoalPeriodChips(
-          selected: period,
-          onChanged: (p) =>
-              ref.read(analyticsPeriodProvider.notifier).state = p,
-        ),
-        DfPeriodPillRow<ComparisonReference>(
-          segments: ComparisonReference.values,
-          selected: reference,
-          labelBuilder: (r) => r.label,
-          onChanged: (r) => ref
-              .read(analyticsComparisonReferenceProvider.notifier)
-              .state = r,
+        DfCard(
+          variant: DfCardVariant.elevated,
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.xl,
+            AppSpacing.lg,
+            AppSpacing.xl,
+            AppSpacing.lg,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Comparar períodos',
+                style: AppTypography.labelCaps(brightness),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              DfGoalPeriodChips(
+                selected: period,
+                onChanged: (p) =>
+                    ref.read(analyticsPeriodProvider.notifier).state = p,
+              ),
+              const SizedBox(height: AppSpacing.md),
+              DfPeriodPillRow<ComparisonReference>(
+                segments: ComparisonReference.values,
+                selected: reference,
+                labelBuilder: (r) => r.label,
+                onChanged: (r) => ref
+                    .read(analyticsComparisonReferenceProvider.notifier)
+                    .state = r,
+              ),
+            ],
+          ),
         ),
         comparisonAsync.when(
           loading: () => const DfSkeleton(itemCount: 3),
-          error: (e, _) => Text('Não foi possível carregar. Tente novamente.'),
+          error: (e, _) => Text(
+            'Não foi possível carregar. Tente novamente.',
+            style: AppTypography.iosBody(brightness),
+          ),
           data: (comparison) => Column(
             children: [
-              PeriodComparisonCard(comparison: comparison),
-              const SizedBox(height: 16),
+              PeriodComparisonCard(
+                comparison: comparison,
+                hideValue: hidden,
+              ),
+              const SizedBox(height: AppSpacing.md),
               PeriodComparisonBarChart(comparison: comparison),
             ],
           ),
         ),
         const PlatformAnalyticsSection(),
-        const DfSectionHeader(
-          title: 'Distribuição de despesas',
-          eyebrow: 'Categorias',
-        ),
         breakdownAsync.when(
           loading: () => const DfSkeleton(itemCount: 3),
-          error: (e, _) => Text('Não foi possível carregar. Tente novamente.'),
-          data: (slices) => ExpensePieChart(slices: slices),
+          error: (e, _) => Text(
+            'Não foi possível carregar. Tente novamente.',
+            style: AppTypography.iosBody(brightness),
+          ),
+          data: (slices) => ExpensePieChart(
+            slices: slices,
+            hideValue: hidden,
+          ),
         ),
       ],
     );
