@@ -54,6 +54,7 @@ class MainShellScreen extends HookConsumerWidget {
     final routeTab = _tabFromGoRouter(context);
     final selectedIndex = routeTab ?? localTab.value;
     final activatedTabs = useState(<int>{initialTab});
+    final tabHistory = useState<List<int>>([initialTab]);
 
     final tabBodies = useMemoized(
       () => const [
@@ -65,25 +66,44 @@ class MainShellScreen extends HookConsumerWidget {
       ],
     );
 
-    void onNavIndexChanged(int index) {
+    void navigateToTab(int index, {required bool recordHistory}) {
       localTab.value = index;
       activatedTabs.value = {...activatedTabs.value, index};
+      if (recordHistory) {
+        final history = tabHistory.value;
+        if (history.isEmpty || history.last != index) {
+          tabHistory.value = [...history, index];
+        }
+      }
       if (router != null) {
         context.go(_homeLocationForTab(index));
       }
     }
 
+    void onNavIndexChanged(int index) => navigateToTab(index, recordHistory: true);
+
     useEffect(() {
       localTab.value = initialTab;
       activatedTabs.value = {...activatedTabs.value, initialTab, selectedIndex};
+      tabHistory.value = [initialTab];
       return null;
     }, [initialTab, selectedIndex]);
 
-    return DriveFlowMainShell(
-      selectedIndex: selectedIndex,
-      onNavIndexChanged: onNavIndexChanged,
-      tabBodies: tabBodies,
-      activatedTabIndices: {...activatedTabs.value, selectedIndex},
+    return PopScope(
+      canPop: tabHistory.value.length <= 1,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop || tabHistory.value.length <= 1) return;
+        final history = [...tabHistory.value]..removeLast();
+        final previous = history.last;
+        tabHistory.value = history;
+        navigateToTab(previous, recordHistory: false);
+      },
+      child: DriveFlowMainShell(
+        selectedIndex: selectedIndex,
+        onNavIndexChanged: onNavIndexChanged,
+        tabBodies: tabBodies,
+        activatedTabIndices: {...activatedTabs.value, selectedIndex},
+      ),
     );
   }
 }
