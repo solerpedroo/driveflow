@@ -40,7 +40,7 @@ class ExpensesScreen extends ConsumerWidget {
         children: [
           const DfHeaderRow(),
           const DfScreenTitleRow(title: 'Despesas'),
-          Text('Erro: $e'),
+          Text('Não foi possível carregar. Tente novamente.'),
         ],
       ),
       data: (grouped) {
