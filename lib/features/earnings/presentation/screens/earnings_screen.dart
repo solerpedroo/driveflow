@@ -48,7 +48,7 @@ class EarningsScreen extends ConsumerWidget {
         children: [
           const DfHeaderRow(),
           const DfScreenTitleRow(title: 'Ganhos'),
-          Text('Erro: $e'),
+          Text('Não foi possível carregar. Tente novamente.'),
         ],
       ),
       data: (earnings) => DfTabScrollView(
