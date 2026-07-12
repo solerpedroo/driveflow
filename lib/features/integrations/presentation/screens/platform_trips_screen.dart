@@ -115,15 +115,15 @@ class PlatformTripsScreen extends ConsumerWidget {
                 child: const DfEmptyState(
                   variant: DfEmptyStateVariant.illustrated,
                   icon: Icons.route_outlined,
-                  title: 'Nenhuma corrida sincronizada',
+                  title: 'Nenhuma corrida importada',
                   subtitle:
-                      'Conecte Uber, 99 ou InDrive e sincronize para ver o histórico aqui.',
+                      'Conecte Uber, 99 ou InDrive e atualize para ver o histórico aqui.',
                 ),
               );
             }
             return DfExpandableListSection(
               title: 'Corridas recentes',
-              eyebrow: 'Sync',
+              eyebrow: 'Automático',
               itemCount: trips.length,
               itemBuilder: (context, index) =>
                   PlatformTripTile(trip: trips[index]),
