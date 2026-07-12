@@ -51,7 +51,7 @@ class ReportsScreen extends ConsumerWidget {
         ),
         reportAsync.when(
           loading: () => const DfSkeleton(itemCount: 1),
-          error: (e, _) => Text('Erro: $e'),
+          error: (e, _) => Text('Não foi possível carregar. Tente novamente.'),
           data: (report) => DfHeroWealthCard(
             label: 'Lucro no período',
             value: CurrencyFormatter.formatSigned(report.summary.profit),
@@ -67,7 +67,7 @@ class ReportsScreen extends ConsumerWidget {
         const DfSectionHeader(title: 'Comparação', eyebrow: 'Período'),
         comparisonAsync.when(
           loading: () => const DfSkeleton(itemCount: 2),
-          error: (e, _) => Text('Erro: $e'),
+          error: (e, _) => Text('Não foi possível carregar. Tente novamente.'),
           data: (comparison) => PeriodComparisonCard(comparison: comparison),
         ),
         const DfSectionHeader(
@@ -76,7 +76,7 @@ class ReportsScreen extends ConsumerWidget {
         ),
         breakdownAsync.when(
           loading: () => const DfSkeleton(itemCount: 3),
-          error: (e, _) => Text('Erro: $e'),
+          error: (e, _) => Text('Não foi possível carregar. Tente novamente.'),
           data: (slices) => ExpensePieChart(slices: slices),
         ),
         const ReportExportActions(),
