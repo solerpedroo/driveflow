@@ -8,6 +8,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/errors/failure_message.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/date_utils.dart';
@@ -251,7 +252,7 @@ class ExpenseFormScreen extends HookConsumerWidget {
               if (mutation.hasError) ...[
                 const SizedBox(height: 12),
                 Text(
-                  mutation.error.toString(),
+                  FailureMessage.forObject(mutation.error),
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.error,
                   ),
