@@ -58,21 +58,18 @@ class AppRouterRefresh extends ChangeNotifier {
   }
 }
 
-CustomTransitionPage<void> _fadePage({
+CustomTransitionPage<void> _shellPage({
   required LocalKey key,
   required Widget child,
 }) {
-  return CustomTransitionPage<void>(
-    key: key,
-    child: child,
-    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      final curved = CurvedAnimation(
-        parent: animation,
-        curve: Curves.easeOutCubic,
-      );
-      return FadeTransition(opacity: curved, child: child);
-    },
-  );
+  return driveFlowFadePage(key: key, child: child);
+}
+
+CustomTransitionPage<void> _pushPage({
+  required LocalKey key,
+  required Widget child,
+}) {
+  return driveFlowFadeSlidePage(key: key, child: child);
 }
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -160,7 +157,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.splash,
         name: 'splash',
-        pageBuilder: (context, state) => _fadePage(
+        pageBuilder: (context, state) => _shellPage(
           key: state.pageKey,
           child: const SplashScreen(),
         ),
@@ -186,7 +183,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.driverTypeOnboarding,
         name: 'driverTypeOnboarding',
-        pageBuilder: (context, state) => _fadePage(
+        pageBuilder: (context, state) => driveFlowAuthSlidePage(
           key: state.pageKey,
           child: const DriverTypeGateScreen(),
         ),
@@ -194,7 +191,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.welcomeOnboarding,
         name: 'welcomeOnboarding',
-        pageBuilder: (context, state) => _fadePage(
+        pageBuilder: (context, state) => driveFlowAuthSlidePage(
           key: state.pageKey,
           child: const WelcomeOnboardingScreen(),
         ),
@@ -202,7 +199,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.vehicleOnboarding,
         name: 'vehicleOnboarding',
-        pageBuilder: (context, state) => _fadePage(
+        pageBuilder: (context, state) => driveFlowAuthSlidePage(
           key: state.pageKey,
           child: const VehicleOnboardingScreen(),
         ),
@@ -210,7 +207,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.home,
         name: 'home',
-        pageBuilder: (context, state) => _fadePage(
+        pageBuilder: (context, state) => _shellPage(
           key: state.pageKey,
           child: MainShellScreen(
             initialTab: MainShellScreen.resolveInitialTab(
@@ -222,7 +219,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.addVehicle,
         name: 'addVehicle',
-        pageBuilder: (context, state) => _fadePage(
+        pageBuilder: (context, state) => _pushPage(
           key: state.pageKey,
           child: const AddVehicleScreen(),
         ),
@@ -230,7 +227,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.editVehicle,
         name: 'editVehicle',
-        pageBuilder: (context, state) => _fadePage(
+        pageBuilder: (context, state) => _pushPage(
           key: state.pageKey,
           child: EditVehicleScreen(
             vehicleId: state.uri.queryParameters['id'],
@@ -240,7 +237,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.earningForm,
         name: 'earningForm',
-        pageBuilder: (context, state) => _fadePage(
+        pageBuilder: (context, state) => _pushPage(
           key: state.pageKey,
           child: EarningFormScreen(
             earning: state.extra as EarningEntity?,
@@ -250,7 +247,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.expenseForm,
         name: 'expenseForm',
-        pageBuilder: (context, state) => _fadePage(
+        pageBuilder: (context, state) => _pushPage(
           key: state.pageKey,
           child: ExpenseFormScreen(
             expense: state.extra as ExpenseEntity?,
@@ -260,7 +257,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.fuelLog,
         name: 'fuelLog',
-        pageBuilder: (context, state) => _fadePage(
+        pageBuilder: (context, state) => _pushPage(
           key: state.pageKey,
           child: FuelLogScreen(
             fuelLog: state.extra as FuelLogEntity?,
@@ -270,7 +267,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.fuelHistory,
         name: 'fuelHistory',
-        pageBuilder: (context, state) => _fadePage(
+        pageBuilder: (context, state) => _pushPage(
           key: state.pageKey,
           child: const FuelHistoryScreen(),
         ),
@@ -278,7 +275,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.maintenanceForm,
         name: 'maintenanceForm',
-        pageBuilder: (context, state) => _fadePage(
+        pageBuilder: (context, state) => _pushPage(
           key: state.pageKey,
           child: MaintenanceFormScreen(
             record: state.extra as MaintenanceEntity?,
@@ -288,7 +285,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.maintenanceHistory,
         name: 'maintenanceHistory',
-        pageBuilder: (context, state) => _fadePage(
+        pageBuilder: (context, state) => _pushPage(
           key: state.pageKey,
           child: const MaintenanceHistoryScreen(),
         ),
@@ -296,7 +293,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.goals,
         name: 'goals',
-        pageBuilder: (context, state) => _fadePage(
+        pageBuilder: (context, state) => _pushPage(
           key: state.pageKey,
           child: const GoalsScreen(),
         ),
@@ -304,7 +301,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.analytics,
         name: 'analytics',
-        pageBuilder: (context, state) => _fadePage(
+        pageBuilder: (context, state) => _pushPage(
           key: state.pageKey,
           child: const AnalyticsScreen(),
         ),
@@ -312,7 +309,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.insights,
         name: 'insights',
-        pageBuilder: (context, state) => _fadePage(
+        pageBuilder: (context, state) => _pushPage(
           key: state.pageKey,
           child: const InsightsScreen(),
         ),
@@ -320,7 +317,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.importStatement,
         name: 'importStatement',
-        pageBuilder: (context, state) => _fadePage(
+        pageBuilder: (context, state) => _pushPage(
           key: state.pageKey,
           child: const ImportStatementScreen(),
         ),
@@ -328,7 +325,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.platformIntegrations,
         name: 'platformIntegrations',
-        pageBuilder: (context, state) => _fadePage(
+        pageBuilder: (context, state) => _pushPage(
           key: state.pageKey,
           child: const PlatformIntegrationsScreen(),
         ),
@@ -336,7 +333,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.platformTripHistory,
         name: 'platformTripHistory',
-        pageBuilder: (context, state) => _fadePage(
+        pageBuilder: (context, state) => _pushPage(
           key: state.pageKey,
           child: const PlatformTripsScreen(),
         ),
@@ -344,7 +341,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.aiChat,
         name: 'aiChat',
-        pageBuilder: (context, state) => _fadePage(
+        pageBuilder: (context, state) => _pushPage(
           key: state.pageKey,
           child: const AiChatScreen(),
         ),
