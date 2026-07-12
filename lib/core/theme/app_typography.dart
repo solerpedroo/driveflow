@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -5,6 +6,39 @@ import 'app_colors.dart';
 
 /// Tipografia DriveFlow — Geist (Google Fonts) em toda a escala.
 abstract final class AppTypography {
+  /// Roboto offline nos testes — evita fetch de Geist no binding de widget.
+  @visibleForTesting
+  static bool useRobotoInTests = false;
+
+  static TextStyle _geist({
+    required double fontSize,
+    FontWeight? fontWeight,
+    double? letterSpacing,
+    double? height,
+    Color? color,
+    List<FontFeature>? fontFeatures,
+  }) {
+    if (useRobotoInTests) {
+      return TextStyle(
+        fontFamily: 'Roboto',
+        fontSize: fontSize,
+        fontWeight: fontWeight,
+        letterSpacing: letterSpacing,
+        height: height,
+        color: color,
+        fontFeatures: fontFeatures,
+      );
+    }
+    return GoogleFonts.geist(
+      fontSize: fontSize,
+      fontWeight: fontWeight,
+      letterSpacing: letterSpacing,
+      height: height,
+      color: color,
+      fontFeatures: fontFeatures,
+    );
+  }
+
   static TextTheme build(Brightness brightness) {
     final label =
         brightness == Brightness.dark ? Colors.white : AppColors.textPrimary;
@@ -15,7 +49,8 @@ abstract final class AppTypography {
         ? ThemeData.dark().textTheme
         : ThemeData.light().textTheme;
 
-    final geist = GoogleFonts.geistTextTheme(base);
+    final geist =
+        useRobotoInTests ? base : GoogleFonts.geistTextTheme(base);
 
     return TextTheme(
       displayLarge: geist.displayLarge?.copyWith(
@@ -81,7 +116,7 @@ abstract final class AppTypography {
   }
 
   static TextStyle iosLargeTitle(Brightness brightness) {
-    return GoogleFonts.geist(
+    return _geist(
       fontSize: 34,
       fontWeight: FontWeight.w700,
       letterSpacing: -1.0,
@@ -91,7 +126,7 @@ abstract final class AppTypography {
   }
 
   static TextStyle iosHeadline(Brightness brightness) {
-    return GoogleFonts.geist(
+    return _geist(
       fontSize: 17,
       fontWeight: FontWeight.w600,
       letterSpacing: -0.3,
@@ -100,7 +135,7 @@ abstract final class AppTypography {
   }
 
   static TextStyle iosBody(Brightness brightness) {
-    return GoogleFonts.geist(
+    return _geist(
       fontSize: 17,
       fontWeight: FontWeight.w400,
       letterSpacing: -0.2,
@@ -110,7 +145,7 @@ abstract final class AppTypography {
   }
 
   static TextStyle iosFootnote(Brightness brightness) {
-    return GoogleFonts.geist(
+    return _geist(
       fontSize: 13,
       fontWeight: FontWeight.w400,
       letterSpacing: -0.08,
@@ -121,7 +156,7 @@ abstract final class AppTypography {
   }
 
   static TextStyle iosCaption(Brightness brightness) {
-    return GoogleFonts.geist(
+    return _geist(
       fontSize: 11,
       fontWeight: FontWeight.w500,
       letterSpacing: 0.05,
@@ -132,7 +167,7 @@ abstract final class AppTypography {
   }
 
   static TextStyle iosSectionHeader(Brightness brightness) {
-    return GoogleFonts.geist(
+    return _geist(
       fontSize: 13,
       fontWeight: FontWeight.w500,
       letterSpacing: -0.05,
@@ -144,7 +179,7 @@ abstract final class AppTypography {
 
   /// Label de seção — sentence-case (não ALL CAPS).
   static TextStyle labelCaps(Brightness brightness) {
-    return GoogleFonts.geist(
+    return _geist(
       fontSize: 13,
       fontWeight: FontWeight.w500,
       letterSpacing: -0.05,
@@ -161,7 +196,7 @@ abstract final class AppTypography {
     FontWeight fontWeight = FontWeight.w700,
     Color? color,
   }) {
-    return GoogleFonts.geist(
+    return _geist(
       fontSize: fontSize,
       fontWeight: fontWeight,
       letterSpacing: -1.1,
