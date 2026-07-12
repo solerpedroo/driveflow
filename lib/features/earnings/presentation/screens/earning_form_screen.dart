@@ -12,6 +12,7 @@ import '../../../../shared/widgets/design_system/df_text_field.dart';
 import '../../../../shared/widgets/platform_brand_icon.dart';
 import '../../domain/entities/earning_entity.dart';
 import '../providers/earnings_providers.dart';
+import '../../../vehicle/presentation/providers/vehicle_providers.dart';
 import '../../../../shared/widgets/design_system/df_card.dart';
 import '../../../../shared/widgets/design_system/df_form_scaffold.dart';
 import '../../../../shared/widgets/design_system/df_filter_pill.dart';
@@ -65,6 +66,7 @@ class EarningFormScreen extends HookConsumerWidget {
       final amount = CurrencyFormatter.tryParse(amountController.text);
       if (amount == null) return;
 
+      final scopedVehicleId = ref.read(scopedVehicleIdProvider);
       final draft = EarningDraft(
         platform: selectedPlatform.value,
         amount: amount,
@@ -72,6 +74,7 @@ class EarningFormScreen extends HookConsumerWidget {
         workedHours: double.parse(hoursController.text.trim().replaceAll(',', '.')),
         date: selectedDate.value,
         note: noteController.text,
+        vehicleId: scopedVehicleId ?? ref.read(activeVehicleProvider).valueOrNull?.id,
       );
 
       final saved = await ref.read(earningsControllerProvider.notifier).save(
