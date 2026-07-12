@@ -148,16 +148,17 @@ class DfScreenTitleRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final brightness = Theme.of(context).brightness;
 
     return Row(
       children: [
         Expanded(
           child: Text(
             title,
-            style: theme.textTheme.headlineSmall?.copyWith(
+            style: AppTypography.iosHeadline(brightness).copyWith(
+              fontSize: 22,
               fontWeight: FontWeight.w700,
-              letterSpacing: -0.4,
+              letterSpacing: -0.5,
             ),
           ),
         ),
