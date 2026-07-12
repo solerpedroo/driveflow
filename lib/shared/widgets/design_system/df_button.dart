@@ -67,6 +67,17 @@ class _DfButtonState extends State<DfButton> {
     final enabled = !widget.isLoading && widget.onPressed != null;
     final labelColor = _labelColor(theme);
 
+    final label = Text(
+      widget.label,
+      textAlign: TextAlign.center,
+      style: AppTypography.iosHeadline(brightness).copyWith(
+        color: labelColor,
+        fontWeight: FontWeight.w600,
+        letterSpacing: -0.2,
+        height: 1.1,
+      ),
+    );
+
     final child = widget.isLoading
         ? SizedBox(
             height: 22,
@@ -88,18 +99,7 @@ class _DfButtonState extends State<DfButton> {
                 Icon(widget.icon, size: 18, color: labelColor),
                 const SizedBox(width: AppSpacing.sm),
               ],
-              Flexible(
-                child: Text(
-                  widget.label,
-                  textAlign: TextAlign.center,
-                  style: AppTypography.iosHeadline(brightness).copyWith(
-                    color: labelColor,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: -0.2,
-                    height: 1.1,
-                  ),
-                ),
-              ),
+              if (widget.expand) Flexible(child: label) else label,
               if (widget.icon != null && widget.trailingIcon) ...[
                 const SizedBox(width: AppSpacing.sm),
                 Icon(widget.icon, size: 18, color: labelColor),
@@ -231,46 +231,49 @@ class _SurfaceButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final radius = decoration.borderRadius ?? AppRadius.xlAll;
+    final borderRadius = radius is BorderRadius ? radius : AppRadius.xlAll;
 
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: onPressed,
-        borderRadius: radius is BorderRadius ? radius : AppRadius.xlAll,
+        borderRadius: borderRadius,
         splashColor: Colors.white.withValues(alpha: 0.12),
         highlightColor: Colors.white.withValues(alpha: 0.06),
         child: Ink(
-          height: height,
           decoration: decoration,
           child: ClipRRect(
-            borderRadius: radius is BorderRadius ? radius : AppRadius.xlAll,
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                if (sheen)
-                  const IgnorePointer(
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.center,
-                          colors: [
-                            Color(0x33FFFFFF),
-                            Color(0x00FFFFFF),
-                          ],
+            borderRadius: borderRadius,
+            child: SizedBox(
+              height: height,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  if (sheen)
+                    const Positioned.fill(
+                      child: IgnorePointer(
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.center,
+                              colors: [
+                                Color(0x33FFFFFF),
+                                Color(0x00FFFFFF),
+                              ],
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                Center(
-                  child: Padding(
+                  Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: AppSpacing.lg,
                     ),
                     child: child,
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
