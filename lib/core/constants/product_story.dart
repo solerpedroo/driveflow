@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Copy e narrativa de produto — storytelling para vender valor e assinatura.
+/// Copy de produto — narrativa clara para o motorista, sem planos ou jargão.
 abstract final class ProductStory {
   static const tagline = 'Lucro claro. Decisão inteligente.';
 
@@ -9,38 +9,6 @@ abstract final class ProductStory {
 
   static const testimonial =
       '"Descobri que sexta 18h–22h rende 40% mais por hora."';
-
-  static const proHeadline = 'DriveFlow Pro';
-  static const proSubtitle =
-      'Desbloqueie o cockpit completo — IA ilimitada, previsões e importação.';
-
-  static const List<({String title, String body, IconData icon})> proFeatures = [
-    (
-      title: 'IA ilimitada',
-      body: 'Pergunte o que quiser sobre lucro, metas e custos.',
-      icon: Icons.auto_awesome_rounded,
-    ),
-    (
-      title: 'Previsão de lucro',
-      body: 'Saiba quanto pode faturar antes do mês acabar.',
-      icon: Icons.trending_up_rounded,
-    ),
-    (
-      title: 'Importação de extratos',
-      body: 'Sincronize ganhos automaticamente em segundos.',
-      icon: Icons.upload_file_rounded,
-    ),
-    (
-      title: 'Apps conectados',
-      body: 'Sync automático Uber, 99 e InDrive com analytics por app.',
-      icon: Icons.hub_rounded,
-    ),
-    (
-      title: 'Insights de horário',
-      body: 'Descubra quando cada hora vale mais.',
-      icon: Icons.schedule_rounded,
-    ),
-  ];
 
   static const List<({String headline, String subtitle})> splashSlides = [
     (
@@ -84,5 +52,6 @@ abstract final class ProductStory {
       'Você lucrou R\$ 4.320,00 este mês — 18% acima do mês passado. '
       'Seu melhor horário foi sexta 18h–22h (R\$ 42/h).';
 
-  static const aiUpsell = 'Pro = IA ilimitada + previsões + importação de extratos';
+  static const aiHint =
+      'Pergunte sobre lucro, metas, horários e previsões — tudo com seus dados.';
 }
