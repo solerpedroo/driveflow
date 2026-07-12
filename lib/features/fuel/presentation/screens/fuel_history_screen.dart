@@ -72,7 +72,7 @@ class FuelHistoryScreen extends ConsumerWidget {
         ),
         logsAsync.when(
           loading: () => const DfSkeleton(itemCount: 3),
-          error: (e, _) => Text('Erro: $e'),
+          error: (e, _) => Text('Não foi possível carregar. Tente novamente.'),
           data: (logs) {
             if (logs.isEmpty) {
               return const DfEmptyState(
