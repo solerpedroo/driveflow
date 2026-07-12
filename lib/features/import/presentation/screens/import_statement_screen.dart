@@ -99,10 +99,9 @@ class ImportStatementScreen extends HookConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const DfSectionHeader(title: 'Arquivo', eyebrow: 'Upload'),
+              const DfSectionHeader(title: 'Arquivo', eyebrow: 'Arquivo'),
               Text(
-                'CSV (Nubank, Inter, genérico) ou OFX. '
-                'Máx. 5 MB e 2.000 linhas. Processado apenas em memória.',
+                'Arquivo do Nubank, Inter ou extrato do banco. Revise antes de confirmar.',
                 style: theme.textTheme.bodyMedium?.copyWith(height: 1.45),
               ),
               const SizedBox(height: 12),
