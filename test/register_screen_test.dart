@@ -51,7 +51,7 @@ void main() {
     expect(find.textContaining('Como você'), findsOneWidget);
     expect(find.text('Motorista de aplicativo'), findsOneWidget);
     expect(find.text('Taxista'), findsOneWidget);
-    expect(find.text('Plano Pro'), findsOneWidget);
+    expect(find.text('Tudo incluso'), findsOneWidget);
     expect(find.text('Continuar'), findsOneWidget);
     expect(find.text('Criar conta'), findsNothing);
   });
