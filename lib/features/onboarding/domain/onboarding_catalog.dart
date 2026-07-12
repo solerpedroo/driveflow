@@ -25,7 +25,7 @@ abstract final class OnboardingCatalog {
       icon: Icons.hub_outlined,
       title: 'Conecte seus apps',
       body:
-          'Sincronize corridas automaticamente ou lance manualmente quando preferir. Você decide o nível de automação.',
+          'Traga corridas automaticamente ou lance manualmente quando preferir. Você decide o nível de automação.',
       accent: AppColors.brandBlue,
     ),
     OnboardingSlide(
