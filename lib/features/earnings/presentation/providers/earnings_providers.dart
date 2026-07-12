@@ -18,7 +18,8 @@ final earningsRepositoryProvider = Provider<EarningsRepository>((ref) {
   );
 });
 
-final earningsStreamProvider = StreamProvider<List<EarningEntity>>((ref) {
+final earningsStreamProvider =
+    StreamProvider.autoDispose<List<EarningEntity>>((ref) {
   final watch = WatchEarnings(ref.watch(earningsRepositoryProvider));
   return watch();
 });
