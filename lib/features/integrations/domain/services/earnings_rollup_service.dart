@@ -43,7 +43,7 @@ abstract final class EarningsRollupService {
       workedHours: double.parse(hours.toStringAsFixed(2)),
       date: date,
       vehicleId: vehicleId,
-      note: 'Sync automático · ${trips.length} corridas',
+      note: 'Atualização automática · ${trips.length} corridas',
       source: EarningSource.apiSync,
       externalId: 'rollup:${platform.value}:${date.toIso8601String().substring(0, 10)}',
     );
