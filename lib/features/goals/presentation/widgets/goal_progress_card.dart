@@ -2,34 +2,41 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../shared/widgets/design_system/df_card.dart';
 import '../../domain/services/goal_progress_calculator.dart';
 
-/// Card de meta premium — barra gradiente + DfCard.
+/// Card de meta — módulo elevado no padrão Início.
 class GoalProgressCard extends StatelessWidget {
   const GoalProgressCard({
     required this.progress,
     super.key,
     this.onTap,
+    this.hideValue = false,
   });
 
   final GoalProgress progress;
   final VoidCallback? onTap;
+  final bool hideValue;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final brightness = Theme.of(context).brightness;
     final fraction = progress.hasTarget
         ? (progress.progressPercent / 100).clamp(0.0, 1.0)
         : 0.0;
-    final accent = progress.isComplete
-        ? AppColors.profitGreen
-        : AppColors.skyBlue;
+    final accent =
+        progress.isComplete ? AppColors.profitGreen : AppColors.brandBlue;
 
     return DfCard(
-      variant: progress.isComplete ? DfCardVariant.hero : DfCardVariant.glass,
-      padding: const EdgeInsets.all(AppSpacing.lg),
+      variant: DfCardVariant.elevated,
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.xl,
+        AppSpacing.lg,
+        AppSpacing.xl,
+        AppSpacing.lg,
+      ),
       onTap: onTap,
       semanticLabel: progress.hasTarget
           ? '${progress.period.label}: ${progress.progressLabel}'
@@ -42,14 +49,14 @@ class GoalProgressCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   progress.period.label,
-                  style: theme.textTheme.titleMedium?.copyWith(
+                  style: AppTypography.iosHeadline(brightness).copyWith(
                     fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
               Text(
-                progress.progressLabel,
-                style: theme.textTheme.titleLarge?.copyWith(
+                hideValue ? '•••' : progress.progressLabel,
+                style: AppTypography.iosHeadline(brightness).copyWith(
                   color: accent,
                   fontWeight: FontWeight.w800,
                   fontFeatures: const [FontFeature.tabularFigures()],
@@ -60,37 +67,30 @@ class GoalProgressCard extends StatelessWidget {
           const SizedBox(height: AppSpacing.xs),
           Text(
             progress.hasTarget
-                ? 'Lucro ${CurrencyFormatter.format(progress.actualProfit)} · Meta ${CurrencyFormatter.format(progress.targetAmount)}'
+                ? hideValue
+                    ? 'Lucro ••••• · Meta •••••'
+                    : 'Lucro ${CurrencyFormatter.format(progress.actualProfit)} · Meta ${CurrencyFormatter.format(progress.targetAmount)}'
                 : 'Configure uma meta para acompanhar o progresso',
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: AppColors.secondaryLabel(theme),
-            ),
+            style: AppTypography.iosFootnote(brightness),
           ),
           const SizedBox(height: AppSpacing.md),
           ClipRRect(
             borderRadius: BorderRadius.circular(999),
             child: SizedBox(
-              height: 10,
+              height: 8,
               child: Stack(
                 fit: StackFit.expand,
                 children: [
                   DecoratedBox(
                     decoration: BoxDecoration(
-                      color: AppColors.mutedSurface(theme),
+                      color: AppColors.brandBlue.withValues(alpha: 0.10),
                     ),
                   ),
                   FractionallySizedBox(
                     alignment: Alignment.centerLeft,
                     widthFactor: progress.hasTarget ? fraction : 0,
                     child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            accent.withValues(alpha: 0.65),
-                            accent,
-                          ],
-                        ),
-                      ),
+                      decoration: BoxDecoration(color: accent),
                     ),
                   ),
                 ],
@@ -102,12 +102,15 @@ class GoalProgressCard extends StatelessWidget {
             Text(
               progress.isComplete
                   ? 'Meta atingida!'
-                  : 'Faltam ${CurrencyFormatter.format(progress.remainingAmount)}',
-              style: theme.textTheme.labelLarge?.copyWith(
+                  : hideValue
+                      ? 'Faltam •••••'
+                      : 'Faltam ${CurrencyFormatter.format(progress.remainingAmount)}',
+              style: AppTypography.iosCaption(brightness).copyWith(
                 color: progress.isComplete
                     ? AppColors.profitGreen
-                    : AppColors.secondaryLabel(theme),
+                    : AppColors.secondaryLabel(Theme.of(context)),
                 fontWeight: FontWeight.w600,
+                fontSize: 12,
               ),
             ),
           ],
