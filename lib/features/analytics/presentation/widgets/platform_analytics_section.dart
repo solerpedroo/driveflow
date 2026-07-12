@@ -59,7 +59,7 @@ class PlatformAnalyticsSection extends ConsumerWidget {
         const SizedBox(height: 12),
         trend.when(
           loading: () => const DfSkeleton(itemCount: 2),
-          error: (e, _) => Text('Erro: $e'),
+          error: (e, _) => Text('Não foi possível carregar. Tente novamente.'),
           data: (points) => PlatformRevenueTrendChart(
             points: points,
             deltas: deltas,
