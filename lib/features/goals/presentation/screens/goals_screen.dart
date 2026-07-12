@@ -3,8 +3,11 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/validators.dart';
+import '../../../../core/utils/value_visibility_provider.dart';
 import '../../domain/entities/goal_entity.dart';
 import '../providers/goals_providers.dart';
 import '../../../../shared/widgets/design_system/df_form_scaffold.dart';
@@ -15,16 +18,17 @@ import '../../../../shared/widgets/design_system/df_text_field.dart';
 import '../widgets/goal_progress_card.dart';
 import '../widgets/goals_story_header.dart';
 
-/// Metas financeiras — DfFormScaffold com hero de progresso + formulário.
+/// Metas financeiras — DNA Início com hero e privacidade.
 class GoalsScreen extends HookConsumerWidget {
   const GoalsScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
+    final brightness = Theme.of(context).brightness;
     final goalsAsync = ref.watch(goalsStreamProvider);
     final progressAsync = ref.watch(allGoalProgressProvider);
     final mutation = ref.watch(goalsControllerProvider);
+    final hidden = ref.watch(valueVisibilityHiddenProvider);
     final formKey = useMemoized(GlobalKey<FormState>.new);
 
     final dailyController = useTextEditingController();
@@ -91,19 +95,97 @@ class GoalsScreen extends HookConsumerWidget {
                       ? CurrencyFormatter.format(monthly.targetAmount)
                       : 'Sem meta',
                   badge: monthly.progressLabel,
+                  hideValue: hidden,
+                  onToggleVisibility: () => ref
+                      .read(valueVisibilityHiddenProvider.notifier)
+                      .state = !hidden,
+                  footer: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Lucro atual',
+                              style: AppTypography.iosFootnote(brightness)
+                                  .copyWith(
+                                color: Colors.white.withValues(alpha: 0.65),
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              hidden
+                                  ? '•••'
+                                  : CurrencyFormatter.format(
+                                      monthly.actualProfit,
+                                    ),
+                              style: AppTypography.iosHeadline(brightness)
+                                  .copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w700,
+                                fontFeatures: const [
+                                  FontFeature.tabularFigures(),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Restante',
+                              style: AppTypography.iosFootnote(brightness)
+                                  .copyWith(
+                                color: Colors.white.withValues(alpha: 0.65),
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              hidden
+                                  ? '•••'
+                                  : monthly.hasTarget
+                                      ? CurrencyFormatter.format(
+                                          monthly.remainingAmount,
+                                        )
+                                      : '—',
+                              style: AppTypography.iosHeadline(brightness)
+                                  .copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w700,
+                                fontFeatures: const [
+                                  FontFeature.tabularFigures(),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 );
               },
             ),
             const DfSectionHeader(title: 'Progresso', eyebrow: 'Períodos'),
             progressAsync.when(
               loading: () => const DfSkeleton(itemCount: 3),
-              error: (e, _) => Text('Não foi possível carregar. Tente novamente.'),
+              error: (e, _) => Text(
+                'Não foi possível carregar. Tente novamente.',
+                style: AppTypography.iosBody(brightness).copyWith(
+                  color: AppColors.secondaryLabel(Theme.of(context)),
+                ),
+              ),
               data: (progressMap) => Column(
                 children: [
                   for (final period in GoalPeriod.values)
                     if (progressMap[period] case final progress?) ...[
-                      GoalProgressCard(progress: progress),
-                      const SizedBox(height: 12),
+                      GoalProgressCard(
+                        progress: progress,
+                        hideValue: hidden,
+                      ),
+                      const SizedBox(height: AppSpacing.md),
                     ],
                 ],
               ),
@@ -111,11 +193,12 @@ class GoalsScreen extends HookConsumerWidget {
             const DfSectionHeader(title: 'Configurar metas', eyebrow: 'Valores'),
             Text(
               'Defina quanto você quer lucrar em cada período (ganhos − despesas).',
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: AppColors.secondaryLabel(theme),
+              style: AppTypography.iosBody(brightness).copyWith(
+                color: AppColors.secondaryLabel(Theme.of(context)),
+                fontSize: 15,
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSpacing.lg),
             DfTextField(
               controller: dailyController,
               label: 'Meta diária',
@@ -127,7 +210,7 @@ class GoalsScreen extends HookConsumerWidget {
                 return Validators.brlAmount(v);
               },
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: AppSpacing.md),
             DfTextField(
               controller: weeklyController,
               label: 'Meta semanal',
@@ -139,7 +222,7 @@ class GoalsScreen extends HookConsumerWidget {
                 return Validators.brlAmount(v);
               },
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: AppSpacing.md),
             DfTextField(
               controller: monthlyController,
               label: 'Meta mensal',
@@ -151,7 +234,7 @@ class GoalsScreen extends HookConsumerWidget {
                 return Validators.brlAmount(v);
               },
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: AppSpacing.md),
             DfTextField(
               controller: yearlyController,
               label: 'Meta anual',
@@ -164,11 +247,11 @@ class GoalsScreen extends HookConsumerWidget {
               },
             ),
             if (mutation.hasError) ...[
-              const SizedBox(height: 12),
+              const SizedBox(height: AppSpacing.md),
               Text(
                 mutation.error.toString(),
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.error,
+                style: AppTypography.iosFootnote(brightness).copyWith(
+                  color: Theme.of(context).colorScheme.error,
                 ),
               ),
             ],
