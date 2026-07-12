@@ -3,15 +3,15 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/df_haptics.dart';
 import '../../../../shared/widgets/design_system/df_card.dart';
 import '../../domain/entities/earning_time_slot.dart';
 import '../../domain/entities/maintenance_prediction.dart';
 
-/// Resumo compacto de insights para o Dashboard — tap abre tela completa.
+/// Resumo compacto de insights — módulo elevado.
 class DashboardInsightsSummary extends StatefulWidget {
   const DashboardInsightsSummary({
     required this.topSlots,
@@ -33,6 +33,7 @@ class _DashboardInsightsSummaryState extends State<DashboardInsightsSummary> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final brightness = theme.brightness;
     final hasContent =
         widget.topSlots.isNotEmpty || widget.topPrediction != null;
     if (!hasContent) return const SizedBox.shrink();
@@ -46,65 +47,76 @@ class _DashboardInsightsSummaryState extends State<DashboardInsightsSummary> {
         context.push(AppRoutes.insights);
       },
       child: AnimatedScale(
-        scale: _pressed ? 0.98 : 1.0,
-        duration: const Duration(milliseconds: 120),
+        scale: _pressed ? 0.985 : 1.0,
+        duration: const Duration(milliseconds: 140),
+        curve: Curves.easeOutCubic,
         child: DfCard(
           variant: DfCardVariant.elevated,
-          child: Column(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.lg,
+            AppSpacing.lg,
+            AppSpacing.md,
+            AppSpacing.lg,
+          ),
+          child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  Container(
-                    width: 36,
-                    height: 36,
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [AppColors.profitGreen, AppColors.skyBlue],
-                      ),
-                      borderRadius: AppRadius.mdAll,
-                    ),
-                    child: const Icon(
-                      Icons.auto_awesome_rounded,
-                      color: Colors.white,
-                      size: 20,
-                    ),
-                  ),
-                  const SizedBox(width: AppSpacing.sm),
-                  Expanded(
-                    child: Text(
-                      'Dicas do dia',
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                  Icon(
-                    Icons.chevron_right_rounded,
-                    color: AppColors.secondaryLabel(theme)
-                        .withValues(alpha: 0.55),
-                  ),
-                ],
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColors.brandBlue.withValues(alpha: 0.10),
+                ),
+                child: const Icon(
+                  Icons.auto_awesome_rounded,
+                  color: AppColors.brandBlue,
+                  size: 22,
+                ),
               ),
-              if (widget.topSlots.isNotEmpty) ...[
-                const SizedBox(height: AppSpacing.sm),
-                Text(
-                  'Melhor janela: ${widget.topSlots.first.weekdayLabel} '
-                  '${widget.topSlots.first.hourLabel} · '
-                  '${CurrencyFormatter.format(widget.topSlots.first.profitPerHour)}/h',
-                  style: theme.textTheme.bodyMedium,
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Dicas do dia',
+                      style: AppTypography.labelCaps(brightness),
+                    ),
+                    const SizedBox(height: 4),
+                    if (widget.topSlots.isNotEmpty)
+                      Text(
+                        'Melhor janela · ${widget.topSlots.first.weekdayLabel} '
+                        '${widget.topSlots.first.hourLabel}',
+                        style: AppTypography.iosHeadline(brightness).copyWith(
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: -0.3,
+                        ),
+                      ),
+                    if (widget.topSlots.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        '${CurrencyFormatter.format(widget.topSlots.first.profitPerHour)}/h em média',
+                        style: AppTypography.iosFootnote(brightness),
+                      ),
+                    ],
+                    if (widget.topPrediction != null) ...[
+                      const SizedBox(height: AppSpacing.sm),
+                      Text(
+                        widget.topPrediction!.summaryLabel,
+                        style: AppTypography.iosFootnote(brightness).copyWith(
+                          color: AppColors.warningAmber,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
-              ],
-              if (widget.topPrediction != null) ...[
-                const SizedBox(height: AppSpacing.xs),
-                Text(
-                  widget.topPrediction!.summaryLabel,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: AppColors.warningAmber,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
+              ),
+              Icon(
+                Icons.chevron_right_rounded,
+                color: AppColors.secondaryLabel(theme).withValues(alpha: 0.45),
+              ),
             ],
           ),
         ),
