@@ -47,8 +47,7 @@ class ImportStoryHeader extends StatelessWidget {
                 ),
                 const SizedBox(height: AppSpacing.xs),
                 Text(
-                  'CSV do Nubank, Inter ou OFX — revisão humana antes de '
-                  'importar ganhos e despesas.',
+                  'Arquivo do Nubank, Inter ou extrato do banco — você revisa antes de confirmar ganhos e despesas.',
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: AppColors.secondaryLabel(theme),
                     height: 1.45,
