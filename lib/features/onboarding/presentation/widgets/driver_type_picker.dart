@@ -124,7 +124,7 @@ class _DriverTypeCard extends StatelessWidget {
                     Text(
                       type.isTaxi
                           ? 'Registro manual de corridas, sem integrações.'
-                          : 'Uber, 99, InDrive e sincronização automática.',
+                          : 'Uber, 99, InDrive e atualização automática.',
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: AppColors.secondaryLabel(theme),
                         height: 1.4,
