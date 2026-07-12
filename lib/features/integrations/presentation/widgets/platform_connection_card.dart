@@ -95,7 +95,7 @@ class PlatformConnectionCard extends StatelessWidget {
           if (connection?.lastSyncedAt != null) ...[
             const SizedBox(height: AppSpacing.sm),
             Text(
-              'Última sync: ${_formatDate(connection!.lastSyncedAt!)}',
+              'Última atualização: ${_formatDate(connection!.lastSyncedAt!)}',
               style: theme.textTheme.bodySmall?.copyWith(
                 color: AppColors.secondaryLabel(theme),
               ),
@@ -118,7 +118,7 @@ class PlatformConnectionCard extends StatelessWidget {
                   status == IntegrationStatus.tokenExpired) ...[
                 Expanded(
                   child: DfButton(
-                    label: 'Sincronizar',
+                    label: 'Atualizar',
                     icon: Icons.sync_rounded,
                     variant: DfButtonVariant.tonal,
                     isLoading: isBusy,
