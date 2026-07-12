@@ -31,7 +31,6 @@ import '../../../dashboard/presentation/providers/dashboard_providers.dart';
 import '../../../earnings/presentation/providers/earnings_providers.dart';
 import '../../../onboarding/presentation/providers/onboarding_providers.dart';
 import '../providers/profile_providers.dart';
-import '../widgets/profile_plan_card.dart';
 import '../widgets/profile_value_stats_card.dart';
 
 /// Perfil no padrão Mescla — avatar, métricas hero, conta agrupada e sessão.
@@ -126,7 +125,6 @@ class ProfileScreen extends HookConsumerWidget {
             );
           },
         ),
-        const ProfilePlanCard(),
         vehiclesAsync.when(
           loading: () => const DfSkeleton(itemCount: 2),
           error: (_, __) => const DfEmptyState(
@@ -174,7 +172,7 @@ class ProfileScreen extends HookConsumerWidget {
             ),
             DfGroupedRow(
               title: 'Importar extrato',
-              subtitle: 'Nubank, Inter ou OFX',
+              subtitle: 'Extrato do banco ou arquivo do app',
               leading: Icon(
                 Icons.upload_file_outlined,
                 color: AppColors.brandBlue,
