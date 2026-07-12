@@ -12,9 +12,9 @@ O DriveFlow apresenta **engenharia de produto madura** (design system, Clean Arc
 
 | Classe | Impacto | Status |
 |--------|---------|--------|
-| **P0 — Crítico** | Dados incorretos, perda de sessão, offline quebrado | Em correção (branch `cursor/p0-fixes-audit-9e66`) |
-| **P1 — Alto** | UX degradada, vazamento de recursos, erros crus na UI | Pendente |
-| **P2 — Médio** | Consistência, polish, débito técnico | Pendente |
+| **P0 — Crítico** | Dados incorretos, perda de sessão, offline quebrado | Concluído (PR #29) |
+| **P1 — Alto** | UX degradada, vazamento de recursos, erros crus na UI | Concluído (PR #30) |
+| **P2 — Médio** | Consistência, polish, débito técnico | Em correção (branch `cursor/p2-design-polish-9e66`) |
 | **P3 — Baixo** | Melhorias cosméticas | Pendente |
 
 ---
@@ -171,11 +171,11 @@ O DriveFlow apresenta **engenharia de produto madura** (design system, Clean Arc
 ## P2 — Médio
 
 - ~55 arquivos com spacing literal vs `AppSpacing`
-- `AppRadius.pill` inexistente (`circular(100)` vs `999`)
-- `app_theme.dart` radius 14 vs `DfButton` 16
-- `go_router_refresh_stream.dart` morto
-- CSV export sem escape
-- `platform_trips` insert sem validar ownership de `vehicle_id`
+- `AppRadius.pill` inexistente (`circular(100)` vs `999`) — **corrigido** (`AppRadius.pill` + chips/hero)
+- `app_theme.dart` radius 14 vs `DfButton` 16 — **corrigido** (16 via `AppRadius.xl`)
+- `go_router_refresh_stream.dart` morto — removido na Onda 39
+- CSV export sem escape — **corrigido** (`csv_escape.dart`)
+- `platform_trips` insert sem validar ownership de `vehicle_id` — **corrigido** (migração 013)
 - Sem `integration_test/`
 - Provider overrides duplicados nos testes
 
@@ -185,7 +185,7 @@ O DriveFlow apresenta **engenharia de produto madura** (design system, Clean Arc
 
 - `GoogleFonts.geist` direto em login/brand intro
 - Charts com `TextStyle` raw
-- Dialogs Material puros (sem `DfConfirmDialog`)
+- Dialogs Material puros (sem `DfConfirmDialog`) — **corrigido** (4 exclusões)
 - `titleLarge` == `headlineLarge` (17px)
 - `intl: ^0.20.2` pode conflitar em bump de SDK
 
@@ -225,8 +225,14 @@ O DriveFlow apresenta **engenharia de produto madura** (design system, Clean Arc
 - [x] SyncWorker test + cached_remote_watch fake_async
 - [x] Máscaras unificadas + remoção código morto
 
-### Sprint 3 — Design system polish
-- Glass unificado, scaffolds, touch targets, máscaras
+### Sprint 3 — Design system polish (concluído)
+- [x] `AppBlur` + glass unificado via `DfGlassSurface`
+- [x] `DfScaffoldAppBar` — form/subpage alinhados
+- [x] `AppRadius.pill` + theme radius 16
+- [x] CSV escape + `csv_escape_test`
+- [x] RLS `platform_trips` vehicle ownership
+- [x] Hero toggle touch 44px
+- [x] `DfConfirmDialog` nas exclusões
 
 ### Sprint 4 — Cobertura
 - main_shell 5 abas, reports tests, integration_test
@@ -265,4 +271,4 @@ O DriveFlow apresenta **engenharia de produto madura** (design system, Clean Arc
 
 ---
 
-*Última atualização: Onda 37 + auditoria sênior — branch `cursor/p0-fixes-audit-9e66`*
+*Última atualização: Onda 40 — branch `cursor/p2-design-polish-9e66`*
