@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_gradients.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 import 'df_button.dart';
 
-/// Banner de valor — social proof, upsell ou narrativa de produto.
+/// Banner de valor — social proof ou insight de produto.
 class DfValueBanner extends StatelessWidget {
   const DfValueBanner({
     required this.title,
@@ -28,22 +27,15 @@ class DfValueBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isPro = variant == DfValueBannerVariant.pro;
+    final accent = variant == DfValueBannerVariant.insight
+        ? AppColors.skyBlue
+        : AppColors.profitGreen;
 
     return DecoratedBox(
       decoration: BoxDecoration(
         borderRadius: AppRadius.xlAll,
-        gradient: isPro
-            ? AppGradients.heroCardAccent(theme.brightness)
-            : null,
-        color: isPro
-            ? null
-            : AppColors.mutedSurface(theme),
-        border: Border.all(
-          color: isPro
-              ? AppColors.skyBlue.withValues(alpha: 0.28)
-              : AppColors.glassBorderLight,
-        ),
+        color: AppColors.mutedSurface(theme),
+        border: Border.all(color: AppColors.glassBorderLight),
       ),
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.lg),
@@ -54,15 +46,10 @@ class DfValueBanner extends StatelessWidget {
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: (isPro ? AppColors.skyBlue : AppColors.profitGreen)
-                    .withValues(alpha: 0.16),
+                color: accent.withValues(alpha: 0.16),
                 borderRadius: AppRadius.mdAll,
               ),
-              child: Icon(
-                icon,
-                color: isPro ? AppColors.skyBlue : AppColors.profitGreen,
-                size: 24,
-              ),
+              child: Icon(icon, color: accent, size: 24),
             ),
             const SizedBox(width: AppSpacing.md),
             Expanded(
@@ -88,9 +75,7 @@ class DfValueBanner extends StatelessWidget {
                     DfButton(
                       label: actionLabel!,
                       onPressed: onAction,
-                      variant: isPro
-                          ? DfButtonVariant.gradient
-                          : DfButtonVariant.tonal,
+                      variant: DfButtonVariant.tonal,
                       expand: false,
                     ),
                   ],
@@ -104,4 +89,4 @@ class DfValueBanner extends StatelessWidget {
   }
 }
 
-enum DfValueBannerVariant { social, pro, insight }
+enum DfValueBannerVariant { social, insight }
