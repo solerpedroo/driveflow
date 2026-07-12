@@ -208,7 +208,8 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.home,
         name: 'home',
         pageBuilder: (context, state) => _shellPage(
-          key: state.pageKey,
+          // Chave estável: troca de ?tab= não deve remountar o shell.
+          key: const ValueKey('home'),
           child: MainShellScreen(
             initialTab: MainShellScreen.resolveInitialTab(
               state.uri.queryParameters['tab'],
