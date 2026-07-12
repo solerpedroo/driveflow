@@ -41,7 +41,7 @@ class InsightsScreen extends ConsumerWidget {
         ),
         slotsAsync.when(
           loading: () => const DfSkeleton(itemCount: 3),
-          error: (e, _) => Text('Erro: $e'),
+          error: (e, _) => Text('Não foi possível carregar. Tente novamente.'),
           data: (slots) => BestTimeSlotsCard(
             slots: slots.take(slotsLimit.count).toList(growable: false),
           ),
@@ -49,14 +49,14 @@ class InsightsScreen extends ConsumerWidget {
         const DfSectionHeader(title: 'Manutenção prevista', eyebrow: 'Veículo'),
         predictionsAsync.when(
           loading: () => const DfSkeleton(itemCount: 2),
-          error: (e, _) => Text('Erro: $e'),
+          error: (e, _) => Text('Não foi possível carregar. Tente novamente.'),
           data: (predictions) =>
               MaintenancePredictionCard(predictions: predictions),
         ),
         const DfSectionHeader(title: 'Meta semanal', eyebrow: 'Projeção'),
         projectionAsync.when(
           loading: () => const DfSkeleton(itemCount: 2),
-          error: (e, _) => Text('Erro: $e'),
+          error: (e, _) => Text('Não foi possível carregar. Tente novamente.'),
           data: (projection) =>
               WeeklyGoalProjectionCard(projection: projection),
         ),
