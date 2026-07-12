@@ -88,7 +88,6 @@ abstract final class AppRoutes {
   static const platformIntegrations = '/integrations/platforms';
   static const platformTripHistory = '/integrations/trips';
   static const aiChat = '/ai/chat';
-  static const paywall = '/paywall';
 }
 
 /// Onda atual concluída (v2.0 — Design System v2 e acessibilidade).
