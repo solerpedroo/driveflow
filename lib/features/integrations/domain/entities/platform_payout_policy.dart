@@ -3,7 +3,7 @@ import '../../../../core/constants/ride_platforms.dart';
 /// Origem da política de repasse.
 enum PayoutPolicySource {
   catalog('Catálogo padrão'),
-  partnerApi('API parceiro');
+  partnerApi('Dados do parceiro');
 
   const PayoutPolicySource(this.label);
   final String label;
