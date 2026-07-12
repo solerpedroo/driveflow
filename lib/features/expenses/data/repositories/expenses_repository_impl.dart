@@ -85,7 +85,7 @@ class ExpensesRepositoryImpl implements ExpensesRepository {
     }
     if (draft.receiptUrl != null) {
       throw const ServerFailure(
-        message: 'Comprovante pendente — conecte-se para sincronizar.',
+        message: 'Comprovante pendente — conecte-se para enviar.',
       );
     }
     return _createOffline(draft);
@@ -168,7 +168,7 @@ class ExpensesRepositoryImpl implements ExpensesRepository {
     }
     if (existing == null) {
       throw const ServerFailure(
-        message: 'Despesa não encontrada no cache local.',
+        message: 'Despesa não encontrada. Tente novamente.',
       );
     }
 
