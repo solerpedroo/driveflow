@@ -20,7 +20,7 @@ final platformIntegrationRepositoryProvider =
 });
 
 final platformConnectionsStreamProvider =
-    StreamProvider<List<PlatformConnectionEntity>>((ref) {
+    StreamProvider.autoDispose<List<PlatformConnectionEntity>>((ref) {
   return ref.watch(platformIntegrationRepositoryProvider).watchConnections();
 });
 
