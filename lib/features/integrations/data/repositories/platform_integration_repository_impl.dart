@@ -122,7 +122,7 @@ class PlatformIntegrationRepositoryImpl implements PlatformIntegrationRepository
         importedCount: 0,
         skippedCount: 0,
         syncedAt: DateTime.now(),
-        message: 'Nenhuma plataforma conectada para sincronizar.',
+        message: 'Nenhuma plataforma conectada para atualizar.',
       );
     }
 
