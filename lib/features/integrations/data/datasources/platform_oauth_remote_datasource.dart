@@ -26,8 +26,8 @@ class PlatformOAuthRemoteDataSource {
       if (response.status != 200) {
         final data = response.data;
         final message = data is Map<String, dynamic>
-            ? data['error'] as String? ?? 'Falha ao iniciar OAuth.'
-            : 'Falha ao iniciar OAuth.';
+            ? data['error'] as String? ?? 'Não foi possível abrir a autorização.'
+            : 'Não foi possível abrir a autorização.';
         throw ServerFailure(message: message);
       }
 
@@ -43,8 +43,8 @@ class PlatformOAuthRemoteDataSource {
       final message = details is Map
           ? (details['error'] as String?) ??
               e.reasonPhrase ??
-              'Falha ao iniciar OAuth.'
-          : e.reasonPhrase ?? 'Falha ao iniciar OAuth.';
+              'Não foi possível abrir a autorização.'
+          : e.reasonPhrase ?? 'Não foi possível abrir a autorização.';
       throw ServerFailure(message: message, cause: e);
     }
   }
