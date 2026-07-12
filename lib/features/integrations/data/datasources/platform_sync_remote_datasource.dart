@@ -26,14 +26,16 @@ class PlatformSyncRemoteDataSource {
       if (response.status != 200) {
         final data = response.data;
         final message = data is Map<String, dynamic>
-            ? data['error'] as String? ?? 'Falha na sincronização.'
-            : 'Falha na sincronização.';
+            ? data['error'] as String? ?? 'Não foi possível atualizar os dados.'
+            : 'Não foi possível atualizar os dados.';
         throw ServerFailure(message: message);
       }
 
       final data = response.data;
       if (data is! Map<String, dynamic>) {
-        throw const ServerFailure(message: 'Resposta inválida da sincronização.');
+        throw const ServerFailure(
+          message: 'Não foi possível atualizar os dados. Tente novamente.',
+        );
       }
       return data;
     } on FunctionException catch (e) {
@@ -41,8 +43,8 @@ class PlatformSyncRemoteDataSource {
       final message = details is Map
           ? (details['error'] as String?) ??
               e.reasonPhrase ??
-              'Falha na sincronização.'
-          : e.reasonPhrase ?? 'Falha na sincronização.';
+              'Não foi possível atualizar os dados.'
+          : e.reasonPhrase ?? 'Não foi possível atualizar os dados.';
       throw ServerFailure(message: message, cause: e);
     }
   }
