@@ -176,7 +176,7 @@ class LoginScreen extends HookConsumerWidget {
                                       ),
                                       const SizedBox(height: AppSpacing.xs),
                                       Text(
-                                        'E-mail e senha do seu plano DriveFlow.',
+                                        'Entre com o e-mail e a senha da sua conta.',
                                         style: AppTypography.iosFootnote(
                                           brightness,
                                         ),
@@ -320,14 +320,14 @@ class _LoginTopBar extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                Icons.workspace_premium_rounded,
+              const Icon(
+                Icons.check_circle_rounded,
                 size: 14,
                 color: AppColors.brandBlue,
               ),
               const SizedBox(width: 6),
               Text(
-                'Plano Pro',
+                'Tudo incluso',
                 style: AppTypography.iosFootnote(theme.brightness).copyWith(
                   color: AppColors.brandBlue,
                   fontWeight: FontWeight.w700,
@@ -354,7 +354,7 @@ class _BrandHero extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Cockpit financeiro',
+          'Seu painel',
           style: AppTypography.labelCaps(brightness),
         ),
         const SizedBox(height: AppSpacing.md),
