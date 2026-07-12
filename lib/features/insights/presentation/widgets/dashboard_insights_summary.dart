@@ -73,7 +73,7 @@ class _DashboardInsightsSummaryState extends State<DashboardInsightsSummary> {
                   const SizedBox(width: AppSpacing.sm),
                   Expanded(
                     child: Text(
-                      'Insights rápidos',
+                      'Dicas do dia',
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w700,
                       ),
