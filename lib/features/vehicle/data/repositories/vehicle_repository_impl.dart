@@ -269,7 +269,12 @@ class VehicleRepositoryImpl implements VehicleRepository {
     };
     await _cache.upsert(HiveBoxes.vehicles, updated);
 
-    if (!LocalIdGenerator.isLocal(id)) {
+    if (LocalIdGenerator.isLocal(id)) {
+      await _syncQueue.updatePayloadForEntity(
+        entityId: id,
+        payload: VehicleMapper.draftToJson(draft),
+      );
+    } else {
       await _syncQueue.enqueue(
         PendingSyncOperation(
           id: LocalIdGenerator.create(),
@@ -280,7 +285,7 @@ class VehicleRepositoryImpl implements VehicleRepository {
           createdAt: DateTime.now(),
         ),
       );
-      _syncWorker?.processQueue();
+      unawaited(_syncWorker?.processQueue());
     }
 
     if (draft.isDefault) {
@@ -296,7 +301,9 @@ class VehicleRepositoryImpl implements VehicleRepository {
   }) async {
     await _local.remove(id);
 
-    if (!LocalIdGenerator.isLocal(id)) {
+    if (LocalIdGenerator.isLocal(id)) {
+      await _syncQueue.removeByEntityId(id);
+    } else {
       await _syncQueue.enqueue(
         PendingSyncOperation(
           id: LocalIdGenerator.create(),
@@ -309,7 +316,7 @@ class VehicleRepositoryImpl implements VehicleRepository {
           createdAt: DateTime.now(),
         ),
       );
-      _syncWorker?.processQueue();
+      unawaited(_syncWorker?.processQueue());
     }
 
     if (readActiveVehicleId() == id) {
