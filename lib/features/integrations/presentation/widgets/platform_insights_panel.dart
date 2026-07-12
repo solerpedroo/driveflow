@@ -91,7 +91,7 @@ class PlatformInsightsPanel extends ConsumerWidget {
                   child: Text(
                     'Apps conectados sem dados recentes: '
                     '${missing.map((p) => p.label).join(', ')}. '
-                    'Toque em sincronizar para atualizar.',
+                    'Toque em atualizar para buscar os dados mais recentes.',
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: AppColors.secondaryLabel(theme),
                       height: 1.4,
