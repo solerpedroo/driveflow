@@ -83,12 +83,12 @@ class PlatformIntegrationsScreen extends ConsumerWidget {
           .sync(platform);
       if (context.mounted) {
         final message = result == null
-            ? 'Não foi possível sincronizar ${platform.label}.'
+            ? 'Não foi possível atualizar ${platform.label}.'
             : result.hasImports
                 ? '${result.tripsImported} corridas e ${result.earningsImported} '
                     'ganhos importados de ${platform.label}.'
                 : result.message ??
-                    'Sincronização concluída (${result.skippedCount} ignorados).';
+                    'Atualização concluída (${result.skippedCount} ignorados).';
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(message)),
         );
@@ -104,7 +104,7 @@ class PlatformIntegrationsScreen extends ConsumerWidget {
           SnackBar(
             content: Text(
               result == null
-                  ? 'Nenhuma plataforma sincronizada.'
+                  ? 'Nenhuma plataforma atualizada.'
                   : '${result.tripsImported} corridas e ${result.earningsImported} '
                       'ganhos importados no total.',
             ),
@@ -164,7 +164,7 @@ class PlatformIntegrationsScreen extends ConsumerWidget {
           actions: [
             DfPillActionButton(
               icon: Icons.sync_rounded,
-              label: 'Sync tudo',
+              label: 'Atualizar tudo',
               onTap: isBusy ? null : syncAll,
             ),
             DfPillActionButton(
@@ -219,7 +219,7 @@ class PlatformIntegrationsScreen extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const DfSectionHeader(
-                title: 'Sem API ainda?',
+                title: 'Sem conexão automática?',
                 eyebrow: 'Alternativa',
               ),
               Text(
@@ -231,7 +231,7 @@ class PlatformIntegrationsScreen extends ConsumerWidget {
               ),
               const SizedBox(height: AppSpacing.md),
               DfButton(
-                label: 'Importar extrato CSV/OFX',
+                label: 'Importar extrato do banco',
                 icon: Icons.upload_file_outlined,
                 variant: DfButtonVariant.outlined,
                 onPressed: () => context.push(AppRoutes.importStatement),
