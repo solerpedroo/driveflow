@@ -18,6 +18,7 @@ class DfTextField extends StatelessWidget {
     this.suffixIcon,
     this.autofillHints,
     this.onFieldSubmitted,
+    this.autofocus = false,
   });
 
   final TextEditingController controller;
@@ -31,6 +32,7 @@ class DfTextField extends StatelessWidget {
   final Widget? suffixIcon;
   final Iterable<String>? autofillHints;
   final ValueChanged<String>? onFieldSubmitted;
+  final bool autofocus;
 
   @override
   Widget build(BuildContext context) {
@@ -58,6 +60,7 @@ class DfTextField extends StatelessWidget {
             validator: validator,
             autofillHints: autofillHints,
             onFieldSubmitted: onFieldSubmitted,
+            autofocus: autofocus,
             style: theme.textTheme.bodyLarge,
             decoration: InputDecoration(
               hintText: hint,
