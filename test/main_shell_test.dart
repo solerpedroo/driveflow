@@ -98,6 +98,32 @@ void main() {
       findsOneWidget,
     );
 
+    await tester.tap(find.byKey(const ValueKey('driveflow_nav_despesas')));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(
+      find.descendant(
+        of: find.byType(DriveFlowBottomNavBar),
+        matching: find.text('Despesas'),
+      ),
+      findsOneWidget,
+    );
+    expect(find.text('Despesas'), findsWidgets);
+
+    await tester.tap(find.byKey(const ValueKey('driveflow_nav_relatorios')));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(
+      find.descendant(
+        of: find.byType(DriveFlowBottomNavBar),
+        matching: find.text('Relatórios'),
+      ),
+      findsOneWidget,
+    );
+    expect(find.text('Relatórios'), findsWidgets);
+
     await tester.tap(find.byKey(const ValueKey('driveflow_nav_perfil')));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
