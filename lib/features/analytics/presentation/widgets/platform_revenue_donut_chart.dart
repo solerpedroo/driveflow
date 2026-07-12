@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_motion.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/df_haptics.dart';
 import '../../../integrations/domain/services/platform_analytics_breakdown.dart';
@@ -16,9 +17,9 @@ class PlatformRevenueDonutChart extends StatefulWidget {
   final List<PlatformRevenueSlice> slices;
 
   static const _palette = [
+    AppColors.brandBlue,
+    AppColors.brandBlueDark,
     AppColors.deepNavy,
-    AppColors.warningAmber,
-    AppColors.profitGreen,
   ];
 
   @override
@@ -47,40 +48,48 @@ class _PlatformRevenueDonutChartState extends State<PlatformRevenueDonutChart>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final brightness = theme.brightness;
     final slices = widget.slices;
 
     if (slices.isEmpty) return const SizedBox.shrink();
 
     return DfCard(
+      variant: DfCardVariant.elevated,
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.xl,
+        AppSpacing.lg,
+        AppSpacing.xl,
+        AppSpacing.lg,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Mix de hoje',
-            style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
+            'Onde você rodou',
+            style: AppTypography.labelCaps(brightness),
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: AppSpacing.lg),
           AnimatedBuilder(
             animation: _anim,
             builder: (context, _) {
               return SizedBox(
-                height: 140,
+                height: 148,
                 child: Row(
                   children: [
                     Expanded(
                       flex: 3,
                       child: PieChart(
                         PieChartData(
-                          sectionsSpace: 2,
-                          centerSpaceRadius: 32,
+                          sectionsSpace: 3,
+                          centerSpaceRadius: 34,
                           pieTouchData: PieTouchData(
                             touchCallback: (event, response) {
                               if (!event.isInterestedForInteractions) {
                                 setState(() => _touchedIndex = null);
                                 return;
                               }
-                              final index =
-                                  response?.touchedSection?.touchedSectionIndex;
+                              final index = response
+                                  ?.touchedSection?.touchedSectionIndex;
                               if (index != null && index != _touchedIndex) {
                                 DfHaptics.light();
                               }
@@ -91,20 +100,22 @@ class _PlatformRevenueDonutChartState extends State<PlatformRevenueDonutChart>
                             for (var i = 0; i < slices.length; i++)
                               PieChartSectionData(
                                 value: slices[i].amount * _anim.value,
-                                color: PlatformRevenueDonutChart._palette[
-                                    i % PlatformRevenueDonutChart._palette.length],
-                                radius: _touchedIndex == i ? 48 : 42,
+                                color: PlatformRevenueDonutChart._palette[i %
+                                    PlatformRevenueDonutChart._palette.length],
+                                radius: _touchedIndex == i ? 50 : 44,
                                 title:
                                     '${slices[i].sharePercent.toStringAsFixed(0)}%',
-                                titleStyle: theme.textTheme.labelSmall?.copyWith(
+                                titleStyle: AppTypography.iosCaption(brightness)
+                                    .copyWith(
                                   color: Colors.white,
-                                  fontWeight: FontWeight.bold,
+                                  fontWeight: FontWeight.w700,
                                 ),
                               ),
                           ],
                         ),
                       ),
                     ),
+                    const SizedBox(width: AppSpacing.md),
                     Expanded(
                       flex: 4,
                       child: Column(
@@ -113,29 +124,42 @@ class _PlatformRevenueDonutChartState extends State<PlatformRevenueDonutChart>
                         children: [
                           for (var i = 0; i < slices.length; i++)
                             Padding(
-                              padding: const EdgeInsets.only(bottom: 4),
+                              padding: const EdgeInsets.only(bottom: 10),
                               child: Row(
                                 children: [
                                   Container(
-                                    width: 8,
-                                    height: 8,
+                                    width: 9,
+                                    height: 9,
                                     decoration: BoxDecoration(
-                                      color: PlatformRevenueDonutChart._palette[
-                                          i % PlatformRevenueDonutChart._palette.length],
+                                      color: PlatformRevenueDonutChart
+                                              ._palette[
+                                          i %
+                                              PlatformRevenueDonutChart
+                                                  ._palette.length],
                                       shape: BoxShape.circle,
                                     ),
                                   ),
-                                  const SizedBox(width: 6),
+                                  const SizedBox(width: 8),
                                   Expanded(
                                     child: Text(
                                       slices[i].platform.label,
-                                      style: theme.textTheme.labelSmall,
+                                      style: AppTypography.iosCaption(brightness)
+                                          .copyWith(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w600,
+                                        color: theme.colorScheme.onSurface,
+                                      ),
                                     ),
                                   ),
                                   Text(
                                     CurrencyFormatter.format(slices[i].amount),
-                                    style: theme.textTheme.labelSmall?.copyWith(
-                                      fontWeight: FontWeight.w600,
+                                    style: AppTypography.iosCaption(brightness)
+                                        .copyWith(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w700,
+                                      fontFeatures: const [
+                                        FontFeature.tabularFigures(),
+                                      ],
                                     ),
                                   ),
                                 ],
