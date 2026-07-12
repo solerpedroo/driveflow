@@ -14,7 +14,7 @@ abstract final class PlatformCatalog {
   static const entries = <PlatformCatalogEntry>[
     PlatformCatalogEntry(
       platform: RidePlatform.uber,
-      tagline: 'Sincronize corridas, ganhos e repasses automaticamente',
+      tagline: 'Traga corridas, ganhos e repasses automaticamente',
       brandColor: Color(0xFF000000),
       icon: Icons.local_taxi_rounded,
       oauthProvider: 'uber_driver',
