@@ -77,7 +77,7 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
 
-    expect(find.text('Seu lucro'), findsOneWidget);
+    expect(find.text('Lucro do mês'), findsOneWidget);
     expect(find.text('Ganhos'), findsWidgets);
 
     await tester.tap(
