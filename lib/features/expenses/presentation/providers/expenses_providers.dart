@@ -19,7 +19,8 @@ final expensesRepositoryProvider = Provider<ExpensesRepositoryImpl>((ref) {
   );
 });
 
-final expensesStreamProvider = StreamProvider<List<ExpenseEntity>>((ref) {
+final expensesStreamProvider =
+    StreamProvider.autoDispose<List<ExpenseEntity>>((ref) {
   final watch = WatchExpenses(ref.watch(expensesRepositoryProvider));
   return watch();
 });
