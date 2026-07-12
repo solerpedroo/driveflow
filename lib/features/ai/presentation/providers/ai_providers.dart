@@ -23,7 +23,8 @@ final aiRepositoryProvider = Provider<AiRepository>((ref) {
   return AiRepositoryImpl();
 });
 
-final aiHistoryStreamProvider = StreamProvider<List<AiMessageEntity>>((ref) {
+final aiHistoryStreamProvider =
+    StreamProvider.autoDispose<List<AiMessageEntity>>((ref) {
   final watch = WatchAiHistory(ref.watch(aiRepositoryProvider));
   return watch();
 });
