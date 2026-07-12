@@ -57,10 +57,15 @@ class AuthStepProgress extends StatelessWidget {
                   key: ValueKey(label),
                   padding: const EdgeInsets.symmetric(
                     horizontal: AppSpacing.md,
-                    vertical: AppSpacing.xs,
+                    vertical: AppSpacing.xs + 1,
                   ),
                   decoration: BoxDecoration(
-                    color: AppColors.brandBlue.withValues(alpha: 0.12),
+                    gradient: LinearGradient(
+                      colors: [
+                        AppColors.brandBlue.withValues(alpha: 0.16),
+                        AppColors.brandGlow.withValues(alpha: 0.22),
+                      ],
+                    ),
                     borderRadius: BorderRadius.circular(100),
                     border: Border.all(
                       color: AppColors.brandBlue.withValues(alpha: 0.22),
