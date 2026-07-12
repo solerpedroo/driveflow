@@ -3,6 +3,9 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../../core/utils/value_visibility_provider.dart';
@@ -10,7 +13,7 @@ import '../../../../shared/widgets/design_system/df_empty_state.dart';
 import '../../../../shared/widgets/design_system/df_expandable_list_section.dart';
 import '../../../../shared/widgets/design_system/df_hero_wealth_card.dart';
 import '../../../../shared/widgets/design_system/df_movimentacao_tile.dart';
-import '../../../../shared/widgets/design_system/df_pill_action_button.dart';
+import '../../../../shared/widgets/design_system/df_quick_actions.dart';
 import '../../../../shared/widgets/design_system/df_skeleton.dart';
 import '../../../../shared/widgets/design_system/df_subpage_scaffold.dart';
 import '../../../vehicle/presentation/providers/vehicle_providers.dart';
@@ -18,7 +21,7 @@ import '../../domain/entities/maintenance_entity.dart';
 import '../../domain/services/maintenance_due_checker.dart';
 import '../providers/maintenance_providers.dart';
 
-/// Histórico de manutenções — layout Mescla Carteira.
+/// Histórico de manutenções — DNA Início / Perfil.
 class MaintenanceHistoryScreen extends ConsumerWidget {
   const MaintenanceHistoryScreen({super.key});
 
@@ -28,52 +31,73 @@ class MaintenanceHistoryScreen extends ConsumerWidget {
     final odometer =
         ref.watch(activeVehicleProvider).valueOrNull?.odometerKm ?? 0;
     final hidden = ref.watch(valueVisibilityHiddenProvider);
-    final totalCost = recordsAsync.valueOrNull?.fold<double>(
-          0,
-          (sum, r) => sum + r.cost,
-        ) ??
-        0;
+    final records = recordsAsync.valueOrNull;
+    final totalCost =
+        records?.fold<double>(0, (sum, r) => sum + r.cost) ?? 0;
 
     return DfSubpageScaffold(
       title: 'Manutenções',
-      valueHidden: hidden,
-      onToggleValueVisibility: () => ref
-          .read(valueVisibilityHiddenProvider.notifier)
-          .state = !hidden,
       children: [
         DfHeroWealthCard(
           label: 'Total investido',
           value: CurrencyFormatter.format(totalCost),
-          badge: '${recordsAsync.valueOrNull?.length ?? 0} serviços',
+          badge: '${records?.length ?? 0} serviços',
           hideValue: hidden,
+          onToggleVisibility: () => ref
+              .read(valueVisibilityHiddenProvider.notifier)
+              .state = !hidden,
+          footer: Row(
+            children: [
+              Expanded(
+                child: _HeroStat(
+                  label: 'Serviços',
+                  value: hidden ? '•••' : '${records?.length ?? 0}',
+                ),
+              ),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: _HeroStat(
+                  label: 'Odômetro',
+                  value: hidden
+                      ? '•••'
+                      : '${odometer.toStringAsFixed(0)} km',
+                ),
+              ),
+            ],
+          ),
         ),
-        DfPillActionGrid(
+        DfQuickActions(
           actions: [
-            DfPillActionButton(
+            DfQuickAction(
               icon: Icons.build_circle_outlined,
               label: 'Registrar',
               onTap: () => context.push(AppRoutes.maintenanceForm),
             ),
-            DfPillActionButton(
-              icon: Icons.local_gas_station_outlined,
+            DfQuickAction(
+              icon: Icons.local_gas_station_rounded,
               label: 'Combustível',
               onTap: () => context.push(AppRoutes.fuelHistory),
             ),
-            DfPillActionButton(
-              icon: Icons.auto_awesome_outlined,
+            DfQuickAction(
+              icon: Icons.auto_awesome_rounded,
               label: 'Insights',
               onTap: () => context.push(AppRoutes.insights),
             ),
-            DfPillActionButton(
-              icon: Icons.directions_car_outlined,
-              label: 'Veículos',
+            DfQuickAction(
+              icon: Icons.person_rounded,
+              label: 'Perfil',
               onTap: () => context.go('${AppRoutes.home}?tab=profile'),
             ),
           ],
         ),
         recordsAsync.when(
           loading: () => const DfSkeleton(itemCount: 3),
-          error: (e, _) => Text('Não foi possível carregar. Tente novamente.'),
+          error: (e, _) => Text(
+            'Não foi possível carregar. Tente novamente.',
+            style: AppTypography.iosBody(Theme.of(context).brightness).copyWith(
+              color: AppColors.secondaryLabel(Theme.of(context)),
+            ),
+          ),
           data: (records) {
             if (records.isEmpty) {
               return const DfEmptyState(
@@ -87,6 +111,7 @@ class MaintenanceHistoryScreen extends ConsumerWidget {
               title: 'Histórico',
               eyebrow: 'Serviços',
               itemCount: records.length,
+              spacing: AppSpacing.md,
               itemBuilder: (context, index) {
                 final record = records[index];
                 final status = MaintenanceDueChecker.check(
@@ -132,6 +157,38 @@ class MaintenanceHistoryScreen extends ConsumerWidget {
     if (confirmed == true) {
       await ref.read(maintenanceControllerProvider.notifier).delete(record.id);
     }
+  }
+}
+
+class _HeroStat extends StatelessWidget {
+  const _HeroStat({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    final brightness = Theme.of(context).brightness;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: AppTypography.iosFootnote(brightness).copyWith(
+            color: Colors.white.withValues(alpha: 0.65),
+          ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          value,
+          style: AppTypography.iosHeadline(brightness).copyWith(
+            color: Colors.white,
+            fontWeight: FontWeight.w700,
+            fontFeatures: const [FontFeature.tabularFigures()],
+          ),
+        ),
+      ],
+    );
   }
 }
 
