@@ -51,8 +51,9 @@ void main() {
     expect(find.textContaining('Como você'), findsOneWidget);
     expect(find.text('Motorista de aplicativo'), findsOneWidget);
     expect(find.text('Taxista'), findsOneWidget);
+    expect(find.text('Plano Pro'), findsOneWidget);
     expect(find.text('Continuar'), findsOneWidget);
-    expect(find.text('Cadastrar'), findsNothing);
+    expect(find.text('Criar conta'), findsNothing);
   });
 
   testWidgets('RegisterScreen advances through steps with progress update', (
@@ -105,13 +106,15 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
 
+    expect(find.text('Modo taxista'), findsOneWidget);
+
     await _tapContinuar(tester);
     await _enterAndContinue(tester, 'Ana');
     await _enterAndContinue(tester, 'ana@driveflow.app');
     await _enterAndContinue(tester, 'Abcdefg1');
 
     expect(find.text('5/5'), findsOneWidget);
-    expect(find.text('Cadastrar'), findsOneWidget);
+    expect(find.text('Criar conta'), findsOneWidget);
     expect(
       find.text('Último passo — depois montamos seu painel de taxista.'),
       findsOneWidget,
@@ -125,7 +128,7 @@ void main() {
     await _goToPasswordStep(tester);
     await _enterAndContinue(tester, 'Abcdefg1');
 
-    expect(find.text('Cadastrar'), findsOneWidget);
+    expect(find.text('Criar conta'), findsOneWidget);
     expect(find.byIcon(Icons.visibility_off_outlined), findsOneWidget);
   });
 }
