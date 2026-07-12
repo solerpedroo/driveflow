@@ -19,8 +19,8 @@ class SplashScreen extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final introDone = useState(false);
-    final showStory = useState(false);
+    final introDone = useState(ref.read(brandIntroCompleteProvider));
+    final showStory = useState(ref.read(brandIntroCompleteProvider));
 
     useEffect(() {
       FlutterNativeSplash.remove();

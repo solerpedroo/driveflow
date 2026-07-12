@@ -1,9 +1,12 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import {
+  loadConnectionOAuth,
+  storeConnectionOAuth,
+} from "../_shared/platform_secrets.ts";
+import {
   isTokenExpired,
   refreshAccessToken,
-  type StoredOAuthTokens,
 } from "../_shared/platform_oauth.ts";
 import {
   AdapterAuthError,
@@ -116,11 +119,14 @@ async function fetchPlatformTrips(
 
 async function resolveAccessToken(
   supabase: ReturnType<typeof createClient>,
-  userId: string,
+  connection: {
+    id: string;
+    user_id: string;
+    metadata: Record<string, unknown> | null;
+  },
   platform: string,
-  metadata: Record<string, unknown> | null,
 ): Promise<string> {
-  const oauth = metadata?.oauth as StoredOAuthTokens | undefined;
+  const oauth = await loadConnectionOAuth(supabase, connection);
   if (!oauth?.access_token) {
     throw new AdapterAuthError(platform, "Token OAuth ausente. Reconecte o app.");
   }
@@ -133,27 +139,54 @@ async function resolveAccessToken(
     await supabase.from("platform_connections").update({
       status: "token_expired",
       last_sync_error: "Token expirado. Reconecte o app.",
-    }).eq("user_id", userId).eq("platform", platform);
+    }).eq("user_id", connection.user_id).eq("platform", platform);
     throw new AdapterAuthError(platform, "Token expirado. Reconecte o app.");
   }
 
   const refreshed = await refreshAccessToken(platform, oauth.refresh_token);
-  const nextMetadata = {
-    ...(metadata ?? {}),
-    oauth: {
-      ...oauth,
-      ...refreshed,
-      refresh_token: refreshed.refresh_token ?? oauth.refresh_token,
-    },
+  const nextOAuth = {
+    ...oauth,
+    ...refreshed,
+    refresh_token: refreshed.refresh_token ?? oauth.refresh_token,
   };
+  const nextMetadata = await storeConnectionOAuth(supabase, {
+    connectionId: connection.id,
+    userId: connection.user_id,
+    oauth: nextOAuth,
+    metadata: connection.metadata,
+  });
 
   await supabase.from("platform_connections").update({
     metadata: nextMetadata,
     status: "connected",
     last_sync_error: null,
-  }).eq("user_id", userId).eq("platform", platform);
+  }).eq("user_id", connection.user_id).eq("platform", platform);
 
   return refreshed.access_token;
+}
+
+async function resolveDefaultVehicleId(
+  supabase: ReturnType<typeof createClient>,
+  userId: string,
+): Promise<string | null> {
+  const { data: defaultVehicle } = await supabase
+    .from("vehicles")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("is_default", true)
+    .maybeSingle();
+
+  if (defaultVehicle?.id) return defaultVehicle.id as string;
+
+  const { data: firstVehicle } = await supabase
+    .from("vehicles")
+    .select("id")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: true })
+    .limit(1)
+    .maybeSingle();
+
+  return (firstVehicle?.id as string | undefined) ?? null;
 }
 
 async function dayHasConflictingEarnings(
@@ -241,7 +274,7 @@ Deno.serve(async (req) => {
 
   const { data: connection, error: connError } = await supabase
     .from("platform_connections")
-    .select("id, status, metadata")
+    .select("id, user_id, status, metadata")
     .eq("user_id", userId)
     .eq("platform", platform)
     .maybeSingle();
@@ -265,9 +298,12 @@ Deno.serve(async (req) => {
   try {
     const accessToken = await resolveAccessToken(
       supabase,
-      userId,
+      {
+        id: connection.id as string,
+        user_id: connection.user_id as string,
+        metadata: connection.metadata as Record<string, unknown> | null,
+      },
       platform,
-      connection.metadata as Record<string, unknown> | null,
     );
     tripRows = await fetchPlatformTrips(
       platform,
@@ -347,6 +383,7 @@ Deno.serve(async (req) => {
   }
 
   const rollups = rollupDaily(platform, tripRows);
+  const defaultVehicleId = await resolveDefaultVehicleId(supabase, userId);
   for (const rollup of rollups) {
     const day = rollup.date.substring(0, 10);
 
@@ -379,6 +416,7 @@ Deno.serve(async (req) => {
         note: rollup.note,
         source: "api_sync",
         external_id: rollup.external_id,
+        ...(defaultVehicleId ? { vehicle_id: defaultVehicleId } : {}),
       },
       { onConflict: "user_id,platform,external_id", ignoreDuplicates: false },
     );

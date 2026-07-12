@@ -124,7 +124,9 @@ class SyncWorker {
       case HiveBoxes.vehicles:
         await _syncVehicle(operation);
       default:
-        await _queue.dequeue(operation.id);
+        throw StateError(
+          'Entidade de sync não suportada: ${operation.entity}',
+        );
     }
   }
 

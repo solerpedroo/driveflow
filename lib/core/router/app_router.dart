@@ -117,10 +117,12 @@ final routerProvider = Provider<GoRouter>((ref) {
         return AppRoutes.login;
       }
 
-      if (profileAsync.isLoading ||
-          vehiclesAsync.isLoading ||
-          !profileAsync.hasValue ||
-          !vehiclesAsync.hasValue) {
+      // Primeira carga apenas — refresh com valor anterior não deve derrubar o shell.
+      final awaitingProfile =
+          !profileAsync.hasValue && profileAsync.isLoading;
+      final awaitingVehicles =
+          !vehiclesAsync.hasValue && vehiclesAsync.isLoading;
+      if (awaitingProfile || awaitingVehicles) {
         return isSplash ? null : AppRoutes.splash;
       }
 

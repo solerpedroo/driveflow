@@ -174,6 +174,7 @@ class FuelRepositoryImpl implements FuelRepository {
           amount: entity.totalAmount,
           date: date,
           description: description,
+          vehicleId: entity.vehicleId,
         ),
       );
     } else {
@@ -183,6 +184,7 @@ class FuelRepositoryImpl implements FuelRepository {
           ExpensesSchema.amount: entity.totalAmount,
           ExpensesSchema.description: description,
           ExpensesSchema.date: date.toUtc().toIso8601String(),
+          ExpensesSchema.vehicleId: entity.vehicleId,
         },
       );
     }

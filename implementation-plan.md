@@ -46,6 +46,7 @@ Plano de implementação em **36 ondas** (0–36) para o DriveFlow (Flutter + Su
 | 35 | Taxista + onboarding editorial Mescla Invest (app vs táxi, UX manual) | concluída |
 | 36 | Cadastro em etapas — uma pergunta por tela, progresso Mescla Invest | concluída |
 | 37 | Bottom nav liquid glass + transições de aba na primeira visita | concluída |
+| 38 | Correções P0 — auditoria sênior (router, vehicleId, sync, OAuth secrets) | concluída |
 
 ---
 
@@ -1708,6 +1709,32 @@ Após as ondas 15–34 e refatorações por tela (Início, Ganhos, Despesas, etc
 3. `driveflow_main_shell.dart` — `_AnimatedTabLayer` para primeira visita  
 4. `main_shell_test.dart` — testes alinhados ao novo comportamento  
 5. `implementation-plan.md` — documentação Onda 37  
+
+---
+
+## Onda 38 — Correções P0 (auditoria sênior)
+
+**Objetivo:** Corrigir falhas críticas identificadas na auditoria de engenharia (`docs/engineering-audit.md`).
+
+### Escopo
+
+| P0 | Correção |
+|---|---|
+| P0-1/2 | Router gate só na primeira carga; profile com try/catch offline |
+| P0-3 | `vehicleId` em ganhos manuais + sync API |
+| P0-4 | Manutenção → despesa via `MaintenanceExpenseLinker` |
+| P0-5 | `vehicleId` em despesa de combustível |
+| P0-6 | SyncWorker não descarta ops; vehicle offline edit/delete na fila |
+| P0-7 | Migrações renumeradas 001–011 + 012 secrets |
+| P0-8 | `platform_connection_secrets` + edge functions |
+
+### Critérios
+
+- [x] Salvar perfil/veículo não derruba shell para splash
+- [x] Ganhos e despesas derivadas com `vehicleId`
+- [x] Manutenção refletida no lucro
+- [x] Tokens OAuth fora do metadata client-readable
+- [x] Documentação em `docs/engineering-audit.md`
 
 ---
 

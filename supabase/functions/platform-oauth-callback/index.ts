@@ -96,18 +96,34 @@ Deno.serve(async (req) => {
       }
     }
 
-    await supabase.from("platform_connections").upsert({
+    const baseMetadata = {
+      ...(profile?.metadata as Record<string, unknown> | null ?? {}),
+    };
+    delete baseMetadata.oauth;
+
+    const { data: connectionRow, error: upsertError } = await supabase
+      .from("platform_connections")
+      .upsert({
+        user_id: oauthState.user_id,
+        platform,
+        status: "connected",
+        external_account_id: externalAccountId,
+        metadata: baseMetadata,
+        last_sync_error: null,
+        next_scheduled_sync_at: new Date(Date.now() + 24 * 3600 * 1000).toISOString(),
+      }, { onConflict: "user_id,platform" })
+      .select("id")
+      .single();
+
+    if (upsertError || !connectionRow?.id) {
+      throw new Error(upsertError?.message ?? "Falha ao salvar conexão.");
+    }
+
+    await supabase.from("platform_connection_secrets").upsert({
+      connection_id: connectionRow.id,
       user_id: oauthState.user_id,
-      platform,
-      status: "connected",
-      external_account_id: externalAccountId,
-      metadata: {
-        ...(profile?.metadata as Record<string, unknown> | null ?? {}),
-        oauth: tokenPayload,
-      },
-      last_sync_error: null,
-      next_scheduled_sync_at: new Date(Date.now() + 24 * 3600 * 1000).toISOString(),
-    }, { onConflict: "user_id,platform" });
+      oauth: tokenPayload,
+    }, { onConflict: "connection_id" });
 
     await supabase.from("platform_oauth_states").delete().eq("id", oauthState.id);
 
