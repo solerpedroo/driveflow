@@ -78,29 +78,37 @@ void main() {
     await tester.pump(const Duration(milliseconds: 300));
 
     expect(find.text('Lucro do mês'), findsOneWidget);
-    expect(find.text('Ganhos'), findsWidgets);
+    expect(
+      find.descendant(
+        of: find.byType(DriveFlowBottomNavBar),
+        matching: find.text('Início'),
+      ),
+      findsOneWidget,
+    );
 
-    await tester.tap(
+    await tester.tap(find.byKey(const ValueKey('driveflow_nav_ganhos')));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(
       find.descendant(
         of: find.byType(DriveFlowBottomNavBar),
         matching: find.text('Ganhos'),
       ),
+      findsOneWidget,
     );
+
+    await tester.tap(find.byKey(const ValueKey('driveflow_nav_perfil')));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
 
-    expect(find.text('Ganhos'), findsWidgets);
-
-    await tester.tap(
+    expect(
       find.descendant(
         of: find.byType(DriveFlowBottomNavBar),
         matching: find.text('Perfil'),
       ),
+      findsOneWidget,
     );
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 300));
-
-    expect(find.text('Perfil'), findsWidgets);
     expect(find.text('Meus veículos'), findsOneWidget);
     expect(find.byType(DriveFlowBottomNavBar), findsOneWidget);
   });
@@ -160,7 +168,13 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
 
-    expect(find.text('Perfil'), findsWidgets);
+    expect(
+      find.descendant(
+        of: find.byType(DriveFlowBottomNavBar),
+        matching: find.text('Perfil'),
+      ),
+      findsOneWidget,
+    );
     expect(find.text('Meus veículos'), findsOneWidget);
   });
 }

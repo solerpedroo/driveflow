@@ -45,6 +45,7 @@ Plano de implementação em **36 ondas** (0–36) para o DriveFlow (Flutter + Su
 | 34 | Apple Premium UI — Geist, profundidade Wallet/Cash App, anti–vibe-coding | concluída |
 | 35 | Taxista + onboarding editorial Mescla Invest (app vs táxi, UX manual) | concluída |
 | 36 | Cadastro em etapas — uma pergunta por tela, progresso Mescla Invest | concluída |
+| 37 | Bottom nav liquid glass + transições de aba na primeira visita | concluída |
 
 ---
 
@@ -1670,6 +1671,46 @@ Auth → Driver type (se null, OAuth) → Welcome onboarding → Vehicle → Hom
 
 ---
 
+## Onda 37 — Bottom nav liquid glass + transições de aba
+
+**Objetivo:** Concluir a refatoração do design system no chrome de navegação — bottom nav no padrão **liquid glass** (ícones sempre visíveis, label revelada ao lado com animação ao tocar) e corrigir transições entre abas para animarem **na primeira visita** (lazy mount).
+
+### Contexto
+
+Após as ondas 15–34 e refatorações por tela (Início, Ganhos, Despesas, etc.), a **bottom nav** era o último elemento shared fora do padrão final: labels fixas abaixo dos ícones e transição de aba sem animação na primeira ativação (lazy tabs montavam já no estado final de `AnimatedOpacity` / `AnimatedSlide`).
+
+### Escopo técnico
+
+| Item | Detalhe |
+|---|---|
+| `df_bottom_nav_bar.dart` | Novo primitive `DfBottomNavBar` + `DfBottomNavItem` no design system |
+| Liquid glass | `DfGlassSurface` σ=28 + gradiente interno top→bottom; pill ativa com tint brand quieto |
+| Labels | Ocultas por padrão; ao tocar, label desliza **ao lado** do ícone (`AnimatedSize` + `FadeTransition` + `SlideTransition`) |
+| Acessibilidade | `Semantics(label, selected)` em cada item; `ValueKey` estável por aba para testes |
+| `driveflow_bottom_nav_bar.dart` | Wrapper fino com ícones/labels DriveFlow delegando a `DfBottomNavBar` |
+| `driveflow_main_shell.dart` | `_AnimatedTabLayer` com `AnimationController` — `forward()` no `initState` quando ativa e em cada troca de aba |
+| Haptics | Centralizado em `DfBottomNavBar` (removido duplicata do shell) |
+
+### Critérios de conclusão
+
+- [x] Zero labels visíveis na nav até o usuário tocar na aba
+- [x] Label animada horizontalmente ao lado do ícone ativo
+- [x] Superfície liquid glass (blur + rim + gradiente interno)
+- [x] Primeira visita a qualquer aba executa fade + micro-slide
+- [x] Revisitas entre abas mantêm a mesma animação
+- [x] `main_shell_test` atualizado (tap por `ValueKey`, assert label só na aba ativa)
+- [x] Commits atômicos por arquivo
+
+### Ordem de commits (atômicos)
+
+1. `df_bottom_nav_bar.dart` — primitive liquid glass no design system  
+2. `driveflow_bottom_nav_bar.dart` — wrapper DriveFlow  
+3. `driveflow_main_shell.dart` — `_AnimatedTabLayer` para primeira visita  
+4. `main_shell_test.dart` — testes alinhados ao novo comportamento  
+5. `implementation-plan.md` — documentação Onda 37  
+
+---
+
 ## Mapa de requisitos funcionais → ondas
 
 | RF | Descrição | Onda |
@@ -1707,6 +1748,7 @@ Auth → Driver type (se null, OAuth) → Welcome onboarding → Vehicle → Hom
 | RNF-Apple | Apple Premium UI — Geist, profundidade, hierarquia | 34 |
 | RF33 | Perfil taxista — cadastro, onboarding, UX manual sem integrações | 35 |
 | RNF-AuthSteps | Cadastro em etapas — progresso Mescla, uma pergunta por tela | 36 |
+| RNF-NavGlass | Bottom nav liquid glass + transições de aba na 1ª visita | 37 |
 | RF22 | Conexão apps Uber/99/InDrive | 24 |
 | RF23 | Sync ganhos e corridas via API | 25–26 |
 | RF24 | Histórico de corridas sincronizadas | 25 |
@@ -1771,7 +1813,8 @@ PLATFORM_OAUTH_REDIRECT_URL=
 | **v3.2** | Apple Premium UI — Geist + profundidade Wallet/Cash App | 34 |
 | **v3.3** | Taxista + onboarding editorial Mescla Invest | 35 |
 | **v3.4** | Cadastro em etapas (padrão Mescla Invest) | 36 |
-| **v3.5** | Comunidade, parceiros, painel web | fora do plano atual |
+| **v3.5** | Bottom nav liquid glass + transições de aba | 37 |
+| **v3.6** | Comunidade, parceiros, painel web | fora do plano atual |
 
 ---
 

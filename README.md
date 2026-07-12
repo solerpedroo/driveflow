@@ -249,7 +249,7 @@ flutter test --coverage
 ## Onda 15 — entregue
 
 - [x] Design tokens: `app_spacing`, `app_radius`, `app_motion`, `app_elevation`, `app_semantic_colors`
-- [x] Biblioteca `design_system/`: `DfButton`, `DfTextField`, `DfCard`, `DfChip`, `DfEmptyState`, `DfSkeleton`, `DfSectionHeader`, `DfBottomSheet`, `DfFormScaffold`
+- [x] Biblioteca `design_system/`: `DfButton`, `DfTextField`, `DfCard`, `DfChip`, `DfEmptyState`, `DfSkeleton`, `DfSectionHeader`, `DfBottomSheet`, `DfFormScaffold`, `DfBottomNavBar`
 - [x] Wrappers `driveflow_*` e `auth_*` delegam para componentes `Df*` (deprecated v2.1)
 - [x] Screens refatoradas: Dashboard, Ganhos, Despesas, Relatórios (< 200 linhas)
 - [x] Acessibilidade: `Semantics` em gráficos, touch targets ≥ 48dp, teste `textScaleFactor` 1.3
