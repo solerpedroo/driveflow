@@ -15,7 +15,7 @@ final platformTripsRepositoryProvider = Provider<PlatformTripsRepository>((ref) 
 });
 
 final platformTripsStreamProvider =
-    StreamProvider<List<PlatformTripEntity>>((ref) {
+    StreamProvider.autoDispose<List<PlatformTripEntity>>((ref) {
   return ref.watch(platformTripsRepositoryProvider).watchTrips();
 });
 
