@@ -97,7 +97,7 @@ class GoalsScreen extends HookConsumerWidget {
             const DfSectionHeader(title: 'Progresso', eyebrow: 'Períodos'),
             progressAsync.when(
               loading: () => const DfSkeleton(itemCount: 3),
-              error: (e, _) => Text('Erro: $e'),
+              error: (e, _) => Text('Não foi possível carregar. Tente novamente.'),
               data: (progressMap) => Column(
                 children: [
                   for (final period in GoalPeriod.values)
