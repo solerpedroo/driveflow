@@ -1766,6 +1766,32 @@ Após as ondas 15–34 e refatorações por tela (Início, Ganhos, Despesas, etc
 
 ---
 
+## Onda 40 — Correções P2 (design polish)
+
+**Objetivo:** Unificar glass, scaffolds, tokens de radius/blur, CSV seguro e RLS de `platform_trips`.
+
+### Escopo
+
+| P2 | Correção |
+|---|---|
+| D1 | `AppBlur` + `DfGlassSurface` unificado (`DfCard`, `AiMessageBubble`, nav) |
+| D2 | `DfScaffoldAppBar` — form/subpage com título e voltar alinhados |
+| D3 | `AppRadius.pill` + `app_theme` radius 16 alinhado ao `DfButton` |
+| D4 | `csv_escape.dart` + export CSV com escape RFC 4180 |
+| S1 | Migração `013_platform_trips_vehicle_ownership.sql` |
+| N5 | Touch target 44px no toggle do `DfHeroWealthCard` |
+| P3 | `DfConfirmDialog` — 4 fluxos de exclusão |
+
+### Critérios
+
+- [x] Glass usa `AppBlur` (bubble 12, card 20, surface 24, nav 28)
+- [x] Form e subpage compartilham `DfScaffoldAppBar`
+- [x] CSV escapa vírgulas, aspas e quebras de linha
+- [x] `platform_trips` valida ownership de `vehicle_id` no insert/update
+- [x] `csv_escape_test` cobre escape
+
+---
+
 ## Mapa de requisitos funcionais → ondas
 
 | RF | Descrição | Onda |
