@@ -85,11 +85,12 @@ class AiChatStoryHero extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.lg),
           Text(
-            ProductStory.aiUpsell,
+            ProductStory.aiHint,
             textAlign: TextAlign.center,
             style: theme.textTheme.labelMedium?.copyWith(
-              color: AppColors.skyBlue,
-              fontWeight: FontWeight.w600,
+              color: AppColors.secondaryLabel(theme),
+              fontWeight: FontWeight.w500,
+              height: 1.4,
             ),
           ),
         ],
