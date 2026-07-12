@@ -29,7 +29,7 @@ void main() {
     expect(find.text('R\$ 248,40'), findsOneWidget);
     expect(find.text('Acesse sua conta'), findsOneWidget);
     expect(find.byType(TextFormField), findsNWidgets(2));
-    expect(find.text('Plano Pro'), findsOneWidget);
+    expect(find.text('Tudo incluso'), findsOneWidget);
   });
 
   testWidgets('LoginScreen validates empty email', (tester) async {
