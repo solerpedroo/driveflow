@@ -72,7 +72,7 @@ class PlatformConnectSheet extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.lg),
           Text(
-            'O DriveFlow vai sincronizar automaticamente:',
+            'O DriveFlow vai trazer automaticamente:',
             style: theme.textTheme.titleSmall?.copyWith(
               fontWeight: FontWeight.w600,
             ),
