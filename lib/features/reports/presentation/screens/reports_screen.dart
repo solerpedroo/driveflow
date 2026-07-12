@@ -7,6 +7,7 @@ import '../../../analytics/presentation/widgets/period_comparison_card.dart';
 import '../../../goals/domain/entities/goal_entity.dart';
 import '../../../vehicle/presentation/widgets/vehicle_scope_chip.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/errors/failure_message.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -103,7 +104,7 @@ class ReportsScreen extends ConsumerWidget {
         ),
         if (exportState.hasError)
           Text(
-            exportState.error.toString(),
+            FailureMessage.forObject(exportState.error),
             style: AppTypography.iosFootnote(Theme.of(context).brightness)
                 .copyWith(color: Theme.of(context).colorScheme.error),
           ),
