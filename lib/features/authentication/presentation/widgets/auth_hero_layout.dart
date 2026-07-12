@@ -18,6 +18,8 @@ class AuthHeroLayout extends StatelessWidget {
     this.footer,
     this.leading,
     this.middleChild,
+    this.headerChild,
+    this.bottomChild,
   });
 
   final String headline;
@@ -27,6 +29,12 @@ class AuthHeroLayout extends StatelessWidget {
   final Widget? footer;
   final Widget? leading;
   final Widget? middleChild;
+
+  /// Slot acima do eyebrow/headline (ex.: progresso de etapas).
+  final Widget? headerChild;
+
+  /// Slot abaixo do card do formulário e acima do footer (ex.: botão Voltar).
+  final Widget? bottomChild;
 
   @override
   Widget build(BuildContext context) {
@@ -62,23 +70,43 @@ class AuthHeroLayout extends StatelessWidget {
                           size: LogoSize.small,
                           showTagline: false,
                         ),
-                        const SizedBox(height: AppSpacing.xxl),
+                        const SizedBox(height: AppSpacing.xl),
+                      ],
+                      if (headerChild != null) ...[
+                        headerChild!,
+                        const SizedBox(height: AppSpacing.xl),
                       ],
                       Text(
                         'DriveFlow',
                         style: AppTypography.labelCaps(brightness),
                       ),
                       const SizedBox(height: AppSpacing.sm),
-                      Text(
-                        headline,
-                        style: AppTypography.iosLargeTitle(brightness),
+                      AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 220),
+                        switchInCurve: Curves.easeOutCubic,
+                        switchOutCurve: Curves.easeInCubic,
+                        child: Align(
+                          key: ValueKey('headline-$headline'),
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            headline,
+                            style: AppTypography.iosLargeTitle(brightness),
+                          ),
+                        ),
                       ),
                       const SizedBox(height: AppSpacing.md),
-                      Text(
-                        subtitle,
-                        style: AppTypography.iosBody(brightness).copyWith(
-                          color: AppColors.secondaryLabel(theme),
-                          height: 1.5,
+                      AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 220),
+                        child: Align(
+                          key: ValueKey('subtitle-$subtitle'),
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            subtitle,
+                            style: AppTypography.iosBody(brightness).copyWith(
+                              color: AppColors.secondaryLabel(theme),
+                              height: 1.5,
+                            ),
+                          ),
                         ),
                       ),
                       if (middleChild != null) ...[
@@ -90,6 +118,10 @@ class AuthHeroLayout extends StatelessWidget {
                         variant: DfCardVariant.elevated,
                         child: formChild,
                       ),
+                      if (bottomChild != null) ...[
+                        const SizedBox(height: AppSpacing.md),
+                        bottomChild!,
+                      ],
                       if (footer != null) ...[
                         const SizedBox(height: AppSpacing.lg),
                         footer!,
