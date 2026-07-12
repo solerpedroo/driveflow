@@ -6,6 +6,16 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../shared/widgets/design_system/df_card.dart';
 import '../providers/platform_sync_logs_providers.dart';
 
+String _triggerSourceLabel(String source) {
+  return switch (source) {
+    'manual' => 'Manual',
+    'cron' => 'Automático',
+    'webhook' => 'Notificação',
+    'app_background' => 'Em segundo plano',
+    _ => source,
+  };
+}
+
 /// Painel de logs de sincronização (auditoria).
 class PlatformSyncLogPanel extends ConsumerWidget {
   const PlatformSyncLogPanel({super.key});
@@ -21,7 +31,7 @@ class PlatformSyncLogPanel extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Histórico de sincronizações',
+            'Histórico de atualizações',
             style: theme.textTheme.titleSmall?.copyWith(
               fontWeight: FontWeight.w700,
             ),
@@ -52,7 +62,7 @@ class PlatformSyncLogPanel extends ConsumerWidget {
                   ),
                 ),
                 Text(
-                  log.triggerSource,
+                  _triggerSourceLabel(log.triggerSource),
                   style: theme.textTheme.labelSmall?.copyWith(
                     color: AppColors.secondaryLabel(theme),
                   ),
