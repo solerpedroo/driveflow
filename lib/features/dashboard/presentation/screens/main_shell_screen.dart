@@ -128,7 +128,7 @@ class EditVehicleScreen extends ConsumerWidget {
       error: (e, _) => DfSubpageScaffold(
         title: 'Editar veículo',
         children: [
-          Text('Erro: $e'),
+          Text('Não foi possível carregar. Tente novamente.'),
         ],
       ),
       data: (vehicles) {
