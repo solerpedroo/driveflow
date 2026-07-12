@@ -26,23 +26,23 @@ class DriveFlowConnectivityBanner extends ConsumerWidget {
 
     if (!online) {
       message = pending > 0
-          ? 'Offline · $pending alteração(ões) aguardando sync'
+          ? 'Offline · $pending alteração(ões) aguardando envio'
           : 'Você está offline — dados locais disponíveis';
       icon = Icons.cloud_off_rounded;
       background = AppColors.expenseCoral.withValues(alpha: 0.15);
       foreground = AppColors.expenseCoral;
     } else if (syncStatus == SyncStatus.syncing) {
-      message = 'Sincronizando alterações…';
-      icon = Icons.sync_rounded;
+      message = 'Enviando alterações…';
+      icon = Icons.cloud_upload_rounded;
       background = AppColors.profitGreen.withValues(alpha: 0.12);
       foreground = AppColors.profitGreen;
     } else if (syncStatus == SyncStatus.failed) {
-      message = 'Falha ao sincronizar — tente novamente online';
+      message = 'Não foi possível enviar as alterações — tente novamente';
       icon = Icons.error_outline_rounded;
       background = AppColors.expenseCoral.withValues(alpha: 0.12);
       foreground = AppColors.expenseCoral;
     } else if (pending > 0) {
-      message = '$pending alteração(ões) na fila';
+      message = '$pending alteração(ões) aguardando envio';
       icon = Icons.cloud_queue_rounded;
       background = Theme.of(context).colorScheme.surfaceContainerHighest;
       foreground = AppColors.secondaryLabel(Theme.of(context));
