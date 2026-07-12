@@ -71,7 +71,7 @@ class AnalyticsScreen extends ConsumerWidget {
         ),
         trendAsync.when(
           loading: () => const DfSkeleton(itemCount: 3),
-          error: (e, _) => Text('Erro: $e'),
+          error: (e, _) => Text('Não foi possível carregar. Tente novamente.'),
           data: (points) => ProfitTrendChart(
             points: points,
             windowLabel: trendWindow.label,
@@ -79,7 +79,7 @@ class AnalyticsScreen extends ConsumerWidget {
         ),
         forecastAsync.when(
           loading: () => const DfSkeleton(itemCount: 3),
-          error: (e, _) => Text('Erro: $e'),
+          error: (e, _) => Text('Não foi possível carregar. Tente novamente.'),
           data: (forecast) => ProfitForecastCard(
             forecast: forecast,
             aiSummary: aiForecastAsync.valueOrNull?.summary,
@@ -104,7 +104,7 @@ class AnalyticsScreen extends ConsumerWidget {
         ),
         comparisonAsync.when(
           loading: () => const DfSkeleton(itemCount: 3),
-          error: (e, _) => Text('Erro: $e'),
+          error: (e, _) => Text('Não foi possível carregar. Tente novamente.'),
           data: (comparison) => Column(
             children: [
               PeriodComparisonCard(comparison: comparison),
@@ -120,7 +120,7 @@ class AnalyticsScreen extends ConsumerWidget {
         ),
         breakdownAsync.when(
           loading: () => const DfSkeleton(itemCount: 3),
-          error: (e, _) => Text('Erro: $e'),
+          error: (e, _) => Text('Não foi possível carregar. Tente novamente.'),
           data: (slices) => ExpensePieChart(slices: slices),
         ),
       ],
