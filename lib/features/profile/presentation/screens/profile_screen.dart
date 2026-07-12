@@ -20,33 +20,35 @@ import '../../../../core/utils/value_visibility_provider.dart';
 import '../../../../shared/widgets/design_system/df_button.dart';
 import '../../../../shared/widgets/design_system/df_card.dart';
 import '../../../../shared/widgets/design_system/df_empty_state.dart';
-import '../../../../shared/widgets/design_system/df_hero_wealth_card.dart';
 import '../../../../shared/widgets/design_system/df_grouped_section.dart';
 import '../../../../shared/widgets/design_system/df_header_row.dart';
+import '../../../../shared/widgets/design_system/df_hero_wealth_card.dart';
+import '../../../../shared/widgets/design_system/df_quick_actions.dart';
 import '../../../../shared/widgets/design_system/df_section_header.dart';
 import '../../../../shared/widgets/design_system/df_skeleton.dart';
 import '../../../../shared/widgets/design_system/df_tab_scroll_view.dart';
 import '../../../../shared/widgets/design_system/df_text_field.dart';
 import '../../../dashboard/presentation/providers/dashboard_providers.dart';
-import '../../../earnings/presentation/providers/earnings_providers.dart';
 import '../../../onboarding/presentation/providers/onboarding_providers.dart';
 import '../providers/profile_providers.dart';
 import '../widgets/profile_value_stats_card.dart';
 
-/// Perfil no padrão Mescla — avatar, métricas hero, conta agrupada e sessão.
+/// Perfil — mesmo DNA da Início / Ganhos / Despesas / Relatórios.
 class ProfileScreen extends HookConsumerWidget {
   const ProfileScreen({super.key});
 
+  static void _toggleVisibility(WidgetRef ref, bool hidden) {
+    ref.read(valueVisibilityHiddenProvider.notifier).state = !hidden;
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
     final hidden = ref.watch(valueVisibilityHiddenProvider);
     final user = ref.watch(userProfileProvider).valueOrNull ??
         ref.watch(authStateProvider).valueOrNull;
     final isTaxiDriver = ref.watch(isTaxiDriverProvider);
     final vehiclesAsync = ref.watch(vehiclesListProvider);
     final monthAsync = ref.watch(dashboardMonthProvider);
-    final earningsAsync = ref.watch(earningsStreamProvider);
     final mutation = ref.watch(profileControllerProvider);
     final vehicleMutation = ref.watch(vehicleControllerProvider);
     final nameController = useTextEditingController(text: user?.name ?? '');
@@ -88,16 +90,65 @@ class ProfileScreen extends HookConsumerWidget {
         ref.invalidate(userProfileProvider);
         ref.invalidate(vehiclesListProvider);
         ref.invalidate(dashboardMonthProvider);
-        ref.invalidate(earningsStreamProvider);
       },
       children: [
         const DfHeaderRow(),
-        DfScreenTitleRow(
-          title: 'Perfil',
-          hidden: hidden,
-          onToggleVisibility: () => ref
-              .read(valueVisibilityHiddenProvider.notifier)
-              .state = !hidden,
+        const DfScreenTitleRow(title: 'Perfil'),
+        monthAsync.when(
+          loading: () => const SizedBox(
+            height: 140,
+            child: DfSkeleton(itemCount: 1),
+          ),
+          error: (_, __) => const SizedBox.shrink(),
+          data: (month) => ProfileValueStatsCard(
+            month: month,
+            totalRides: month.rides,
+            hideValue: hidden,
+            onToggleVisibility: () => _toggleVisibility(ref, hidden),
+          ),
+        ),
+        DfQuickActions(
+          actions: [
+            DfQuickAction(
+              icon: Icons.directions_car_filled_rounded,
+              label: 'Veículo',
+              onTap: () {
+                final vehicles = vehiclesAsync.valueOrNull ?? const [];
+                if (vehicles.isEmpty) {
+                  context.push(AppRoutes.addVehicle);
+                } else {
+                  final id = vehicles
+                          .where((v) => v.isDefault)
+                          .map((v) => v.id)
+                          .firstOrNull ??
+                      vehicles.first.id;
+                  context.push('${AppRoutes.editVehicle}?id=$id');
+                }
+              },
+            ),
+            DfQuickAction(
+              icon: Icons.local_gas_station_rounded,
+              label: 'Combustível',
+              onTap: () => context.push(AppRoutes.fuelHistory),
+            ),
+            DfQuickAction(
+              icon: Icons.build_circle_outlined,
+              label: 'Manutenção',
+              onTap: () => context.push(AppRoutes.maintenanceHistory),
+            ),
+            if (!isTaxiDriver)
+              DfQuickAction(
+                icon: Icons.hub_rounded,
+                label: 'Apps',
+                onTap: () => context.push(AppRoutes.platformIntegrations),
+              )
+            else
+              DfQuickAction(
+                icon: Icons.flag_rounded,
+                label: 'Metas',
+                onTap: () => context.push(AppRoutes.goals),
+              ),
+          ],
         ),
         _PerfilUserCard(
           user: user,
@@ -109,21 +160,6 @@ class ProfileScreen extends HookConsumerWidget {
           onEditName: () => editingName.value = true,
           onCancelEdit: () => editingName.value = false,
           mutationError: mutation.hasError ? mutation.error.toString() : null,
-        ),
-        monthAsync.when(
-          loading: () => const SizedBox(
-            height: 140,
-            child: DfSkeleton(itemCount: 1),
-          ),
-          error: (_, __) => const SizedBox.shrink(),
-          data: (month) {
-            final rides = earningsAsync.valueOrNull?.length ?? 0;
-            return ProfileValueStatsCard(
-              month: month,
-              totalRides: rides,
-              hideValue: hidden,
-            );
-          },
         ),
         vehiclesAsync.when(
           loading: () => const DfSkeleton(itemCount: 2),
@@ -141,39 +177,12 @@ class ProfileScreen extends HookConsumerWidget {
         ),
         DfGroupedSection(
           header: 'Conta',
+          margin: EdgeInsets.zero,
           children: [
-            if (!isTaxiDriver)
-              DfGroupedRow(
-                title: 'Apps conectados',
-                subtitle: 'Uber, 99 e InDrive',
-                leading: Icon(Icons.hub_outlined, color: AppColors.brandBlue),
-                showChevron: true,
-                onTap: () => context.push(AppRoutes.platformIntegrations),
-              ),
-            DfGroupedRow(
-              title: 'Abastecimentos',
-              subtitle: 'Histórico e custo por km',
-              leading: Icon(
-                Icons.local_gas_station_outlined,
-                color: AppColors.brandBlue,
-              ),
-              showChevron: true,
-              onTap: () => context.push(AppRoutes.fuelHistory),
-            ),
-            DfGroupedRow(
-              title: 'Manutenções',
-              subtitle: 'Lembretes e histórico',
-              leading: Icon(
-                Icons.build_circle_outlined,
-                color: AppColors.brandBlue,
-              ),
-              showChevron: true,
-              onTap: () => context.push(AppRoutes.maintenanceHistory),
-            ),
             DfGroupedRow(
               title: 'Importar extrato',
               subtitle: 'Extrato do banco ou arquivo do app',
-              leading: Icon(
+              leading: const Icon(
                 Icons.upload_file_outlined,
                 color: AppColors.brandBlue,
               ),
@@ -183,7 +192,7 @@ class ProfileScreen extends HookConsumerWidget {
             DfGroupedRow(
               title: 'Análises',
               subtitle: 'Tendências e comparação',
-              leading: Icon(
+              leading: const Icon(
                 Icons.bar_chart_outlined,
                 color: AppColors.brandBlue,
               ),
@@ -193,56 +202,30 @@ class ProfileScreen extends HookConsumerWidget {
             DfGroupedRow(
               title: 'Insights',
               subtitle: 'Melhor horário e projeções',
-              leading: Icon(
+              leading: const Icon(
                 Icons.auto_awesome_outlined,
                 color: AppColors.brandBlue,
               ),
               showChevron: true,
               onTap: () => context.push(AppRoutes.insights),
             ),
-            DfGroupedRow(
-              title: 'Metas',
-              subtitle: 'Lucro-alvo diário e mensal',
-              leading: Icon(Icons.flag_outlined, color: AppColors.brandBlue),
-              showChevron: true,
-              onTap: () => context.push(AppRoutes.goals),
-            ),
-          ],
-        ),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const DfSectionHeader(
-              title: 'DriveFlow IA',
-              eyebrow: 'Assistente',
-            ),
-            const SizedBox(height: AppSpacing.md),
-            DfCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Pergunte sobre lucro, metas e manutenção com seus dados reais.',
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: AppColors.secondaryLabel(theme),
-                      height: 1.45,
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.md),
-                  DfButton(
-                    label: 'Abrir assistente',
-                    icon: Icons.chat_bubble_outline_rounded,
-                    variant: DfButtonVariant.tonal,
-                    onPressed: () => context.push(AppRoutes.aiChat),
-                    expand: false,
-                  ),
-                ],
+            if (!isTaxiDriver)
+              DfGroupedRow(
+                title: 'Metas',
+                subtitle: 'Lucro-alvo diário e mensal',
+                leading: const Icon(
+                  Icons.flag_outlined,
+                  color: AppColors.brandBlue,
+                ),
+                showChevron: true,
+                onTap: () => context.push(AppRoutes.goals),
               ),
-            ),
           ],
         ),
+        const _AiAssistantCard(),
         DfGroupedSection(
           header: 'Sessão',
+          margin: EdgeInsets.zero,
           children: [
             _DestructiveGroupedRow(
               title: 'Sair da conta',
@@ -253,6 +236,58 @@ class ProfileScreen extends HookConsumerWidget {
           ],
         ),
       ],
+    );
+  }
+}
+
+class _AiAssistantCard extends StatelessWidget {
+  const _AiAssistantCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final brightness = Theme.of(context).brightness;
+
+    return DfCard(
+      variant: DfCardVariant.elevated,
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.xl,
+        AppSpacing.lg,
+        AppSpacing.xl,
+        AppSpacing.lg,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Assistente',
+            style: AppTypography.labelCaps(brightness),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'DriveFlow IA',
+            style: AppTypography.iosHeadline(brightness).copyWith(
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            'Pergunte sobre lucro, metas e manutenção com seus dados reais.',
+            style: AppTypography.iosBody(brightness).copyWith(
+              color: AppColors.secondaryLabel(Theme.of(context)),
+              height: 1.45,
+              fontSize: 15,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.md),
+          DfButton(
+            label: 'Abrir assistente',
+            icon: Icons.chat_bubble_outline_rounded,
+            variant: DfButtonVariant.tonal,
+            onPressed: () => context.push(AppRoutes.aiChat),
+            expand: false,
+          ),
+        ],
+      ),
     );
   }
 }
@@ -290,9 +325,21 @@ class _PerfilUserCard extends StatelessWidget {
         : '?';
 
     return DfCard(
+      variant: DfCardVariant.elevated,
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.xl,
+        AppSpacing.lg,
+        AppSpacing.xl,
+        AppSpacing.lg,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          Text(
+            'Conta',
+            style: AppTypography.labelCaps(brightness),
+          ),
+          const SizedBox(height: AppSpacing.lg),
           Stack(
             alignment: Alignment.center,
             children: [
@@ -305,9 +352,10 @@ class _PerfilUserCard extends StatelessWidget {
                 child: photoUrl == null
                     ? Text(
                         initials,
-                        style: theme.textTheme.headlineSmall?.copyWith(
+                        style: AppTypography.iosHeadline(brightness).copyWith(
                           color: AppColors.brandBlue,
                           fontWeight: FontWeight.w800,
+                          fontSize: 22,
                         ),
                       )
                     : null,
@@ -386,8 +434,10 @@ class _PerfilUserCard extends StatelessWidget {
             Text(
               user?.displayName ?? 'Motorista',
               textAlign: TextAlign.center,
-              style: theme.textTheme.titleLarge?.copyWith(
+              style: AppTypography.iosHeadline(brightness).copyWith(
+                fontSize: 20,
                 fontWeight: FontWeight.w700,
+                letterSpacing: -0.3,
               ),
             ),
             if (user?.email != null) ...[
@@ -395,8 +445,9 @@ class _PerfilUserCard extends StatelessWidget {
               Text(
                 user!.email!,
                 textAlign: TextAlign.center,
-                style: theme.textTheme.bodyMedium?.copyWith(
+                style: AppTypography.iosBody(brightness).copyWith(
                   color: AppColors.secondaryLabel(theme),
+                  fontSize: 15,
                 ),
               ),
             ],
@@ -427,7 +478,7 @@ class _PerfilUserCard extends StatelessWidget {
             Text(
               mutationError!,
               textAlign: TextAlign.center,
-              style: theme.textTheme.bodySmall?.copyWith(
+              style: AppTypography.iosFootnote(brightness).copyWith(
                 color: theme.colorScheme.error,
               ),
             ),
@@ -453,7 +504,7 @@ class _VehiclesSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final brightness = Theme.of(context).brightness;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -467,6 +518,7 @@ class _VehiclesSection extends StatelessWidget {
         const SizedBox(height: AppSpacing.md),
         if (vehicles.isEmpty)
           DfCard(
+            variant: DfCardVariant.elevated,
             child: const DfEmptyState(
               variant: DfEmptyStateVariant.illustrated,
               icon: Icons.directions_car_outlined,
@@ -476,6 +528,7 @@ class _VehiclesSection extends StatelessWidget {
           )
         else
           DfGroupedSection(
+            margin: EdgeInsets.zero,
             children: [
               for (final vehicle in vehicles)
                 DfGroupedRow(
@@ -483,14 +536,14 @@ class _VehiclesSection extends StatelessWidget {
                   subtitle:
                       '${vehicle.year} · ${vehicle.fuelLabel}'
                       '${vehicle.plate != null ? ' · ${vehicle.plate}' : ''}',
-                  leading: Icon(
+                  leading: const Icon(
                     Icons.directions_car_outlined,
                     color: AppColors.brandBlue,
                   ),
                   trailing: vehicle.isDefault
                       ? Text(
                           'Padrão',
-                          style: theme.textTheme.labelSmall?.copyWith(
+                          style: AppTypography.iosCaption(brightness).copyWith(
                             color: AppColors.brandBlue,
                             fontWeight: FontWeight.w700,
                           ),
