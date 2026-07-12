@@ -13,10 +13,12 @@ class DriverTypePicker extends StatelessWidget {
     required this.selected,
     required this.onChanged,
     super.key,
+    this.showHeader = true,
   });
 
   final DriverType selected;
   final ValueChanged<DriverType> onChanged;
+  final bool showHeader;
 
   @override
   Widget build(BuildContext context) {
@@ -25,16 +27,18 @@ class DriverTypePicker extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
-          'Como você trabalha?',
-          style: AppTypography.iosHeadline(brightness),
-        ),
-        const SizedBox(height: AppSpacing.xs),
-        Text(
-          'Personalizamos o painel, os ganhos e o onboarding para sua rotina.',
-          style: AppTypography.iosFootnote(brightness),
-        ),
-        const SizedBox(height: AppSpacing.lg),
+        if (showHeader) ...[
+          Text(
+            'Como você trabalha?',
+            style: AppTypography.iosHeadline(brightness),
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            'Personalizamos o painel, os ganhos e o onboarding para sua rotina.',
+            style: AppTypography.iosFootnote(brightness),
+          ),
+          const SizedBox(height: AppSpacing.lg),
+        ],
         for (final type in DriverType.values) ...[
           _DriverTypeCard(
             type: type,
