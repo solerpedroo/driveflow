@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_radius.dart';
 
 /// Chip de período estilo Mescla — pílula com lavado brand no selecionado.
 class DfPeriodPillChip extends StatelessWidget {
@@ -29,10 +30,10 @@ class DfPeriodPillChip extends StatelessWidget {
               alpha: theme.brightness == Brightness.dark ? 0.22 : 0.12,
             )
           : muted,
-      borderRadius: BorderRadius.circular(999),
+      borderRadius: AppRadius.pillAll,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(999),
+        borderRadius: AppRadius.pillAll,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
           child: Text(
