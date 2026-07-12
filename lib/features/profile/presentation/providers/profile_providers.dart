@@ -100,10 +100,14 @@ final userProfileProvider = FutureProvider<UserEntity?>((ref) async {
 
   final remote = ProfileRemoteDataSource();
   Map<String, dynamic>? row;
-  for (var attempt = 0; attempt < 3; attempt++) {
-    row = await remote.fetchProfile(authUser.id);
-    if (row != null) break;
-    await Future<void>.delayed(Duration(milliseconds: 200 * (attempt + 1)));
+  try {
+    for (var attempt = 0; attempt < 3; attempt++) {
+      row = await remote.fetchProfile(authUser.id);
+      if (row != null) break;
+      await Future<void>.delayed(Duration(milliseconds: 200 * (attempt + 1)));
+    }
+  } on Object {
+    return authUser;
   }
 
   if (row == null) return authUser;
