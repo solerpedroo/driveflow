@@ -4,31 +4,33 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_motion.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/df_haptics.dart';
+import '../../../../core/utils/value_visibility_provider.dart';
 import '../../domain/entities/category_breakdown_slice.dart';
 import '../../../../shared/widgets/design_system/df_card.dart';
 
-/// Gráfico donut de despesas por categoria — legenda legível e fatia única sem artefato.
+/// Donut de despesas por categoria — módulo elevado.
 class ExpensePieChart extends StatefulWidget {
   const ExpensePieChart({
     required this.slices,
+    this.hideValue = false,
     super.key,
   });
 
   final List<CategoryBreakdownSlice> slices;
+  final bool hideValue;
 
   static const _palette = [
+    AppColors.brandBlue,
+    AppColors.brandBlueDark,
+    AppColors.deepNavy,
     AppColors.expenseCoral,
     AppColors.warningAmber,
-    AppColors.infoBlue,
-    AppColors.skyBlue,
-    Color(0xFF8B5CF6),
-    Color(0xFFEC4899),
+    Color(0xFF64748B),
     Color(0xFF14B8A6),
     Color(0xFFF97316),
-    Color(0xFF64748B),
-    Color(0xFF84CC16),
   ];
 
   @override
@@ -55,23 +57,36 @@ class _ExpensePieChartState extends State<ExpensePieChart>
     super.dispose();
   }
 
-  Color _legendColor(ThemeData theme, {required bool emphasized}) {
-    if (theme.brightness == Brightness.dark) {
-      return emphasized ? Colors.white : const Color(0xFFAEAEB2);
-    }
-    return emphasized ? AppColors.brandNavy : AppColors.textPrimary;
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final brightness = theme.brightness;
     final slices = widget.slices;
 
     if (slices.isEmpty) {
       return DfCard(
-        child: Text(
-          'Nenhuma despesa no período.',
-          style: theme.textTheme.bodyMedium,
+        variant: DfCardVariant.elevated,
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.xl,
+          AppSpacing.lg,
+          AppSpacing.xl,
+          AppSpacing.lg,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Despesas por categoria',
+              style: AppTypography.labelCaps(brightness),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            Text(
+              'Nenhuma despesa no período.',
+              style: AppTypography.iosBody(brightness).copyWith(
+                color: AppColors.secondaryLabel(theme),
+              ),
+            ),
+          ],
         ),
       );
     }
@@ -83,14 +98,19 @@ class _ExpensePieChartState extends State<ExpensePieChart>
       label: 'Gráfico de despesas por categoria: $legend',
       child: RepaintBoundary(
         child: DfCard(
+          variant: DfCardVariant.elevated,
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.xl,
+            AppSpacing.lg,
+            AppSpacing.xl,
+            AppSpacing.lg,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
                 'Despesas por categoria',
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
+                style: AppTypography.labelCaps(brightness),
               ),
               const SizedBox(height: AppSpacing.lg),
               AnimatedBuilder(
@@ -118,9 +138,10 @@ class _ExpensePieChartState extends State<ExpensePieChart>
                                         setState(() => _touchedIndex = null);
                                         return;
                                       }
-                                      final index = response
-                                          ?.touchedSection?.touchedSectionIndex;
-                                      if (index != null && index != _touchedIndex) {
+                                      final index = response?.touchedSection
+                                          ?.touchedSectionIndex;
+                                      if (index != null &&
+                                          index != _touchedIndex) {
                                         DfHaptics.light();
                                       }
                                       setState(() => _touchedIndex = index);
@@ -130,18 +151,18 @@ class _ExpensePieChartState extends State<ExpensePieChart>
                                     for (var i = 0; i < slices.length; i++)
                                       PieChartSectionData(
                                         value: slices[i].amount * _anim.value,
-                                        color: ExpensePieChart._palette[
-                                            i % ExpensePieChart._palette.length],
+                                        color: ExpensePieChart._palette[i %
+                                            ExpensePieChart._palette.length],
                                         radius: _touchedIndex == i ? 50 : 46,
                                         showTitle: !isSingleSlice &&
                                             slices[i].share >= 0.08,
                                         title:
                                             '${(slices[i].share * 100).toStringAsFixed(0)}%',
-                                        titleStyle: theme.textTheme.labelSmall
-                                            ?.copyWith(
+                                        titleStyle:
+                                            AppTypography.iosCaption(brightness)
+                                                .copyWith(
                                           color: Colors.white,
                                           fontWeight: FontWeight.w700,
-                                          fontSize: 11,
                                         ),
                                         titlePositionPercentageOffset: 0.55,
                                       ),
@@ -152,9 +173,9 @@ class _ExpensePieChartState extends State<ExpensePieChart>
                               if (isSingleSlice)
                                 Text(
                                   '100%',
-                                  style: theme.textTheme.titleMedium?.copyWith(
+                                  style: AppTypography.iosHeadline(brightness)
+                                      .copyWith(
                                     fontWeight: FontWeight.w800,
-                                    color: _legendColor(theme, emphasized: true),
                                   ),
                                 ),
                             ],
@@ -179,8 +200,8 @@ class _ExpensePieChartState extends State<ExpensePieChart>
                                       width: _touchedIndex == i ? 12 : 10,
                                       height: _touchedIndex == i ? 12 : 10,
                                       decoration: BoxDecoration(
-                                        color: ExpensePieChart._palette[
-                                            i % ExpensePieChart._palette.length],
+                                        color: ExpensePieChart._palette[i %
+                                            ExpensePieChart._palette.length],
                                         shape: BoxShape.circle,
                                       ),
                                     ),
@@ -188,27 +209,30 @@ class _ExpensePieChartState extends State<ExpensePieChart>
                                     Expanded(
                                       child: Text(
                                         slices[i].category.label,
-                                        style: theme.textTheme.bodyMedium?.copyWith(
+                                        style: AppTypography.iosCaption(
+                                          brightness,
+                                        ).copyWith(
+                                          fontSize: 13,
                                           fontWeight: _touchedIndex == i
                                               ? FontWeight.w700
-                                              : FontWeight.w500,
-                                          color: _legendColor(
-                                            theme,
-                                            emphasized: _touchedIndex == i,
-                                          ),
+                                              : FontWeight.w600,
+                                          color: theme.colorScheme.onSurface,
                                         ),
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                     ),
                                     const SizedBox(width: AppSpacing.xs),
                                     Text(
-                                      CurrencyFormatter.format(slices[i].amount),
-                                      style: theme.textTheme.bodySmall?.copyWith(
-                                        fontWeight: FontWeight.w700,
-                                        color: _legendColor(
-                                          theme,
-                                          emphasized: true,
+                                      maskCurrency(
+                                        CurrencyFormatter.format(
+                                          slices[i].amount,
                                         ),
+                                        hidden: widget.hideValue,
+                                      ),
+                                      style: AppTypography.iosCaption(brightness)
+                                          .copyWith(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w700,
                                         fontFeatures: const [
                                           FontFeature.tabularFigures(),
                                         ],
