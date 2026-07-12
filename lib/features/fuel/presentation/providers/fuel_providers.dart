@@ -16,7 +16,7 @@ final fuelRepositoryProvider = Provider<FuelRepository>((ref) {
 });
 
 final fuelLogsStreamProvider =
-    StreamProvider.family<List<FuelLogEntity>, String>((ref, vehicleId) {
+    StreamProvider.autoDispose.family<List<FuelLogEntity>, String>((ref, vehicleId) {
   final watch = WatchFuelLogs(ref.watch(fuelRepositoryProvider));
   return watch(vehicleId: vehicleId);
 });
