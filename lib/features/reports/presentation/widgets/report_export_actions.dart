@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/errors/failure_message.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../shared/widgets/design_system/df_button.dart';
 import '../providers/reports_providers.dart';
@@ -39,7 +40,7 @@ class ReportExportActions extends ConsumerWidget {
         if (exportState.hasError) ...[
           const SizedBox(height: AppSpacing.md),
           Text(
-            exportState.error.toString(),
+            FailureMessage.forObject(exportState.error),
             style: theme.textTheme.bodySmall?.copyWith(
               color: theme.colorScheme.error,
             ),
