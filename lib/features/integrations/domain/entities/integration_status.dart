@@ -3,8 +3,8 @@ enum IntegrationStatus {
   disconnected('disconnected', 'Desconectado'),
   pending('pending', 'Aguardando autorização'),
   connected('connected', 'Conectado'),
-  error('error', 'Erro na sincronização'),
-  tokenExpired('token_expired', 'Token expirado');
+  error('error', 'Erro ao atualizar'),
+  tokenExpired('token_expired', 'Conexão expirada — reconecte');
 
   const IntegrationStatus(this.value, this.label);
 
