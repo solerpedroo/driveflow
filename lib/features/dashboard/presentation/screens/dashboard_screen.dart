@@ -25,7 +25,6 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/value_visibility_provider.dart';
 import '../../../../shared/domain/models/dashboard_snapshot.dart';
 import '../../../../shared/widgets/design_system/df_expandable_list_section.dart';
-import '../../../../shared/widgets/design_system/df_section_header.dart';
 import '../../../../shared/widgets/design_system/df_skeleton.dart';
 import '../../../../shared/widgets/design_system/df_tab_scroll_view.dart';
 import '../../../onboarding/presentation/providers/onboarding_providers.dart';
@@ -258,20 +257,16 @@ class _DashboardBody extends StatelessWidget {
           alignment: Alignment.centerLeft,
           child: VehicleScopeChip(),
         ),
-        if (!isTaxiDriver)
-          const Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              DfSectionHeader(
-                title: 'Onde você rodou',
-                eyebrow: 'Hoje',
-              ),
-              SizedBox(height: AppSpacing.md),
-              DashboardPlatformMixCard(),
-            ],
-          ),
-        WeeklyProfitChart(points: snapshot.weekProfits),
-        MonthSummaryCard(summary: month, hideHeroProfit: true),
+        if (!isTaxiDriver) const DashboardPlatformMixCard(),
+        WeeklyProfitChart(
+          points: snapshot.weekProfits,
+          hideValue: hidden,
+        ),
+        MonthSummaryCard(
+          summary: month,
+          hideHeroProfit: true,
+          hideValue: hidden,
+        ),
         if (topSlots.isNotEmpty || topPrediction != null)
           DashboardInsightsSummary(
             topSlots: topSlots,
@@ -282,6 +277,7 @@ class _DashboardBody extends StatelessWidget {
           eyebrow: 'Cuidados',
           itemCount: 2,
           previewCount: 2,
+          spacing: AppSpacing.md,
           itemBuilder: (context, index) {
             if (index == 0) {
               return DashboardFuelCard(vehicle: vehicle, lastFuel: lastFuel);
