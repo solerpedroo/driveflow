@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../profile/presentation/providers/profile_providers.dart';
 import '../../../vehicle/presentation/providers/vehicle_providers.dart';
 import '../../data/repositories/auth_repository_impl.dart';
 import '../../domain/entities/user_entity.dart';
@@ -45,6 +46,7 @@ class AuthController extends Notifier<AsyncValue<void>> {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       await ref.read(signInWithEmailProvider)(email: email, password: password);
+      _warmupSessionProviders();
     });
   }
 
@@ -62,6 +64,7 @@ class AuthController extends Notifier<AsyncValue<void>> {
         name: name,
         driverType: driverType,
       );
+      _warmupSessionProviders();
     });
   }
 
@@ -69,6 +72,7 @@ class AuthController extends Notifier<AsyncValue<void>> {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       await ref.read(signInWithGoogleProvider)();
+      _warmupSessionProviders();
     });
   }
 
@@ -76,11 +80,18 @@ class AuthController extends Notifier<AsyncValue<void>> {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       await ref.read(signOutProvider)();
+      ref.invalidate(userProfileProvider);
       ref.invalidate(vehiclesStreamProvider);
       ref.invalidate(scopedVehicleIdProvider);
       ref.invalidate(activeVehicleIdProvider);
       ref.read(scopedVehicleIdProvider.notifier).state = null;
     });
+  }
+
+  /// Reinicia perfil/veículos no escopo do usuário autenticado (evita flash de onboarding).
+  void _warmupSessionProviders() {
+    ref.invalidate(userProfileProvider);
+    ref.invalidate(vehiclesStreamProvider);
   }
 
   void clearError() => state = const AsyncData(null);
