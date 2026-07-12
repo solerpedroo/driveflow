@@ -234,6 +234,7 @@ class LoginScreen extends HookConsumerWidget {
                                       DfButton(
                                         label: 'Entrar no painel',
                                         icon: Icons.arrow_forward_rounded,
+                                        trailingIcon: true,
                                         isLoading: isLoading,
                                         variant: DfButtonVariant.gradient,
                                         onPressed: submit,
@@ -666,13 +667,23 @@ class _CreateAccountFooter extends StatelessWidget {
                 color: AppColors.secondaryLabel(theme),
               ),
             ),
-            TextButton(
-              onPressed: enabled ? onPressed : null,
-              child: Text(
-                'Criar conta',
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: AppColors.brandBlue,
-                  fontWeight: FontWeight.w700,
+            const SizedBox(width: 4),
+            GestureDetector(
+              onTap: enabled ? onPressed : null,
+              behavior: HitTestBehavior.opaque,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 4,
+                  vertical: 8,
+                ),
+                child: Text(
+                  'Criar conta',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: enabled
+                        ? AppColors.brandBlue
+                        : AppColors.secondaryLabel(theme),
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
             ),
