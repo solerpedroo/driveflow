@@ -265,7 +265,7 @@ abstract final class AiContextBuilder {
       if (snapshot.platformBreakdown.isNotEmpty)
         'Receita por app: ${snapshot.platformBreakdown.map((s) => '${s.platform.label} ${s.amount.toStringAsFixed(0)}').join(', ')}',
       if (snapshot.platformTripCount > 0)
-        'Corridas sincronizadas: ${snapshot.platformTripCount}',
+        'Corridas dos apps: ${snapshot.platformTripCount}',
       if (snapshot.lowestTakeRatePlatform != null)
         'Menor taxa de plataforma: ${snapshot.lowestTakeRatePlatform}',
       if (snapshot.platformConsistency.isNotEmpty)
