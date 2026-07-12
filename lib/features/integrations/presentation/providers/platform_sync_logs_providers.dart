@@ -8,7 +8,7 @@ final platformSyncLogsRemoteProvider =
     Provider((ref) => PlatformSyncLogsRemoteDataSource());
 
 final platformSyncLogsStreamProvider =
-    StreamProvider<List<PlatformSyncLogEntity>>((ref) {
+    StreamProvider.autoDispose<List<PlatformSyncLogEntity>>((ref) {
   return ref.watch(platformSyncLogsRemoteProvider).watchLogs().map(
         (rows) => rows.map(PlatformSyncLogMapper.fromRow).toList(),
       );
