@@ -6,6 +6,7 @@ import '../../../../core/errors/failure.dart';
 import '../../../../core/services/session_secure_storage.dart';
 import '../../../../core/storage/hive_storage.dart';
 import '../../../../core/storage/supabase_storage_urls.dart';
+import '../../domain/entities/sign_up_result.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../datasources/supabase_auth_datasource.dart';
@@ -75,7 +76,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<UserEntity> signUpWithEmail({
+  Future<SignUpResult> signUpWithEmail({
     required String email,
     required String password,
     required String name,
@@ -91,25 +92,28 @@ class AuthRepositoryImpl implements AuthRepository {
     if (user == null) {
       throw const AuthFailure(message: 'Não foi possível criar a conta.');
     }
-    if (response.session == null) {
-      throw const AuthFailure(
-        message: 'Conta criada. Confirme seu e-mail antes de entrar.',
-      );
-    }
+
     await _profiles.upsertProfile(
       id: user.id,
       email: email,
       name: name,
       driverType: driverType,
     );
+
+    if (response.session == null) {
+      return SignUpAwaitingEmailConfirmation(email: email);
+    }
+
     final resolved = await _resolveUser(user.id);
-    return resolved ??
-        UserMapper.fromAuthUser(
-          id: user.id,
-          email: email,
-          name: name,
-          driverType: driverType,
-        );
+    return SignUpCompleted(
+      resolved ??
+          UserMapper.fromAuthUser(
+            id: user.id,
+            email: email,
+            name: name,
+            driverType: driverType,
+          ),
+    );
   }
 
   @override

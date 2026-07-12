@@ -12,6 +12,7 @@ import '../../../authentication/presentation/providers/auth_providers.dart';
 import '../../../vehicle/domain/entities/vehicle_entity.dart';
 import '../../../vehicle/presentation/providers/vehicle_providers.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/errors/failure_message.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -159,7 +160,8 @@ class ProfileScreen extends HookConsumerWidget {
           onSaveName: saveName,
           onEditName: () => editingName.value = true,
           onCancelEdit: () => editingName.value = false,
-          mutationError: mutation.hasError ? mutation.error.toString() : null,
+          mutationError:
+              mutation.hasError ? FailureMessage.forObject(mutation.error) : null,
         ),
         vehiclesAsync.when(
           loading: () => const DfSkeleton(itemCount: 2),

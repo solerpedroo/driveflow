@@ -1,3 +1,4 @@
+import '../entities/sign_up_result.dart';
 import '../entities/user_entity.dart';
 import '../../../../core/constants/driver_type.dart';
 
@@ -12,7 +13,7 @@ abstract interface class AuthRepository {
     required String password,
   });
 
-  Future<UserEntity> signUpWithEmail({
+  Future<SignUpResult> signUpWithEmail({
     required String email,
     required String password,
     required String name,

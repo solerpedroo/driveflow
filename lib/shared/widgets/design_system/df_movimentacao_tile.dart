@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/utils/value_visibility_provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_elevation.dart';
 import '../../../core/theme/app_radius.dart';
@@ -37,7 +38,8 @@ class DfMovimentacaoTile extends StatelessWidget {
     final brightness = theme.brightness;
     final color = isCredit ? AppColors.profitGreen : AppColors.expenseCoral;
     final symbol = isCredit ? '+' : '−';
-    final displayAmount = hideValue ? 'R\$ ••••' : amount;
+    final displayAmount =
+        hideValue ? maskCurrency(amount, hidden: true) : amount;
 
     return DecoratedBox(
       decoration: BoxDecoration(

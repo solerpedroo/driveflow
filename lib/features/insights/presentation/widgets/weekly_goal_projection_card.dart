@@ -4,6 +4,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/currency_formatter.dart';
+import '../../../../core/utils/value_visibility_provider.dart';
 import '../../../../shared/widgets/design_system/df_card.dart';
 import '../../domain/entities/weekly_goal_projection.dart';
 
@@ -65,9 +66,10 @@ class WeeklyGoalProjectionCard extends StatelessWidget {
                 Expanded(
                   child: _StatBlock(
                     label: 'Lucro atual',
-                    value: hideValue
-                        ? 'R\$ ••••••'
-                        : CurrencyFormatter.format(projection.actualProfit),
+                    value: maskCurrency(
+                      CurrencyFormatter.format(projection.actualProfit),
+                      hidden: hideValue,
+                    ),
                     color: AppColors.profitGreen,
                   ),
                 ),
@@ -75,9 +77,10 @@ class WeeklyGoalProjectionCard extends StatelessWidget {
                 Expanded(
                   child: _StatBlock(
                     label: 'Projeção',
-                    value: hideValue
-                        ? 'R\$ ••••••'
-                        : CurrencyFormatter.format(projection.projectedProfit),
+                    value: maskCurrency(
+                      CurrencyFormatter.format(projection.projectedProfit),
+                      hidden: hideValue,
+                    ),
                     color: accent,
                   ),
                 ),
@@ -86,7 +89,7 @@ class WeeklyGoalProjectionCard extends StatelessWidget {
             const SizedBox(height: AppSpacing.sm),
             Text(
               hideValue
-                  ? 'Meta: •••••'
+                  ? 'Meta: ${maskCurrency('', hidden: true)}'
                   : 'Meta: ${CurrencyFormatter.format(projection.targetAmount)}',
               style: AppTypography.iosFootnote(brightness),
             ),

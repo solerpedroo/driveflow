@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/utils/transaction_filters.dart';
+import '../../../../core/utils/vehicle_scope_filter.dart';
+import '../../../vehicle/presentation/providers/vehicle_providers.dart';
 import '../../../earnings/domain/entities/earning_entity.dart';
 import '../../../earnings/presentation/providers/earnings_providers.dart';
 import '../../../expenses/domain/entities/expense_entity.dart';
@@ -15,7 +17,7 @@ final goalsRepositoryProvider = Provider<GoalsRepository>((ref) {
   return GoalsRepositoryImpl();
 });
 
-final goalsStreamProvider = StreamProvider<GoalEntity?>((ref) {
+final goalsStreamProvider = StreamProvider.autoDispose<GoalEntity?>((ref) {
   final watch = WatchGoals(ref.watch(goalsRepositoryProvider));
   return watch();
 });
@@ -53,6 +55,7 @@ final goalProgressProvider =
   final goalsAsync = ref.watch(goalsStreamProvider);
   final earningsAsync = ref.watch(earningsStreamProvider);
   final expensesAsync = ref.watch(expensesStreamProvider);
+  final scopedVehicleId = ref.watch(scopedVehicleIdProvider);
 
   if (goalsAsync.isLoading ||
       earningsAsync.isLoading ||
@@ -75,8 +78,16 @@ final goalProgressProvider =
     _computeProgress(
       period: period,
       goals: goalsAsync.valueOrNull,
-      earnings: earningsAsync.valueOrNull ?? const [],
-      expenses: expensesAsync.valueOrNull ?? const [],
+      earnings: VehicleScopeFilter.byVehicle(
+        items: earningsAsync.valueOrNull ?? const [],
+        vehicleId: scopedVehicleId,
+        vehicleIdOf: (e) => e.vehicleId,
+      ),
+      expenses: VehicleScopeFilter.byVehicle(
+        items: expensesAsync.valueOrNull ?? const [],
+        vehicleId: scopedVehicleId,
+        vehicleIdOf: (e) => e.vehicleId,
+      ),
     ),
   );
 });

@@ -47,6 +47,7 @@ Plano de implementação em **36 ondas** (0–36) para o DriveFlow (Flutter + Su
 | 36 | Cadastro em etapas — uma pergunta por tela, progresso Mescla Invest | concluída |
 | 37 | Bottom nav liquid glass + transições de aba na primeira visita | concluída |
 | 38 | Correções P0 — auditoria sênior (router, vehicleId, sync, OAuth secrets) | concluída |
+| 39 | Correções P1 — CI, erros UX, autoDispose, nav, metas, testes | concluída |
 
 ---
 
@@ -1735,6 +1736,33 @@ Após as ondas 15–34 e refatorações por tela (Início, Ganhos, Despesas, etc
 - [x] Manutenção refletida no lucro
 - [x] Tokens OAuth fora do metadata client-readable
 - [x] Documentação em `docs/engineering-audit.md`
+
+---
+
+## Onda 39 — Correções P1 (auditoria sênior)
+
+**Objetivo:** Endereçar itens de alta prioridade da auditoria — confiabilidade, UX de erros, recursos e testes.
+
+### Escopo
+
+| P1 | Correção |
+|---|---|
+| T1 | `.github/workflows/ci.yml` — analyze + custom_lint + test |
+| A2 | `FailureMessage.forObject` em 11 telas |
+| A1 | `autoDispose` em stream/family providers |
+| N3/N4 | `PopScope` histórico de abas + touch target 44px na nav |
+| B1 | Metas com `VehicleScopeFilter` |
+| B2 | `SignUpResult` — confirmação de e-mail como sucesso |
+| T2/T6 | `sync_worker_test` + `cached_remote_watch_test` com `fake_async` |
+| D3/D4 | Máscaras via `maskCurrency`/`maskPlain`; remoção `foundation_screen` |
+
+### Critérios
+
+- [x] CI roda em push/PR para `main`
+- [x] UI não exibe `Failure: ...` cru
+- [x] Streams de tela com `autoDispose`
+- [x] Back Android retorna à aba anterior
+- [x] `main_shell_test` cobre 5 abas
 
 ---
 

@@ -4,6 +4,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/currency_formatter.dart';
+import '../../../../core/utils/value_visibility_provider.dart';
 import '../../../../shared/widgets/design_system/df_card.dart';
 import '../../domain/services/goal_progress_calculator.dart';
 
@@ -55,7 +56,9 @@ class GoalProgressCard extends StatelessWidget {
                 ),
               ),
               Text(
-                hideValue ? '•••' : progress.progressLabel,
+                hideValue
+                    ? maskPlain(progress.progressLabel, hidden: true)
+                    : progress.progressLabel,
                 style: AppTypography.iosHeadline(brightness).copyWith(
                   color: accent,
                   fontWeight: FontWeight.w800,
@@ -68,7 +71,7 @@ class GoalProgressCard extends StatelessWidget {
           Text(
             progress.hasTarget
                 ? hideValue
-                    ? 'Lucro ••••• · Meta •••••'
+                    ? 'Lucro ${maskCurrency(CurrencyFormatter.format(progress.actualProfit), hidden: true)} · Meta ${maskCurrency(CurrencyFormatter.format(progress.targetAmount), hidden: true)}'
                     : 'Lucro ${CurrencyFormatter.format(progress.actualProfit)} · Meta ${CurrencyFormatter.format(progress.targetAmount)}'
                 : 'Configure uma meta para acompanhar o progresso',
             style: AppTypography.iosFootnote(brightness),
@@ -103,7 +106,7 @@ class GoalProgressCard extends StatelessWidget {
               progress.isComplete
                   ? 'Meta atingida!'
                   : hideValue
-                      ? 'Faltam •••••'
+                      ? 'Faltam ${maskCurrency(CurrencyFormatter.format(progress.remainingAmount), hidden: true)}'
                       : 'Faltam ${CurrencyFormatter.format(progress.remainingAmount)}',
               style: AppTypography.iosCaption(brightness).copyWith(
                 color: progress.isComplete

@@ -5,6 +5,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../../core/constants/ride_platforms.dart';
 import '../../../onboarding/presentation/providers/onboarding_providers.dart';
+import '../../../../core/errors/failure_message.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../../core/utils/validators.dart';
@@ -188,7 +189,7 @@ class EarningFormScreen extends HookConsumerWidget {
             if (mutation.hasError) ...[
               const SizedBox(height: 12),
               Text(
-                mutation.error.toString(),
+                FailureMessage.forObject(mutation.error),
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: theme.colorScheme.error,
                 ),

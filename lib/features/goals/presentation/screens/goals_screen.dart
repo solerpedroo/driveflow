@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../../../core/errors/failure_message.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -249,7 +250,7 @@ class GoalsScreen extends HookConsumerWidget {
             if (mutation.hasError) ...[
               const SizedBox(height: AppSpacing.md),
               Text(
-                mutation.error.toString(),
+                FailureMessage.forObject(mutation.error),
                 style: AppTypography.iosFootnote(brightness).copyWith(
                   color: Theme.of(context).colorScheme.error,
                 ),

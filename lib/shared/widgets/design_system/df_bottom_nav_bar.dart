@@ -39,7 +39,7 @@ class DfBottomNavBar extends StatelessWidget {
   final double horizontalPadding;
   final double bottomPadding;
 
-  static const double _trackHeight = 56;
+  static const double _trackHeight = 60;
   static const double _glassRadius = 30;
 
   @override
@@ -134,7 +134,7 @@ class _DfBottomNavItemTile extends StatelessWidget {
             curve: DriveFlowMotion.standard,
             constraints: BoxConstraints(
               minWidth: isActive ? 72 : 44,
-              minHeight: 40,
+              minHeight: 44,
             ),
             decoration: isActive
                 ? BoxDecoration(

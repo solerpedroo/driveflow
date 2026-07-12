@@ -216,8 +216,14 @@ O DriveFlow apresenta **engenharia de produto madura** (design system, Clean Arc
 - [x] Renumerar migrações + 012 secrets
 - [x] Secrets table para OAuth
 
-### Sprint 2 — P1
-- CI/CD, SyncWorker tests, autoDispose, erros amigáveis, splash seed
+### Sprint 2 — P1 (concluído)
+- [x] CI/CD GitHub Actions
+- [x] FailureMessage + 11 telas
+- [x] autoDispose em stream providers
+- [x] Nav touch 44px + main_shell 5 abas + PopScope back
+- [x] Goals vehicle scope + email confirmation signup
+- [x] SyncWorker test + cached_remote_watch fake_async
+- [x] Máscaras unificadas + remoção código morto
 
 ### Sprint 3 — Design system polish
 - Glass unificado, scaffolds, touch targets, máscaras

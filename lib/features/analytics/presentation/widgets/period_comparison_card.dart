@@ -5,6 +5,7 @@ import '../../../../core/theme/app_elevation.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/currency_formatter.dart';
+import '../../../../core/utils/value_visibility_provider.dart';
 import '../../domain/entities/period_comparison_result.dart';
 import '../../../../shared/widgets/design_system/df_card.dart';
 
@@ -78,7 +79,9 @@ class _MetricRow extends StatelessWidget {
         !metric.label.contains('/ km') && metric.label != 'Lucro / hora';
 
     final currentText = hideValue
-        ? (isMoney ? 'R\$ ••••••' : '•••')
+        ? (isMoney
+            ? maskCurrency('', hidden: true)
+            : maskPlain('', hidden: true))
         : _formatValue(metric.current, isMoney: isMoney);
     final deltaColor =
         metric.improved ? AppColors.profitGreen : AppColors.expenseCoral;
@@ -87,7 +90,7 @@ class _MetricRow extends StatelessWidget {
         ? ' (${deltaPrefix}${metric.deltaPercent!.toStringAsFixed(1)}%)'
         : '';
     final deltaText = hideValue
-        ? '•••'
+        ? maskPlain('', hidden: true)
         : '$deltaPrefix${_formatValue(metric.delta, isMoney: isMoney)}$percentText';
 
     return Padding(

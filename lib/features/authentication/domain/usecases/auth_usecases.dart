@@ -1,3 +1,4 @@
+import '../entities/sign_up_result.dart';
 import '../entities/user_entity.dart';
 import '../repositories/auth_repository.dart';
 import '../../../../core/constants/driver_type.dart';
@@ -20,7 +21,7 @@ class SignUpWithEmail {
 
   final AuthRepository _repository;
 
-  Future<UserEntity> call({
+  Future<SignUpResult> call({
     required String email,
     required String password,
     required String name,

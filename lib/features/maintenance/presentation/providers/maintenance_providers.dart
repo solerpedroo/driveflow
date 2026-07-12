@@ -23,7 +23,7 @@ final predictiveMaintenanceSchedulerProvider =
 });
 
 final maintenanceStreamProvider =
-    StreamProvider.family<List<MaintenanceEntity>, String>((ref, vehicleId) {
+    StreamProvider.autoDispose.family<List<MaintenanceEntity>, String>((ref, vehicleId) {
   final watch = WatchMaintenance(ref.watch(maintenanceRepositoryProvider));
   return watch(vehicleId: vehicleId);
 });

@@ -7,6 +7,8 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/constants/driver_type.dart';
 import '../../../../core/errors/failure.dart';
+import '../../../../core/errors/failure_message.dart';
+import '../../domain/entities/sign_up_result.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_gradients.dart';
 import '../../../../core/theme/app_motion.dart';
@@ -125,7 +127,7 @@ class RegisterScreen extends HookConsumerWidget {
         final error = next.error;
         final message = error is AuthFailure
             ? error.message
-            : AuthFailure.messageForError(error ?? 'Erro desconhecido');
+            : FailureMessage.forObject(error);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(message)),
         );
@@ -163,12 +165,24 @@ class RegisterScreen extends HookConsumerWidget {
       }
       if (confirmController.text != passwordController.text) return;
       FocusScope.of(context).unfocus();
-      await ref.read(authControllerProvider.notifier).signUpWithEmail(
-            email: emailController.text.trim(),
-            password: passwordController.text,
-            name: nameController.text.trim(),
-            driverType: driverType.value,
-          );
+      final outcome =
+          await ref.read(authControllerProvider.notifier).signUpWithEmail(
+                email: emailController.text.trim(),
+                password: passwordController.text,
+                name: nameController.text.trim(),
+                driverType: driverType.value,
+              );
+      if (!context.mounted || outcome == null) return;
+      if (outcome is SignUpAwaitingEmailConfirmation) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Conta criada! Confirme o e-mail ${outcome.email} antes de entrar.',
+            ),
+          ),
+        );
+        context.go(AppRoutes.login);
+      }
     }
 
     void goNext() {
