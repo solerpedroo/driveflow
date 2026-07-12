@@ -69,7 +69,7 @@ class _PlatformOAuthDeepLinkListenerState
     if (status == 'connected' && platform != null) {
       messenger?.showSnackBar(
         SnackBar(
-          content: Text('${platform.label} conectado. Sincronizando ganhos…'),
+          content: Text('${platform.label} conectado. Atualizando ganhos…'),
         ),
       );
 
@@ -88,7 +88,7 @@ class _PlatformOAuthDeepLinkListenerState
       if (!mounted) return;
 
       final syncMessage = result == null
-          ? 'Conectado, mas não foi possível sincronizar ${platform.label}.'
+          ? 'Conectado, mas não foi possível atualizar ${platform.label}.'
           : result.hasImports
               ? '${result.tripsImported} corridas e ${result.earningsImported} '
                   'ganhos importados de ${platform.label}.'
