@@ -14,7 +14,7 @@ O DriveFlow apresenta **engenharia de produto madura** (design system, Clean Arc
 |--------|---------|--------|
 | **P0 — Crítico** | Dados incorretos, perda de sessão, offline quebrado | Concluído (PR #29) |
 | **P1 — Alto** | UX degradada, vazamento de recursos, erros crus na UI | Concluído (PR #30) |
-| **P2 — Médio** | Consistência, polish, débito técnico | Em correção (branch `cursor/p2-design-polish-9e66`) |
+| **P2 — Médio** | Consistência, polish, débito técnico | Concluído (PR #31) |
 | **P3 — Baixo** | Melhorias cosméticas | Pendente |
 
 ---
@@ -161,7 +161,7 @@ O DriveFlow apresenta **engenharia de produto madura** (design system, Clean Arc
 |----|--------|
 | T1 | Zero CI/CD |
 | T2 | `SyncWorker` sem testes |
-| T3 | Golden test sem `matchesGoldenFile` |
+| T3 | Golden test sem `matchesGoldenFile` | **corrigido** |
 | T4 | `main_shell_test` — 3/5 abas |
 | T5 | Feature `reports` zero testes |
 | T6 | `cached_remote_watch_test` flaky |
@@ -176,8 +176,8 @@ O DriveFlow apresenta **engenharia de produto madura** (design system, Clean Arc
 - `go_router_refresh_stream.dart` morto — removido na Onda 39
 - CSV export sem escape — **corrigido** (`csv_escape.dart`)
 - `platform_trips` insert sem validar ownership de `vehicle_id` — **corrigido** (migração 013)
-- Sem `integration_test/`
-- Provider overrides duplicados nos testes
+- Sem `integration_test/` — **corrigido** (`integration_test/app_smoke_test.dart`)
+- Provider overrides duplicados nos testes — **corrigido** (`test/support/shell_provider_overrides.dart`)
 
 ---
 
@@ -234,8 +234,11 @@ O DriveFlow apresenta **engenharia de produto madura** (design system, Clean Arc
 - [x] Hero toggle touch 44px
 - [x] `DfConfirmDialog` nas exclusões
 
-### Sprint 4 — Cobertura
-- main_shell 5 abas, reports tests, integration_test
+### Sprint 4 — Cobertura (concluído)
+- [x] `shell_provider_overrides` — overrides compartilhados no main_shell
+- [x] `reports_providers_test` + `report_indicators_card_test` + `reports_screen_test`
+- [x] `integration_test/app_smoke_test.dart`
+- [x] Golden tests com `matchesGoldenFile` em `design_system_golden_test`
 
 ---
 
@@ -250,7 +253,7 @@ O DriveFlow apresenta **engenharia de produto madura** (design system, Clean Arc
 | fuel | sim | — | offline, screens |
 | maintenance | sim | — | expense linker |
 | goals | sim | — | vehicle scope |
-| reports | nenhum | nenhum | aba inteira |
+| reports | parcial | screen + indicators | export E2E |
 | integrations | parcial | — | OAuth E2E |
 | sync | queue/cache | — | SyncWorker |
 
@@ -271,4 +274,4 @@ O DriveFlow apresenta **engenharia de produto madura** (design system, Clean Arc
 
 ---
 
-*Última atualização: Onda 40 — branch `cursor/p2-design-polish-9e66`*
+*Última atualização: Onda 41 — branch `cursor/sprint4-coverage-9e66`*
