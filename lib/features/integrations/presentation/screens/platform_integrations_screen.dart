@@ -8,11 +8,11 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/widgets/design_system/df_button.dart';
 import '../../../../shared/widgets/design_system/df_card.dart';
 import '../../../../shared/widgets/design_system/df_expandable_list_section.dart';
-import '../../../../shared/widgets/design_system/df_pill_action_button.dart';
-import '../../../../shared/widgets/design_system/df_section_header.dart';
+import '../../../../shared/widgets/design_system/df_quick_actions.dart';
 import '../../../../shared/widgets/design_system/df_subpage_scaffold.dart';
 import '../../domain/entities/platform_connection_entity.dart';
 import '../../domain/services/platform_catalog.dart';
@@ -23,13 +23,13 @@ import '../widgets/platform_insights_panel.dart';
 import '../widgets/platform_recent_trips_card.dart';
 import '../widgets/platform_sync_log_panel.dart';
 
-/// Hub de integrações — layout Mescla com hero, ações e seções.
+/// Hub de integrações — DNA Início / Perfil.
 class PlatformIntegrationsScreen extends ConsumerWidget {
   const PlatformIntegrationsScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
+    final brightness = Theme.of(context).brightness;
     final connections = ref.watch(platformConnectionsProvider).valueOrNull;
     final mutation = ref.watch(platformIntegrationControllerProvider);
     final isBusy = mutation.isLoading;
@@ -48,7 +48,8 @@ class PlatformIntegrationsScreen extends ConsumerWidget {
               .startOAuth(platform);
           if (session == null) {
             if (context.mounted) {
-              final error = ref.read(platformIntegrationControllerProvider).error;
+              final error =
+                  ref.read(platformIntegrationControllerProvider).error;
               final message = error is Failure
                   ? error.message
                   : 'Não foi possível iniciar a conexão.';
@@ -116,24 +117,33 @@ class PlatformIntegrationsScreen extends ConsumerWidget {
     return DfSubpageScaffold(
       title: 'Apps conectados',
       onRefresh: () async {
-        await ref.read(platformIntegrationRepositoryProvider).fetchConnections();
+        await ref
+            .read(platformIntegrationRepositoryProvider)
+            .fetchConnections();
       },
       children: [
         DfCard(
-          variant: DfCardVariant.hero,
+          variant: DfCardVariant.elevated,
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.xl,
+            AppSpacing.lg,
+            AppSpacing.xl,
+            AppSpacing.lg,
+          ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                width: 44,
-                height: 44,
+                width: 48,
+                height: 48,
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [AppColors.brandBlue, AppColors.profitGreen],
-                  ),
-                  borderRadius: BorderRadius.circular(12),
+                  shape: BoxShape.circle,
+                  color: AppColors.brandBlue.withValues(alpha: 0.10),
                 ),
-                child: const Icon(Icons.hub_rounded, color: Colors.white),
+                child: const Icon(
+                  Icons.hub_rounded,
+                  color: AppColors.brandBlue,
+                ),
               ),
               const SizedBox(width: AppSpacing.md),
               Expanded(
@@ -141,8 +151,13 @@ class PlatformIntegrationsScreen extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
+                      'Integrações',
+                      style: AppTypography.labelCaps(brightness),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
                       'Seus apps, um só lucro',
-                      style: theme.textTheme.titleMedium?.copyWith(
+                      style: AppTypography.iosHeadline(brightness).copyWith(
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -150,9 +165,7 @@ class PlatformIntegrationsScreen extends ConsumerWidget {
                     Text(
                       '$connectedCount de ${PlatformCatalog.integratablePlatforms.length} '
                       'plataformas conectadas',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: AppColors.secondaryLabel(theme),
-                      ),
+                      style: AppTypography.iosFootnote(brightness),
                     ),
                   ],
                 ),
@@ -160,24 +173,24 @@ class PlatformIntegrationsScreen extends ConsumerWidget {
             ],
           ),
         ),
-        DfPillActionGrid(
+        DfQuickActions(
           actions: [
-            DfPillActionButton(
+            DfQuickAction(
               icon: Icons.sync_rounded,
-              label: 'Atualizar tudo',
-              onTap: isBusy ? null : syncAll,
+              label: 'Atualizar',
+              onTap: isBusy ? () {} : syncAll,
             ),
-            DfPillActionButton(
-              icon: Icons.route_outlined,
+            DfQuickAction(
+              icon: Icons.route_rounded,
               label: 'Corridas',
               onTap: () => context.push(AppRoutes.platformTripHistory),
             ),
-            DfPillActionButton(
-              icon: Icons.upload_file_outlined,
+            DfQuickAction(
+              icon: Icons.upload_file_rounded,
               label: 'Importar',
               onTap: () => context.push(AppRoutes.importStatement),
             ),
-            DfPillActionButton(
+            DfQuickAction(
               icon: Icons.bar_chart_rounded,
               label: 'Análises',
               onTap: () => context.push(AppRoutes.analytics),
@@ -192,6 +205,7 @@ class PlatformIntegrationsScreen extends ConsumerWidget {
           eyebrow: 'Conexões',
           itemCount: PlatformCatalog.integratablePlatforms.length,
           previewCount: PlatformCatalog.integratablePlatforms.length,
+          spacing: AppSpacing.md,
           itemBuilder: (context, index) {
             final platform = PlatformCatalog.integratablePlatforms[index];
             final entry = PlatformCatalog.entryFor(platform);
@@ -215,18 +229,34 @@ class PlatformIntegrationsScreen extends ConsumerWidget {
           },
         ),
         DfCard(
+          variant: DfCardVariant.elevated,
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.xl,
+            AppSpacing.lg,
+            AppSpacing.xl,
+            AppSpacing.lg,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const DfSectionHeader(
-                title: 'Sem conexão automática?',
-                eyebrow: 'Alternativa',
+              Text(
+                'Alternativa',
+                style: AppTypography.labelCaps(brightness),
               ),
+              const SizedBox(height: 4),
+              Text(
+                'Sem conexão automática?',
+                style: AppTypography.iosHeadline(brightness).copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.sm),
               Text(
                 'Importe extratos do banco ou cadastre ganhos manualmente.',
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: AppColors.secondaryLabel(theme),
+                style: AppTypography.iosBody(brightness).copyWith(
+                  color: AppColors.secondaryLabel(Theme.of(context)),
                   height: 1.4,
+                  fontSize: 15,
                 ),
               ),
               const SizedBox(height: AppSpacing.md),
