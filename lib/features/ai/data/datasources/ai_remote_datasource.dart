@@ -35,7 +35,7 @@ class AiRemoteDataSource {
           throw ServerFailure(message: data['error'].toString());
         }
         throw ServerFailure(
-          message: 'Assistente indisponível (${response.status})',
+          message: 'Assistente indisponível no momento.',
         );
       }
 
