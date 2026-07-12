@@ -218,31 +218,31 @@ class _DashboardBody extends StatelessWidget {
           hideValue: hidden,
           onToggleVisibility: onToggleVisibility,
         ),
-        DashboardQuickActions(
+        DfQuickActions(
           actions: [
-            DashboardQuickAction(
+            DfQuickAction(
               icon: Icons.add_rounded,
               label: 'Ganho',
               onTap: () => context.push(AppRoutes.earningForm),
             ),
-            DashboardQuickAction(
+            DfQuickAction(
               icon: Icons.receipt_long_rounded,
               label: 'Despesa',
               onTap: () => context.push(AppRoutes.expenseForm),
             ),
-            DashboardQuickAction(
+            DfQuickAction(
               icon: Icons.insights_rounded,
               label: 'Relatório',
               onTap: () => context.go('${AppRoutes.home}?tab=reports'),
             ),
             if (isTaxiDriver)
-              DashboardQuickAction(
+              DfQuickAction(
                 icon: Icons.flag_rounded,
                 label: 'Metas',
                 onTap: () => context.push(AppRoutes.goals),
               )
             else
-              DashboardQuickAction(
+              DfQuickAction(
                 icon: Icons.hub_rounded,
                 label: 'Apps',
                 onTap: () => context.push(AppRoutes.platformIntegrations),
