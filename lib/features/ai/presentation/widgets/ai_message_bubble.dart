@@ -1,9 +1,8 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
+import '../../../../core/theme/app_blur.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_radius.dart';
+import '../../../../shared/widgets/design_system/df_glass_surface.dart';
 
 /// Bolha premium com glass depth para chat IA.
 class AiMessageBubble extends StatelessWidget {
@@ -21,6 +20,12 @@ class AiMessageBubble extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final align = isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start;
+    final bubbleRadius = BorderRadius.only(
+      topLeft: const Radius.circular(18),
+      topRight: const Radius.circular(18),
+      bottomLeft: Radius.circular(isUser ? 18 : 6),
+      bottomRight: Radius.circular(isUser ? 6 : 18),
+    );
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
@@ -39,7 +44,7 @@ class AiMessageBubble extends StatelessWidget {
                     AppColors.skyBlue.withValues(alpha: 0.08),
                   ],
                 ),
-                borderRadius: AppRadius.mdAll,
+                borderRadius: BorderRadius.circular(12),
               ),
               child: const Icon(
                 Icons.auto_awesome_rounded,
@@ -53,40 +58,28 @@ class AiMessageBubble extends StatelessWidget {
             child: Column(
               crossAxisAlignment: align,
               children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.only(
-                    topLeft: const Radius.circular(18),
-                    topRight: const Radius.circular(18),
-                    bottomLeft: Radius.circular(isUser ? 18 : 6),
-                    bottomRight: Radius.circular(isUser ? 6 : 18),
+                DfGlassSurface(
+                  borderRadius: bubbleRadius,
+                  sigma: AppBlur.bubble,
+                  useDefaultShadow: false,
+                  fillColor: isUser
+                      ? AppColors.skyBlue.withValues(alpha: 0.22)
+                      : (isDark
+                          ? AppColors.slate.withValues(alpha: 0.55)
+                          : Colors.white.withValues(alpha: 0.75)),
+                  border: Border.all(
+                    color: isUser
+                        ? AppColors.skyBlue.withValues(alpha: 0.35)
+                        : AppColors.glassBorderLight,
                   ),
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: isUser
-                            ? AppColors.skyBlue.withValues(alpha: 0.22)
-                            : (isDark
-                                ? AppColors.slate.withValues(alpha: 0.55)
-                                : Colors.white.withValues(alpha: 0.75)),
-                        border: Border.all(
-                          color: isUser
-                              ? AppColors.skyBlue.withValues(alpha: 0.35)
-                              : AppColors.glassBorderLight,
-                        ),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 11,
-                        ),
-                        child: Text(
-                          text,
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            height: 1.45,
-                          ),
-                        ),
-                      ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 11,
+                  ),
+                  child: Text(
+                    text,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      height: 1.45,
                     ),
                   ),
                 ),

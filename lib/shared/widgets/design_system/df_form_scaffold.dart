@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import 'df_button.dart';
+import 'df_scaffold_app_bar.dart';
 import '../driveflow_gradient_background.dart';
 
 /// Scaffold compartilhado para formulários — gradiente Mescla + ações fixas.
@@ -36,15 +37,7 @@ class DfFormScaffold extends StatelessWidget {
       child: DriveFlowGradientBackground(
         child: Scaffold(
           backgroundColor: Colors.transparent,
-          appBar: AppBar(
-            title: Text(
-              title,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
-            ),
-            backgroundColor: Colors.transparent,
-          ),
+          appBar: DfScaffoldAppBar(title: title),
           body: Column(
             children: [
               Expanded(

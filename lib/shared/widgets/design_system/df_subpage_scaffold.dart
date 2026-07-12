@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_typography.dart';
 import '../driveflow_gradient_background.dart';
+import 'df_scaffold_app_bar.dart';
 import 'df_tab_scroll_view.dart';
 
 /// Scaffold de subpágina empurrada — gradiente + voltar + scroll Mescla.
@@ -51,21 +51,10 @@ class DfSubpageScaffold extends StatelessWidget {
       child: DriveFlowGradientBackground(
         child: Scaffold(
           backgroundColor: Colors.transparent,
-          appBar: AppBar(
-            backgroundColor: Colors.transparent,
-            leading: leading ??
-                IconButton(
-                  icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
-                  onPressed: () => Navigator.maybePop(context),
-                ),
-            title: Text(
-              title,
-              style: AppTypography.iosHeadline(brightness).copyWith(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                letterSpacing: -0.3,
-              ),
-            ),
+          appBar: DfScaffoldAppBar(
+            title: title,
+            leading: leading,
+            automaticallyImplyLeading: leading == null,
             actions: actions,
           ),
           body: body ??

@@ -9,6 +9,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../../core/utils/value_visibility_provider.dart';
+import '../../../../shared/widgets/design_system/df_confirm_dialog.dart';
 import '../../../../shared/widgets/design_system/df_empty_state.dart';
 import '../../../../shared/widgets/design_system/df_expandable_list_section.dart';
 import '../../../../shared/widgets/design_system/df_hero_wealth_card.dart';
@@ -137,24 +138,14 @@ class MaintenanceHistoryScreen extends ConsumerWidget {
     WidgetRef ref,
     MaintenanceEntity record,
   ) async {
-    final confirmed = await showDialog<bool>(
+    final confirmed = await DfConfirmDialog.show(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Excluir manutenção?'),
-        content: const Text('O lembrete agendado também será cancelado.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancelar'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Excluir'),
-          ),
-        ],
-      ),
+      title: 'Excluir manutenção?',
+      message: 'O lembrete agendado também será cancelado.',
+      confirmLabel: 'Excluir',
+      destructive: true,
     );
-    if (confirmed == true) {
+    if (confirmed) {
       await ref.read(maintenanceControllerProvider.notifier).delete(record.id);
     }
   }

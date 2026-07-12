@@ -9,6 +9,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../../core/utils/value_visibility_provider.dart';
+import '../../../../shared/widgets/design_system/df_confirm_dialog.dart';
 import '../../../../shared/widgets/design_system/df_empty_state.dart';
 import '../../../../shared/widgets/design_system/df_expandable_list_section.dart';
 import '../../../../shared/widgets/design_system/df_hero_wealth_card.dart';
@@ -130,26 +131,14 @@ class FuelHistoryScreen extends ConsumerWidget {
     WidgetRef ref,
     FuelLogEntity log,
   ) async {
-    final confirmed = await showDialog<bool>(
+    final confirmed = await DfConfirmDialog.show(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Excluir abastecimento?'),
-        content: const Text(
-          'A despesa de combustível vinculada também será removida.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancelar'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Excluir'),
-          ),
-        ],
-      ),
+      title: 'Excluir abastecimento?',
+      message: 'A despesa de combustível vinculada também será removida.',
+      confirmLabel: 'Excluir',
+      destructive: true,
     );
-    if (confirmed == true) {
+    if (confirmed) {
       await ref.read(fuelControllerProvider.notifier).delete(log.id);
     }
   }

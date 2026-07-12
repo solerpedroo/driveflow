@@ -8,6 +8,7 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:share_plus/share_plus.dart';
 
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/utils/csv_escape.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/duration_formatter.dart';
 import '../../../earnings/domain/entities/earning_entity.dart';
@@ -185,6 +186,10 @@ abstract final class ReportExporter {
     );
   }
 
+  static void _writeCsvRow(StringBuffer buffer, List<String> fields) {
+    buffer.writeln(csvRow(fields));
+  }
+
   static String _buildCsv({
     required ReportSnapshot snapshot,
     required List<EarningEntity> earnings,
@@ -194,56 +199,65 @@ abstract final class ReportExporter {
     final buffer = StringBuffer();
     final summary = snapshot.summary;
 
-    buffer.writeln('secao,campo,valor');
-    buffer.writeln('resumo,periodo,${snapshot.periodLabel}');
-    buffer.writeln('resumo,receita,${summary.revenue.toStringAsFixed(2)}');
-    buffer.writeln('resumo,despesas,${summary.expenses.toStringAsFixed(2)}');
-    buffer.writeln('resumo,lucro,${summary.profit.toStringAsFixed(2)}');
-    buffer.writeln('resumo,horas,${summary.workedHours.toStringAsFixed(2)}');
-    buffer.writeln('resumo,corridas,${summary.rides}');
-    buffer.writeln('resumo,km,${summary.kmDriven.toStringAsFixed(0)}');
-    buffer.writeln(
-      'resumo,combustivel,${summary.fuelExpense.toStringAsFixed(2)}',
+    _writeCsvRow(buffer, ['secao', 'campo', 'valor']);
+    _writeCsvRow(buffer, ['resumo', 'periodo', snapshot.periodLabel]);
+    _writeCsvRow(buffer, ['resumo', 'receita', summary.revenue.toStringAsFixed(2)]);
+    _writeCsvRow(buffer, ['resumo', 'despesas', summary.expenses.toStringAsFixed(2)]);
+    _writeCsvRow(buffer, ['resumo', 'lucro', summary.profit.toStringAsFixed(2)]);
+    _writeCsvRow(buffer, ['resumo', 'horas', summary.workedHours.toStringAsFixed(2)]);
+    _writeCsvRow(buffer, ['resumo', 'corridas', '${summary.rides}']);
+    _writeCsvRow(buffer, ['resumo', 'km', summary.kmDriven.toStringAsFixed(0)]);
+    _writeCsvRow(
+      buffer,
+      ['resumo', 'combustivel', summary.fuelExpense.toStringAsFixed(2)],
     );
 
     if (comparison != null) {
       buffer.writeln();
-      buffer.writeln('comparativo,indicador,atual,delta,delta_pct');
+      _writeCsvRow(buffer, ['comparativo', 'indicador', 'atual', 'delta', 'delta_pct']);
       for (final metric in comparison.metrics) {
-        buffer.writeln(
-          'comparativo,${metric.label},${metric.current.toStringAsFixed(2)},'
-          '${metric.delta.toStringAsFixed(2)},'
-          '${metric.deltaPercent?.toStringAsFixed(1) ?? ''}',
-        );
+        _writeCsvRow(buffer, [
+          'comparativo',
+          metric.label,
+          metric.current.toStringAsFixed(2),
+          metric.delta.toStringAsFixed(2),
+          metric.deltaPercent?.toStringAsFixed(1) ?? '',
+        ]);
       }
     }
 
     final platformSlices = PlatformAnalyticsBreakdown.fromEarnings(earnings);
     if (platformSlices.isNotEmpty) {
       buffer.writeln();
-      buffer.writeln('plataforma,app,receita,corridas,share_pct');
+      _writeCsvRow(buffer, ['plataforma', 'app', 'receita', 'corridas', 'share_pct']);
       for (final slice in platformSlices) {
-        buffer.writeln(
-          'plataforma,${slice.platform.label},'
-          '${slice.amount.toStringAsFixed(2)},${slice.rides},'
-          '${slice.sharePercent.toStringAsFixed(1)}',
-        );
+        _writeCsvRow(buffer, [
+          'plataforma',
+          slice.platform.label,
+          slice.amount.toStringAsFixed(2),
+          '${slice.rides}',
+          slice.sharePercent.toStringAsFixed(1),
+        ]);
       }
     }
 
     buffer.writeln();
-    buffer.writeln('tipo,data,descricao,valor');
+    _writeCsvRow(buffer, ['tipo', 'data', 'descricao', 'valor']);
     for (final earning in earnings) {
-      buffer.writeln(
-        'ganho,${DateFormat('yyyy-MM-dd').format(earning.date)},'
-        '${earning.platform.label},${earning.amount.toStringAsFixed(2)}',
-      );
+      _writeCsvRow(buffer, [
+        'ganho',
+        DateFormat('yyyy-MM-dd').format(earning.date),
+        earning.platform.label,
+        earning.amount.toStringAsFixed(2),
+      ]);
     }
     for (final expense in expenses) {
-      buffer.writeln(
-        'despesa,${DateFormat('yyyy-MM-dd').format(expense.date)},'
-        '${expense.category.label},${expense.amount.toStringAsFixed(2)}',
-      );
+      _writeCsvRow(buffer, [
+        'despesa',
+        DateFormat('yyyy-MM-dd').format(expense.date),
+        expense.category.label,
+        expense.amount.toStringAsFixed(2),
+      ]);
     }
 
     return buffer.toString();

@@ -1,12 +1,12 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
+import '../../../core/theme/app_blur.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_elevation.dart';
 import '../../../core/theme/app_gradients.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
+import 'df_glass_surface.dart';
 
 enum DfCardVariant { grouped, elevated, glass, hero, brand }
 
@@ -137,20 +137,13 @@ class _GlassCard extends StatelessWidget {
         ? Colors.white.withValues(alpha: 0.08)
         : Colors.white.withValues(alpha: 0.55);
 
-    return ClipRRect(
+    return DfGlassSurface(
       borderRadius: AppRadius.xlAll,
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: fill,
-            borderRadius: AppRadius.xlAll,
-            border: AppElevation.rimLight(brightness),
-            boxShadow: AppElevation.glassShadow(brightness),
-          ),
-          child: Padding(padding: padding, child: child),
-        ),
-      ),
+      sigma: AppBlur.card,
+      fillColor: fill,
+      boxShadow: AppElevation.glassShadow(brightness),
+      padding: padding,
+      child: child,
     );
   }
 }

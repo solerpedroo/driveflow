@@ -93,7 +93,7 @@ ThemeData buildDriveFlowLightTheme() {
         minimumSize: const Size.fromHeight(50),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: AppRadius.xlAll,
         ),
         textStyle: AppTypography.iosHeadline(Brightness.light).copyWith(
           color: Colors.white,
@@ -181,7 +181,7 @@ ThemeData buildDriveFlowDarkTheme() {
         minimumSize: const Size.fromHeight(50),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: AppRadius.xlAll,
         ),
         textStyle: AppTypography.iosHeadline(Brightness.dark).copyWith(
           color: Colors.white,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/theme/app_blur.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_motion.dart';
 import '../../../core/theme/app_spacing.dart';
@@ -52,7 +53,7 @@ class DfBottomNavBar extends StatelessWidget {
       padding: EdgeInsets.fromLTRB(horizontalPadding, 0, horizontalPadding, bottomPadding),
       child: DfGlassSurface(
         borderRadius: BorderRadius.circular(_glassRadius),
-        sigma: 28,
+        sigma: AppBlur.nav,
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         child: DecoratedBox(
           decoration: BoxDecoration(
