@@ -546,13 +546,13 @@ class _RegisterTopBar extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               const Icon(
-                Icons.workspace_premium_rounded,
+                Icons.check_circle_rounded,
                 size: 14,
                 color: AppColors.brandBlue,
               ),
               const SizedBox(width: 6),
               Text(
-                'Plano Pro',
+                'Tudo incluso',
                 style: AppTypography.iosFootnote(theme.brightness).copyWith(
                   color: AppColors.brandBlue,
                   fontWeight: FontWeight.w700,
