@@ -39,7 +39,12 @@ abstract final class ShiftLivePresenceService {
       'revenueLabel':
           hideValues ? '•••' : CurrencyFormatter.format(summary.revenue),
       'elapsedLabel': formatElapsed(summary.elapsed),
-      'subtitle': hideValues ? '••• corridas' : '${summary.rides} corridas',
+      'subtitle': hideValues
+          ? '••• corridas'
+          : summary.expenses > 0
+              ? '${summary.rides} corridas · '
+                  '${CurrencyFormatter.formatSigned(summary.netCash)} líquido'
+              : '${summary.rides} corridas',
       'isPaused': isPaused ? 'true' : 'false',
       'startedAtMs': '${session.startedAt.millisecondsSinceEpoch}',
     };
