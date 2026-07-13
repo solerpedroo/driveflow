@@ -1843,6 +1843,30 @@ Após as ondas 15–34 e refatorações por tela (Início, Ganhos, Despesas, etc
 
 ---
 
+## Onda 43 — Captura zero-fricção
+
+**Objetivo:** Reduzir atrito na captura diária — ganho em dois toques, despesas recorrentes e widget Android com lucro do dia.
+
+### Escopo
+
+| Área | Entrega |
+|---|---|
+| Ganho rápido | `QuickEarningSheet` — app + valor em 2 toques, histórico Hive |
+| Dashboard / Ganhos | Ação **Ganho** abre sheet; link para formulário completo |
+| Recorrentes | Templates aluguel, seguro, IPVA com toggle e lançamento automático |
+| Widget Android | Glance + `home_widget` — lucro hoje + atalho para abrir o app |
+| Bootstrap | `RecurringExpenseBootstrap` e `HomeWidgetBootstrap` na raiz |
+
+### Critérios de conclusão
+
+- [x] Sheet registra ganho com 2 toques e lembra últimos valores
+- [x] Templates recorrentes configuráveis na tela Despesas
+- [x] Runner aplica despesas vencidas uma vez por mês
+- [x] Widget Android sincroniza lucro/ganhos do dia
+- [x] Testes `quick_earning_storage`, `recurring_expense_runner`, `quick_earning_sheet`
+
+---
+
 ## Mapa de requisitos funcionais → ondas
 
 | RF | Descrição | Onda |
