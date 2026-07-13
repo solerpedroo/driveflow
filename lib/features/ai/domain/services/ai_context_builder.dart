@@ -1,8 +1,12 @@
 import '../../../../core/constants/ride_platforms.dart';
 import '../../../integrations/domain/entities/platform_consistency_snapshot.dart';
+import '../../../integrations/domain/entities/platform_heatmap_slot.dart';
+import '../../../integrations/domain/entities/platform_net_profit_slice.dart';
 import '../../../integrations/domain/entities/platform_revenue_trend_point.dart';
 import '../../../integrations/domain/services/platform_consistency_analyzer.dart';
-import '../../../integrations/domain/services/platform_revenue_trend_calculator.dart';
+import '../../../integrations/domain/services/platform_heatmap_builder.dart';
+import '../../../integrations/domain/services/platform_net_profit_calculator.dart';
+import '../../../integrations/domain/services/platform_profit_per_km_analyzer.dart';
 import '../../../integrations/domain/services/platform_analytics_breakdown.dart';
 import '../../../integrations/domain/entities/platform_trip_entity.dart';
 import '../../../earnings/domain/entities/earning_entity.dart';
@@ -34,6 +38,9 @@ class AiContextSnapshot {
     this.lowestTakeRatePlatform,
     this.platformTrendSummary = const [],
     this.platformConsistency = const [],
+    this.platformNetProfit = const [],
+    this.platformProfitPerKm = const [],
+    this.topHeatmapSlots = const [],
   });
 
   final int periodDays;
@@ -52,6 +59,9 @@ class AiContextSnapshot {
   final String? lowestTakeRatePlatform;
   final List<PlatformRevenueTrendPoint> platformTrendSummary;
   final List<PlatformConsistencySnapshot> platformConsistency;
+  final List<PlatformNetProfitSlice> platformNetProfit;
+  final List<PlatformProfitPerKmSnapshot> platformProfitPerKm;
+  final List<PlatformHeatmapSlot> topHeatmapSlots;
 
   Map<String, dynamic> toJson() {
     return {
@@ -108,6 +118,32 @@ class AiContextSnapshot {
               'platform': c.platform.label,
               'score': c.consistencyScore,
               'avgDaily': c.avgDailyProfit,
+            },
+          )
+          .toList(growable: false),
+      'platformNetProfit': platformNetProfit
+          .map(
+            (n) => {
+              'platform': n.platform.label,
+              'net': n.netAmount,
+            },
+          )
+          .toList(growable: false),
+      'platformProfitPerKm': platformProfitPerKm
+          .map(
+            (p) => {
+              'platform': p.platform.label,
+              'profitPerKm': p.profitPerKm,
+            },
+          )
+          .toList(growable: false),
+      'topHeatmapSlots': topHeatmapSlots
+          .map(
+            (h) => {
+              'platform': h.platform.label,
+              'weekday': h.weekday,
+              'hour': h.hour,
+              'revenuePerHour': h.revenuePerHour,
             },
           )
           .toList(growable: false),
@@ -183,6 +219,8 @@ abstract final class AiContextBuilder {
     final periodTrips = platformTrips
         .where((t) => !t.startedAt.isBefore(cutoff))
         .toList();
+    final fuelCostPerKm = fuelLogs.isEmpty ? 0.0 : (fuelLogs.first.costPerKm ?? 0);
+    final heatmap = PlatformHeatmapBuilder.build(trips: periodTrips);
 
     return AiContextSnapshot(
       periodDays: periodDays,
@@ -214,6 +252,19 @@ abstract final class AiContextBuilder {
       platformConsistency: PlatformConsistencyAnalyzer.analyze(
         trips: periodTrips,
       ),
+      platformNetProfit: fuelCostPerKm > 0
+          ? PlatformNetProfitCalculator.fromTrips(
+              trips: periodTrips,
+              fuelCostPerKm: fuelCostPerKm,
+            )
+          : const [],
+      platformProfitPerKm: fuelCostPerKm > 0
+          ? PlatformProfitPerKmAnalyzer.analyze(
+              trips: periodTrips,
+              fuelCostPerKm: fuelCostPerKm,
+            )
+          : const [],
+      topHeatmapSlots: heatmap.take(5).toList(growable: false),
     );
   }
 
@@ -272,6 +323,12 @@ abstract final class AiContextBuilder {
         'Consistência: ${snapshot.platformConsistency.map((c) => '${c.platform.label} ${c.consistencyScore.round()}').join(', ')}',
       if (snapshot.platformTrendSummary.isNotEmpty)
         'Tendência 7d: ${snapshot.platformTrendSummary.map((p) => '${p.weekdayLabel} ${p.total.toStringAsFixed(0)}').join(', ')}',
+      if (snapshot.platformNetProfit.isNotEmpty)
+        'Lucro líquido por app: ${snapshot.platformNetProfit.map((n) => '${n.platform.label} ${n.netAmount.toStringAsFixed(0)}').join(', ')}',
+      if (snapshot.platformProfitPerKm.isNotEmpty)
+        'Lucro/km por app: ${snapshot.platformProfitPerKm.map((p) => '${p.platform.label} ${p.profitPerKm.toStringAsFixed(2)}').join(', ')}',
+      if (snapshot.topHeatmapSlots.isNotEmpty)
+        'Heatmap top slots: ${snapshot.topHeatmapSlots.map((h) => '${h.platform.label} ${h.weekdayLabel} ${h.hour}h ${h.revenuePerHour.toStringAsFixed(0)}/h').join('; ')}',
     ].join('\n');
   }
 }

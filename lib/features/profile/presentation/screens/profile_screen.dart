@@ -32,7 +32,9 @@ import '../../../../shared/widgets/design_system/df_text_field.dart';
 import '../../../dashboard/presentation/providers/dashboard_providers.dart';
 import '../../../onboarding/presentation/providers/onboarding_providers.dart';
 import '../providers/profile_providers.dart';
+import '../widgets/profile_plan_card.dart';
 import '../widgets/profile_value_stats_card.dart';
+import '../../../../shared/widgets/design_system/df_confirm_dialog.dart';
 
 /// Perfil — mesmo DNA da Início / Ganhos / Despesas / Relatórios.
 class ProfileScreen extends HookConsumerWidget {
@@ -163,6 +165,7 @@ class ProfileScreen extends HookConsumerWidget {
           mutationError:
               mutation.hasError ? FailureMessage.forObject(mutation.error) : null,
         ),
+        const ProfilePlanCard(),
         vehiclesAsync.when(
           loading: () => const DfSkeleton(itemCount: 2),
           error: (_, __) => const DfEmptyState(
@@ -491,7 +494,7 @@ class _PerfilUserCard extends StatelessWidget {
   }
 }
 
-class _VehiclesSection extends StatelessWidget {
+class _VehiclesSection extends ConsumerWidget {
   const _VehiclesSection({
     required this.vehicles,
     required this.isBusy,
@@ -504,8 +507,58 @@ class _VehiclesSection extends StatelessWidget {
   final VoidCallback onAdd;
   final ValueChanged<String> onEdit;
 
+  Future<void> _setDefault(
+    BuildContext context,
+    WidgetRef ref,
+    VehicleEntity vehicle,
+  ) async {
+    if (vehicle.isDefault) return;
+    final ok = await ref
+        .read(vehicleControllerProvider.notifier)
+        .setDefault(vehicle.id);
+    if (context.mounted && ok) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('${vehicle.displayName} é o veículo padrão')),
+      );
+    }
+  }
+
+  Future<void> _deleteVehicle(
+    BuildContext context,
+    WidgetRef ref,
+    VehicleEntity vehicle,
+  ) async {
+    if (vehicles.length <= 1) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Cadastre outro veículo antes de excluir este.'),
+        ),
+      );
+      return;
+    }
+
+    final confirmed = await DfConfirmDialog.show(
+      context: context,
+      title: 'Excluir veículo',
+      message:
+          'Remover ${vehicle.displayName}? Abastecimentos e manutenções '
+          'permanecem no histórico.',
+      confirmLabel: 'Excluir',
+      destructive: true,
+    );
+    if (!confirmed || !context.mounted) return;
+
+    final ok =
+        await ref.read(vehicleControllerProvider.notifier).delete(vehicle.id);
+    if (context.mounted && ok) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Veículo excluído')),
+      );
+    }
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final brightness = Theme.of(context).brightness;
 
     return Column(
@@ -550,7 +603,27 @@ class _VehiclesSection extends StatelessWidget {
                             fontWeight: FontWeight.w700,
                           ),
                         )
-                      : null,
+                      : PopupMenuButton<String>(
+                          enabled: !isBusy,
+                          onSelected: (value) {
+                            switch (value) {
+                              case 'default':
+                                _setDefault(context, ref, vehicle);
+                              case 'delete':
+                                _deleteVehicle(context, ref, vehicle);
+                            }
+                          },
+                          itemBuilder: (context) => [
+                            const PopupMenuItem(
+                              value: 'default',
+                              child: Text('Definir como padrão'),
+                            ),
+                            const PopupMenuItem(
+                              value: 'delete',
+                              child: Text('Excluir veículo'),
+                            ),
+                          ],
+                        ),
                   showChevron: true,
                   onTap: isBusy ? null : () => onEdit(vehicle.id),
                 ),

@@ -22,11 +22,14 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/constants/product_story.dart';
+import '../../../../core/utils/story_metrics.dart';
 import '../../../../core/utils/value_visibility_provider.dart';
 import '../../../../shared/domain/models/dashboard_snapshot.dart';
 import '../../../../shared/widgets/design_system/df_expandable_list_section.dart';
 import '../../../../shared/widgets/design_system/df_skeleton.dart';
 import '../../../../shared/widgets/design_system/df_tab_scroll_view.dart';
+import '../../../../shared/widgets/design_system/df_value_banner.dart';
 import '../../../onboarding/presentation/providers/onboarding_providers.dart';
 import '../providers/dashboard_providers.dart';
 import '../../../integrations/presentation/widgets/dashboard_platform_mix_card.dart';
@@ -35,8 +38,11 @@ import '../widgets/dashboard_editorial_header.dart';
 import '../widgets/dashboard_fuel_card.dart';
 import '../widgets/dashboard_maintenance_card.dart';
 import '../widgets/dashboard_quick_actions.dart';
+import '../widgets/dashboard_story_carousel.dart';
+import '../widgets/dashboard_upgrade_banner.dart';
 import '../widgets/dashboard_wealth_stage.dart';
 import '../../../integrations/presentation/widgets/platform_goal_progress_card.dart';
+import '../../../integrations/presentation/widgets/dashboard_pending_payout_card.dart';
 import '../widgets/month_summary_card.dart';
 import '../widgets/weekly_profit_chart.dart';
 
@@ -217,6 +223,22 @@ class _DashboardBody extends StatelessWidget {
           goal: goal,
           hideValue: hidden,
           onToggleVisibility: onToggleVisibility,
+          storySubtitle: StoryMetrics.heroSubtitle(
+            today: today,
+            goalProgress: goal,
+            weekProfits: snapshot.weekProfits,
+          ),
+        ),
+        DfValueBanner(
+          title: '${ProductStory.socialProofCount} motoristas',
+          subtitle: ProductStory.socialProofLabel,
+          icon: Icons.people_outline_rounded,
+        ),
+        const DashboardUpgradeBanner(),
+        DashboardStoryCarousel(
+          today: today,
+          month: month,
+          goal: goal,
         ),
         DfQuickActions(
           actions: [
@@ -251,6 +273,7 @@ class _DashboardBody extends StatelessWidget {
         ),
         if (!isTaxiDriver) ...[
           const DashboardPlatformChip(),
+          const DashboardPendingPayoutCard(),
           const PlatformGoalProgressCard(),
         ],
         const Align(

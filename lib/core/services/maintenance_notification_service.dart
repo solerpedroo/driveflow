@@ -15,6 +15,9 @@ class MaintenanceNotificationService {
   final FlutterLocalNotificationsPlugin _plugin =
       FlutterLocalNotificationsPlugin();
 
+  /// Plugin compartilhado para outros serviços de notificação local.
+  FlutterLocalNotificationsPlugin get notificationsPlugin => _plugin;
+
   bool _initialized = false;
 
   Future<void> initialize() async {

@@ -10,6 +10,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/value_visibility_provider.dart';
 import '../providers/analytics_providers.dart';
+import '../widgets/analytics_platform_heatmap_section.dart';
 import '../widgets/expense_pie_chart.dart';
 import '../widgets/period_comparison_bar_chart.dart';
 import '../widgets/period_comparison_card.dart';
@@ -220,6 +221,7 @@ class AnalyticsScreen extends ConsumerWidget {
           ),
         ),
         const PlatformAnalyticsSection(),
+        const AnalyticsPlatformHeatmapSection(),
         breakdownAsync.when(
           loading: () => const DfSkeleton(itemCount: 3),
           error: (e, _) => Text(

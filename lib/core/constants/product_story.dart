@@ -54,4 +54,31 @@ abstract final class ProductStory {
 
   static const aiHint =
       'Pergunte sobre lucro, metas, horários e previsões — tudo com seus dados.';
+
+  static const proHeadline = 'Decisões de turno com dados reais';
+
+  static const proDashboardSubtitle =
+      'Sync automático, cockpit multi-app e relatórios Pro para rodar com mais lucro.';
+
+  static const proProfileSubtitle =
+      'Upgrade para sync em background, analytics por app e IA ilimitada.';
+
+  static const proPaywallSubtitle =
+      'Motoristas Pro economizam tempo e aumentam o lucro líquido com inteligência cross-platform.';
+
+  static const proPriceLabel = 'R\$ 19,90/mês';
+
+  static const proPriceDetail = '7 dias grátis · cancele quando quiser';
+
+  static const proAiUpsell =
+      'No Pro, perguntas ilimitadas com contexto de corridas e heatmap.';
+
+  static const List<String> proFeatures = [
+    'Sync automático Uber, 99 e InDrive',
+    'Cockpit multi-app com heatmap e plano de turno',
+    'Calendário de repasses e metas por app',
+    'OCR ilimitado de comprovantes',
+    'Relatório PDF visual por plataforma',
+    'IA ilimitada com séries temporais',
+  ];
 }
