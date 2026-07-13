@@ -5,9 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../deep_links/app_deep_link_parser.dart';
-import '../services/app_deep_link_handler.dart';
-import '../services/maintenance_notification_service.dart';
+import '../../core/deep_links/app_deep_link_parser.dart';
+import '../../core/services/app_deep_link_handler.dart';
+import '../../core/services/maintenance_notification_service.dart';
 
 /// Escuta `driveflow://` e toques em notificações com payload.
 class AppDeepLinkListener extends ConsumerStatefulWidget {
