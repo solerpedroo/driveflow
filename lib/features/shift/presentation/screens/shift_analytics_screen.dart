@@ -41,7 +41,7 @@ class ShiftAnalyticsScreen extends ConsumerWidget {
               DfFilterPill(
                 label: option.label,
                 selected: period == option,
-                onTap: () => ref
+                onSelected: () => ref
                     .read(shiftAnalyticsPeriodProvider.notifier)
                     .state = option,
               ),
