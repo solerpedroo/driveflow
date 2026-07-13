@@ -37,6 +37,7 @@ target 'DriveFlowHomeWidgetExtension' do
   use_modular_headers!
 
   pod 'home_widget', :path => '.symlinks/plugins/home_widget/ios'
+  pod 'live_activities', :path => '.symlinks/plugins/live_activities/ios'
 end
 
 post_install do |installer|
