@@ -86,6 +86,39 @@
 		<false/>
 		<key>UIViewControllerBasedStatusBarAppearance</key>
 		<false/>
+		<key>UIApplicationShortcutItems</key>
+		<array>
+			<dict>
+				<key>UIApplicationShortcutItemType</key>
+				<string>com.driveflow.driveflow.shift_start</string>
+				<key>UIApplicationShortcutItemTitle</key>
+				<string>Iniciar turno</string>
+				<key>UIApplicationShortcutItemSubtitle</key>
+				<string>Iniciar turno com plano sugerido</string>
+				<key>UIApplicationShortcutItemIconType</key>
+				<string>UIApplicationShortcutIconTypePlay</string>
+			</dict>
+			<dict>
+				<key>UIApplicationShortcutItemType</key>
+				<string>com.driveflow.driveflow.quick_earning</string>
+				<key>UIApplicationShortcutItemTitle</key>
+				<string>Ganho rápido</string>
+				<key>UIApplicationShortcutItemSubtitle</key>
+				<string>Registrar ganho rápido</string>
+				<key>UIApplicationShortcutItemIconType</key>
+				<string>UIApplicationShortcutIconTypeAdd</string>
+			</dict>
+			<dict>
+				<key>UIApplicationShortcutItemType</key>
+				<string>com.driveflow.driveflow.shift_mode</string>
+				<key>UIApplicationShortcutItemTitle</key>
+				<string>Turno ativo</string>
+				<key>UIApplicationShortcutItemSubtitle</key>
+				<string>Abrir modo turno</string>
+				<key>UIApplicationShortcutItemIconType</key>
+				<string>UIApplicationShortcutIconTypeTime</string>
+			</dict>
+		</array>
 		<key>NSSupportsLiveActivities</key>
 		<true/>
 	</dict>
