@@ -1,3 +1,4 @@
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/constants/ride_platforms.dart';
 import '../entities/shift_block_outcome.dart';
 import '../entities/shift_history_entry.dart';
@@ -22,5 +23,8 @@ abstract class ShiftHistoryRepository {
     required int totalPlanBlocks,
     required Map<RidePlatform, double> revenueByPlatform,
     List<ShiftBlockOutcome> blockOutcomes = const [],
+    double expenses = 0,
+    double? netCash,
+    Map<ExpenseCategory, double> expensesByCategory = const {},
   });
 }

@@ -21,6 +21,8 @@ abstract final class ShiftHistoryExporter {
         'Fim',
         'Duração',
         'Ganhos',
+        'Despesas',
+        'Líquido',
         'Corridas',
         'R\$/h',
         'Aderência %',
@@ -45,6 +47,8 @@ abstract final class ShiftHistoryExporter {
           entry.endedAt.toIso8601String(),
           _formatDuration(entry.elapsed),
           CurrencyFormatter.format(entry.revenue),
+          CurrencyFormatter.format(entry.expenses),
+          CurrencyFormatter.formatSigned(entry.netCash),
           '${entry.rides}',
           entry.revenuePerHour == null
               ? ''

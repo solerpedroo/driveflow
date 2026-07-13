@@ -1,7 +1,9 @@
 import '../../../earnings/domain/entities/earning_entity.dart';
+import '../../../expenses/domain/entities/expense_entity.dart';
 import '../entities/shift_session_entity.dart';
 import '../entities/shift_session_summary.dart';
 import '../../../../core/constants/ride_platforms.dart';
+import 'shift_net_cash_calculator.dart';
 
 /// Agrega ganhos e métricas dentro da janela da sessão.
 abstract final class ShiftSessionAggregator {
@@ -24,6 +26,7 @@ abstract final class ShiftSessionAggregator {
     required DateTime now,
     double dailyGoal = 0,
     String? vehicleId,
+    List<ExpenseEntity> expenses = const [],
   }) {
     final scoped = earningsInSession(
       session: session,
@@ -51,6 +54,17 @@ abstract final class ShiftSessionAggregator {
     final goalProgress =
         dailyGoal > 0 ? (revenue / dailyGoal).clamp(0.0, 1.5) : 0.0;
 
+    final scopedExpenses = ShiftNetCashCalculator.expensesInSession(
+      session: session,
+      expenses: expenses,
+      vehicleId: vehicleId ?? session.vehicleId,
+    );
+    final netCash = ShiftNetCashCalculator.compute(
+      revenue: revenue,
+      elapsed: elapsed,
+      scopedExpenses: scopedExpenses,
+    );
+
     return ShiftSessionSummary(
       elapsed: elapsed,
       revenue: revenue,
@@ -58,6 +72,9 @@ abstract final class ShiftSessionAggregator {
       revenuePerHour: revenuePerHour,
       goalProgress: goalProgress,
       topPlatform: topPlatform,
+      expenses: netCash.expenses,
+      netCash: netCash.netCash,
+      netPerHour: netCash.netPerHour,
     );
   }
 }

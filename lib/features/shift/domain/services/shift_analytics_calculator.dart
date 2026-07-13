@@ -32,6 +32,10 @@ abstract final class ShiftAnalyticsCalculator {
 
     final totalRevenue =
         current.fold<double>(0, (sum, entry) => sum + entry.revenue);
+    final totalExpenses =
+        current.fold<double>(0, (sum, entry) => sum + entry.expenses);
+    final totalNetCash =
+        current.fold<double>(0, (sum, entry) => sum + entry.netCash);
     final totalRides =
         current.fold<int>(0, (sum, entry) => sum + entry.rides);
     final avgAdherence = current.fold<double>(
@@ -100,6 +104,8 @@ abstract final class ShiftAnalyticsCalculator {
       period: period,
       shiftCount: current.length,
       totalRevenue: totalRevenue,
+      totalExpenses: totalExpenses,
+      totalNetCash: totalNetCash,
       totalRides: totalRides,
       avgRevenuePerHour: avgRevenuePerHour,
       avgAdherence: avgAdherence,

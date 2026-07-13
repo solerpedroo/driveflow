@@ -29,15 +29,19 @@ class ShiftHistoryTile extends ConsumerWidget {
 
     return DfMovimentacaoTile(
       title: DateUtilsDriveFlow.dayMonthYear.format(entry.startedAt),
-      detailCaps:
-          '${ShiftTimerWidget.format(entry.elapsed)} · ${entry.rides} corridas',
+      detailCaps: entry.expenses > 0
+          ? '${ShiftTimerWidget.format(entry.elapsed)} · '
+              '${entry.rides} corridas · líquido'
+          : '${ShiftTimerWidget.format(entry.elapsed)} · ${entry.rides} corridas',
       dateLabel: entry.totalPlanBlocks > 0
           ? 'Aderência ${entry.adherenceScore.round()}%'
           : entry.isTaxiMode
               ? 'Taxista'
               : 'Turno',
-      amount: CurrencyFormatter.format(entry.revenue),
-      isCredit: true,
+      amount: CurrencyFormatter.format(
+        entry.expenses > 0 ? entry.netCash : entry.revenue,
+      ),
+      isCredit: entry.expenses > 0 ? entry.netCash >= 0 : true,
       hideValue: hidden,
       onTap: onTap,
       leading: entry.totalPlanBlocks > 0

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../authentication/presentation/providers/auth_providers.dart';
 import '../../../earnings/presentation/providers/earnings_providers.dart';
+import '../../../expenses/presentation/providers/expenses_providers.dart';
 import '../../../goals/presentation/providers/goals_providers.dart';
 import '../../../integrations/domain/entities/platform_shift_plan.dart';
 import '../../../integrations/presentation/providers/integrations_providers.dart';
@@ -19,6 +20,7 @@ import '../../domain/entities/shift_session_status.dart';
 import '../../domain/entities/shift_session_summary.dart';
 import '../../domain/repositories/shift_session_repository.dart';
 import '../../domain/services/shift_adherence_analyzer.dart';
+import '../../domain/services/shift_net_cash_calculator.dart';
 import '../../domain/services/shift_plan_tracker.dart';
 import '../../domain/services/shift_retrospective_builder.dart';
 import '../../domain/services/shift_session_aggregator.dart';
@@ -41,12 +43,14 @@ final shiftSessionSummaryProvider = Provider<ShiftSessionSummary?>((ref) {
   if (session == null) return null;
 
   final earnings = ref.watch(earningsStreamProvider).valueOrNull ?? const [];
+  final expenses = ref.watch(expensesStreamProvider).valueOrNull ?? const [];
   final goals = ref.watch(goalsStreamProvider).valueOrNull;
   final dailyGoal = goals?.daily ?? 0;
 
   return ShiftSessionAggregator.summarize(
     session: session,
     earnings: earnings,
+    expenses: expenses,
     now: DateTime.now(),
     dailyGoal: dailyGoal,
     vehicleId: session.vehicleId,
@@ -143,10 +147,12 @@ class ShiftSessionController extends Notifier<AsyncValue<void>> {
       );
 
       final earnings = ref.read(earningsStreamProvider).valueOrNull ?? const [];
+      final expenses = ref.read(expensesStreamProvider).valueOrNull ?? const [];
       final goals = ref.read(goalsStreamProvider).valueOrNull;
       final summary = ShiftSessionAggregator.summarize(
         session: completed,
         earnings: earnings,
+        expenses: expenses,
         now: endedAt,
         dailyGoal: goals?.daily ?? 0,
         vehicleId: completed.vehicleId,
@@ -173,6 +179,17 @@ class ShiftSessionController extends Notifier<AsyncValue<void>> {
         vehicleId: completed.vehicleId,
       );
 
+      final scopedExpenses = ShiftNetCashCalculator.expensesInSession(
+        session: completed,
+        expenses: expenses,
+        vehicleId: completed.vehicleId,
+      );
+      final netSnapshot = ShiftNetCashCalculator.compute(
+        revenue: summary.revenue,
+        elapsed: summary.elapsed,
+        scopedExpenses: scopedExpenses,
+      );
+
       final userId = ref.read(authStateProvider).valueOrNull?.id ?? '';
       archived = await ref.read(shiftHistoryRepositoryProvider).archiveCompleted(
             session: completed,
@@ -185,6 +202,9 @@ class ShiftSessionController extends Notifier<AsyncValue<void>> {
             totalPlanBlocks: adherence.totalBlocks,
             revenueByPlatform: revenueByPlatform,
             blockOutcomes: blockOutcomes,
+            expenses: netSnapshot.expenses,
+            netCash: netSnapshot.netCash,
+            expensesByCategory: netSnapshot.expensesByCategory,
           );
 
       await _repository.archiveCompleted(completed);

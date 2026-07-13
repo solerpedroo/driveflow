@@ -1,3 +1,4 @@
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/constants/ride_platforms.dart';
 import 'shift_block_outcome.dart';
 import 'shift_session_plan_block.dart';
@@ -22,6 +23,9 @@ class ShiftHistoryEntry {
     this.blockOutcomes = const [],
     this.vehicleId,
     this.revenuePerHour,
+    this.expenses = 0,
+    this.netCash = 0,
+    this.expensesByCategory = const {},
     this.createdAt,
     this.updatedAt,
   });
@@ -37,6 +41,9 @@ class ShiftHistoryEntry {
   final double revenue;
   final int rides;
   final double? revenuePerHour;
+  final double expenses;
+  final double netCash;
+  final Map<ExpenseCategory, double> expensesByCategory;
   final double adherenceScore;
   final int matchedPlanBlocks;
   final int totalPlanBlocks;
@@ -45,6 +52,11 @@ class ShiftHistoryEntry {
   final List<ShiftBlockOutcome> blockOutcomes;
   final DateTime? createdAt;
   final DateTime? updatedAt;
+
+  double? get netPerHour {
+    if (elapsed.inSeconds < 180) return null;
+    return netCash / (elapsed.inSeconds / 3600);
+  }
 
   Map<String, dynamic> toJson() => {
         'id': id,
@@ -58,6 +70,11 @@ class ShiftHistoryEntry {
         'revenue': revenue,
         'rides': rides,
         'revenuePerHour': revenuePerHour,
+        'expenses': expenses,
+        'netCash': netCash,
+        'expensesByCategory': expensesByCategory.map(
+          (category, amount) => MapEntry(category.value, amount),
+        ),
         'adherenceScore': adherenceScore,
         'matchedPlanBlocks': matchedPlanBlocks,
         'totalPlanBlocks': totalPlanBlocks,
@@ -81,6 +98,18 @@ class ShiftHistoryEntry {
       });
     }
 
+    final expensesByCategory = <ExpenseCategory, double>{};
+    final rawExpenses = json['expensesByCategory'];
+    if (rawExpenses is Map) {
+      rawExpenses.forEach((key, value) {
+        expensesByCategory[ExpenseCategory.fromValue(key as String? ?? '')] =
+            (value as num?)?.toDouble() ?? 0;
+      });
+    }
+
+    final revenue = (json['revenue'] as num?)?.toDouble() ?? 0;
+    final expenses = (json['expenses'] as num?)?.toDouble() ?? 0;
+
     return ShiftHistoryEntry(
       id: json['id'] as String? ?? '',
       userId: json['userId'] as String? ?? '',
@@ -96,9 +125,12 @@ class ShiftHistoryEntry {
       ),
       vehicleId: json['vehicleId'] as String?,
       isTaxiMode: json['isTaxiMode'] as bool? ?? false,
-      revenue: (json['revenue'] as num?)?.toDouble() ?? 0,
+      revenue: revenue,
       rides: (json['rides'] as num?)?.toInt() ?? 0,
       revenuePerHour: (json['revenuePerHour'] as num?)?.toDouble(),
+      expenses: expenses,
+      netCash: (json['netCash'] as num?)?.toDouble() ?? revenue - expenses,
+      expensesByCategory: expensesByCategory,
       adherenceScore: (json['adherenceScore'] as num?)?.toDouble() ?? 0,
       matchedPlanBlocks: (json['matchedPlanBlocks'] as num?)?.toInt() ?? 0,
       totalPlanBlocks: (json['totalPlanBlocks'] as num?)?.toInt() ?? 0,

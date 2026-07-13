@@ -1,3 +1,4 @@
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/constants/ride_platforms.dart';
 import '../../domain/entities/shift_block_outcome.dart';
 import '../../domain/entities/shift_history_entry.dart';
@@ -56,6 +57,13 @@ abstract final class ShiftSessionsMapper {
       revenue: _toDouble(row[ShiftSessionsSchema.revenue]) ?? 0,
       rides: (row[ShiftSessionsSchema.rides] as num?)?.toInt() ?? 0,
       revenuePerHour: _toDouble(row[ShiftSessionsSchema.revenuePerHour]),
+      expenses: _toDouble(row[ShiftSessionsSchema.expenses]) ?? 0,
+      netCash: _toDouble(row[ShiftSessionsSchema.netCash]) ??
+          ((_toDouble(row[ShiftSessionsSchema.revenue]) ?? 0) -
+              (_toDouble(row[ShiftSessionsSchema.expenses]) ?? 0)),
+      expensesByCategory: _expensesByCategory(
+        row[ShiftSessionsSchema.expensesByCategory],
+      ),
       adherenceScore: _toDouble(row[ShiftSessionsSchema.adherenceScore]) ?? 0,
       matchedPlanBlocks:
           (row[ShiftSessionsSchema.matchedPlanBlocks] as num?)?.toInt() ?? 0,
@@ -84,6 +92,11 @@ abstract final class ShiftSessionsMapper {
       ShiftSessionsSchema.revenue: entry.revenue,
       ShiftSessionsSchema.rides: entry.rides,
       ShiftSessionsSchema.revenuePerHour: entry.revenuePerHour,
+      ShiftSessionsSchema.expenses: entry.expenses,
+      ShiftSessionsSchema.netCash: entry.netCash,
+      ShiftSessionsSchema.expensesByCategory: entry.expensesByCategory.map(
+        (category, amount) => MapEntry(category.value, amount),
+      ),
       ShiftSessionsSchema.adherenceScore: entry.adherenceScore,
       ShiftSessionsSchema.matchedPlanBlocks: entry.matchedPlanBlocks,
       ShiftSessionsSchema.totalPlanBlocks: entry.totalPlanBlocks,
@@ -116,5 +129,15 @@ abstract final class ShiftSessionsMapper {
     if (value == null) return null;
     if (value is DateTime) return value;
     return DateTime.tryParse(value.toString());
+  }
+
+  static Map<ExpenseCategory, double> _expensesByCategory(Object? raw) {
+    final result = <ExpenseCategory, double>{};
+    if (raw is! Map) return result;
+    raw.forEach((key, value) {
+      result[ExpenseCategory.fromValue(key as String? ?? '')] =
+          (value as num?)?.toDouble() ?? 0;
+    });
+    return result;
   }
 }

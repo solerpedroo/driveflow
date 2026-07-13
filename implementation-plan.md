@@ -2071,6 +2071,33 @@ Após as ondas 15–34 e refatorações por tela (Início, Ganhos, Despesas, etc
 
 ---
 
+## Onda 52 — Turno e caixa líquido
+
+**Objetivo:** Mostrar caixa líquido (ganhos − despesas) ao vivo no turno, persistir no histórico e refletir em analytics/retrospectiva.
+
+### Escopo
+
+| Área | Entrega |
+|---|---|
+| Domínio | `ShiftNetCashSnapshot`, `ShiftNetCashCalculator` |
+| Sessão | `ShiftSessionSummary` com despesas, líquido e R\$/h líquido |
+| Histórico | `expenses`, `netCash`, `expensesByCategory` + migration `016` |
+| UI | `ShiftNetCashCard` no turno ativo; líquido no histórico/retrospectiva |
+| Analytics | Totais de despesas e líquido no período |
+| Live | Subtitle da presença mostra líquido quando há despesas |
+| Meta | `kCurrentWave = 52`, teste `shift_net_cash_calculator` |
+
+### Critérios de conclusão
+
+- [x] Despesas na janela do turno descontadas do faturamento ao vivo
+- [x] Encerramento arquiva expenses/netCash no Hive e Supabase
+- [x] Retrospectiva e histórico exibem valor líquido
+- [x] Analytics agrega líquido e despesas do período
+- [x] CSV exporta colunas de despesas e líquido
+- [x] Teste `shift_net_cash_calculator`
+
+---
+
 ## Mapa de requisitos funcionais → ondas
 
 | RF | Descrição | Onda |

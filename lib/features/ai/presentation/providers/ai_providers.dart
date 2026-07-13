@@ -67,6 +67,8 @@ final aiContextPreviewProvider = Provider<AiContextSnapshot>((ref) {
       'revenue': shiftSummary.revenue,
       'rides': shiftSummary.rides,
       'revenuePerHour': shiftSummary.revenuePerHour,
+      'expenses': shiftSummary.expenses,
+      'netCash': shiftSummary.netCash,
       'shouldSwitchApp': adherence.shouldSwitch,
       'currentPlatform': adherence.currentBlock?.platform.label,
       'recommendedPlatform': adherence.recommendedPlatform?.label,
