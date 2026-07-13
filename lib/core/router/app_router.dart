@@ -35,6 +35,7 @@ import '../../features/onboarding/presentation/screens/welcome_onboarding_screen
 import '../../features/profile/presentation/providers/profile_providers.dart';
 import '../../features/vehicle/presentation/providers/vehicle_providers.dart';
 import '../../features/profile/presentation/screens/paywall_screen.dart';
+import '../../features/shift/presentation/screens/shift_mode_screen.dart';
 import '../../features/vehicle/presentation/screens/vehicle_onboarding_screen.dart';
 
 /// Notifica GoRouter quando auth, perfil, veículos ou intro de marca mudam.
@@ -372,6 +373,14 @@ final routerProvider = Provider<GoRouter>((ref) {
         pageBuilder: (context, state) => _pushPage(
           key: state.pageKey,
           child: const PaywallScreen(),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.shiftMode,
+        name: 'shiftMode',
+        pageBuilder: (context, state) => _pushPage(
+          key: state.pageKey,
+          child: const ShiftModeScreen(),
         ),
       ),
     ],
