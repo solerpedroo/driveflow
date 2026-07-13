@@ -10,6 +10,8 @@ import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/utils/value_visibility_provider.dart';
 import '../../domain/entities/goal_entity.dart';
+import '../../../onboarding/presentation/providers/onboarding_providers.dart';
+import '../../../integrations/presentation/widgets/platform_goal_progress_card.dart';
 import '../providers/goals_providers.dart';
 import '../../../../shared/widgets/design_system/df_form_scaffold.dart';
 import '../../../../shared/widgets/design_system/df_hero_wealth_card.dart';
@@ -84,6 +86,9 @@ class GoalsScreen extends HookConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const GoalsStoryHeader(),
+            if (!ref.watch(isTaxiDriverProvider)) const PlatformGoalProgressCard(),
+            if (!ref.watch(isTaxiDriverProvider))
+              const SizedBox(height: AppSpacing.md),
             progressAsync.when(
               loading: () => const DfSkeleton(itemCount: 1),
               error: (_, __) => const SizedBox.shrink(),
