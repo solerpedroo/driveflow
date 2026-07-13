@@ -48,6 +48,8 @@ Plano de implementação em **36 ondas** (0–36) para o DriveFlow (Flutter + Su
 | 37 | Bottom nav liquid glass + transições de aba na primeira visita | concluída |
 | 38 | Correções P0 — auditoria sênior (router, vehicleId, sync, OAuth secrets) | concluída |
 | 39 | Correções P1 — CI, erros UX, autoDispose, nav, metas, testes | concluída |
+| 41 | Cobertura de testes — relatórios, integration, goldens | concluída |
+| 42 | Cockpit multi-app — abas Hoje · Turno · Comparativo + dashboard | concluída |
 
 ---
 
@@ -1812,6 +1814,32 @@ Após as ondas 15–34 e refatorações por tela (Início, Ganhos, Despesas, etc
 - [x] CI roda `flutter test` + `flutter test integration_test`
 - [x] Golden files em `test/goldens/`
 - [x] Overrides compartilhados no main_shell
+
+---
+
+## Onda 42 — Cockpit multi-app (decisão de turno)
+
+**Objetivo:** Unificar inteligência cross-platform em um **cockpit** com abas — transformar dados sincronizados em decisão acionável (qual app abrir, quando e por quê).
+
+### Escopo
+
+| Área | Entrega |
+|---|---|
+| Abas | **Hoje** · **Turno** · **Comparativo** via `PlatformCockpitPanel` |
+| Hoje | Recomendação, horário de ouro, score, lucro/km, repasses, gaps de sync |
+| Turno | Heatmap 7×24, plano de turno, simulador de mix |
+| Comparativo | R\$/hora, regiões, consistência, take rate |
+| Dashboard | Chip “Melhor app agora” com janela de horário + deep link `?cockpit=` |
+| Router | `PlatformIntegrationsScreen` aceita `?cockpit=today\|shift\|compare` |
+| IA | `AiContextBuilder` inclui score por app no prompt |
+
+### Critérios de conclusão
+
+- [x] Hub renomeado para Cockpit com navegação por abas
+- [x] Dashboard abre cockpit na aba correta
+- [x] Plano de turno navega para aba Turno
+- [x] IA recebe score, heatmap, lucro/km e lucro líquido por app
+- [x] `platform_cockpit_tab_test` cobre query params e rotas
 
 ---
 
