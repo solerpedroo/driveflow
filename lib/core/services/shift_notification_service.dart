@@ -2,6 +2,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 
 import '../../features/integrations/domain/entities/platform_golden_hour_slot.dart';
+import '../deep_links/app_deep_link_routes.dart';
 import 'maintenance_notification_service.dart';
 
 /// Notificações locais de sugestão de turno — estilo "Abra 99 entre 18h–22h".
@@ -53,6 +54,7 @@ class ShiftNotificationService {
       androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
+      payload: AppDeepLinkRoutes.shiftMode().toString(),
     );
   }
 
@@ -116,6 +118,7 @@ class ShiftNotificationService {
         ),
         iOS: DarwinNotificationDetails(),
       ),
+      payload: AppDeepLinkRoutes.shiftMode().toString(),
     );
   }
 
@@ -139,6 +142,7 @@ class ShiftNotificationService {
         ),
         iOS: DarwinNotificationDetails(),
       ),
+      payload: AppDeepLinkRoutes.shiftHistory().toString(),
     );
   }
 }
