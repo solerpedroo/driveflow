@@ -14,6 +14,7 @@ import '../../../integrations/presentation/providers/platform_trips_providers.da
 import '../../../vehicle/presentation/providers/vehicle_providers.dart';
 import '../../../shift/presentation/providers/shift_session_providers.dart';
 import '../../../shift/presentation/providers/shift_coaching_providers.dart';
+import '../../../shift/presentation/providers/shift_analytics_providers.dart';
 import '../../../shift/presentation/providers/shift_history_providers.dart';
 import '../../data/repositories/ai_repository_impl.dart';
 import '../../domain/entities/ai_message_entity.dart';
@@ -57,6 +58,7 @@ final aiContextPreviewProvider = Provider<AiContextSnapshot>((ref) {
 
   final weekStats = ref.watch(shiftHistoryWeekStatsProvider);
   final coaching = ref.watch(shiftCoachInsightProvider);
+  final analytics = ref.watch(shiftAnalyticsSummaryProvider);
 
   Map<String, dynamic>? activeShift;
   if (session != null && shiftSummary != null) {
@@ -99,6 +101,7 @@ final aiContextPreviewProvider = Provider<AiContextSnapshot>((ref) {
             'tips': coaching.tips,
             'preferredPlatform': coaching.preferredPlatform?.label,
           },
+    shiftAnalytics: analytics.isEmpty ? null : analytics.toJson(),
   );
 });
 

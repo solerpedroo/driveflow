@@ -48,6 +48,7 @@ class AiContextSnapshot {
     this.activeShift,
     this.shiftHistoryWeek,
     this.shiftCoaching,
+    this.shiftAnalytics,
   });
 
   final int periodDays;
@@ -73,6 +74,7 @@ class AiContextSnapshot {
   final Map<String, dynamic>? activeShift;
   final Map<String, dynamic>? shiftHistoryWeek;
   final Map<String, dynamic>? shiftCoaching;
+  final Map<String, dynamic>? shiftAnalytics;
 
   Map<String, dynamic> toJson() {
     return {
@@ -169,6 +171,7 @@ class AiContextSnapshot {
       if (activeShift != null) 'activeShift': activeShift,
       if (shiftHistoryWeek != null) 'shiftHistoryWeek': shiftHistoryWeek,
       if (shiftCoaching != null) 'shiftCoaching': shiftCoaching,
+      if (shiftAnalytics != null) 'shiftAnalytics': shiftAnalytics,
     };
   }
 
@@ -201,6 +204,7 @@ abstract final class AiContextBuilder {
     Map<String, dynamic>? activeShift,
     Map<String, dynamic>? shiftHistoryWeek,
     Map<String, dynamic>? shiftCoaching,
+    Map<String, dynamic>? shiftAnalytics,
   }) {
     final anchor = DateTime.now();
     final todayRange = dateRangeForGoalPeriod(GoalPeriod.daily, anchor);
@@ -294,6 +298,7 @@ abstract final class AiContextBuilder {
       activeShift: activeShift,
       shiftHistoryWeek: shiftHistoryWeek,
       shiftCoaching: shiftCoaching,
+      shiftAnalytics: shiftAnalytics,
     );
   }
 
@@ -366,6 +371,8 @@ abstract final class AiContextBuilder {
         'Turnos 7d: ${snapshot.shiftHistoryWeek}',
       if (snapshot.shiftCoaching != null)
         'Coaching turno: ${snapshot.shiftCoaching}',
+      if (snapshot.shiftAnalytics != null)
+        'Analytics turnos: ${snapshot.shiftAnalytics}',
     ].join('\n');
   }
 }

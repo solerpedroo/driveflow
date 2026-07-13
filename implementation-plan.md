@@ -2016,6 +2016,33 @@ Após as ondas 15–34 e refatorações por tela (Início, Ganhos, Despesas, etc
 
 ---
 
+## Onda 50 — Analytics de turnos
+
+**Objetivo:** Dashboard analítico dos turnos encerrados — tendências de faturamento, aderência, mix por app e comparação com período anterior.
+
+### Escopo
+
+| Área | Entrega |
+|---|---|
+| Domínio | `ShiftAnalyticsSummary`, `ShiftAnalyticsCalculator`, séries diárias |
+| Providers | `shiftAnalyticsPeriodProvider` (7d/30d), `shiftAnalyticsSummaryProvider` |
+| UI | `ShiftAnalyticsScreen` com KPIs, gráficos e comparação |
+| Gráficos | Faturamento diário, aderência, mix por app |
+| Router | `AppRoutes.shiftAnalytics` |
+| IA | Contexto inclui `shiftAnalytics` |
+| Meta | `kCurrentWave = 50`, teste `shift_analytics_calculator` |
+
+### Critérios de conclusão
+
+- [x] KPIs agregados (turnos, faturamento, R$/h, aderência, duração)
+- [x] Gráfico de faturamento e linha de aderência por dia
+- [x] Mix de faturamento por app no período
+- [x] Comparação vs período anterior (mesma janela)
+- [x] Filtro 7d / 30d e acesso pelo histórico de turnos
+- [x] Teste `shift_analytics_calculator`
+
+---
+
 ## Mapa de requisitos funcionais → ondas
 
 | RF | Descrição | Onda |

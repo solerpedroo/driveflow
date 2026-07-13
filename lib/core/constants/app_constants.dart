@@ -91,11 +91,12 @@ abstract final class AppRoutes {
   static const paywall = '/paywall';
   static const shiftMode = '/shift';
   static const shiftHistory = '/shift/history';
+  static const shiftAnalytics = '/shift/analytics';
   static const shiftRetrospective = '/shift/history/detail';
 }
 
 /// Onda atual concluída (v2.0 — Design System v2 e acessibilidade).
-const kCurrentWave = 49;
+const kCurrentWave = 50;
 
 /// Deep link OAuth Supabase (Google).
 const kOAuthRedirectUrl = 'io.supabase.driveflow://login-callback/';
