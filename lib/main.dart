@@ -6,6 +6,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'app.dart';
 import 'core/services/platform_oauth_deep_link_listener.dart';
+import 'shared/widgets/app_deep_link_listener.dart';
 import 'core/presentation/providers/sync_providers.dart';
 import 'core/services/crash_reporting.dart';
 import 'core/services/session_secure_storage.dart';
@@ -35,8 +36,10 @@ Future<void> main() async {
     runApp(
       UncontrolledProviderScope(
         container: container,
-        child: const PlatformOAuthDeepLinkListener(
-          child: DriveFlowApp(),
+        child: const AppDeepLinkListener(
+          child: PlatformOAuthDeepLinkListener(
+            child: DriveFlowApp(),
+          ),
         ),
       ),
     );
