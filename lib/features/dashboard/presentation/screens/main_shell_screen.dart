@@ -84,19 +84,29 @@ class MainShellScreen extends HookConsumerWidget {
 
     useEffect(() {
       localTab.value = initialTab;
-      activatedTabs.value = {...activatedTabs.value, initialTab, selectedIndex};
+      activatedTabs.value = {...activatedTabs.value, initialTab};
       tabHistory.value = [initialTab];
       return null;
-    }, [initialTab, selectedIndex]);
+    }, const []);
 
+  /// Android back: previous tab in history, else dashboard; never exit the app.
     return PopScope(
-      canPop: tabHistory.value.length <= 1,
+      canPop: false,
       onPopInvokedWithResult: (didPop, result) {
-        if (didPop || tabHistory.value.length <= 1) return;
-        final history = [...tabHistory.value]..removeLast();
-        final previous = history.last;
-        tabHistory.value = history;
-        navigateToTab(previous, recordHistory: false);
+        if (didPop) return;
+
+        if (tabHistory.value.length > 1) {
+          final history = [...tabHistory.value]..removeLast();
+          final previous = history.last;
+          tabHistory.value = history;
+          navigateToTab(previous, recordHistory: false);
+          return;
+        }
+
+        if (selectedIndex != DriveFlowTab.dashboard) {
+          tabHistory.value = [DriveFlowTab.dashboard];
+          navigateToTab(DriveFlowTab.dashboard, recordHistory: false);
+        }
       },
       child: DriveFlowMainShell(
         selectedIndex: selectedIndex,
