@@ -31,6 +31,8 @@ class ActiveShiftBanner extends ConsumerWidget {
       data: (session) {
         if (session == null) return const SizedBox.shrink();
 
+        final theme = Theme.of(context);
+
         return DfCard(
           variant: DfCardVariant.elevated,
           onTap: () {
@@ -61,8 +63,9 @@ class ActiveShiftBanner extends ConsumerWidget {
                       session.status == ShiftSessionStatus.paused
                           ? 'Turno pausado'
                           : 'Turno em andamento',
-                      style: AppTypography.labelCaps(
-                        Theme.of(context).brightness,
+                      style: theme.textTheme.labelLarge?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.brandBlue,
                       ),
                     ),
                     const SizedBox(height: 2),
