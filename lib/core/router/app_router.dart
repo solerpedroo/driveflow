@@ -37,6 +37,7 @@ import '../../features/vehicle/presentation/providers/vehicle_providers.dart';
 import '../../features/profile/presentation/screens/paywall_screen.dart';
 import '../../features/shift/presentation/screens/shift_mode_screen.dart';
 import '../../features/shift/presentation/screens/shift_history_screen.dart';
+import '../../features/shift/presentation/screens/shift_analytics_screen.dart';
 import '../../features/shift/presentation/screens/shift_retrospective_screen.dart';
 import '../../features/vehicle/presentation/screens/vehicle_onboarding_screen.dart';
 
@@ -391,6 +392,14 @@ final routerProvider = Provider<GoRouter>((ref) {
         pageBuilder: (context, state) => _pushPage(
           key: state.pageKey,
           child: const ShiftHistoryScreen(),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.shiftAnalytics,
+        name: 'shiftAnalytics',
+        pageBuilder: (context, state) => _pushPage(
+          key: state.pageKey,
+          child: const ShiftAnalyticsScreen(),
         ),
       ),
       GoRoute(
