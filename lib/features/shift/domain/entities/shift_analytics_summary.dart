@@ -10,6 +10,8 @@ class ShiftAnalyticsSummary {
     required this.period,
     required this.shiftCount,
     required this.totalRevenue,
+    required this.totalExpenses,
+    required this.totalNetCash,
     required this.totalRides,
     required this.avgRevenuePerHour,
     required this.avgAdherence,
@@ -23,6 +25,8 @@ class ShiftAnalyticsSummary {
   final ShiftAnalyticsPeriod period;
   final int shiftCount;
   final double totalRevenue;
+  final double totalExpenses;
+  final double totalNetCash;
   final int totalRides;
   final double avgRevenuePerHour;
   final double avgAdherence;
@@ -39,6 +43,8 @@ class ShiftAnalyticsSummary {
       period: period,
       shiftCount: 0,
       totalRevenue: 0,
+      totalExpenses: 0,
+      totalNetCash: 0,
       totalRides: 0,
       avgRevenuePerHour: 0,
       avgAdherence: 0,
@@ -52,6 +58,8 @@ class ShiftAnalyticsSummary {
         'periodDays': period.days,
         'shiftCount': shiftCount,
         'totalRevenue': totalRevenue,
+        'totalExpenses': totalExpenses,
+        'totalNetCash': totalNetCash,
         'totalRides': totalRides,
         'avgRevenuePerHour': avgRevenuePerHour,
         'avgAdherence': avgAdherence,
