@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -6,12 +8,37 @@ import '../../core/utils/value_visibility_provider.dart';
 import '../../features/shift/presentation/providers/shift_session_providers.dart';
 
 /// Mantém Live Activity / notificação ongoing sincronizada com o turno ativo.
-class ShiftLivePresenceBootstrap extends ConsumerWidget {
+///
+/// Debounce reduz custo de bridge nativo em aparelhos com pouca RAM.
+class ShiftLivePresenceBootstrap extends ConsumerStatefulWidget {
   const ShiftLivePresenceBootstrap({required this.child, super.key});
 
   final Widget child;
 
-  Future<void> _sync(WidgetRef ref) async {
+  @override
+  ConsumerState<ShiftLivePresenceBootstrap> createState() =>
+      _ShiftLivePresenceBootstrapState();
+}
+
+class _ShiftLivePresenceBootstrapState
+    extends ConsumerState<ShiftLivePresenceBootstrap> {
+  Timer? _debounce;
+  static const _debounceDuration = Duration(milliseconds: 800);
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    super.dispose();
+  }
+
+  void _scheduleSync() {
+    _debounce?.cancel();
+    _debounce = Timer(_debounceDuration, () {
+      unawaited(_sync());
+    });
+  }
+
+  Future<void> _sync() async {
     final session = ref.read(activeShiftSessionProvider).valueOrNull;
     final summary = ref.read(shiftSessionSummaryProvider);
     final hidden = ref.read(valueVisibilityHiddenProvider);
@@ -29,11 +56,11 @@ class ShiftLivePresenceBootstrap extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    ref.listen(activeShiftSessionProvider, (_, __) => _sync(ref));
-    ref.listen(shiftSessionSummaryProvider, (_, __) => _sync(ref));
-    ref.listen(valueVisibilityHiddenProvider, (_, __) => _sync(ref));
+  Widget build(BuildContext context) {
+    ref.listen(activeShiftSessionProvider, (_, __) => _scheduleSync());
+    ref.listen(shiftSessionSummaryProvider, (_, __) => _scheduleSync());
+    ref.listen(valueVisibilityHiddenProvider, (_, __) => _scheduleSync());
 
-    return child;
+    return widget.child;
   }
 }

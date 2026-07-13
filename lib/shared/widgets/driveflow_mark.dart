@@ -40,7 +40,7 @@ class DriveFlowMark extends StatelessWidget {
           width: size,
           height: size,
           fit: BoxFit.cover,
-          filterQuality: FilterQuality.high,
+          filterQuality: FilterQuality.medium,
           gaplessPlayback: true,
         ),
       );
@@ -51,7 +51,7 @@ class DriveFlowMark extends StatelessWidget {
       width: size,
       height: size,
       fit: BoxFit.contain,
-      filterQuality: FilterQuality.high,
+      filterQuality: FilterQuality.medium,
       gaplessPlayback: true,
     );
   }
@@ -73,7 +73,7 @@ class DriveFlowMarkGlyph extends StatelessWidget {
       width: size,
       height: size,
       fit: BoxFit.contain,
-      filterQuality: FilterQuality.high,
+      filterQuality: FilterQuality.medium,
       gaplessPlayback: true,
     );
   }

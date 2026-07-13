@@ -69,10 +69,8 @@ class ActiveShiftBanner extends ConsumerWidget {
                       ),
                     ),
                     const SizedBox(height: 2),
-                    Text(
-                      ShiftTimerWidget.format(
-                        summary?.elapsed ?? session.elapsedAt(DateTime.now()),
-                      ),
+                    LiveElapsedText(
+                      session: session,
                       style: AppTypography.iosHeadline(
                         Theme.of(context).brightness,
                       ).copyWith(fontWeight: FontWeight.w700),

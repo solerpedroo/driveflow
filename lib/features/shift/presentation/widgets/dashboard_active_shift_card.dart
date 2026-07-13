@@ -80,12 +80,16 @@ class DashboardActiveShiftCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final session = ref.watch(activeShiftSessionProvider).valueOrNull;
+    final session = ref.watch(
+      activeShiftSessionProvider.select((async) => async.valueOrNull),
+    );
+    if (session == null) return const SizedBox.shrink();
+
     final summary = ref.watch(shiftSessionSummaryProvider);
     final adherence = ref.watch(shiftPlanAdherenceProvider);
     final hidden = ref.watch(valueVisibilityHiddenProvider);
 
-    if (session == null || summary == null) return const SizedBox.shrink();
+    if (summary == null) return const SizedBox.shrink();
 
     return DfCard(
       variant: DfCardVariant.hero,
@@ -94,7 +98,7 @@ class DashboardActiveShiftCard extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           ShiftTimerWidget(
-            elapsed: summary.elapsed,
+            session: session,
             isPaused: session.status == ShiftSessionStatus.paused,
           ),
           const SizedBox(height: AppSpacing.lg),

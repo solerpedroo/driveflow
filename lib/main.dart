@@ -21,13 +21,16 @@ Future<void> main() async {
   await DriveFlowCrashReporting.bootstrap(() async {
     FlutterNativeSplash.preserve(widgetsBinding: WidgetsBinding.instance);
 
+    // Limita decode/cache de imagens em aparelhos com pouca RAM.
+    final imageCache = PaintingBinding.instance.imageCache;
+    imageCache.maximumSize = 60;
+    imageCache.maximumSizeBytes = 48 << 20; // 48 MB
+
     await HiveStorage.initialize();
     await initializeSupabase();
     await _restoreSessionIfAvailable();
     await initializeDateFormatting('pt_BR');
     await MaintenanceNotificationService.instance.initialize();
-    await HomeWidgetService.initialize();
-    await ShiftLivePresenceService.initialize();
 
     final container = ProviderContainer();
     await container.read(themeModeProvider.notifier).load();
@@ -43,6 +46,12 @@ Future<void> main() async {
         ),
       ),
     );
+
+    // Serviços nativos (widget / Live Activity) após o 1º frame.
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await HomeWidgetService.initialize();
+      await ShiftLivePresenceService.initialize();
+    });
   });
 }
 

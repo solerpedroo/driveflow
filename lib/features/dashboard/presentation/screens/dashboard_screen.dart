@@ -6,16 +6,12 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../../goals/domain/entities/goal_entity.dart';
 import '../../../goals/domain/services/goal_progress_calculator.dart';
 import '../../../goals/presentation/providers/goals_providers.dart';
-import '../../../fuel/domain/entities/fuel_log_entity.dart';
 import '../../../fuel/presentation/providers/fuel_providers.dart';
-import '../../../insights/domain/entities/earning_time_slot.dart';
-import '../../../insights/domain/entities/maintenance_prediction.dart';
 import '../../../insights/presentation/providers/insights_providers.dart';
 import '../../../insights/presentation/widgets/dashboard_insights_summary.dart';
 import '../../../maintenance/presentation/providers/maintenance_providers.dart';
 import '../../../profile/presentation/providers/profile_providers.dart';
 import '../../../authentication/presentation/providers/auth_providers.dart';
-import '../../../vehicle/domain/entities/vehicle_entity.dart';
 import '../../../vehicle/presentation/providers/vehicle_providers.dart';
 import '../../../vehicle/presentation/widgets/vehicle_scope_chip.dart';
 import '../../../../core/constants/app_constants.dart';
@@ -66,21 +62,18 @@ class DashboardScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final user = ref.watch(userProfileProvider).valueOrNull ??
-        ref.watch(authStateProvider).valueOrNull;
-    final vehicle = ref.watch(activeVehicleProvider).valueOrNull;
-    final lastFuel = ref.watch(lastFuelLogProvider).valueOrNull;
-    final maintenanceAlerts =
-        ref.watch(maintenanceAlertsProvider).valueOrNull ?? const [];
+    final displayName = ref.watch(
+          userProfileProvider.select((async) => async.valueOrNull?.displayName),
+        ) ??
+        ref.watch(
+          authStateProvider.select((async) => async.valueOrNull?.displayName),
+        ) ??
+        'motorista';
     final dashboardAsync = ref.watch(dashboardSnapshotProvider);
     final dailyGoal = ref.watch(goalProgressProvider(GoalPeriod.daily));
-    final topSlots = ref.watch(topEarningSlotsProvider).valueOrNull ?? const [];
-    final topPrediction =
-        ref.watch(topMaintenancePredictionProvider).valueOrNull;
     final hidden = ref.watch(valueVisibilityHiddenProvider);
     final isTaxiDriver = ref.watch(isTaxiDriverProvider);
 
-    final displayName = user?.displayName ?? 'motorista';
     final greeting = useMemoized(
       () => _greeting(DateTime.now().hour, displayName),
       [displayName],
@@ -103,11 +96,6 @@ class DashboardScreen extends HookConsumerWidget {
           onToggleVisibility: toggleVisibility,
           snapshot: snapshot,
           goal: goal,
-          vehicle: vehicle,
-          lastFuel: lastFuel,
-          maintenanceAlerts: maintenanceAlerts,
-          topSlots: topSlots,
-          topPrediction: topPrediction,
         ),
         loading: () => _DashboardLoading(greeting: greeting),
         error: (_, __) => _DashboardBody(
@@ -122,11 +110,6 @@ class DashboardScreen extends HookConsumerWidget {
             earningsTotal: snapshot.today.revenue,
             expensesTotal: snapshot.today.expenses,
           ),
-          vehicle: vehicle,
-          lastFuel: lastFuel,
-          maintenanceAlerts: maintenanceAlerts,
-          topSlots: topSlots,
-          topPrediction: topPrediction,
         ),
       ),
     );
@@ -195,11 +178,6 @@ class _DashboardBody extends StatelessWidget {
     required this.onToggleVisibility,
     required this.snapshot,
     required this.goal,
-    required this.vehicle,
-    required this.lastFuel,
-    required this.maintenanceAlerts,
-    required this.topSlots,
-    required this.topPrediction,
   });
 
   final String greeting;
@@ -208,11 +186,6 @@ class _DashboardBody extends StatelessWidget {
   final VoidCallback onToggleVisibility;
   final DashboardSnapshot snapshot;
   final GoalProgress goal;
-  final VehicleEntity? vehicle;
-  final FuelLogEntity? lastFuel;
-  final List<MaintenanceAlert> maintenanceAlerts;
-  final List<EarningTimeSlot> topSlots;
-  final MaintenancePrediction? topPrediction;
 
   @override
   Widget build(BuildContext context) {
@@ -238,7 +211,7 @@ class _DashboardBody extends StatelessWidget {
             weekProfits: snapshot.weekProfits,
           ),
         ),
-        DfValueBanner(
+        const DfValueBanner(
           title: '${ProductStory.socialProofCount} motoristas',
           subtitle: ProductStory.socialProofLabel,
           icon: Icons.people_outline_rounded,
@@ -295,34 +268,66 @@ class _DashboardBody extends StatelessWidget {
           child: VehicleScopeChip(),
         ),
         if (!isTaxiDriver) const DashboardPlatformMixCard(),
-        WeeklyProfitChart(
-          points: snapshot.weekProfits,
-          hideValue: hidden,
+        RepaintBoundary(
+          child: WeeklyProfitChart(
+            points: snapshot.weekProfits,
+            hideValue: hidden,
+          ),
         ),
         MonthSummaryCard(
           summary: month,
           hideHeroProfit: true,
           hideValue: hidden,
         ),
-        if (topSlots.isNotEmpty || topPrediction != null)
-          DashboardInsightsSummary(
-            topSlots: topSlots,
-            topPrediction: topPrediction,
-          ),
-        DfExpandableListSection(
-          title: 'Seu carro',
-          eyebrow: 'Cuidados',
-          itemCount: 2,
-          previewCount: 2,
-          spacing: AppSpacing.md,
-          itemBuilder: (context, index) {
-            if (index == 0) {
-              return DashboardFuelCard(vehicle: vehicle, lastFuel: lastFuel);
-            }
-            return DashboardMaintenanceCard(alerts: maintenanceAlerts);
-          },
-        ),
+        const _DashboardInsightsSection(),
+        const _DashboardVehicleCareSection(),
       ],
+    );
+  }
+}
+
+/// Insights isolados — não forçam rebuild do restante do dashboard.
+class _DashboardInsightsSection extends ConsumerWidget {
+  const _DashboardInsightsSection();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final topSlots = ref.watch(topEarningSlotsProvider).valueOrNull ?? const [];
+    final topPrediction =
+        ref.watch(topMaintenancePredictionProvider).valueOrNull;
+    if (topSlots.isEmpty && topPrediction == null) {
+      return const SizedBox.shrink();
+    }
+    return DashboardInsightsSummary(
+      topSlots: topSlots,
+      topPrediction: topPrediction,
+    );
+  }
+}
+
+/// Combustível + manutenção isolados do restante do dashboard.
+class _DashboardVehicleCareSection extends ConsumerWidget {
+  const _DashboardVehicleCareSection();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final vehicle = ref.watch(activeVehicleProvider).valueOrNull;
+    final lastFuel = ref.watch(lastFuelLogProvider).valueOrNull;
+    final maintenanceAlerts =
+        ref.watch(maintenanceAlertsProvider).valueOrNull ?? const [];
+
+    return DfExpandableListSection(
+      title: 'Seu carro',
+      eyebrow: 'Cuidados',
+      itemCount: 2,
+      previewCount: 2,
+      spacing: AppSpacing.md,
+      itemBuilder: (context, index) {
+        if (index == 0) {
+          return DashboardFuelCard(vehicle: vehicle, lastFuel: lastFuel);
+        }
+        return DashboardMaintenanceCard(alerts: maintenanceAlerts);
+      },
     );
   }
 }

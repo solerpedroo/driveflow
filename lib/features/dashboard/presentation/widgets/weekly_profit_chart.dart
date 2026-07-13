@@ -30,6 +30,7 @@ class _WeeklyProfitChartState extends State<WeeklyProfitChart>
     with SingleTickerProviderStateMixin {
   late final AnimationController _anim;
   int? _touchedIndex;
+  var _settled = false;
 
   @override
   void initState() {
@@ -37,7 +38,9 @@ class _WeeklyProfitChartState extends State<WeeklyProfitChart>
     _anim = AnimationController(
       vsync: this,
       duration: DriveFlowMotion.chart,
-    )..forward();
+    )..forward().whenCompleteOrCancel(() {
+        if (mounted) setState(() => _settled = true);
+      });
   }
 
   @override
@@ -89,135 +92,162 @@ class _WeeklyProfitChartState extends State<WeeklyProfitChart>
             ),
           ),
           const SizedBox(height: AppSpacing.lg),
-          AnimatedBuilder(
-            animation: _anim,
-            builder: (context, _) {
-              return SizedBox(
-                height: 168,
-                child: BarChart(
-                  BarChartData(
-                    maxY: chartMax,
-                    minY: 0,
-                    alignment: BarChartAlignment.spaceAround,
-                    barTouchData: BarTouchData(
-                      enabled: true,
-                      touchCallback: (event, response) {
-                        if (!event.isInterestedForInteractions) {
-                          setState(() => _touchedIndex = null);
-                          return;
-                        }
-                        final index = response?.spot?.touchedBarGroupIndex;
-                        if (index != null && index != _touchedIndex) {
-                          DfHaptics.light();
-                        }
-                        setState(() => _touchedIndex = index);
-                      },
-                      touchTooltipData: BarTouchTooltipData(
-                        getTooltipColor: (_) =>
-                            AppColors.deepNavy.withValues(alpha: 0.94),
-                        tooltipRoundedRadius: 10,
-                        getTooltipItem: (group, groupIndex, rod, rodIndex) {
-                          final p = points[group.x.toInt()];
-                          final value = maskCurrency(
-                            CurrencyFormatter.formatSigned(p.profit),
-                            hidden: widget.hideValue,
-                          );
-                          return BarTooltipItem(
-                            '${p.weekdayLabel}\n$value',
-                            AppTypography.iosCaption(brightness).copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
-                              height: 1.35,
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                    gridData: FlGridData(
-                      show: true,
-                      drawVerticalLine: false,
-                      horizontalInterval: chartMax / 4,
-                      getDrawingHorizontalLine: (value) => FlLine(
-                        color: AppColors.secondaryLabel(theme)
-                            .withValues(alpha: 0.08),
-                        strokeWidth: 1,
-                      ),
-                    ),
-                    borderData: FlBorderData(show: false),
-                    titlesData: FlTitlesData(
-                      topTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false),
-                      ),
-                      rightTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false),
-                      ),
-                      leftTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false),
-                      ),
-                      bottomTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          reservedSize: 28,
-                          getTitlesWidget: (value, meta) {
-                            final index = value.toInt();
-                            if (index < 0 || index >= points.length) {
-                              return const SizedBox.shrink();
-                            }
-                            final isToday = index == todayIndex;
-                            final isTouched = index == _touchedIndex;
-                            return Padding(
-                              padding: const EdgeInsets.only(top: 10),
-                              child: Text(
-                                points[index].weekdayLabel,
-                                style:
-                                    AppTypography.iosCaption(brightness).copyWith(
-                                  color: isToday || isTouched
-                                      ? AppColors.brandBlue
-                                      : AppColors.secondaryLabel(theme),
-                                  fontWeight: isToday || isTouched
-                                      ? FontWeight.w700
-                                      : FontWeight.w500,
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                    barGroups: [
-                      for (var i = 0; i < points.length; i++)
-                        BarChartGroupData(
-                          x: i,
-                          barRods: [
-                            BarChartRodData(
-                              toY: (points[i].profit <= 0
-                                      ? chartMax * 0.03
-                                      : points[i].profit.clamp(0, chartMax)) *
-                                  _anim.value,
-                              width: _touchedIndex == i ? 18 : 14,
-                              gradient: LinearGradient(
-                                begin: Alignment.bottomCenter,
-                                end: Alignment.topCenter,
-                                colors: _barColors(
-                                  profit: points[i].profit,
-                                  isToday: i == todayIndex,
-                                  isTouched: i == _touchedIndex,
-                                ),
-                              ),
-                              borderRadius: const BorderRadius.vertical(
-                                top: Radius.circular(7),
-                              ),
-                            ),
-                          ],
-                        ),
-                    ],
+          RepaintBoundary(
+            child: _settled
+                ? _buildChart(
+                    theme: theme,
+                    brightness: brightness,
+                    points: points,
+                    chartMax: chartMax,
+                    todayIndex: todayIndex,
+                    progress: 1,
+                  )
+                : AnimatedBuilder(
+                    animation: _anim,
+                    builder: (context, _) {
+                      return _buildChart(
+                        theme: theme,
+                        brightness: brightness,
+                        points: points,
+                        chartMax: chartMax,
+                        todayIndex: todayIndex,
+                        progress: _anim.value,
+                      );
+                    },
                   ),
-                  duration: DriveFlowMotion.fast,
-                ),
-              );
-            },
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildChart({
+    required ThemeData theme,
+    required Brightness brightness,
+    required List<DailyProfitPoint> points,
+    required double chartMax,
+    required int todayIndex,
+    required double progress,
+  }) {
+    return SizedBox(
+      height: 168,
+      child: BarChart(
+        BarChartData(
+          maxY: chartMax,
+          minY: 0,
+          alignment: BarChartAlignment.spaceAround,
+          barTouchData: BarTouchData(
+            enabled: true,
+            touchCallback: (event, response) {
+              if (!event.isInterestedForInteractions) {
+                setState(() => _touchedIndex = null);
+                return;
+              }
+              final index = response?.spot?.touchedBarGroupIndex;
+              if (index != null && index != _touchedIndex) {
+                DfHaptics.light();
+              }
+              setState(() => _touchedIndex = index);
+            },
+            touchTooltipData: BarTouchTooltipData(
+              getTooltipColor: (_) =>
+                  AppColors.deepNavy.withValues(alpha: 0.94),
+              tooltipRoundedRadius: 10,
+              getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                final p = points[group.x.toInt()];
+                final value = maskCurrency(
+                  CurrencyFormatter.formatSigned(p.profit),
+                  hidden: widget.hideValue,
+                );
+                return BarTooltipItem(
+                  '${p.weekdayLabel}\n$value',
+                  AppTypography.iosCaption(brightness).copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                    height: 1.35,
+                  ),
+                );
+              },
+            ),
+          ),
+          gridData: FlGridData(
+            show: true,
+            drawVerticalLine: false,
+            horizontalInterval: chartMax / 4,
+            getDrawingHorizontalLine: (value) => FlLine(
+              color: AppColors.secondaryLabel(theme).withValues(alpha: 0.08),
+              strokeWidth: 1,
+            ),
+          ),
+          borderData: FlBorderData(show: false),
+          titlesData: FlTitlesData(
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            leftTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                reservedSize: 28,
+                getTitlesWidget: (value, meta) {
+                  final index = value.toInt();
+                  if (index < 0 || index >= points.length) {
+                    return const SizedBox.shrink();
+                  }
+                  final isToday = index == todayIndex;
+                  final isTouched = index == _touchedIndex;
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 10),
+                    child: Text(
+                      points[index].weekdayLabel,
+                      style: AppTypography.iosCaption(brightness).copyWith(
+                        color: isToday || isTouched
+                            ? AppColors.brandBlue
+                            : AppColors.secondaryLabel(theme),
+                        fontWeight: isToday || isTouched
+                            ? FontWeight.w700
+                            : FontWeight.w500,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+          barGroups: [
+            for (var i = 0; i < points.length; i++)
+              BarChartGroupData(
+                x: i,
+                barRods: [
+                  BarChartRodData(
+                    toY: (points[i].profit <= 0
+                            ? chartMax * 0.03
+                            : points[i].profit.clamp(0, chartMax)) *
+                        progress,
+                    width: _touchedIndex == i ? 18 : 14,
+                    gradient: LinearGradient(
+                      begin: Alignment.bottomCenter,
+                      end: Alignment.topCenter,
+                      colors: _barColors(
+                        profit: points[i].profit,
+                        isToday: i == todayIndex,
+                        isTouched: i == _touchedIndex,
+                      ),
+                    ),
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(7),
+                    ),
+                  ),
+                ],
+              ),
+          ],
+        ),
+        duration: DriveFlowMotion.fast,
       ),
     );
   }

@@ -1,7 +1,4 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -31,7 +28,7 @@ import '../widgets/shift_plan_progress_row.dart';
 import '../widgets/shift_timer_widget.dart';
 
 /// Tela operacional do modo turno — timer, ganhos e ações.
-class ShiftModeScreen extends HookConsumerWidget {
+class ShiftModeScreen extends ConsumerWidget {
   const ShiftModeScreen({super.key});
 
   @override
@@ -43,15 +40,6 @@ class ShiftModeScreen extends HookConsumerWidget {
     final hidden = ref.watch(valueVisibilityHiddenProvider);
     final isTaxi = ref.watch(isTaxiDriverProvider);
     final plan = ref.watch(adaptiveShiftPlanProvider).valueOrNull;
-
-    final ticker = useState(0);
-    useEffect(() {
-      final timer = Timer.periodic(const Duration(seconds: 1), (_) {
-        ticker.value++;
-      });
-      return timer.cancel;
-    }, const []);
-    final _ = ticker.value;
 
     Future<void> startShift() async {
       DfHaptics.medium();
@@ -151,7 +139,6 @@ class ShiftModeScreen extends HookConsumerWidget {
       );
     }
 
-    final elapsed = session.elapsedAt(DateTime.now());
     final isPaused = session.status == ShiftSessionStatus.paused;
 
     return DfSubpageScaffold(
@@ -159,7 +146,7 @@ class ShiftModeScreen extends HookConsumerWidget {
       children: [
         DfCard(
           variant: DfCardVariant.hero,
-          child: ShiftTimerWidget(elapsed: elapsed, isPaused: isPaused),
+          child: ShiftTimerWidget(session: session, isPaused: isPaused),
         ),
         const SizedBox(height: AppSpacing.md),
         if (summary != null)

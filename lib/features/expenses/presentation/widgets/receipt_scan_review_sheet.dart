@@ -139,6 +139,12 @@ class ReceiptScanReviewSheet extends HookConsumerWidget {
                   height: 160,
                   width: double.infinity,
                   fit: BoxFit.cover,
+                  cacheWidth: (MediaQuery.devicePixelRatioOf(context) *
+                          MediaQuery.sizeOf(context).width)
+                      .round()
+                      .clamp(320, 1280),
+                  cacheHeight:
+                      (MediaQuery.devicePixelRatioOf(context) * 160).round(),
                 ),
               ),
               const SizedBox(height: 16),

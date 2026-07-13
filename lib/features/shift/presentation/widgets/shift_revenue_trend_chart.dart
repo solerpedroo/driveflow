@@ -56,8 +56,9 @@ class ShiftRevenueTrendChart extends StatelessWidget {
           const SizedBox(height: AppSpacing.md),
           SizedBox(
             height: 180,
-            child: BarChart(
-              BarChartData(
+            child: RepaintBoundary(
+              child: BarChart(
+                BarChartData(
                 maxY: maxY * 1.25,
                 barGroups: [
                   for (var i = 0; i < points.length; i++)
@@ -114,6 +115,7 @@ class ShiftRevenueTrendChart extends StatelessWidget {
                 ),
                 gridData: const FlGridData(show: false),
                 borderData: FlBorderData(show: false),
+              ),
               ),
             ),
           ),

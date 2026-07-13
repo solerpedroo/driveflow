@@ -46,9 +46,6 @@ class MainShellScreen extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = GoRouter.maybeOf(context);
-    if (router != null) {
-      useListenable(router.routerDelegate);
-    }
 
     final localTab = useState(initialTab);
     final routeTab = _tabFromGoRouter(context);

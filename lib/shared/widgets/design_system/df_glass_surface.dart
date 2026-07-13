@@ -41,20 +41,22 @@ class DfGlassSurface extends StatelessWidget {
         ? (boxShadow ?? AppElevation.navShellShadow(brightness))
         : boxShadow;
 
-    return ClipRRect(
-      borderRadius: radius,
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: sigma, sigmaY: sigma),
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: fill,
-            borderRadius: radius,
-            border: border ?? AppElevation.rimLight(brightness),
-            boxShadow: resolvedShadow,
+    return RepaintBoundary(
+      child: ClipRRect(
+        borderRadius: radius,
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: sigma, sigmaY: sigma),
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: fill,
+              borderRadius: radius,
+              border: border ?? AppElevation.rimLight(brightness),
+              boxShadow: resolvedShadow,
+            ),
+            child: padding == null
+                ? child
+                : Padding(padding: padding!, child: child),
           ),
-          child: padding == null
-              ? child
-              : Padding(padding: padding!, child: child),
         ),
       ),
     );
