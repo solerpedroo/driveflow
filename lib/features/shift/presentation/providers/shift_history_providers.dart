@@ -74,13 +74,20 @@ final shiftHistoryWeekStatsProvider = Provider<ShiftHistoryWeekStats>((ref) {
   if (recent.isEmpty) return ShiftHistoryWeekStats.empty;
 
   final revenue = recent.fold<double>(0, (sum, e) => sum + e.revenue);
+  final netCash = recent.fold<double>(
+    0,
+    (sum, e) => sum + (e.expenses > 0 ? e.netCash : e.revenue),
+  );
   final rides = recent.fold<int>(0, (sum, e) => sum + e.rides);
   final adherence = recent.fold<double>(0, (sum, e) => sum + e.adherenceScore) /
       recent.length;
+  final hasNetCashTracking = recent.any((entry) => entry.expenses > 0);
 
   return ShiftHistoryWeekStats(
     shiftCount: recent.length,
     revenue: revenue,
+    netCash: netCash,
+    hasNetCashTracking: hasNetCashTracking,
     rides: rides,
     avgAdherence: adherence,
   );
@@ -90,18 +97,24 @@ class ShiftHistoryWeekStats {
   const ShiftHistoryWeekStats({
     required this.shiftCount,
     required this.revenue,
+    required this.netCash,
+    required this.hasNetCashTracking,
     required this.rides,
     required this.avgAdherence,
   });
 
   final int shiftCount;
   final double revenue;
+  final double netCash;
+  final bool hasNetCashTracking;
   final int rides;
   final double avgAdherence;
 
   static const empty = ShiftHistoryWeekStats(
     shiftCount: 0,
     revenue: 0,
+    netCash: 0,
+    hasNetCashTracking: false,
     rides: 0,
     avgAdherence: 0,
   );
