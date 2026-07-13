@@ -362,7 +362,15 @@ class _PerfilUserCard extends StatelessWidget {
                 radius: 36,
                 backgroundColor: AppColors.brandBlue.withValues(alpha: 0.12),
                 backgroundImage: photoUrl != null
-                    ? CachedNetworkImageProvider(photoUrl)
+                    ? ResizeImage(
+                        CachedNetworkImageProvider(photoUrl),
+                        width: (72 *
+                                MediaQuery.devicePixelRatioOf(context))
+                            .round(),
+                        height: (72 *
+                                MediaQuery.devicePixelRatioOf(context))
+                            .round(),
+                      )
                     : null,
                 child: photoUrl == null
                     ? Text(
