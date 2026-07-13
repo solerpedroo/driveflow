@@ -9,6 +9,9 @@ class ShiftSessionSummary {
     required this.revenuePerHour,
     required this.goalProgress,
     this.topPlatform,
+    this.expenses = 0,
+    this.netCash = 0,
+    this.netPerHour,
   });
 
   final Duration elapsed;
@@ -17,6 +20,11 @@ class ShiftSessionSummary {
   final double? revenuePerHour;
   final double goalProgress;
   final RidePlatform? topPlatform;
+  final double expenses;
+  final double netCash;
+  final double? netPerHour;
+
+  bool get hasNetCashTracking => expenses > 0;
 
   static const empty = ShiftSessionSummary(
     elapsed: Duration.zero,
