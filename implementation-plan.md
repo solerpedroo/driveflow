@@ -23,25 +23,25 @@ Plano de implementação em **36 ondas** (0–36) para o DriveFlow (Flutter + Su
 | 7 | Dashboard agregado + Reports com export PDF/CSV | concluída |
 | 8 | Edge Function Groq + AI chat UI + ai_history | concluída |
 | 9 | Offline-first Hive sync + Analytics/Crashlytics + 70% coverage + release prep | concluída |
-| 10 | Múltiplos veículos + seletor ativo + escopo por veículo | pendente |
-| 11 | OCR de comprovantes + preenchimento automático de despesas | pendente |
+| 10 | Múltiplos veículos + seletor ativo + escopo por veículo | concluída |
+| 11 | OCR de comprovantes + preenchimento automático de despesas | concluída |
 | 12 | Gráficos avançados + comparação de períodos | concluída |
 | 13 | Lembretes inteligentes + insights de melhor horário | concluída |
 | 14 | Importação de extratos + previsão IA | concluída |
 | 15 | Refatoração de UI / Design System v2 | concluída |
 | 16 | UI Excellence — paleta azul-claro, tipografia premium, motion auth | concluída |
 | 17 | Premium UI — FitCal/FitFolio tier (hero ring, mesh, editorial auth) | concluída |
-| 18 | Product Storytelling — narrativa, métricas de valor, upsell Pro | em andamento |
+| 18 | Product Storytelling — narrativa, métricas de valor, upsell Pro | concluída |
 | 24 | Integrações foundation — hub Uber/99/InDrive, conexões OAuth, proveniência | concluída |
 | 25 | Histórico de corridas + rollup automático de ganhos diários | concluída |
 | 26 | Adapters OAuth Uber/99/InDrive (Edge Functions + tokens seguros) | concluída |
 | 27 | Inteligência cross-platform — shift advisor, take rate, gaps de sync | concluída |
 | 28 | Sync em background + webhooks + notificações de repasse | concluída |
 | 29 | Analytics por plataforma + IA com contexto de corridas | concluída |
-| 30 | Gráficos por app — evolução temporal, lucro líquido, R$/km, donut dashboard | em andamento |
-| 31 | Turno inteligente — heatmap 7×24, plano de turno, simulador de mix | em andamento |
-| 32 | Caixa e metas — calendário de repasses, metas por app, take rate temporal | em andamento |
-| 33 | Pro analytics — regiões, consistência, PDF visual, IA com séries temporais | em andamento |
+| 30 | Gráficos por app — evolução temporal, lucro líquido, R$/km, donut dashboard | concluída |
+| 31 | Turno inteligente — heatmap 7×24, plano de turno, simulador de mix | concluída |
+| 32 | Caixa e metas — calendário de repasses, metas por app, take rate temporal | concluída |
+| 33 | Pro analytics — regiões, consistência, PDF visual, IA com séries temporais | concluída |
 | 34 | Apple Premium UI — Geist, profundidade Wallet/Cash App, anti–vibe-coding | concluída |
 | 35 | Taxista + onboarding editorial Mescla Invest (app vs táxi, UX manual) | concluída |
 | 36 | Cadastro em etapas — uma pergunta por tela, progresso Mescla Invest | concluída |
@@ -1303,10 +1303,10 @@ Substituir `electricTeal` como cor de marca por tons de azul-claro. Verde perman
 | **Comparativo R$/hora** | Barras visuais entre plataformas | ✅ foundation |
 | **Take rate transparency** | Qual app retém menos (`PlatformFeeAnalyzer`) | ✅ foundation |
 | **Gaps de sync** | Alerta apps conectados sem dados recentes | ✅ foundation |
-| **Horário de ouro** | Cruzar heatmap de ganhos com trips por slot | pendente |
-| **Sugestão de turno** | "Abra 99 entre 18h–22h" push notification | pendente |
-| **Lucro por km** | Cruzar trips com custo combustível do veículo ativo | pendente |
-| **Score de plataforma** | Nota composta: R$/h, take rate, avaliação, consistência | pendente |
+| **Horário de ouro** | Cruzar heatmap de ganhos com trips por slot | concluída |
+| **Sugestão de turno** | "Abra 99 entre 18h–22h" push notification | concluída |
+| **Lucro por km** | Cruzar trips com custo combustível do veículo ativo | concluída |
+| **Score de plataforma** | Nota composta: R$/h, take rate, avaliação, consistência | concluída |
 
 ### Critérios de conclusão
 
