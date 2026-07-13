@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/constants/ride_platforms.dart';
 import '../../../../core/services/analytics_service.dart';
 import '../../../../core/services/connectivity_service.dart';
@@ -10,6 +11,7 @@ import '../../../../core/storage/local_entity_cache.dart';
 import '../../../../core/storage/pending_sync_operation.dart';
 import '../../../../core/storage/pending_sync_queue.dart';
 import '../../../../core/utils/local_id_generator.dart';
+import '../../domain/entities/shift_block_outcome.dart';
 import '../../domain/entities/shift_history_entry.dart';
 import '../../domain/entities/shift_session_entity.dart';
 import '../../domain/repositories/shift_history_repository.dart';
