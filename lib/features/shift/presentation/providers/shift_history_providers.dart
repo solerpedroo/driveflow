@@ -7,7 +7,9 @@ import '../../data/repositories/shift_history_repository_impl.dart';
 import '../../domain/entities/shift_history_entry.dart';
 import '../../domain/entities/shift_retrospective.dart';
 import '../../domain/repositories/shift_history_repository.dart';
+import '../../../../core/services/analytics_service.dart';
 import '../../domain/services/shift_history_exporter.dart';
+import '../../domain/services/shift_retrospective_exporter.dart';
 import '../../domain/services/shift_retrospective_builder.dart';
 
 final shiftHistoryRepositoryProvider = Provider<ShiftHistoryRepository>((ref) {
@@ -107,4 +109,23 @@ class ShiftHistoryExportController extends Notifier<AsyncValue<void>> {
 final shiftHistoryExportControllerProvider =
     NotifierProvider<ShiftHistoryExportController, AsyncValue<void>>(
   ShiftHistoryExportController.new,
+);
+
+class ShiftRetrospectiveExportController extends Notifier<AsyncValue<void>> {
+  @override
+  AsyncValue<void> build() => const AsyncData(null);
+
+  Future<bool> exportPdf(ShiftRetrospective retrospective) async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
+      await ShiftRetrospectiveExporter.sharePdf(retrospective);
+      DriveFlowAnalytics.logEvent('shift_retrospective_exported', {'format': 'pdf'});
+    });
+    return !state.hasError;
+  }
+}
+
+final shiftRetrospectiveExportControllerProvider =
+    NotifierProvider<ShiftRetrospectiveExportController, AsyncValue<void>>(
+  ShiftRetrospectiveExportController.new,
 );
