@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_spacing.dart';
+import '../../../shift/presentation/widgets/active_shift_banner.dart';
 import 'platform_heatmap_widget.dart';
 import 'platform_mix_simulator_card.dart';
 import 'platform_shift_plan_card.dart';
@@ -11,10 +12,12 @@ class PlatformCockpitShiftTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        PlatformHeatmapWidget(),
+        const ActiveShiftBanner(),
+        const SizedBox(height: AppSpacing.md),
+        const PlatformHeatmapWidget(),
         SizedBox(height: AppSpacing.md),
         PlatformShiftPlanCard(),
         SizedBox(height: AppSpacing.md),
