@@ -1967,6 +1967,29 @@ Após as ondas 15–34 e refatorações por tela (Início, Ganhos, Despesas, etc
 
 ---
 
+## Onda 48 — Presença em tempo real do turno
+
+**Objetivo:** Exibir turno ativo fora do app via Live Activity (iOS) e notificação ongoing customizada (Android).
+
+### Escopo
+
+| Área | Entrega |
+|---|---|
+| Package | `live_activities` — ActivityKit + Android RemoteViews |
+| Dart | `ShiftLivePresenceService` + `ShiftLivePresenceBootstrap` |
+| Android | `ShiftLiveActivityManager` + layout `shift_live_activity.xml` |
+| iOS | `DriveFlowShiftLiveActivity` + `LiveActivitiesAppAttributes` |
+| Sync | Atualiza em tempo real com ganhos, tempo e pausa; encerra ao fim do turno |
+
+### Critérios de conclusão
+
+- [x] Turno ativo dispara presença em iOS e Android
+- [x] Pausar/retomar/encerrar reflete no lock screen / shade
+- [x] Privacidade de valores respeitada (•••)
+- [x] Teste `shift_live_presence_service`
+
+---
+
 ## Mapa de requisitos funcionais → ondas
 
 | RF | Descrição | Onda |
