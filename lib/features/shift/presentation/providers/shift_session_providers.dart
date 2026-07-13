@@ -20,6 +20,7 @@ import '../../domain/entities/shift_session_summary.dart';
 import '../../domain/repositories/shift_session_repository.dart';
 import '../../domain/services/shift_adherence_analyzer.dart';
 import '../../domain/services/shift_plan_tracker.dart';
+import '../../domain/services/shift_retrospective_builder.dart';
 import '../../domain/services/shift_session_aggregator.dart';
 import 'shift_history_providers.dart';
 
@@ -166,6 +167,12 @@ class ShiftSessionController extends Notifier<AsyncValue<void>> {
             (revenueByPlatform[earning.platform] ?? 0) + earning.amount;
       }
 
+      final blockOutcomes = ShiftRetrospectiveBuilder.computeBlockOutcomesForSession(
+        session: completed,
+        earnings: earnings,
+        vehicleId: completed.vehicleId,
+      );
+
       final userId = ref.read(authStateProvider).valueOrNull?.id ?? '';
       archived = await ref.read(shiftHistoryRepositoryProvider).archiveCompleted(
             session: completed,
@@ -177,6 +184,7 @@ class ShiftSessionController extends Notifier<AsyncValue<void>> {
             matchedPlanBlocks: adherence.matchedBlocks,
             totalPlanBlocks: adherence.totalBlocks,
             revenueByPlatform: revenueByPlatform,
+            blockOutcomes: blockOutcomes,
           );
 
       await _repository.archiveCompleted(completed);
