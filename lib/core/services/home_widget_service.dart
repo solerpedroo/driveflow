@@ -6,8 +6,10 @@ import '../../features/shift/domain/entities/shift_session_summary.dart';
 import '../../shared/domain/models/period_summary.dart';
 import '../utils/currency_formatter.dart';
 
-/// Sincroniza o widget Android com o lucro do dia e turno ativo.
+/// Sincroniza widgets nativos (Android Glance + iOS WidgetKit) com lucro do dia e turno ativo.
 abstract final class HomeWidgetService {
+  static const appGroupId = 'group.com.driveflow.driveflow';
+  static const widgetKind = 'DriveFlowHomeWidget';
   static const profitKey = 'today_profit';
   static const revenueKey = 'today_revenue';
   static const shiftActiveKey = 'shift_active';
@@ -17,8 +19,8 @@ abstract final class HomeWidgetService {
       'com.driveflow.driveflow.widget.DriveFlowHomeWidgetReceiver';
 
   static Future<void> initialize() async {
-    if (!Platform.isAndroid) return;
-    await HomeWidget.setAppGroupId('group.com.driveflow.driveflow');
+    if (!Platform.isAndroid && !Platform.isIOS) return;
+    await HomeWidget.setAppGroupId(appGroupId);
   }
 
   static Future<void> syncToday({
@@ -27,7 +29,7 @@ abstract final class HomeWidgetService {
     ShiftSessionSummary? shiftSummary,
     bool shiftActive = false,
   }) async {
-    if (!Platform.isAndroid) return;
+    if (!Platform.isAndroid && !Platform.isIOS) return;
 
     await HomeWidget.saveWidgetData<String>(
       profitKey,
@@ -53,9 +55,17 @@ abstract final class HomeWidgetService {
       await HomeWidget.saveWidgetData<String>(shiftRevenueKey, '');
       await HomeWidget.saveWidgetData<String>(shiftElapsedKey, '');
     }
-    await HomeWidget.updateWidget(
-      name: 'DriveFlowHomeWidget',
-      androidName: androidProviderName,
-    );
+
+    if (Platform.isAndroid) {
+      await HomeWidget.updateWidget(
+        name: widgetKind,
+        androidName: androidProviderName,
+      );
+    } else if (Platform.isIOS) {
+      await HomeWidget.updateWidget(
+        name: widgetKind,
+        iOSName: widgetKind,
+      );
+    }
   }
 }

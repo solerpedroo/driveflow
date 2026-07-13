@@ -6,6 +6,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/currency_formatter.dart';
+import '../../../../shared/widgets/design_system/df_button.dart';
 import '../../../../shared/widgets/design_system/df_card.dart';
 import '../../../../shared/widgets/design_system/df_subpage_scaffold.dart';
 import '../../../../shared/widgets/platform_brand_icon.dart';
@@ -22,6 +23,7 @@ class ShiftRetrospectiveScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final retrospective = ref.watch(shiftRetrospectiveProvider(entryId));
+    final exportState = ref.watch(shiftRetrospectiveExportControllerProvider);
 
     if (retrospective == null) {
       return const DfSubpageScaffold(
@@ -199,6 +201,18 @@ class ShiftRetrospectiveScreen extends ConsumerWidget {
           ),
         ],
         const SizedBox(height: AppSpacing.md),
+        DfButton(
+          label: 'Exportar PDF',
+          icon: Icons.picture_as_pdf_outlined,
+          variant: DfButtonVariant.outlined,
+          isLoading: exportState.isLoading,
+          onPressed: exportState.isLoading
+              ? null
+              : () => ref
+                  .read(shiftRetrospectiveExportControllerProvider.notifier)
+                  .exportPdf(retrospective),
+        ),
+        const SizedBox(height: AppSpacing.sm),
         TextButton(
           onPressed: () => context.pop(),
           child: const Text('Voltar ao histórico'),

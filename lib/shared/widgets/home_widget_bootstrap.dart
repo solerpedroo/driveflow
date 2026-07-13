@@ -6,7 +6,7 @@ import '../../core/utils/value_visibility_provider.dart';
 import '../../features/dashboard/presentation/providers/dashboard_providers.dart';
 import '../../features/shift/presentation/providers/shift_session_providers.dart';
 
-/// Atualiza o widget Android quando o lucro do dia ou turno mudam.
+/// Atualiza widgets nativos (Android/iOS) quando o lucro do dia ou turno mudam.
 class HomeWidgetBootstrap extends ConsumerWidget {
   const HomeWidgetBootstrap({required this.child, super.key});
 
