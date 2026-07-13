@@ -1867,6 +1867,33 @@ Após as ondas 15–34 e refatorações por tela (Início, Ganhos, Despesas, etc
 
 ---
 
+## Onda 44 — Modo turno (sessão ativa)
+
+**Objetivo:** Fechar o loop entre inteligência de turno (ondas 31/42) e captura diária (onda 43) com uma **sessão operacional** — cronômetro, ganhos ao vivo, plano de apps e ações rápidas.
+
+### Escopo
+
+| Área | Entrega |
+|---|---|
+| Domínio | `ShiftSessionEntity`, agregador, tracker de plano, Hive offline-first |
+| UI | `ShiftModeScreen` — timer, ganhos, pausar/encerrar, ganho rápido |
+| Dashboard | `DashboardActiveShiftCard` / `DashboardShiftStartCard` + ação **Turno** |
+| Cockpit | Banner turno ativo; CTA “Iniciar turno” no plano e aba Hoje |
+| Apps | `PlatformAppLauncher` — deep link Uber/99/InDrive |
+| Notificações | Troca de app mid-shift + resumo ao encerrar |
+| Widget Android | Modo turno ativo com ganhos e tempo da sessão |
+| IA | `AiContextBuilder` inclui métricas do turno ativo |
+
+### Critérios de conclusão
+
+- [x] Iniciar/pausar/retomar/encerrar turno com persistência Hive
+- [x] Ganhos da sessão agregados em tempo real
+- [x] Plano de turno vira blocos da sessão + sugestão de troca de app
+- [x] Disponível para taxistas (sem blocos de app) e motoristas de app
+- [x] Testes `shift_session_aggregator`, `shift_plan_tracker`, `shift_mode_screen`
+
+---
+
 ## Mapa de requisitos funcionais → ondas
 
 | RF | Descrição | Onda |

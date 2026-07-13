@@ -4,12 +4,16 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../domain/entities/platform_cockpit_tab.dart';
 import '../platform_cockpit_routes.dart';
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/df_haptics.dart';
 import '../../../integrations/domain/entities/platform_shift_plan.dart';
+import '../../../../shared/widgets/design_system/df_button.dart';
 import '../../../../shared/widgets/design_system/df_card.dart';
+import '../../../onboarding/presentation/providers/onboarding_providers.dart';
+import '../../../shift/presentation/providers/shift_session_providers.dart';
 import '../providers/platform_analytics_providers.dart';
 
 /// Timeline do plano de turno sugerido.
@@ -56,6 +60,29 @@ class PlatformShiftPlanCard extends ConsumerWidget {
                     ));
                   },
                 ),
+              const SizedBox(height: AppSpacing.md),
+              ref.watch(activeShiftSessionProvider).valueOrNull == null
+                  ? DfButton(
+                      label: 'Iniciar turno com este plano',
+                      icon: Icons.play_arrow_rounded,
+                      onPressed: () async {
+                        DfHaptics.medium();
+                        final isTaxi = ref.read(isTaxiDriverProvider);
+                        final created = await ref
+                            .read(shiftSessionControllerProvider.notifier)
+                            .start(plan: data, isTaxiMode: isTaxi);
+                        if (!context.mounted) return;
+                        if (created != null) {
+                          context.push(AppRoutes.shiftMode);
+                        }
+                      },
+                    )
+                  : DfButton(
+                      label: 'Ver turno ativo',
+                      variant: DfButtonVariant.tonal,
+                      icon: Icons.timer_rounded,
+                      onPressed: () => context.push(AppRoutes.shiftMode),
+                    ),
             ],
           ),
         );

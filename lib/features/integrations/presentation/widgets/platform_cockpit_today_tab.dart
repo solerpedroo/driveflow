@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../shared/widgets/design_system/df_button.dart';
 import '../../../../shared/widgets/design_system/df_card.dart';
+import '../../../shift/presentation/providers/shift_session_providers.dart';
+import '../../../shift/presentation/widgets/active_shift_banner.dart';
 import '../providers/integrations_providers.dart';
 import 'platform_golden_hour_card.dart';
 import 'platform_payout_calendar_card.dart';
@@ -24,12 +29,28 @@ class PlatformCockpitTodayTab extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        const ActiveShiftBanner(),
+        const SizedBox(height: AppSpacing.md),
         recommendation.when(
           loading: () => const SizedBox.shrink(),
           error: (_, __) => const SizedBox.shrink(),
           data: (rec) => rec == null
               ? const SizedBox.shrink()
-              : PlatformRecommendationHeroCard(recommendation: rec),
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    PlatformRecommendationHeroCard(recommendation: rec),
+                    if (ref.watch(activeShiftSessionProvider).valueOrNull ==
+                        null) ...[
+                      const SizedBox(height: AppSpacing.sm),
+                      DfButton(
+                        label: 'Iniciar turno agora',
+                        icon: Icons.play_arrow_rounded,
+                        onPressed: () => context.push(AppRoutes.shiftMode),
+                      ),
+                    ],
+                  ],
+                ),
         ),
         const SizedBox(height: AppSpacing.md),
         const PlatformGoldenHourCard(),

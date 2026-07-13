@@ -38,8 +38,17 @@ class DriveFlowHomeWidget : GlanceAppWidget() {
         val prefs = state.preferences
         val profit = prefs.getString("today_profit", "R$ 0,00") ?: "R$ 0,00"
         val revenue = prefs.getString("today_revenue", "R$ 0,00") ?: "R$ 0,00"
+        val shiftActive = prefs.getBoolean("shift_active", false)
+        val shiftRevenue = prefs.getString("shift_revenue", "") ?: ""
+        val shiftElapsed = prefs.getString("shift_elapsed", "") ?: ""
         val launchIntent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+        }
+
+        val subtitle = when {
+            shiftActive && shiftRevenue.isNotBlank() ->
+                "Turno $shiftElapsed · $shiftRevenue"
+            else -> "Ganhos $revenue · Toque para abrir"
         }
 
         Column(
@@ -52,11 +61,11 @@ class DriveFlowHomeWidget : GlanceAppWidget() {
             horizontalAlignment = Alignment.Horizontal.Start,
         ) {
             Text(
-                text = "Lucro hoje",
+                text = if (shiftActive) "Turno ativo" else "Lucro hoje",
                 style = TextStyle(color = Color.White, fontSize = 12.sp),
             )
             Text(
-                text = profit,
+                text = if (shiftActive && shiftRevenue.isNotBlank()) shiftRevenue else profit,
                 style = TextStyle(
                     color = Color.White,
                     fontSize = 22.sp,
@@ -64,7 +73,7 @@ class DriveFlowHomeWidget : GlanceAppWidget() {
                 ),
             )
             Text(
-                text = "Ganhos $revenue · Toque para abrir",
+                text = subtitle,
                 style = TextStyle(color = Color(0xCCFFFFFF), fontSize = 11.sp),
             )
         }

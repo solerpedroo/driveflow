@@ -10,6 +10,7 @@ import 'core/theme/app_theme.dart';
 import 'shared/widgets/home_widget_bootstrap.dart';
 import 'shared/widgets/recurring_expense_bootstrap.dart';
 import 'shared/widgets/shift_notification_bootstrap.dart';
+import 'shared/widgets/shift_session_bootstrap.dart';
 
 /// Raiz do app — Material + Cupertino unificados (HIG Apple).
 class DriveFlowApp extends ConsumerWidget {
@@ -21,27 +22,29 @@ class DriveFlowApp extends ConsumerWidget {
     final router = ref.watch(routerProvider);
 
     return ShiftNotificationBootstrap(
-      child: RecurringExpenseBootstrap(
-        child: HomeWidgetBootstrap(
-          child: CupertinoTheme(
-            data: themeMode == ThemeMode.dark
-                ? buildDriveFlowCupertinoDarkTheme()
-                : buildDriveFlowCupertinoLightTheme(),
-            child: MaterialApp.router(
-              title: 'DriveFlow',
-              debugShowCheckedModeBanner: false,
-              scrollBehavior: const AppScrollBehavior(),
-              themeMode: themeMode,
-              theme: buildDriveFlowLightTheme(),
-              darkTheme: buildDriveFlowDarkTheme(),
-              routerConfig: router,
-              locale: const Locale('pt', 'BR'),
-              supportedLocales: const [Locale('pt', 'BR')],
-              localizationsDelegates: const [
-                GlobalMaterialLocalizations.delegate,
-                GlobalWidgetsLocalizations.delegate,
-                GlobalCupertinoLocalizations.delegate,
-              ],
+      child: ShiftSessionBootstrap(
+        child: RecurringExpenseBootstrap(
+          child: HomeWidgetBootstrap(
+            child: CupertinoTheme(
+              data: themeMode == ThemeMode.dark
+                  ? buildDriveFlowCupertinoDarkTheme()
+                  : buildDriveFlowCupertinoLightTheme(),
+              child: MaterialApp.router(
+                title: 'DriveFlow',
+                debugShowCheckedModeBanner: false,
+                scrollBehavior: const AppScrollBehavior(),
+                themeMode: themeMode,
+                theme: buildDriveFlowLightTheme(),
+                darkTheme: buildDriveFlowDarkTheme(),
+                routerConfig: router,
+                locale: const Locale('pt', 'BR'),
+                supportedLocales: const [Locale('pt', 'BR')],
+                localizationsDelegates: const [
+                  GlobalMaterialLocalizations.delegate,
+                  GlobalWidgetsLocalizations.delegate,
+                  GlobalCupertinoLocalizations.delegate,
+                ],
+              ),
             ),
           ),
         ),

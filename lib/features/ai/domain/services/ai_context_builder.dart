@@ -45,6 +45,7 @@ class AiContextSnapshot {
     this.platformProfitPerKm = const [],
     this.topHeatmapSlots = const [],
     this.platformScores = const [],
+    this.activeShift,
   });
 
   final int periodDays;
@@ -67,6 +68,7 @@ class AiContextSnapshot {
   final List<PlatformProfitPerKmSnapshot> platformProfitPerKm;
   final List<PlatformHeatmapSlot> topHeatmapSlots;
   final List<PlatformScoreSnapshot> platformScores;
+  final Map<String, dynamic>? activeShift;
 
   Map<String, dynamic> toJson() {
     return {
@@ -160,6 +162,7 @@ class AiContextSnapshot {
             },
           )
           .toList(growable: false),
+      if (activeShift != null) 'activeShift': activeShift,
     };
   }
 
@@ -189,6 +192,7 @@ abstract final class AiContextBuilder {
     int periodDays = 90,
     List<EarningTimeSlot> topEarningSlots = const [],
     List<PlatformTripEntity> platformTrips = const [],
+    Map<String, dynamic>? activeShift,
   }) {
     final anchor = DateTime.now();
     final todayRange = dateRangeForGoalPeriod(GoalPeriod.daily, anchor);
@@ -279,6 +283,7 @@ abstract final class AiContextBuilder {
           : const [],
       topHeatmapSlots: heatmap.take(5).toList(growable: false),
       platformScores: PlatformScoreCalculator.calculate(periodTrips),
+      activeShift: activeShift,
     );
   }
 
@@ -345,6 +350,8 @@ abstract final class AiContextBuilder {
         'Heatmap top slots: ${snapshot.topHeatmapSlots.map((h) => '${h.platform.label} ${h.weekdayLabel} ${h.hour}h ${h.revenuePerHour.toStringAsFixed(0)}/h').join('; ')}',
       if (snapshot.platformScores.isNotEmpty)
         'Score por app: ${snapshot.platformScores.map((s) => '${s.platform.label} ${s.score.round()}').join(', ')}',
+      if (snapshot.activeShift != null)
+        'Turno ativo: ${snapshot.activeShift}',
     ].join('\n');
   }
 }
