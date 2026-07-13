@@ -11,6 +11,8 @@ class ShiftNotificationService {
   static final ShiftNotificationService instance = ShiftNotificationService._();
 
   static const _notificationId = 900_001;
+  static const _switchNotificationId = 900_002;
+  static const _endSummaryNotificationId = 900_003;
   static const _channelId = 'driveflow_shift';
   static const _channelName = 'Sugestões de turno';
 
@@ -87,5 +89,56 @@ class ShiftNotificationService {
     }
 
     return candidate.subtract(const Duration(minutes: 15));
+  }
+
+  Future<void> cancelMidShiftNotifications() async {
+    await _plugin.cancel(_switchNotificationId);
+    await _plugin.cancel(_endSummaryNotificationId);
+  }
+
+  /// Notificação imediata quando o plano sugere trocar de app.
+  Future<void> notifyPlatformSwitch({
+    required String fromLabel,
+    required String toLabel,
+  }) async {
+    await _plugin.show(
+      _switchNotificationId,
+      'Hora de trocar de app',
+      'Seu plano sugere $toLabel agora (bloco atual: $fromLabel).',
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          _channelId,
+          _channelName,
+          channelDescription:
+              'Sugestões de turno com base no seu histórico de corridas',
+          importance: Importance.high,
+          priority: Priority.high,
+        ),
+        iOS: DarwinNotificationDetails(),
+      ),
+    );
+  }
+
+  /// Resumo ao encerrar o turno.
+  Future<void> notifyShiftEnded({
+    required String revenueLabel,
+    required String elapsedLabel,
+  }) async {
+    await _plugin.show(
+      _endSummaryNotificationId,
+      'Turno encerrado',
+      'Você faturou $revenueLabel em $elapsedLabel. Bom descanso!',
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          _channelId,
+          _channelName,
+          channelDescription:
+              'Sugestões de turno com base no seu histórico de corridas',
+          importance: Importance.defaultImportance,
+          priority: Priority.defaultPriority,
+        ),
+        iOS: DarwinNotificationDetails(),
+      ),
+    );
   }
 }
