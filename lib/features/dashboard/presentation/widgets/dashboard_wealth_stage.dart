@@ -20,6 +20,7 @@ class DashboardWealthStage extends StatelessWidget {
     required this.goal,
     required this.hideValue,
     required this.onToggleVisibility,
+    this.storySubtitle,
     super.key,
   });
 
@@ -28,6 +29,7 @@ class DashboardWealthStage extends StatelessWidget {
   final GoalProgress goal;
   final bool hideValue;
   final VoidCallback onToggleVisibility;
+  final String? storySubtitle;
 
   @override
   Widget build(BuildContext context) {
@@ -118,6 +120,16 @@ class DashboardWealthStage extends StatelessWidget {
                   ),
                 ],
               ),
+              if (storySubtitle != null && storySubtitle!.isNotEmpty) ...[
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  storySubtitle!,
+                  style: AppTypography.iosFootnote(brightness).copyWith(
+                    color: Colors.white.withValues(alpha: 0.72),
+                    height: 1.35,
+                  ),
+                ),
+              ],
               const SizedBox(height: AppSpacing.sm),
               Text(
                 monthDisplay,
