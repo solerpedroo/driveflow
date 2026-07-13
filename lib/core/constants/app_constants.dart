@@ -96,7 +96,7 @@ abstract final class AppRoutes {
 }
 
 /// Onda atual concluída (v2.0 — Design System v2 e acessibilidade).
-const kCurrentWave = 52;
+const kCurrentWave = 53;
 
 /// Scheme de deep links internos do app.
 const kAppDeepLinkScheme = 'driveflow';
