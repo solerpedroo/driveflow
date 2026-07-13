@@ -3,9 +3,13 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../core/services/shift_notification_service.dart';
 import '../../features/integrations/presentation/providers/platform_intelligence_providers.dart';
+import '../../features/onboarding/presentation/providers/onboarding_providers.dart';
 import '../../features/shift/presentation/providers/shift_session_providers.dart';
 
 /// Sincroniza notificações de turno quando o horário de ouro muda.
+///
+/// Heatmap / golden hour só ficam subscritos para motoristas de app
+/// (taxistas não usam integrações de plataforma).
 class ShiftNotificationBootstrap extends ConsumerStatefulWidget {
   const ShiftNotificationBootstrap({required this.child, super.key});
 
@@ -22,11 +26,15 @@ class _ShiftNotificationBootstrapState
 
   @override
   Widget build(BuildContext context) {
-    ref.listen(platformGoldenHourProvider, (previous, next) {
-      next.whenData((slot) {
-        ShiftNotificationService.instance.syncFromGoldenHour(slot);
+    final isTaxi = ref.watch(isTaxiDriverProvider);
+
+    if (!isTaxi) {
+      ref.listen(platformGoldenHourProvider, (previous, next) {
+        next.whenData((slot) {
+          ShiftNotificationService.instance.syncFromGoldenHour(slot);
+        });
       });
-    });
+    }
 
     ref.listen(shiftPlanAdherenceProvider, (previous, next) {
       final session = ref.read(activeShiftSessionProvider).valueOrNull;
