@@ -22,21 +22,41 @@ class DashboardShiftWeekCard extends ConsumerWidget {
     final hidden = ref.watch(valueVisibilityHiddenProvider);
     final theme = Theme.of(context);
 
+    final displayedAmount = stats.hasNetCashTracking ? stats.netCash : stats.revenue;
+    final amountLabel = stats.hasNetCashTracking ? 'líquido' : 'faturado';
+    final amountText = hidden
+        ? '•••'
+        : stats.hasNetCashTracking
+            ? CurrencyFormatter.formatSigned(displayedAmount)
+            : CurrencyFormatter.format(displayedAmount);
+
     return DfCard(
-      onTap: () => context.push(AppRoutes.shiftHistory),
+      onTap: () => context.push(AppRoutes.shiftAnalytics),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Últimos 7 dias',
-            style: theme.textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.w700,
-            ),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'Últimos 7 dias',
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              Icon(
+                Icons.insights_rounded,
+                size: 18,
+                color: AppColors.brandBlue,
+              ),
+            ],
           ),
           const SizedBox(height: AppSpacing.sm),
           Text(
             '${stats.shiftCount} turnos · '
-            '${hidden ? '•••' : CurrencyFormatter.format(stats.revenue)} · '
+            '$amountText '
+            '$amountLabel · '
             '${stats.rides} corridas',
             style: theme.textTheme.bodyMedium?.copyWith(
               color: AppColors.secondaryLabel(theme),
