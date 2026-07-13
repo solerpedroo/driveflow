@@ -5,6 +5,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/errors/failure_message.dart';
 import '../../../../core/services/shift_notification_service.dart';
 import '../../../../core/utils/currency_formatter.dart';
@@ -84,19 +85,19 @@ class ShiftModeScreen extends HookConsumerWidget {
 
       DfHaptics.medium();
       final endedSummary = ref.read(shiftSessionSummaryProvider);
-      final completed =
+      final archived =
           await ref.read(shiftSessionControllerProvider.notifier).end();
       if (!context.mounted) return;
-      if (completed != null) {
+      if (archived != null) {
         if (endedSummary != null) {
           await ShiftNotificationService.instance.notifyShiftEnded(
             revenueLabel: CurrencyFormatter.format(endedSummary.revenue),
             elapsedLabel: ShiftTimerWidget.format(endedSummary.elapsed),
           );
         }
-        context.pop();
+        context.go('${AppRoutes.shiftRetrospective}?id=${archived.id}');
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Turno encerrado. Bom descanso!')),
+          const SnackBar(content: Text('Turno encerrado. Veja a retrospectiva.')),
         );
       }
     }
@@ -125,6 +126,13 @@ class ShiftModeScreen extends HookConsumerWidget {
                   icon: Icons.play_arrow_rounded,
                   isLoading: mutation.isLoading,
                   onPressed: mutation.isLoading ? null : startShift,
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                DfButton(
+                  label: 'Ver histórico',
+                  variant: DfButtonVariant.outlined,
+                  icon: Icons.history_rounded,
+                  onPressed: () => context.push(AppRoutes.shiftHistory),
                 ),
               ],
             ),
@@ -157,6 +165,13 @@ class ShiftModeScreen extends HookConsumerWidget {
           label: 'Ganho rápido',
           icon: Icons.bolt_rounded,
           onPressed: () => QuickEarningSheet.show(context),
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        DfButton(
+          label: 'Histórico de turnos',
+          variant: DfButtonVariant.outlined,
+          icon: Icons.history_rounded,
+          onPressed: () => context.push(AppRoutes.shiftHistory),
         ),
         const SizedBox(height: AppSpacing.sm),
         DfButton(

@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
+import '../../features/shift/data/datasources/shift_sessions_remote_datasource.dart';
+import '../../features/shift/data/mappers/shift_sessions_mapper.dart';
 import '../../features/earnings/data/datasources/earnings_remote_datasource.dart';
 import '../../features/earnings/data/mappers/earnings_mapper.dart';
 import '../../features/expenses/data/datasources/expenses_remote_datasource.dart';
@@ -25,12 +27,14 @@ class SyncWorker {
     EarningsRemoteDataSource? earningsRemote,
     ExpensesRemoteDataSource? expensesRemote,
     VehicleRemoteDataSource? vehiclesRemote,
+    ShiftSessionsRemoteDataSource? shiftSessionsRemote,
   })  : _connectivity = connectivity ?? ConnectivityService(),
         _queue = queue ?? PendingSyncQueue(),
         _cache = cache ?? LocalEntityCache(),
         _earningsRemote = earningsRemote ?? EarningsRemoteDataSource(),
         _expensesRemote = expensesRemote ?? ExpensesRemoteDataSource(),
-        _vehiclesRemote = vehiclesRemote ?? VehicleRemoteDataSource();
+        _vehiclesRemote = vehiclesRemote ?? VehicleRemoteDataSource(),
+        _shiftSessionsRemote = shiftSessionsRemote ?? ShiftSessionsRemoteDataSource();
 
   final ConnectivityService _connectivity;
   final PendingSyncQueue _queue;
@@ -38,6 +42,7 @@ class SyncWorker {
   final EarningsRemoteDataSource _earningsRemote;
   final ExpensesRemoteDataSource _expensesRemote;
   final VehicleRemoteDataSource _vehiclesRemote;
+  final ShiftSessionsRemoteDataSource _shiftSessionsRemote;
 
   final _statusController = StreamController<SyncStatus>.broadcast();
   StreamSubscription<bool>? _connectivitySub;
@@ -123,6 +128,8 @@ class SyncWorker {
         await _syncExpense(operation);
       case HiveBoxes.vehicles:
         await _syncVehicle(operation);
+      case HiveBoxes.shiftHistory:
+        await _syncShiftHistory(operation);
       default:
         throw StateError(
           'Entidade de sync não suportada: ${operation.entity}',
@@ -201,6 +208,18 @@ class SyncWorker {
           await _vehiclesRemote.setDefaultVehicle(promoteId);
         }
     }
+  }
+
+  Future<void> _syncShiftHistory(PendingSyncOperation operation) async {
+    if (operation.action != SyncAction.create) return;
+
+    final entry = ShiftSessionsMapper.fromRow(operation.payload);
+    final row = await _shiftSessionsRemote.createCompleted(entry: entry);
+    await _cache.replaceId(
+      HiveBoxes.shiftHistory,
+      oldId: operation.entityId,
+      newRow: row,
+    );
   }
 
   void _setStatus(SyncStatus value) {

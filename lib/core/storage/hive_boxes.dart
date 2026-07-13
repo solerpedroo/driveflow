@@ -8,6 +8,7 @@ abstract final class HiveBoxes {
   static const vehicles = 'vehicles';
   static const appState = 'app_state';
   static const shiftSessions = 'shift_sessions';
+  static const shiftHistory = 'shift_history';
   static const pendingSyncQueue = 'pending_sync_queue';
 
   static const all = [
@@ -19,6 +20,7 @@ abstract final class HiveBoxes {
     vehicles,
     appState,
     shiftSessions,
+    shiftHistory,
     pendingSyncQueue,
   ];
 }

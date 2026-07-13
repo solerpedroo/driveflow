@@ -60,6 +60,13 @@ class DashboardShiftStartCard extends ConsumerWidget {
               context.push(AppRoutes.shiftMode);
             },
           ),
+          const SizedBox(height: AppSpacing.sm),
+          DfButton(
+            label: 'Histórico',
+            variant: DfButtonVariant.outlined,
+            icon: Icons.history_rounded,
+            onPressed: () => context.push(AppRoutes.shiftHistory),
+          ),
         ],
       ),
     );

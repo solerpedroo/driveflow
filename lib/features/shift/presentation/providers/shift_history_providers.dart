@@ -1,0 +1,110 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../authentication/presentation/providers/auth_providers.dart';
+import '../../../earnings/presentation/providers/earnings_providers.dart';
+import '../../../../core/presentation/providers/sync_providers.dart';
+import '../../data/repositories/shift_history_repository_impl.dart';
+import '../../domain/entities/shift_history_entry.dart';
+import '../../domain/entities/shift_retrospective.dart';
+import '../../domain/repositories/shift_history_repository.dart';
+import '../../domain/services/shift_history_exporter.dart';
+import '../../domain/services/shift_retrospective_builder.dart';
+
+final shiftHistoryRepositoryProvider = Provider<ShiftHistoryRepository>((ref) {
+  return ShiftHistoryRepositoryImpl(
+    cache: ref.watch(localEntityCacheProvider),
+    syncQueue: ref.watch(pendingSyncQueueProvider),
+    connectivity: ref.watch(connectivityServiceProvider),
+    syncWorker: ref.watch(syncWorkerProvider),
+  );
+});
+
+final shiftHistoryStreamProvider =
+    StreamProvider.autoDispose<List<ShiftHistoryEntry>>((ref) {
+  final watch = ref.watch(shiftHistoryRepositoryProvider).watchHistory();
+  return watch;
+});
+
+final shiftHistoryDetailProvider =
+    Provider.autoDispose.family<ShiftHistoryEntry?, String>((ref, id) {
+  final history = ref.watch(shiftHistoryStreamProvider).valueOrNull;
+  if (history == null) return null;
+  for (final entry in history) {
+    if (entry.id == id) return entry;
+  }
+  return null;
+});
+
+final shiftRetrospectiveProvider =
+    Provider.autoDispose.family<ShiftRetrospective?, String>((ref, id) {
+  final entry = ref.watch(shiftHistoryDetailProvider(id));
+  if (entry == null) return null;
+
+  final earnings = ref.watch(earningsStreamProvider).valueOrNull ?? const [];
+  return ShiftRetrospectiveBuilder.build(entry: entry, earnings: earnings);
+});
+
+final shiftHistoryWeekStatsProvider = Provider<ShiftHistoryWeekStats>((ref) {
+  final history = ref.watch(shiftHistoryStreamProvider).valueOrNull ?? const [];
+  final cutoff = DateTime.now().subtract(const Duration(days: 7));
+  final recent = history
+      .where((entry) => !entry.startedAt.isBefore(cutoff))
+      .toList(growable: false);
+
+  if (recent.isEmpty) return ShiftHistoryWeekStats.empty;
+
+  final revenue = recent.fold<double>(0, (sum, e) => sum + e.revenue);
+  final rides = recent.fold<int>(0, (sum, e) => sum + e.rides);
+  final adherence = recent.fold<double>(0, (sum, e) => sum + e.adherenceScore) /
+      recent.length;
+
+  return ShiftHistoryWeekStats(
+    shiftCount: recent.length,
+    revenue: revenue,
+    rides: rides,
+    avgAdherence: adherence,
+  );
+});
+
+class ShiftHistoryWeekStats {
+  const ShiftHistoryWeekStats({
+    required this.shiftCount,
+    required this.revenue,
+    required this.rides,
+    required this.avgAdherence,
+  });
+
+  final int shiftCount;
+  final double revenue;
+  final int rides;
+  final double avgAdherence;
+
+  static const empty = ShiftHistoryWeekStats(
+    shiftCount: 0,
+    revenue: 0,
+    rides: 0,
+    avgAdherence: 0,
+  );
+}
+
+class ShiftHistoryExportController extends Notifier<AsyncValue<void>> {
+  @override
+  AsyncValue<void> build() => const AsyncData(null);
+
+  Future<String?> exportCsv() async {
+    state = const AsyncLoading();
+    String? csv;
+    state = await AsyncValue.guard(() async {
+      final history =
+          await ref.read(shiftHistoryRepositoryProvider).fetchHistory();
+      csv = ShiftHistoryExporter.buildCsv(history);
+    });
+    if (state.hasError) return null;
+    return csv;
+  }
+}
+
+final shiftHistoryExportControllerProvider =
+    NotifierProvider<ShiftHistoryExportController, AsyncValue<void>>(
+  ShiftHistoryExportController.new,
+);

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../authentication/presentation/providers/auth_providers.dart';
 import '../../../earnings/presentation/providers/earnings_providers.dart';
 import '../../../goals/presentation/providers/goals_providers.dart';
 import '../../../integrations/domain/entities/platform_shift_plan.dart';
@@ -10,13 +11,17 @@ import '../../../vehicle/presentation/providers/vehicle_providers.dart';
 import '../../data/datasources/shift_session_storage.dart';
 import '../../data/repositories/shift_session_repository_impl.dart';
 import '../../domain/entities/shift_plan_adherence.dart';
+import '../../../../core/constants/ride_platforms.dart';
+import '../../domain/entities/shift_history_entry.dart';
 import '../../domain/entities/shift_session_entity.dart';
 import '../../domain/entities/shift_session_plan_block.dart';
 import '../../domain/entities/shift_session_status.dart';
 import '../../domain/entities/shift_session_summary.dart';
 import '../../domain/repositories/shift_session_repository.dart';
+import '../../domain/services/shift_adherence_analyzer.dart';
 import '../../domain/services/shift_plan_tracker.dart';
 import '../../domain/services/shift_session_aggregator.dart';
+import 'shift_history_providers.dart';
 
 final shiftSessionRepositoryProvider = Provider<ShiftSessionRepository>((ref) {
   return ShiftSessionRepositoryImpl();
@@ -122,22 +127,63 @@ class ShiftSessionController extends Notifier<AsyncValue<void>> {
         );
       });
 
-  Future<ShiftSessionEntity?> end() async {
+  Future<ShiftHistoryEntry?> end() async {
     state = const AsyncLoading();
-    ShiftSessionEntity? completed;
+    ShiftHistoryEntry? archived;
     state = await AsyncValue.guard(() async {
       final active = _repository.readActive();
       if (active == null) return;
-      completed = await _repository.archiveCompleted(
-        active.copyWith(
-          status: ShiftSessionStatus.completed,
-          endedAt: DateTime.now(),
-        ),
+
+      final endedAt = DateTime.now();
+      final completed = active.copyWith(
+        status: ShiftSessionStatus.completed,
+        endedAt: endedAt,
+        clearPausedAt: true,
       );
+
+      final earnings = ref.read(earningsStreamProvider).valueOrNull ?? const [];
+      final goals = ref.read(goalsStreamProvider).valueOrNull;
+      final summary = ShiftSessionAggregator.summarize(
+        session: completed,
+        earnings: earnings,
+        now: endedAt,
+        dailyGoal: goals?.daily ?? 0,
+        vehicleId: completed.vehicleId,
+      );
+      final adherence = ShiftAdherenceAnalyzer.analyze(
+        session: completed,
+        earnings: earnings,
+      );
+
+      final scoped = ShiftSessionAggregator.earningsInSession(
+        session: completed,
+        earnings: earnings,
+        vehicleId: completed.vehicleId,
+      );
+      final revenueByPlatform = <RidePlatform, double>{};
+      for (final earning in scoped) {
+        revenueByPlatform[earning.platform] =
+            (revenueByPlatform[earning.platform] ?? 0) + earning.amount;
+      }
+
+      final userId = ref.read(authStateProvider).valueOrNull?.id ?? '';
+      archived = await ref.read(shiftHistoryRepositoryProvider).archiveCompleted(
+            session: completed,
+            userId: userId,
+            revenue: summary.revenue,
+            rides: summary.rides,
+            revenuePerHour: summary.revenuePerHour,
+            adherenceScore: adherence.score,
+            matchedPlanBlocks: adherence.matchedBlocks,
+            totalPlanBlocks: adherence.totalBlocks,
+            revenueByPlatform: revenueByPlatform,
+          );
+
+      await _repository.archiveCompleted(completed);
     });
     if (state.hasError) return null;
     ShiftSessionStorage.emitCurrent();
-    return completed;
+    return archived;
   }
 
   Future<bool> _transition(
