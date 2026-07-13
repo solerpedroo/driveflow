@@ -30,6 +30,7 @@
 				<key>CFBundleURLSchemes</key>
 				<array>
 					<string>io.supabase.driveflow</string>
+					<string>driveflow</string>
 				</array>
 			</dict>
 		</array>
@@ -85,5 +86,7 @@
 		<false/>
 		<key>UIViewControllerBasedStatusBarAppearance</key>
 		<false/>
+		<key>NSSupportsLiveActivities</key>
+		<true/>
 	</dict>
 </plist>

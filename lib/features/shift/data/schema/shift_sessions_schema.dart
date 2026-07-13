@@ -18,6 +18,7 @@ abstract final class ShiftSessionsSchema {
   static const matchedPlanBlocks = 'matched_plan_blocks';
   static const totalPlanBlocks = 'total_plan_blocks';
   static const revenueByPlatform = 'revenue_by_platform';
+  static const blockOutcomes = 'block_outcomes';
   static const createdAt = 'created_at';
   static const updatedAt = 'updated_at';
 }

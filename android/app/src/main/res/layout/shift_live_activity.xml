@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#0064F5"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/shift_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Turno ativo"
+        android:textColor="#E6FFFFFF"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/shift_revenue"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="R$ 0,00"
+        android:textColor="#FFFFFFFF"
+        android:textSize="22sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/shift_elapsed"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="00:00 · 0 corridas"
+        android:textColor="#CCFFFFFF"
+        android:textSize="12sp" />
+</LinearLayout>

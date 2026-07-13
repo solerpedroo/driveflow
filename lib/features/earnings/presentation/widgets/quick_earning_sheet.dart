@@ -136,19 +136,19 @@ class QuickEarningSheet extends HookConsumerWidget {
               spacing: AppSpacing.sm,
               runSpacing: AppSpacing.sm,
               children: history.take(4).map((entry) {
-                return ActionChip(
-                  avatar: PlatformBrandIcon.hasBrandAsset(entry.platform)
+                return DfFilterPill(
+                  label:
+                      '${entry.platform.label} · ${CurrencyFormatter.format(entry.amount)}',
+                  selected: false,
+                  leading: PlatformBrandIcon.hasBrandAsset(entry.platform)
                       ? PlatformBrandIcon(
                           platform: entry.platform,
                           size: 18,
                           borderRadius: 4,
                         )
                       : null,
-                  label: Text(
-                    '${entry.platform.label} · ${CurrencyFormatter.format(entry.amount)}',
-                  ),
-                  onPressed: mutation.isLoading || isSaving.value
-                      ? null
+                  onSelected: mutation.isLoading || isSaving.value
+                      ? () {}
                       : () => onHistoryTap(entry),
                 );
               }).toList(growable: false),

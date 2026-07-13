@@ -83,6 +83,7 @@ class ShiftHistoryRepositoryImpl implements ShiftHistoryRepository {
     required int matchedPlanBlocks,
     required int totalPlanBlocks,
     required Map<RidePlatform, double> revenueByPlatform,
+    List<ShiftBlockOutcome> blockOutcomes = const [],
   }) async {
     final entry = ShiftHistoryArchiver.build(
       session: session,
@@ -94,6 +95,7 @@ class ShiftHistoryRepositoryImpl implements ShiftHistoryRepository {
       matchedPlanBlocks: matchedPlanBlocks,
       totalPlanBlocks: totalPlanBlocks,
       revenueByPlatform: revenueByPlatform,
+      blockOutcomes: blockOutcomes,
     );
 
     if (await _connectivity.isOnline) {
@@ -130,6 +132,7 @@ class ShiftHistoryRepositoryImpl implements ShiftHistoryRepository {
       totalPlanBlocks: entry.totalPlanBlocks,
       planBlocks: entry.planBlocks,
       revenueByPlatform: entry.revenueByPlatform,
+      blockOutcomes: entry.blockOutcomes,
       createdAt: entry.createdAt,
       updatedAt: entry.updatedAt,
     );

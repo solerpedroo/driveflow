@@ -14,6 +14,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/df_haptics.dart';
 import '../../../../core/utils/value_visibility_provider.dart';
 import '../../../../shared/widgets/design_system/df_button.dart';
+import '../../../../shared/widgets/design_system/df_confirm_dialog.dart';
 import '../../../../shared/widgets/design_system/df_card.dart';
 import '../../../../shared/widgets/design_system/df_subpage_scaffold.dart';
 import '../../../earnings/presentation/widgets/quick_earning_sheet.dart';
@@ -62,24 +63,13 @@ class ShiftModeScreen extends HookConsumerWidget {
     }
 
     Future<void> endShift() async {
-      final confirm = await showDialog<bool>(
+      final confirm = await DfConfirmDialog.show(
         context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Encerrar turno?'),
-          content: const Text(
+        title: 'Encerrar turno?',
+        message:
             'O cronômetro para e os ganhos ficam no histórico do dia.',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('Continuar'),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: const Text('Encerrar'),
-            ),
-          ],
-        ),
+        confirmLabel: 'Encerrar',
+        cancelLabel: 'Continuar',
       );
       if (confirm != true || !context.mounted) return;
 

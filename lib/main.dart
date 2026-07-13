@@ -11,6 +11,7 @@ import 'core/services/crash_reporting.dart';
 import 'core/services/session_secure_storage.dart';
 import 'core/storage/hive_storage.dart';
 import 'core/services/home_widget_service.dart';
+import 'core/services/shift_live_presence_service.dart';
 import 'core/services/maintenance_notification_service.dart';
 import 'core/theme/theme_mode_provider.dart';
 import 'supabase_dev_setup.dart';
@@ -25,6 +26,7 @@ Future<void> main() async {
     await initializeDateFormatting('pt_BR');
     await MaintenanceNotificationService.instance.initialize();
     await HomeWidgetService.initialize();
+    await ShiftLivePresenceService.initialize();
 
     final container = ProviderContainer();
     await container.read(themeModeProvider.notifier).load();

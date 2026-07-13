@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_spacing.dart';
-import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/date_utils.dart';
+import '../../../../core/utils/value_visibility_provider.dart';
+import '../../../../shared/widgets/design_system/df_movimentacao_tile.dart';
 import '../../domain/entities/shift_history_entry.dart';
-import 'shift_adherence_badge.dart';
-import 'shift_timer_widget.dart';
+import '../widgets/shift_adherence_badge.dart';
+import '../widgets/shift_timer_widget.dart';
 
 /// Linha do histórico de turnos.
-class ShiftHistoryTile extends StatelessWidget {
+class ShiftHistoryTile extends ConsumerWidget {
   const ShiftHistoryTile({
     required this.entry,
     required this.onTap,
@@ -21,73 +24,28 @@ class ShiftHistoryTile extends StatelessWidget {
   final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final brightness = theme.brightness;
+  Widget build(BuildContext context, WidgetRef ref) {
+    final hidden = ref.watch(valueVisibilityHiddenProvider);
 
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
-          child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      DateUtilsDriveFlow.dayMonthYear.format(entry.startedAt),
-                      style: AppTypography.iosHeadline(brightness).copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      '${ShiftTimerWidget.format(entry.elapsed)} · '
-                      '${entry.rides} corridas',
-                      style: AppTypography.iosFootnote(brightness).copyWith(
-                        color: AppColors.secondaryLabel(theme),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              if (entry.totalPlanBlocks > 0)
-                Padding(
-                  padding: const EdgeInsets.only(right: AppSpacing.sm),
-                  child: ShiftAdherenceBadge(score: entry.adherenceScore),
-                ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    CurrencyFormatter.format(entry.revenue),
-                    style: theme.textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  if (entry.revenuePerHour != null)
-                    Text(
-                      '${CurrencyFormatter.format(entry.revenuePerHour!)}/h',
-                      style: AppTypography.iosFootnote(brightness).copyWith(
-                        color: AppColors.brandBlue,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                ],
-              ),
-              const SizedBox(width: AppSpacing.xs),
-              Icon(
-                Icons.chevron_right_rounded,
-                color: AppColors.secondaryLabel(theme),
-              ),
-            ],
-          ),
-        ),
-      ),
+    return DfMovimentacaoTile(
+      title: DateUtilsDriveFlow.dayMonthYear.format(entry.startedAt),
+      detailCaps:
+          '${ShiftTimerWidget.format(entry.elapsed)} · ${entry.rides} corridas',
+      dateLabel: entry.totalPlanBlocks > 0
+          ? 'Aderência ${entry.adherenceScore.round()}%'
+          : entry.isTaxiMode
+              ? 'Taxista'
+              : 'Turno',
+      amount: CurrencyFormatter.format(entry.revenue),
+      isCredit: true,
+      hideValue: hidden,
+      onTap: onTap,
+      leading: entry.totalPlanBlocks > 0
+          ? ShiftAdherenceBadge(score: entry.adherenceScore)
+          : Icon(
+              Icons.timer_rounded,
+              color: AppColors.brandBlue.withValues(alpha: 0.85),
+            ),
     );
   }
 }

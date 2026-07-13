@@ -1,6 +1,6 @@
 import '../../../../core/constants/ride_platforms.dart';
+import 'shift_block_outcome.dart';
 import 'shift_history_entry.dart';
-import 'shift_session_plan_block.dart';
 
 /// Retrospectiva detalhada de um turno encerrado.
 class ShiftRetrospective {
@@ -27,18 +27,4 @@ class ShiftPlatformSlice {
   final RidePlatform platform;
   final double revenue;
   final double share;
-}
-
-class ShiftBlockOutcome {
-  const ShiftBlockOutcome({
-    required this.block,
-    required this.actualPlatform,
-    required this.matched,
-    required this.revenue,
-  });
-
-  final ShiftSessionPlanBlock block;
-  final RidePlatform? actualPlatform;
-  final bool matched;
-  final double revenue;
 }

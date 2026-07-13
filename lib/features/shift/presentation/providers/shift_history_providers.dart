@@ -7,7 +7,9 @@ import '../../data/repositories/shift_history_repository_impl.dart';
 import '../../domain/entities/shift_history_entry.dart';
 import '../../domain/entities/shift_retrospective.dart';
 import '../../domain/repositories/shift_history_repository.dart';
+import '../../../../core/services/analytics_service.dart';
 import '../../domain/services/shift_history_exporter.dart';
+import '../../domain/services/shift_retrospective_exporter.dart';
 import '../../domain/services/shift_retrospective_builder.dart';
 
 final shiftHistoryRepositoryProvider = Provider<ShiftHistoryRepository>((ref) {
@@ -26,22 +28,32 @@ final shiftHistoryStreamProvider =
 });
 
 final shiftHistoryDetailProvider =
-    Provider.autoDispose.family<ShiftHistoryEntry?, String>((ref, id) {
+    FutureProvider.autoDispose.family<ShiftHistoryEntry?, String>((ref, id) async {
   final history = ref.watch(shiftHistoryStreamProvider).valueOrNull;
-  if (history == null) return null;
-  for (final entry in history) {
-    if (entry.id == id) return entry;
+  if (history != null) {
+    for (final entry in history) {
+      if (entry.id == id) return entry;
+    }
   }
-  return null;
+  return ref.read(shiftHistoryRepositoryProvider).readById(id);
 });
 
 final shiftRetrospectiveProvider =
-    Provider.autoDispose.family<ShiftRetrospective?, String>((ref, id) {
-  final entry = ref.watch(shiftHistoryDetailProvider(id));
-  if (entry == null) return null;
-
-  final earnings = ref.watch(earningsStreamProvider).valueOrNull ?? const [];
-  return ShiftRetrospectiveBuilder.build(entry: entry, earnings: earnings);
+    Provider.autoDispose.family<AsyncValue<ShiftRetrospective?>, String>(
+        (ref, id) {
+  final detailAsync = ref.watch(shiftHistoryDetailProvider(id));
+  return detailAsync.when(
+    loading: () => const AsyncLoading(),
+    error: (error, stackTrace) => AsyncError(error, stackTrace),
+    data: (entry) {
+      if (entry == null) return const AsyncData(null);
+      final earnings =
+          ref.watch(earningsStreamProvider).valueOrNull ?? const [];
+      return AsyncData(
+        ShiftRetrospectiveBuilder.build(entry: entry, earnings: earnings),
+      );
+    },
+  );
 });
 
 final shiftHistoryWeekStatsProvider = Provider<ShiftHistoryWeekStats>((ref) {
@@ -107,4 +119,23 @@ class ShiftHistoryExportController extends Notifier<AsyncValue<void>> {
 final shiftHistoryExportControllerProvider =
     NotifierProvider<ShiftHistoryExportController, AsyncValue<void>>(
   ShiftHistoryExportController.new,
+);
+
+class ShiftRetrospectiveExportController extends Notifier<AsyncValue<void>> {
+  @override
+  AsyncValue<void> build() => const AsyncData(null);
+
+  Future<bool> exportPdf(ShiftRetrospective retrospective) async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
+      await ShiftRetrospectiveExporter.sharePdf(retrospective);
+      DriveFlowAnalytics.logEvent('shift_retrospective_exported', {'format': 'pdf'});
+    });
+    return !state.hasError;
+  }
+}
+
+final shiftRetrospectiveExportControllerProvider =
+    NotifierProvider<ShiftRetrospectiveExportController, AsyncValue<void>>(
+  ShiftRetrospectiveExportController.new,
 );

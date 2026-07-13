@@ -1,4 +1,5 @@
 import '../../../../core/constants/ride_platforms.dart';
+import 'shift_block_outcome.dart';
 import 'shift_session_plan_block.dart';
 
 /// Registro persistido de um turno encerrado com métricas consolidadas.
@@ -18,6 +19,7 @@ class ShiftHistoryEntry {
     required this.totalPlanBlocks,
     required this.planBlocks,
     required this.revenueByPlatform,
+    this.blockOutcomes = const [],
     this.vehicleId,
     this.revenuePerHour,
     this.createdAt,
@@ -40,6 +42,7 @@ class ShiftHistoryEntry {
   final int totalPlanBlocks;
   final List<ShiftSessionPlanBlock> planBlocks;
   final Map<RidePlatform, double> revenueByPlatform;
+  final List<ShiftBlockOutcome> blockOutcomes;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -62,6 +65,8 @@ class ShiftHistoryEntry {
         'revenueByPlatform': revenueByPlatform.map(
           (platform, amount) => MapEntry(platform.value, amount),
         ),
+        'blockOutcomes':
+            blockOutcomes.map((outcome) => outcome.toJson()).toList(),
         'createdAt': createdAt?.toIso8601String(),
         'updatedAt': updatedAt?.toIso8601String(),
       };
@@ -107,6 +112,15 @@ class ShiftHistoryEntry {
               .toList(growable: false) ??
           const [],
       revenueByPlatform: platformRevenue,
+      blockOutcomes: (json['blockOutcomes'] as List?)
+              ?.whereType<Map>()
+              .map(
+                (item) => ShiftBlockOutcome.fromJson(
+                  Map<String, dynamic>.from(item),
+                ),
+              )
+              .toList(growable: false) ??
+          const [],
       createdAt: DateTime.tryParse(json['createdAt'] as String? ?? ''),
       updatedAt: DateTime.tryParse(json['updatedAt'] as String? ?? ''),
     );

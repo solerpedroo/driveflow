@@ -1919,6 +1919,77 @@ Após as ondas 15–34 e refatorações por tela (Início, Ganhos, Despesas, etc
 
 ---
 
+## Onda 46 — Widget iOS e retrospectiva PDF
+
+**Objetivo:** Paridade do widget de home screen no iOS (WidgetKit) e exportação PDF da retrospectiva de turno.
+
+### Escopo
+
+| Área | Entrega |
+|---|---|
+| iOS | Widget Extension `DriveFlowHomeWidget` + App Group + entitlements |
+| Dart | `HomeWidgetService` sincroniza Android e iOS com mesmas chaves |
+| PDF | `ShiftRetrospectiveExporter` — resumo, insight, mix por app, plano vs realizado |
+| UI | Botão **Exportar PDF** na `ShiftRetrospectiveScreen` |
+| CocoaPods | `Podfile` com target da extensão + `home_widget` |
+
+### Critérios de conclusão
+
+- [x] Widget iOS exibe lucro hoje ou turno ativo (mesmo contrato do Android)
+- [x] `HomeWidget.setAppGroupId` em iOS e `updateWidget` com kind `DriveFlowHomeWidget`
+- [x] PDF da retrospectiva compartilhável via Share
+- [x] Teste `shift_retrospective_exporter`
+
+---
+
+## Onda 47 — Polish histórico de turnos e UI
+
+**Objetivo:** Fechar lacunas de UX no histórico/retrospectiva, snapshot imutável ao encerrar turno e alinhar telas ao design system.
+
+### Escopo
+
+| Área | Entrega |
+|---|---|
+| Dados | `blockOutcomes` snapshot no archive + migration `015` |
+| Providers | `readById` fallback, retrospectiva async com not-found |
+| Histórico | `DfMovimentacaoTile`, skeleton, empty CTA, privacidade de valores |
+| Discoverability | Dashboard week card, perfil, histórico no turno ativo |
+| UI app | `DfConfirmDialog`, `DfFilterPill`, `DfButton` no dashboard error |
+| Meta | `kCurrentWave = 47`, testes widget histórico/retrospectiva |
+
+### Critérios de conclusão
+
+- [x] Retrospectiva usa snapshot do encerramento (não recalcula blocos ao vivo)
+- [x] Tela de retrospectiva trata loading, erro e turno não encontrado
+- [x] Histórico acessível do dashboard, perfil e card de turno ativo
+- [x] Tiles e diálogos do turno no padrão `Df*`
+- [x] Testes `shift_history_screen_test`, `shift_retrospective_screen_test`
+
+---
+
+## Onda 48 — Presença em tempo real do turno
+
+**Objetivo:** Exibir turno ativo fora do app via Live Activity (iOS) e notificação ongoing customizada (Android).
+
+### Escopo
+
+| Área | Entrega |
+|---|---|
+| Package | `live_activities` — ActivityKit + Android RemoteViews |
+| Dart | `ShiftLivePresenceService` + `ShiftLivePresenceBootstrap` |
+| Android | `ShiftLiveActivityManager` + layout `shift_live_activity.xml` |
+| iOS | `DriveFlowShiftLiveActivity` + `LiveActivitiesAppAttributes` |
+| Sync | Atualiza em tempo real com ganhos, tempo e pausa; encerra ao fim do turno |
+
+### Critérios de conclusão
+
+- [x] Turno ativo dispara presença em iOS e Android
+- [x] Pausar/retomar/encerrar reflete no lock screen / shade
+- [x] Privacidade de valores respeitada (•••)
+- [x] Teste `shift_live_presence_service`
+
+---
+
 ## Mapa de requisitos funcionais → ondas
 
 | RF | Descrição | Onda |
