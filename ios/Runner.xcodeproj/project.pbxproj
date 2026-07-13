@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		AA11BB22CC33DD44EE550006 /* DriveFlowHomeWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA11BB22CC33DD44EE550001 /* DriveFlowHomeWidget.swift */; };
+		BB22CC33DD44EE550021 /* DriveFlowShiftLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB22CC33DD44EE550020 /* DriveFlowShiftLiveActivity.swift */; };
 		AA11BB22CC33DD44EE55000D /* DriveFlowHomeWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = AA11BB22CC33DD44EE550008 /* DriveFlowHomeWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */ = {isa = PBXBuildFile; fileRef = 1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */; };
 		331C808B294A63AB00263BE5 /* RunnerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 331C807B294A618700263BE5 /* RunnerTests.swift */; };
@@ -62,6 +63,7 @@
 
 /* Begin PBXFileReference section */
 		AA11BB22CC33DD44EE550001 /* DriveFlowHomeWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DriveFlowHomeWidget.swift; sourceTree = "<group>"; };
+		BB22CC33DD44EE550020 /* DriveFlowShiftLiveActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DriveFlowShiftLiveActivity.swift; sourceTree = "<group>"; };
 		AA11BB22CC33DD44EE550003 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		AA11BB22CC33DD44EE550004 /* DriveFlowHomeWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = DriveFlowHomeWidget.entitlements; sourceTree = "<group>"; };
 		AA11BB22CC33DD44EE550008 /* DriveFlowHomeWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = DriveFlowHomeWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -106,6 +108,7 @@
 			isa = PBXGroup;
 			children = (
 				AA11BB22CC33DD44EE550001 /* DriveFlowHomeWidget.swift */,
+				BB22CC33DD44EE550020 /* DriveFlowShiftLiveActivity.swift */,
 				AA11BB22CC33DD44EE550004 /* DriveFlowHomeWidget.entitlements */,
 				AA11BB22CC33DD44EE550003 /* Info.plist */,
 			);
@@ -339,6 +342,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AA11BB22CC33DD44EE550006 /* DriveFlowHomeWidget.swift in Sources */,
+				BB22CC33DD44EE550021 /* DriveFlowShiftLiveActivity.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
