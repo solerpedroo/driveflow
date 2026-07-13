@@ -1,5 +1,5 @@
-import '../../../../core/constants/app_constants.dart';
-import '../../domain/entities/platform_cockpit_tab.dart';
+import 'package:driveflow/core/constants/app_constants.dart';
+import 'package:driveflow/features/integrations/domain/entities/platform_cockpit_tab.dart';
 
 /// Rotas do cockpit multi-app.
 abstract final class PlatformCockpitRoutes {
