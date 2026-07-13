@@ -50,6 +50,32 @@ class ShiftAnalyticsKpiGrid extends StatelessWidget {
             children: [
               Expanded(
                 child: _KpiCell(
+                  label: 'Despesas',
+                  value: hideValues
+                      ? '•••'
+                      : CurrencyFormatter.format(summary.totalExpenses),
+                  theme: theme,
+                ),
+              ),
+              Expanded(
+                child: _KpiCell(
+                  label: 'Líquido',
+                  value: hideValues
+                      ? '•••'
+                      : CurrencyFormatter.formatSigned(summary.totalNetCash),
+                  theme: theme,
+                  valueColor: summary.totalNetCash >= 0
+                      ? AppColors.profitGreen
+                      : AppColors.expenseCoral,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.md),
+          Row(
+            children: [
+              Expanded(
+                child: _KpiCell(
                   label: 'R\$/h médio',
                   value: hideValues
                       ? '•••'
@@ -96,12 +122,14 @@ class _KpiCell extends StatelessWidget {
     required this.value,
     required this.theme,
     this.accent = false,
+    this.valueColor,
   });
 
   final String label;
   final String value;
   final ThemeData theme;
   final bool accent;
+  final Color? valueColor;
 
   @override
   Widget build(BuildContext context) {
@@ -119,7 +147,7 @@ class _KpiCell extends StatelessWidget {
           value,
           style: theme.textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.w700,
-            color: accent ? AppColors.brandBlue : null,
+            color: valueColor ?? (accent ? AppColors.brandBlue : null),
           ),
         ),
       ],
