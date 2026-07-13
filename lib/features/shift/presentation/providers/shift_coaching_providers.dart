@@ -2,10 +2,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../integrations/domain/entities/platform_shift_plan.dart';
 import '../../../integrations/domain/services/platform_shift_plan_builder.dart';
+import '../../../integrations/presentation/providers/integrations_providers.dart';
 import '../../../integrations/presentation/providers/platform_analytics_providers.dart';
-import '../domain/entities/shift_coach_insight.dart';
-import '../domain/services/shift_coach_analyzer.dart';
-import '../domain/services/shift_plan_advisor.dart';
+import '../../domain/entities/shift_coach_insight.dart';
+import '../../domain/services/shift_coach_analyzer.dart';
+import '../../domain/services/shift_plan_advisor.dart';
 import 'shift_history_providers.dart';
 
 final shiftCoachInsightProvider = Provider<ShiftCoachInsight?>((ref) {
