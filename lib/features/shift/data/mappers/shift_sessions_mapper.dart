@@ -1,4 +1,5 @@
 import '../../../../core/constants/ride_platforms.dart';
+import '../../domain/entities/shift_block_outcome.dart';
 import '../../domain/entities/shift_history_entry.dart';
 import '../../domain/entities/shift_session_plan_block.dart';
 import '../schema/shift_sessions_schema.dart';
@@ -26,6 +27,18 @@ abstract final class ShiftSessionsMapper {
       });
     }
 
+    final blockOutcomesRaw = row[ShiftSessionsSchema.blockOutcomes];
+    final blockOutcomes = blockOutcomesRaw is List
+        ? blockOutcomesRaw
+            .whereType<Map>()
+            .map(
+              (item) => ShiftBlockOutcome.fromJson(
+                Map<String, dynamic>.from(item),
+              ),
+            )
+            .toList(growable: false)
+        : const <ShiftBlockOutcome>[];
+
     return ShiftHistoryEntry(
       id: row[ShiftSessionsSchema.id] as String,
       userId: row[ShiftSessionsSchema.userId] as String,
@@ -50,6 +63,7 @@ abstract final class ShiftSessionsMapper {
           (row[ShiftSessionsSchema.totalPlanBlocks] as num?)?.toInt() ?? 0,
       planBlocks: planBlocks,
       revenueByPlatform: revenueByPlatform,
+      blockOutcomes: blockOutcomes,
       createdAt: _toDateTime(row[ShiftSessionsSchema.createdAt]),
       updatedAt: _toDateTime(row[ShiftSessionsSchema.updatedAt]),
     );
@@ -76,6 +90,8 @@ abstract final class ShiftSessionsMapper {
       ShiftSessionsSchema.revenueByPlatform: entry.revenueByPlatform.map(
         (platform, amount) => MapEntry(platform.value, amount),
       ),
+      ShiftSessionsSchema.blockOutcomes:
+          entry.blockOutcomes.map((outcome) => outcome.toJson()).toList(),
     };
   }
 
