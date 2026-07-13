@@ -24,7 +24,7 @@ import '../../../onboarding/presentation/providers/onboarding_providers.dart';
 import '../../domain/entities/shift_session_status.dart';
 import '../providers/shift_session_providers.dart';
 import '../providers/shift_coaching_providers.dart';
-import '../widgets/shift_earnings_summary.dart';
+import '../widgets/shift_net_cash_card.dart';
 import '../widgets/shift_coaching_card.dart';
 import '../widgets/shift_shortcuts_card.dart';
 import '../widgets/shift_plan_progress_row.dart';
@@ -164,7 +164,7 @@ class ShiftModeScreen extends HookConsumerWidget {
         const SizedBox(height: AppSpacing.md),
         if (summary != null)
           DfCard(
-            child: ShiftEarningsSummary(summary: summary, hideValue: hidden),
+            child: ShiftNetCashCard(summary: summary, hideValue: hidden),
           ),
         if (!session.isTaxiMode && session.planBlocks.isNotEmpty) ...[
           const SizedBox(height: AppSpacing.md),
