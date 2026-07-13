@@ -72,8 +72,8 @@ class ExpenseFormScreen extends HookConsumerWidget {
     Future<void> scanReceipt(ImageSource source) async {
       final picked = await ImagePicker().pickImage(
         source: source,
-        maxWidth: 2000,
-        imageQuality: 90,
+        maxWidth: 1280,
+        imageQuality: 75,
       );
       if (picked == null) return;
 
@@ -224,6 +224,13 @@ class ExpenseFormScreen extends HookConsumerWidget {
                           height: 140,
                           width: double.infinity,
                           fit: BoxFit.cover,
+                          cacheWidth: (MediaQuery.devicePixelRatioOf(context) *
+                                  MediaQuery.sizeOf(context).width)
+                              .round()
+                              .clamp(320, 1280),
+                          cacheHeight:
+                              (MediaQuery.devicePixelRatioOf(context) * 140)
+                                  .round(),
                         ),
                       )
                     else if (existingReceiptUrl != null)
@@ -234,6 +241,14 @@ class ExpenseFormScreen extends HookConsumerWidget {
                           height: 140,
                           width: double.infinity,
                           fit: BoxFit.cover,
+                          memCacheWidth:
+                              (MediaQuery.devicePixelRatioOf(context) *
+                                      MediaQuery.sizeOf(context).width)
+                                  .round()
+                                  .clamp(320, 1280),
+                          memCacheHeight:
+                              (MediaQuery.devicePixelRatioOf(context) * 140)
+                                  .round(),
                         ),
                       ),
                     const SizedBox(height: 8),
