@@ -1,8 +1,10 @@
 import '../../../../core/constants/ride_platforms.dart';
 import '../../../earnings/domain/entities/earning_entity.dart';
+import '../entities/shift_block_outcome.dart';
 import '../entities/shift_history_entry.dart';
 import '../entities/shift_retrospective.dart';
 import '../entities/shift_session_entity.dart';
+import '../entities/shift_session_plan_block.dart';
 import '../entities/shift_session_status.dart';
 import 'shift_session_aggregator.dart';
 
@@ -10,30 +12,12 @@ import 'shift_session_aggregator.dart';
 abstract final class ShiftRetrospectiveBuilder {
   static ShiftRetrospective build({
     required ShiftHistoryEntry entry,
-    required List<EarningEntity> earnings,
+    List<EarningEntity> earnings = const [],
   }) {
-    final session = ShiftSessionEntity(
-      id: entry.id,
-      startedAt: entry.startedAt,
-      endedAt: entry.endedAt,
-      status: ShiftSessionStatus.completed,
-      planBlocks: entry.planBlocks,
-      isTaxiMode: entry.isTaxiMode,
-      vehicleId: entry.vehicleId,
-      accumulatedPause: entry.accumulatedPause,
-    );
-
-    final scoped = ShiftSessionAggregator.earningsInSession(
-      session: session,
-      earnings: earnings,
-      vehicleId: entry.vehicleId,
-    );
-
     final platformBreakdown = _platformBreakdown(entry.revenueByPlatform);
-    final blockOutcomes = _blockOutcomes(
-      entry: entry,
-      earnings: scoped,
-    );
+    final blockOutcomes = entry.blockOutcomes.isNotEmpty
+        ? entry.blockOutcomes
+        : _blockOutcomesFromLiveEarnings(entry: entry, earnings: earnings);
 
     return ShiftRetrospective(
       entry: entry,
@@ -41,6 +25,39 @@ abstract final class ShiftRetrospectiveBuilder {
       blockOutcomes: blockOutcomes,
       insight: _insight(entry),
     );
+  }
+
+  static List<ShiftBlockOutcome> computeBlockOutcomesForSession({
+    required ShiftSessionEntity session,
+    required List<EarningEntity> earnings,
+    String? vehicleId,
+  }) {
+    final completed = session.status == ShiftSessionStatus.completed
+        ? session
+        : session.copyWith(
+            status: ShiftSessionStatus.completed,
+            endedAt: session.endedAt ?? DateTime.now(),
+          );
+
+    final entry = ShiftHistoryEntry(
+      id: session.id,
+      userId: '',
+      startedAt: session.startedAt,
+      endedAt: completed.endedAt ?? DateTime.now(),
+      elapsed: completed.elapsedAt(completed.endedAt ?? DateTime.now()),
+      accumulatedPause: session.accumulatedPause,
+      isTaxiMode: session.isTaxiMode,
+      vehicleId: vehicleId ?? session.vehicleId,
+      revenue: 0,
+      rides: 0,
+      adherenceScore: 0,
+      matchedPlanBlocks: 0,
+      totalPlanBlocks: session.planBlocks.length,
+      planBlocks: session.planBlocks,
+      revenueByPlatform: const {},
+    );
+
+    return _blockOutcomesFromLiveEarnings(entry: entry, earnings: earnings);
   }
 
   static List<ShiftPlatformSlice> _platformBreakdown(
@@ -63,14 +80,31 @@ abstract final class ShiftRetrospectiveBuilder {
     return slices;
   }
 
-  static List<ShiftBlockOutcome> _blockOutcomes({
+  static List<ShiftBlockOutcome> _blockOutcomesFromLiveEarnings({
     required ShiftHistoryEntry entry,
     required List<EarningEntity> earnings,
   }) {
     if (entry.planBlocks.isEmpty) return const [];
 
+    final session = ShiftSessionEntity(
+      id: entry.id,
+      startedAt: entry.startedAt,
+      endedAt: entry.endedAt,
+      status: ShiftSessionStatus.completed,
+      planBlocks: entry.planBlocks,
+      isTaxiMode: entry.isTaxiMode,
+      vehicleId: entry.vehicleId,
+      accumulatedPause: entry.accumulatedPause,
+    );
+
+    final scoped = ShiftSessionAggregator.earningsInSession(
+      session: session,
+      earnings: earnings,
+      vehicleId: entry.vehicleId,
+    );
+
     return entry.planBlocks.map((block) {
-      final blockEarnings = earnings.where((earning) {
+      final blockEarnings = scoped.where((earning) {
         final anchor = earning.createdAt ?? earning.date;
         return block.containsHour(anchor.hour);
       }).toList(growable: false);

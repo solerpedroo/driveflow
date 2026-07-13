@@ -32,7 +32,10 @@ class ShiftTimerWidget extends StatelessWidget {
       children: [
         Text(
           isPaused ? 'Turno pausado' : 'Tempo no turno',
-          style: AppTypography.labelCaps(brightness),
+          style: AppTypography.iosFootnote(brightness).copyWith(
+            fontWeight: FontWeight.w600,
+            color: AppColors.secondaryLabel(Theme.of(context)),
+          ),
         ),
         const SizedBox(height: 4),
         Text(

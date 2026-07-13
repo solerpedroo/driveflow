@@ -1942,6 +1942,31 @@ Após as ondas 15–34 e refatorações por tela (Início, Ganhos, Despesas, etc
 
 ---
 
+## Onda 47 — Polish histórico de turnos e UI
+
+**Objetivo:** Fechar lacunas de UX no histórico/retrospectiva, snapshot imutável ao encerrar turno e alinhar telas ao design system.
+
+### Escopo
+
+| Área | Entrega |
+|---|---|
+| Dados | `blockOutcomes` snapshot no archive + migration `015` |
+| Providers | `readById` fallback, retrospectiva async com not-found |
+| Histórico | `DfMovimentacaoTile`, skeleton, empty CTA, privacidade de valores |
+| Discoverability | Dashboard week card, perfil, histórico no turno ativo |
+| UI app | `DfConfirmDialog`, `DfFilterPill`, `DfButton` no dashboard error |
+| Meta | `kCurrentWave = 47`, testes widget histórico/retrospectiva |
+
+### Critérios de conclusão
+
+- [x] Retrospectiva usa snapshot do encerramento (não recalcula blocos ao vivo)
+- [x] Tela de retrospectiva trata loading, erro e turno não encontrado
+- [x] Histórico acessível do dashboard, perfil e card de turno ativo
+- [x] Tiles e diálogos do turno no padrão `Df*`
+- [x] Testes `shift_history_screen_test`, `shift_retrospective_screen_test`
+
+---
+
 ## Mapa de requisitos funcionais → ondas
 
 | RF | Descrição | Onda |

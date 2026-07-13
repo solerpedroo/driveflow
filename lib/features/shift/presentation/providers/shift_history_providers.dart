@@ -28,22 +28,32 @@ final shiftHistoryStreamProvider =
 });
 
 final shiftHistoryDetailProvider =
-    Provider.autoDispose.family<ShiftHistoryEntry?, String>((ref, id) {
+    FutureProvider.autoDispose.family<ShiftHistoryEntry?, String>((ref, id) async {
   final history = ref.watch(shiftHistoryStreamProvider).valueOrNull;
-  if (history == null) return null;
-  for (final entry in history) {
-    if (entry.id == id) return entry;
+  if (history != null) {
+    for (final entry in history) {
+      if (entry.id == id) return entry;
+    }
   }
-  return null;
+  return ref.read(shiftHistoryRepositoryProvider).readById(id);
 });
 
 final shiftRetrospectiveProvider =
-    Provider.autoDispose.family<ShiftRetrospective?, String>((ref, id) {
-  final entry = ref.watch(shiftHistoryDetailProvider(id));
-  if (entry == null) return null;
-
-  final earnings = ref.watch(earningsStreamProvider).valueOrNull ?? const [];
-  return ShiftRetrospectiveBuilder.build(entry: entry, earnings: earnings);
+    Provider.autoDispose.family<AsyncValue<ShiftRetrospective?>, String>(
+        (ref, id) {
+  final detailAsync = ref.watch(shiftHistoryDetailProvider(id));
+  return detailAsync.when(
+    loading: () => const AsyncLoading(),
+    error: (error, stackTrace) => AsyncError(error, stackTrace),
+    data: (entry) {
+      if (entry == null) return const AsyncData(null);
+      final earnings =
+          ref.watch(earningsStreamProvider).valueOrNull ?? const [];
+      return AsyncData(
+        ShiftRetrospectiveBuilder.build(entry: entry, earnings: earnings),
+      );
+    },
+  );
 });
 
 final shiftHistoryWeekStatsProvider = Provider<ShiftHistoryWeekStats>((ref) {

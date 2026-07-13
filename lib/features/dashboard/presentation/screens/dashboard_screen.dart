@@ -27,6 +27,7 @@ import '../../../../core/utils/story_metrics.dart';
 import '../../../../core/utils/value_visibility_provider.dart';
 import '../../../../shared/domain/models/dashboard_snapshot.dart';
 import '../../../../shared/widgets/design_system/df_expandable_list_section.dart';
+import '../../../../shared/widgets/design_system/df_button.dart';
 import '../../../../shared/widgets/design_system/df_skeleton.dart';
 import '../../../../shared/widgets/design_system/df_tab_scroll_view.dart';
 import '../../../../shared/widgets/design_system/df_value_banner.dart';
@@ -40,6 +41,7 @@ import '../widgets/dashboard_maintenance_card.dart';
 import '../widgets/dashboard_quick_actions.dart';
 import '../../../earnings/presentation/widgets/quick_earning_sheet.dart';
 import '../../../shift/presentation/widgets/dashboard_active_shift_card.dart';
+import '../../../shift/presentation/widgets/dashboard_shift_week_card.dart';
 import '../widgets/dashboard_story_carousel.dart';
 import '../widgets/dashboard_upgrade_banner.dart';
 import '../widgets/dashboard_wealth_stage.dart';
@@ -173,9 +175,11 @@ class _DashboardError extends StatelessWidget {
         ),
         Align(
           alignment: Alignment.centerLeft,
-          child: TextButton(
+          child: DfButton(
+            label: 'Tentar novamente',
+            variant: DfButtonVariant.tonal,
+            expand: false,
             onPressed: onRetry,
-            child: const Text('Tentar novamente'),
           ),
         ),
       ],
@@ -220,6 +224,7 @@ class _DashboardBody extends StatelessWidget {
         const DashboardBrandBar(),
         DashboardGreeting(text: greeting),
         const DashboardActiveShiftCard(),
+        const DashboardShiftWeekCard(),
         const DashboardShiftStartCard(),
         DashboardWealthStage(
           month: month,

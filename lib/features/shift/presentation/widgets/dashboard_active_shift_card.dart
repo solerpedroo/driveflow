@@ -6,7 +6,6 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
-import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/df_haptics.dart';
 import '../../../../core/utils/value_visibility_provider.dart';
 import '../../../../shared/widgets/design_system/df_button.dart';
@@ -41,7 +40,9 @@ class DashboardShiftStartCard extends ConsumerWidget {
         children: [
           Text(
             'Modo turno',
-            style: AppTypography.labelCaps(theme.brightness),
+            style: theme.textTheme.titleSmall?.copyWith(
+              fontWeight: FontWeight.w700,
+            ),
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
@@ -97,27 +98,18 @@ class DashboardActiveShiftCard extends ConsumerWidget {
             isPaused: session.status == ShiftSessionStatus.paused,
           ),
           const SizedBox(height: AppSpacing.lg),
-          Text(
-            hidden ? '•••' : CurrencyFormatter.format(summary.revenue),
-            style: AppTypography.iosLargeTitle(
-              Theme.of(context).brightness,
-            ).copyWith(
-              fontWeight: FontWeight.w700,
-              fontFeatures: const [FontFeature.tabularFigures()],
-            ),
-          ),
-          Text(
-            '${summary.rides} corridas no turno',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: AppColors.secondaryLabel(Theme.of(context)),
-                ),
-          ),
-          const SizedBox(height: AppSpacing.md),
           ShiftEarningsSummary(summary: summary, hideValue: hidden),
           if (!session.isTaxiMode && session.planBlocks.isNotEmpty) ...[
             const SizedBox(height: AppSpacing.lg),
             ShiftPlanProgressRow(adherence: adherence),
           ],
+          const SizedBox(height: AppSpacing.sm),
+          DfButton(
+            label: 'Histórico',
+            variant: DfButtonVariant.outlined,
+            icon: Icons.history_rounded,
+            onPressed: () => context.push(AppRoutes.shiftHistory),
+          ),
         ],
       ),
     );

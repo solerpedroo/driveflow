@@ -1,5 +1,7 @@
 import '../../../../core/constants/ride_platforms.dart';
 import '../entities/shift_history_entry.dart';
+import '../entities/shift_block_outcome.dart';
+import '../entities/shift_retrospective.dart';
 import '../entities/shift_session_entity.dart';
 
 /// Monta entrada de histórico ao encerrar turno.
@@ -14,6 +16,7 @@ abstract final class ShiftHistoryArchiver {
     required int matchedPlanBlocks,
     required int totalPlanBlocks,
     required Map<RidePlatform, double> revenueByPlatform,
+    List<ShiftBlockOutcome> blockOutcomes = const [],
   }) {
     final endedAt = session.endedAt ?? DateTime.now();
     final elapsed = session.elapsedAt(endedAt);
@@ -35,6 +38,7 @@ abstract final class ShiftHistoryArchiver {
       totalPlanBlocks: totalPlanBlocks,
       planBlocks: session.planBlocks,
       revenueByPlatform: revenueByPlatform,
+      blockOutcomes: blockOutcomes,
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
     );

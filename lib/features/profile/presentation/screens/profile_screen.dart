@@ -185,6 +185,16 @@ class ProfileScreen extends HookConsumerWidget {
           margin: EdgeInsets.zero,
           children: [
             DfGroupedRow(
+              title: 'Histórico de turnos',
+              subtitle: 'Retrospectivas e exportação',
+              leading: const Icon(
+                Icons.history_rounded,
+                color: AppColors.brandBlue,
+              ),
+              showChevron: true,
+              onTap: () => context.push(AppRoutes.shiftHistory),
+            ),
+            DfGroupedRow(
               title: 'Importar extrato',
               subtitle: 'Extrato do banco ou arquivo do app',
               leading: const Icon(
