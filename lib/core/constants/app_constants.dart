@@ -95,7 +95,7 @@ abstract final class AppRoutes {
 }
 
 /// Onda atual concluída (v2.0 — Design System v2 e acessibilidade).
-const kCurrentWave = 15;
+const kCurrentWave = 47;
 
 /// Deep link OAuth Supabase (Google).
 const kOAuthRedirectUrl = 'io.supabase.driveflow://login-callback/';
