@@ -2,6 +2,7 @@ package com.driveflow.driveflow.widget
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -41,7 +42,13 @@ class DriveFlowHomeWidget : GlanceAppWidget() {
         val shiftActive = prefs.getBoolean("shift_active", false)
         val shiftRevenue = prefs.getString("shift_revenue", "") ?: ""
         val shiftElapsed = prefs.getString("shift_elapsed", "") ?: ""
-        val launchIntent = Intent(context, MainActivity::class.java).apply {
+        val deepLink = if (shiftActive) "driveflow://shift" else "driveflow://earning/quick"
+        val launchIntent = Intent(
+            Intent.ACTION_VIEW,
+            Uri.parse(deepLink),
+            context,
+            MainActivity::class.java,
+        ).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
         }
 
