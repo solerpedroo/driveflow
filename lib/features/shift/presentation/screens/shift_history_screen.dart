@@ -38,6 +38,13 @@ class ShiftHistoryScreen extends ConsumerWidget {
       children: [
         const ShiftCoachingCard(),
         const SizedBox(height: AppSpacing.md),
+        DfButton(
+          label: 'Analytics de turnos',
+          icon: Icons.bar_chart_rounded,
+          variant: DfButtonVariant.outlined,
+          onPressed: () => context.push(AppRoutes.shiftAnalytics),
+        ),
+        const SizedBox(height: AppSpacing.md),
         if (weekStats.shiftCount > 0)
           DfCard(
             child: Column(
