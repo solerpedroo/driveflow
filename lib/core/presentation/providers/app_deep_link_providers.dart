@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../deep_links/app_deep_link_intent.dart';
+import '../../deep_links/app_deep_link_intent.dart';
 
 class PendingAppDeepLinkController extends Notifier<AppDeepLinkIntent?> {
   @override
