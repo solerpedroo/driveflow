@@ -8,14 +8,17 @@ import '../../domain/entities/receipt_scan_result.dart';
 import '../../domain/repositories/receipt_ocr_repository.dart';
 import '../../domain/services/receipt_ocr_parser.dart';
 
-final receiptOcrRepositoryProvider = Provider<ReceiptOcrRepository>((ref) {
+/// Repository OCR com autoDispose — libera o TextRecognizer do ML Kit
+/// quando ninguém depende do provider (sai do formulário / após scan).
+final receiptOcrRepositoryProvider =
+    Provider.autoDispose<ReceiptOcrRepository>((ref) {
   final dataSource = MlKitReceiptOcrDataSource();
   ref.onDispose(() => dataSource.dispose());
   return dataSource;
 });
 
 /// Processa imagem de comprovante e retorna campos sugeridos para revisão.
-class ReceiptOcrController extends Notifier<AsyncValue<ReceiptScanResult?>> {
+class ReceiptOcrController extends AutoDisposeNotifier<AsyncValue<ReceiptScanResult?>> {
   @override
   AsyncValue<ReceiptScanResult?> build() => const AsyncData(null);
 
@@ -51,8 +54,8 @@ class ReceiptOcrController extends Notifier<AsyncValue<ReceiptScanResult?>> {
   void clear() => state = const AsyncData(null);
 }
 
-final receiptOcrControllerProvider =
-    NotifierProvider<ReceiptOcrController, AsyncValue<ReceiptScanResult?>>(
+final receiptOcrControllerProvider = NotifierProvider.autoDispose<
+    ReceiptOcrController, AsyncValue<ReceiptScanResult?>>(
   ReceiptOcrController.new,
 );
 
