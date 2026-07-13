@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/constants/product_story.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../shared/widgets/design_system/df_button.dart';
 import '../../../../shared/widgets/design_system/df_card.dart';
 
 /// Hero narrativo do chat IA — vende o copiloto com resposta de exemplo.
@@ -85,13 +88,21 @@ class AiChatStoryHero extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.lg),
           Text(
-            ProductStory.aiHint,
+            ProductStory.proAiUpsell,
             textAlign: TextAlign.center,
             style: theme.textTheme.labelMedium?.copyWith(
               color: AppColors.secondaryLabel(theme),
               fontWeight: FontWeight.w500,
               height: 1.4,
             ),
+          ),
+          const SizedBox(height: AppSpacing.md),
+          DfButton(
+            label: 'Conhecer o Pro',
+            icon: Icons.workspace_premium_outlined,
+            variant: DfButtonVariant.tonal,
+            expand: false,
+            onPressed: () => context.push(AppRoutes.paywall),
           ),
         ],
       ),
