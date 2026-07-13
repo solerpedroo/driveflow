@@ -126,4 +126,96 @@ void main() {
     );
     expect(find.text('Meus veículos'), findsOneWidget);
   });
+
+  testWidgets('MainShellScreen back navigates tab history then dashboard', (tester) async {
+    ignoreLayoutOverflow();
+    tester.view.physicalSize = const Size(800, 1200);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: shellProviderOverrides(),
+        child: MaterialApp(
+          theme: buildDriveFlowDarkTheme(),
+          home: const MainShellScreen(),
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(find.text('Lucro do mês'), findsOneWidget);
+
+    await tester.tap(find.byKey(const ValueKey('driveflow_nav_ganhos')));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    await tester.pageBack();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(find.text('Lucro do mês'), findsOneWidget);
+
+    await tester.tap(find.byKey(const ValueKey('driveflow_nav_ganhos')));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    await tester.tap(find.byKey(const ValueKey('driveflow_nav_perfil')));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(find.text('Meus veículos'), findsOneWidget);
+
+    await tester.pageBack();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(
+      find.descendant(
+        of: find.byType(DriveFlowBottomNavBar),
+        matching: find.text('Ganhos'),
+      ),
+      findsOneWidget,
+    );
+
+    await tester.pageBack();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(find.text('Lucro do mês'), findsOneWidget);
+
+    await tester.pageBack();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(find.text('Lucro do mês'), findsOneWidget);
+  });
+
+  testWidgets('MainShellScreen back from non-dashboard tab opens dashboard', (tester) async {
+    ignoreLayoutOverflow();
+    tester.view.physicalSize = const Size(800, 1200);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: shellProviderOverrides(),
+        child: MaterialApp(
+          theme: buildDriveFlowDarkTheme(),
+          home: const MainShellScreen(initialTab: DriveFlowTab.profile),
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(find.text('Meus veículos'), findsOneWidget);
+
+    await tester.pageBack();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(find.text('Lucro do mês'), findsOneWidget);
+  });
 }
