@@ -73,12 +73,21 @@ abstract final class ShiftRetrospectiveExporter {
         build: (context) => [
           _pdfSection('Resumo', [
             _pdfRow('Ganhos', CurrencyFormatter.format(entry.revenue)),
+            if (entry.expenses > 0) ...[
+              _pdfRow('Despesas', CurrencyFormatter.format(entry.expenses)),
+              _pdfRow('Líquido', CurrencyFormatter.formatSigned(entry.netCash)),
+            ],
             _pdfRow('Corridas', '${entry.rides}'),
             _pdfRow('Duração', _formatDuration(entry.elapsed)),
             if (entry.revenuePerHour != null)
               _pdfRow(
-                'R\$/h',
+                entry.expenses > 0 ? 'R\$/h bruto' : 'R\$/h',
                 CurrencyFormatter.format(entry.revenuePerHour!),
+              ),
+            if (entry.expenses > 0 && entry.netPerHour != null)
+              _pdfRow(
+                'R\$/h líquido',
+                CurrencyFormatter.formatSigned(entry.netPerHour!),
               ),
             if (entry.totalPlanBlocks > 0)
               _pdfRow(
@@ -87,6 +96,18 @@ abstract final class ShiftRetrospectiveExporter {
                     '(${entry.matchedPlanBlocks}/${entry.totalPlanBlocks} blocos)',
               ),
           ]),
+          if (entry.expensesByCategory.isNotEmpty) ...[
+            pw.SizedBox(height: 12),
+            _pdfSection('Despesas por categoria', [
+              for (final category in entry.expensesByCategory.entries.toList()
+                ..sort((a, b) => b.value.compareTo(a.value)))
+                if (category.value > 0)
+                  _pdfRow(
+                    category.key.label,
+                    CurrencyFormatter.format(category.value),
+                  ),
+            ]),
+          ],
           pw.SizedBox(height: 12),
           _pdfSection('Insight', [
             pw.Text(retrospective.insight),
