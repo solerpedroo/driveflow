@@ -1990,6 +1990,32 @@ Após as ondas 15–34 e refatorações por tela (Início, Ganhos, Despesas, etc
 
 ---
 
+## Onda 49 — Coaching e plano adaptativo de turnos
+
+**Objetivo:** Usar histórico de turnos + heatmap para coaching acionável e plano sugerido adaptado ao comportamento real do motorista.
+
+### Escopo
+
+| Área | Entrega |
+|---|---|
+| Domínio | `ShiftCoachInsight`, `ShiftCoachAnalyzer`, `ShiftPlanAdvisor` |
+| Providers | `shiftCoachInsightProvider`, `adaptiveShiftPlanProvider` |
+| UI | `ShiftCoachingCard` no modo turno e histórico |
+| Retrospectiva | Insight pós-turno acionável com padrão semanal |
+| IA | Contexto inclui `shiftCoaching` (headline, tips, aderência) |
+| Meta | `kCurrentWave = 49`, testes analyzer e advisor |
+
+### Critérios de conclusão
+
+- [x] Análise de aderência e desvios típicos nos últimos turnos
+- [x] Plano adaptativo combina heatmap com votos do histórico por hora
+- [x] Card "Sugestão para o próximo turno" no modo turno e histórico
+- [x] Iniciar turno usa plano adaptativo
+- [x] Retrospectiva com insight acionável
+- [x] Testes `shift_coach_analyzer`, `shift_plan_advisor`
+
+---
+
 ## Mapa de requisitos funcionais → ondas
 
 | RF | Descrição | Onda |

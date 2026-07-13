@@ -10,6 +10,7 @@ import '../../domain/repositories/shift_history_repository.dart';
 import '../../../../core/services/analytics_service.dart';
 import '../../domain/services/shift_history_exporter.dart';
 import '../../domain/services/shift_retrospective_exporter.dart';
+import '../../domain/services/shift_coach_analyzer.dart';
 import '../../domain/services/shift_retrospective_builder.dart';
 
 final shiftHistoryRepositoryProvider = Provider<ShiftHistoryRepository>((ref) {
@@ -49,8 +50,15 @@ final shiftRetrospectiveProvider =
       if (entry == null) return const AsyncData(null);
       final earnings =
           ref.watch(earningsStreamProvider).valueOrNull ?? const [];
+      final weeklyPattern = ShiftCoachAnalyzer.analyze(
+        history: ref.watch(shiftHistoryStreamProvider).valueOrNull ?? const [],
+      );
       return AsyncData(
-        ShiftRetrospectiveBuilder.build(entry: entry, earnings: earnings),
+        ShiftRetrospectiveBuilder.build(
+          entry: entry,
+          earnings: earnings,
+          weeklyPattern: weeklyPattern,
+        ),
       );
     },
   );

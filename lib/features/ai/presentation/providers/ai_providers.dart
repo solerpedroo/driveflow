@@ -13,6 +13,8 @@ import '../../../maintenance/presentation/providers/maintenance_providers.dart';
 import '../../../integrations/presentation/providers/platform_trips_providers.dart';
 import '../../../vehicle/presentation/providers/vehicle_providers.dart';
 import '../../../shift/presentation/providers/shift_session_providers.dart';
+import '../../../shift/presentation/providers/shift_coaching_providers.dart';
+import '../../../shift/presentation/providers/shift_history_providers.dart';
 import '../../data/repositories/ai_repository_impl.dart';
 import '../../domain/entities/ai_message_entity.dart';
 import '../../domain/entities/ai_forecast_message.dart';
@@ -54,6 +56,7 @@ final aiContextPreviewProvider = Provider<AiContextSnapshot>((ref) {
   final adherence = ref.watch(shiftPlanAdherenceProvider);
 
   final weekStats = ref.watch(shiftHistoryWeekStatsProvider);
+  final coaching = ref.watch(shiftCoachInsightProvider);
 
   Map<String, dynamic>? activeShift;
   if (session != null && shiftSummary != null) {
@@ -85,6 +88,16 @@ final aiContextPreviewProvider = Provider<AiContextSnapshot>((ref) {
             'revenue': weekStats.revenue,
             'rides': weekStats.rides,
             'avgAdherence': weekStats.avgAdherence,
+          },
+    shiftCoaching: coaching == null
+        ? null
+        : {
+            'headline': coaching.headline,
+            'detail': coaching.detail,
+            'avgAdherence': coaching.avgAdherence,
+            'shiftsAnalyzed': coaching.shiftsAnalyzed,
+            'tips': coaching.tips,
+            'preferredPlatform': coaching.preferredPlatform?.label,
           },
   );
 });

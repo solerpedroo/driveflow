@@ -17,6 +17,7 @@ import '../../../../shared/widgets/design_system/df_empty_state.dart';
 import '../../../../shared/widgets/design_system/df_skeleton.dart';
 import '../../../../shared/widgets/design_system/df_subpage_scaffold.dart';
 import '../providers/shift_history_providers.dart';
+import '../widgets/shift_coaching_card.dart';
 import '../widgets/shift_history_tile.dart';
 
 /// Lista de turnos encerrados com exportação CSV.
@@ -35,6 +36,8 @@ class ShiftHistoryScreen extends ConsumerWidget {
         await ref.read(shiftHistoryRepositoryProvider).fetchHistory();
       },
       children: [
+        const ShiftCoachingCard(),
+        const SizedBox(height: AppSpacing.md),
         if (weekStats.shiftCount > 0)
           DfCard(
             child: Column(

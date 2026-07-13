@@ -18,11 +18,12 @@ import '../../../../shared/widgets/design_system/df_confirm_dialog.dart';
 import '../../../../shared/widgets/design_system/df_card.dart';
 import '../../../../shared/widgets/design_system/df_subpage_scaffold.dart';
 import '../../../earnings/presentation/widgets/quick_earning_sheet.dart';
-import '../../../integrations/presentation/providers/platform_analytics_providers.dart';
 import '../../../onboarding/presentation/providers/onboarding_providers.dart';
 import '../../domain/entities/shift_session_status.dart';
 import '../providers/shift_session_providers.dart';
+import '../providers/shift_coaching_providers.dart';
 import '../widgets/shift_earnings_summary.dart';
+import '../widgets/shift_coaching_card.dart';
 import '../widgets/shift_plan_progress_row.dart';
 import '../widgets/shift_timer_widget.dart';
 
@@ -38,7 +39,7 @@ class ShiftModeScreen extends HookConsumerWidget {
     final mutation = ref.watch(shiftSessionControllerProvider);
     final hidden = ref.watch(valueVisibilityHiddenProvider);
     final isTaxi = ref.watch(isTaxiDriverProvider);
-    final plan = ref.watch(platformShiftPlanProvider).valueOrNull;
+    final plan = ref.watch(adaptiveShiftPlanProvider).valueOrNull;
 
     final ticker = useState(0);
     useEffect(() {
@@ -96,6 +97,8 @@ class ShiftModeScreen extends HookConsumerWidget {
       return DfSubpageScaffold(
         title: 'Modo turno',
         children: [
+          if (!isTaxi) const ShiftCoachingCard(showStartAction: false),
+          if (!isTaxi) const SizedBox(height: AppSpacing.md),
           DfCard(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
