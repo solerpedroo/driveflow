@@ -25,6 +25,7 @@ import '../../../../shared/widgets/platform_brand_icon.dart';
 import '../../domain/entities/earning_entity.dart';
 import '../providers/earnings_providers.dart';
 import '../widgets/earning_tile.dart';
+import '../widgets/quick_earning_sheet.dart';
 
 /// Ganhos — mesmo DNA da Início (hero + ações + módulos elevados).
 class EarningsScreen extends ConsumerWidget {
@@ -88,9 +89,9 @@ class EarningsScreen extends ConsumerWidget {
           DfQuickActions(
             actions: [
               DfQuickAction(
-                icon: Icons.add_rounded,
+                icon: Icons.bolt_rounded,
                 label: 'Ganho',
-                onTap: () => context.push(AppRoutes.earningForm),
+                onTap: () => QuickEarningSheet.show(context),
               ),
               if (!isTaxiDriver)
                 DfQuickAction(
