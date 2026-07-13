@@ -2,15 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/df_haptics.dart';
 import '../../../../shared/widgets/design_system/df_card.dart';
 import '../../../../shared/widgets/platform_brand_icon.dart';
+import '../../domain/entities/platform_cockpit_tab.dart';
 import '../../domain/entities/platform_shift_recommendation.dart';
+import '../platform_cockpit_routes.dart';
 import '../providers/integrations_providers.dart';
+import '../providers/platform_intelligence_providers.dart';
 
 /// Recomendação de app — módulo elevado no dashboard.
 class DashboardPlatformChip extends ConsumerWidget {
@@ -19,6 +21,7 @@ class DashboardPlatformChip extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final recommendation = ref.watch(platformShiftRecommendationProvider);
+    final goldenHour = ref.watch(platformGoldenHourProvider).valueOrNull;
 
     return recommendation.when(
       loading: () => const SizedBox.shrink(),
@@ -27,9 +30,12 @@ class DashboardPlatformChip extends ConsumerWidget {
         if (rec == null) return const SizedBox.shrink();
         return _RecommendationCard(
           recommendation: rec,
+          goldenHourLabel: goldenHour != null
+              ? '${goldenHour.weekdayLabel} ${goldenHour.hourLabel}'
+              : rec.bestHourSlot,
           onTap: () {
             DfHaptics.light();
-            context.push(AppRoutes.platformIntegrations);
+            context.push(PlatformCockpitRoutes.hub());
           },
         );
       },
@@ -41,10 +47,12 @@ class _RecommendationCard extends StatelessWidget {
   const _RecommendationCard({
     required this.recommendation,
     required this.onTap,
+    this.goldenHourLabel,
   });
 
   final PlatformShiftRecommendation recommendation;
   final VoidCallback onTap;
+  final String? goldenHourLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -93,6 +101,16 @@ class _RecommendationCard extends StatelessWidget {
                     letterSpacing: -0.3,
                   ),
                 ),
+                if (goldenHourLabel != null) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    goldenHourLabel!,
+                    style: AppTypography.iosFootnote(brightness).copyWith(
+                      color: AppColors.brandBlue,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
