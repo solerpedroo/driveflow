@@ -39,7 +39,8 @@ class ShiftAdherenceTrendChart extends StatelessWidget {
           const SizedBox(height: AppSpacing.md),
           SizedBox(
             height: 160,
-            child: LineChart(
+            child: RepaintBoundary(
+              child: LineChart(
               LineChartData(
                 minY: 0,
                 maxY: 100,
@@ -130,6 +131,7 @@ class ShiftAdherenceTrendChart extends StatelessWidget {
                   ),
                 ),
                 borderData: FlBorderData(show: false),
+              ),
               ),
             ),
           ),
