@@ -14,7 +14,6 @@ import '../../../../core/utils/duration_formatter.dart';
 import '../../../earnings/domain/entities/earning_entity.dart';
 import '../../../expenses/domain/entities/expense_entity.dart';
 import '../../../integrations/domain/services/platform_analytics_breakdown.dart';
-import '../entities/report_snapshot.dart';
 import '../../../analytics/domain/entities/period_comparison_result.dart';
 
 /// Exporta relatórios em PDF e CSV e compartilha via share sheet.
@@ -130,12 +129,7 @@ abstract final class ReportExporter {
           pw.SizedBox(height: 16),
           _pdfSection('Receita por app', [
             for (final slice in PlatformAnalyticsBreakdown.fromEarnings(earnings))
-              _pdfRow(
-                slice.platform.label,
-                '${CurrencyFormatter.format(slice.amount)} · '
-                '${slice.rides} corridas · '
-                '${slice.sharePercent.toStringAsFixed(0)}%',
-              ),
+              ..._pdfPlatformSliceRow(slice),
           ]),
           pw.SizedBox(height: 16),
           _pdfSection('Ganhos (${earnings.length})', [
@@ -184,6 +178,57 @@ abstract final class ReportExporter {
         ],
       ),
     );
+  }
+
+  static List<pw.Widget> _pdfPlatformSliceRow(PlatformRevenueSlice slice) {
+    final share = slice.sharePercent.clamp(0, 100) / 100;
+    return [
+      pw.Padding(
+        padding: const pw.EdgeInsets.only(bottom: 8),
+        child: pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
+            pw.Row(
+              mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+              children: [
+                pw.Text(slice.platform.label),
+                pw.Text(
+                  '${CurrencyFormatter.format(slice.amount)} · '
+                  '${slice.rides} corridas · '
+                  '${slice.sharePercent.toStringAsFixed(0)}%',
+                  style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                ),
+              ],
+            ),
+            pw.SizedBox(height: 4),
+            pw.Container(
+              height: 8,
+              decoration: pw.BoxDecoration(
+                color: PdfColor.fromHex('#1A2233'),
+                borderRadius: pw.BorderRadius.circular(4),
+              ),
+              child: pw.Row(
+                children: [
+                  pw.Expanded(
+                    flex: (share * 1000).round().clamp(1, 1000),
+                    child: pw.Container(
+                      decoration: pw.BoxDecoration(
+                        color: PdfColor.fromHex('#5BA4F5'),
+                        borderRadius: pw.BorderRadius.circular(4),
+                      ),
+                    ),
+                  ),
+                  pw.Expanded(
+                    flex: ((1 - share) * 1000).round().clamp(1, 1000),
+                    child: pw.SizedBox(),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    ];
   }
 
   static void _writeCsvRow(StringBuffer buffer, List<String> fields) {
