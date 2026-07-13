@@ -14,6 +14,9 @@ abstract final class ShiftSessionsSchema {
   static const revenue = 'revenue';
   static const rides = 'rides';
   static const revenuePerHour = 'revenue_per_hour';
+  static const expenses = 'expenses';
+  static const netCash = 'net_cash';
+  static const expensesByCategory = 'expenses_by_category';
   static const adherenceScore = 'adherence_score';
   static const matchedPlanBlocks = 'matched_plan_blocks';
   static const totalPlanBlocks = 'total_plan_blocks';
