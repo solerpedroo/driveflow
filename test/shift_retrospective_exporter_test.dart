@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:driveflow/core/constants/app_constants.dart';
 import 'package:driveflow/core/constants/ride_platforms.dart';
 import 'package:driveflow/features/shift/domain/entities/shift_history_entry.dart';
 import 'package:driveflow/features/shift/domain/entities/shift_retrospective.dart';
@@ -33,6 +34,9 @@ void main() {
           ),
         ],
         revenueByPlatform: const {RidePlatform.uber: 200},
+        expenses: 40,
+        netCash: 160,
+        expensesByCategory: const {ExpenseCategory.fuel: 40},
       ),
       platformBreakdown: const [
         ShiftPlatformSlice(
