@@ -41,16 +41,44 @@ import '../../features/shift/presentation/screens/shift_analytics_screen.dart';
 import '../../features/shift/presentation/screens/shift_retrospective_screen.dart';
 import '../../features/vehicle/presentation/screens/vehicle_onboarding_screen.dart';
 
-/// Notifica GoRouter quando auth, perfil, veículos ou intro de marca mudam.
+/// Notifica GoRouter apenas quando o resultado de redirect pode mudar.
 class AppRouterRefresh extends ChangeNotifier {
   AppRouterRefresh(this._ref) {
-    _authSub = _ref.listen(authStateProvider, (_, __) => notifyListeners());
-    _profileSub =
-        _ref.listen(userProfileProvider, (_, __) => notifyListeners());
-    _vehicleSub =
-        _ref.listen(vehiclesStreamProvider, (_, __) => notifyListeners());
+    _authSub = _ref.listen(authStateProvider, (previous, next) {
+      final prevId = previous?.valueOrNull?.id;
+      final nextId = next.valueOrNull?.id;
+      final prevLoading = previous?.isLoading ?? false;
+      final nextLoading = next.isLoading;
+      if (prevId != nextId || prevLoading != nextLoading) {
+        notifyListeners();
+      }
+    });
+    _profileSub = _ref.listen(userProfileProvider, (previous, next) {
+      final prev = previous?.valueOrNull;
+      final curr = next.valueOrNull;
+      final prevAwaiting = !(previous?.hasValue ?? false) &&
+          (previous?.isLoading ?? false);
+      final nextAwaiting = !next.hasValue && next.isLoading;
+      if (prevAwaiting != nextAwaiting ||
+          prev?.driverType != curr?.driverType ||
+          prev?.onboardingCompletedAt != curr?.onboardingCompletedAt) {
+        notifyListeners();
+      }
+    });
+    _vehicleSub = _ref.listen(vehiclesStreamProvider, (previous, next) {
+      final prevHas = previous?.valueOrNull?.isNotEmpty ?? false;
+      final nextHas = next.valueOrNull?.isNotEmpty ?? false;
+      final prevAwaiting = !(previous?.hasValue ?? false) &&
+          (previous?.isLoading ?? false);
+      final nextAwaiting = !next.hasValue && next.isLoading;
+      if (prevHas != nextHas || prevAwaiting != nextAwaiting) {
+        notifyListeners();
+      }
+    });
     _introSub =
-        _ref.listen(brandIntroCompleteProvider, (_, __) => notifyListeners());
+        _ref.listen(brandIntroCompleteProvider, (previous, next) {
+      if (previous != next) notifyListeners();
+    });
   }
 
   final Ref _ref;
