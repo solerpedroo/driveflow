@@ -7,6 +7,7 @@ import 'core/router/app_router.dart';
 import 'core/theme/app_cupertino_theme.dart';
 import 'core/theme/app_scroll_behavior.dart';
 import 'core/theme/app_theme.dart';
+import 'core/theme/theme_mode_provider.dart';
 import 'shared/widgets/home_widget_bootstrap.dart';
 import 'shared/widgets/recurring_expense_bootstrap.dart';
 import 'shared/widgets/shift_automation_bootstrap.dart';
