@@ -14,6 +14,7 @@ import '../../../../core/utils/currency_formatter.dart';
 import '../../../../shared/widgets/design_system/df_button.dart';
 import '../../../../shared/widgets/design_system/df_card.dart';
 import '../../../../shared/widgets/design_system/df_empty_state.dart';
+import '../../../../shared/widgets/design_system/df_skeleton.dart';
 import '../../../../shared/widgets/design_system/df_subpage_scaffold.dart';
 import '../providers/shift_history_providers.dart';
 import '../widgets/shift_history_tile.dart';
@@ -41,7 +42,9 @@ class ShiftHistoryScreen extends ConsumerWidget {
               children: [
                 Text(
                   'Últimos 7 dias',
-                  style: AppTypography.labelCaps(Theme.of(context).brightness),
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 Text(
@@ -88,7 +91,7 @@ class ShiftHistoryScreen extends ConsumerWidget {
         ),
         const SizedBox(height: AppSpacing.md),
         historyAsync.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => const DfSkeleton(itemCount: 4),
           error: (_, __) => const DfEmptyState(
             icon: Icons.history_rounded,
             title: 'Não foi possível carregar',
@@ -96,11 +99,14 @@ class ShiftHistoryScreen extends ConsumerWidget {
           ),
           data: (history) {
             if (history.isEmpty) {
-              return const DfEmptyState(
+              return DfEmptyState(
                 variant: DfEmptyStateVariant.illustrated,
                 icon: Icons.history_rounded,
                 title: 'Nenhum turno encerrado',
-                subtitle: 'Finalize um turno no Modo turno para ver a retrospectiva.',
+                subtitle:
+                    'Finalize um turno no Modo turno para ver a retrospectiva.',
+                actionLabel: 'Iniciar turno',
+                onAction: () => context.push(AppRoutes.shiftMode),
               );
             }
 
