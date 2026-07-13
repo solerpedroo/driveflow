@@ -13,8 +13,8 @@ import '../../../integrations/domain/entities/platform_shift_plan.dart';
 import '../../../../shared/widgets/design_system/df_button.dart';
 import '../../../../shared/widgets/design_system/df_card.dart';
 import '../../../onboarding/presentation/providers/onboarding_providers.dart';
+import '../../../shift/presentation/providers/shift_coaching_providers.dart';
 import '../../../shift/presentation/providers/shift_session_providers.dart';
-import '../providers/platform_analytics_providers.dart';
 
 /// Timeline do plano de turno sugerido.
 class PlatformShiftPlanCard extends ConsumerWidget {
@@ -23,7 +23,7 @@ class PlatformShiftPlanCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final plan = ref.watch(platformShiftPlanProvider);
+    final plan = ref.watch(adaptiveShiftPlanProvider);
 
     return plan.when(
       loading: () => const SizedBox.shrink(),
@@ -36,7 +36,7 @@ class PlatformShiftPlanCard extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Plano de turno',
+                'Plano adaptativo',
                 style: theme.textTheme.titleSmall?.copyWith(
                   fontWeight: FontWeight.w700,
                 ),
@@ -44,7 +44,7 @@ class PlatformShiftPlanCard extends ConsumerWidget {
               const SizedBox(height: 4),
               Text(
                 'Projeção ${CurrencyFormatter.format(data.projectedRevenue)} '
-                'em ${data.totalHours}h',
+                'em ${data.totalHours}h com base no seu histórico',
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: AppColors.secondaryLabel(theme),
                 ),
