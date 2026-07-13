@@ -39,13 +39,36 @@ final activeShiftSessionProvider = StreamProvider<ShiftSessionEntity?>((ref) {
 });
 
 final shiftSessionSummaryProvider = Provider<ShiftSessionSummary?>((ref) {
-  final session = ref.watch(activeShiftSessionProvider).valueOrNull;
+  final session = ref.watch(
+    activeShiftSessionProvider.select((async) => async.valueOrNull),
+  );
   if (session == null) return null;
 
-  final earnings = ref.watch(earningsStreamProvider).valueOrNull ?? const [];
-  final expenses = ref.watch(expensesStreamProvider).valueOrNull ?? const [];
-  final goals = ref.watch(goalsStreamProvider).valueOrNull;
-  final dailyGoal = goals?.daily ?? 0;
+  // Fingerprint evita recompute quando o AsyncValue muda sem conteúdo.
+  ref.watch(
+    earningsStreamProvider.select(
+      (async) => _listFingerprint(
+        async.valueOrNull,
+        amountOf: (e) => e.amount,
+        idOf: (e) => e.id,
+      ),
+    ),
+  );
+  ref.watch(
+    expensesStreamProvider.select(
+      (async) => _listFingerprint(
+        async.valueOrNull,
+        amountOf: (e) => e.amount,
+        idOf: (e) => e.id,
+      ),
+    ),
+  );
+  final dailyGoal = ref.watch(
+    goalsStreamProvider.select((async) => async.valueOrNull?.daily ?? 0.0),
+  );
+
+  final earnings = ref.read(earningsStreamProvider).valueOrNull ?? const [];
+  final expenses = ref.read(expensesStreamProvider).valueOrNull ?? const [];
 
   return ShiftSessionAggregator.summarize(
     session: session,
@@ -57,8 +80,23 @@ final shiftSessionSummaryProvider = Provider<ShiftSessionSummary?>((ref) {
   );
 });
 
+String _listFingerprint<T>(
+  List<T>? list, {
+  required double Function(T) amountOf,
+  required String Function(T) idOf,
+}) {
+  if (list == null || list.isEmpty) return '0';
+  var sum = 0.0;
+  for (final item in list) {
+    sum += amountOf(item);
+  }
+  return '${list.length}:${sum.toStringAsFixed(2)}:${idOf(list.first)}:${idOf(list.last)}';
+}
+
 final shiftPlanAdherenceProvider = Provider<ShiftPlanAdherence>((ref) {
-  final session = ref.watch(activeShiftSessionProvider).valueOrNull;
+  final session = ref.watch(
+    activeShiftSessionProvider.select((async) => async.valueOrNull),
+  );
   if (session == null) return ShiftPlanAdherence.none;
 
   final recommendation = ref.watch(platformShiftRecommendationProvider).valueOrNull;
