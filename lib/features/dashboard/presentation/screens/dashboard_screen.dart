@@ -39,6 +39,7 @@ import '../widgets/dashboard_fuel_card.dart';
 import '../widgets/dashboard_maintenance_card.dart';
 import '../widgets/dashboard_quick_actions.dart';
 import '../../../earnings/presentation/widgets/quick_earning_sheet.dart';
+import '../../../shift/presentation/widgets/dashboard_active_shift_card.dart';
 import '../widgets/dashboard_story_carousel.dart';
 import '../widgets/dashboard_upgrade_banner.dart';
 import '../widgets/dashboard_wealth_stage.dart';
@@ -218,6 +219,8 @@ class _DashboardBody extends StatelessWidget {
       children: [
         const DashboardBrandBar(),
         DashboardGreeting(text: greeting),
+        const DashboardActiveShiftCard(),
+        const DashboardShiftStartCard(),
         DashboardWealthStage(
           month: month,
           today: today,
@@ -243,6 +246,11 @@ class _DashboardBody extends StatelessWidget {
         ),
         DfQuickActions(
           actions: [
+            DfQuickAction(
+              icon: Icons.timer_rounded,
+              label: 'Turno',
+              onTap: () => context.push(AppRoutes.shiftMode),
+            ),
             DfQuickAction(
               icon: Icons.bolt_rounded,
               label: 'Ganho',
