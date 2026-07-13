@@ -1894,6 +1894,31 @@ Após as ondas 15–34 e refatorações por tela (Início, Ganhos, Despesas, etc
 
 ---
 
+## Onda 45 — Histórico e retrospectiva de turnos
+
+**Objetivo:** Persistir turnos encerrados, sincronizar com Supabase, analisar aderência ao plano e oferecer retrospectiva exportável.
+
+### Escopo
+
+| Área | Entrega |
+|---|---|
+| Supabase | Migration `014_shift_sessions` + RLS + realtime |
+| Domínio | `ShiftHistoryEntry`, `ShiftAdherenceAnalyzer`, `ShiftRetrospectiveBuilder` |
+| Sync | `ShiftHistoryRepositoryImpl` offline-first + fila no `SyncWorker` |
+| UI | `ShiftHistoryScreen`, `ShiftRetrospectiveScreen`, export CSV |
+| Encerramento | `ShiftSessionController.end()` arquiva métricas e limpa sessão ativa |
+| IA | Contexto inclui turno ativo + resumo dos últimos 7 dias |
+
+### Critérios de conclusão
+
+- [x] Turno encerrado vira entrada no histórico local e remoto
+- [x] Score de aderência ao plano calculado por bloco horário
+- [x] Retrospectiva com mix por app e plano vs realizado
+- [x] Exportação CSV compartilhável
+- [x] Testes `shift_adherence_analyzer`, `shift_retrospective_builder`, `shift_history_exporter`
+
+---
+
 ## Mapa de requisitos funcionais → ondas
 
 | RF | Descrição | Onda |
