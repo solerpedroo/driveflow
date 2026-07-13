@@ -47,6 +47,7 @@ class AiContextSnapshot {
     this.platformScores = const [],
     this.activeShift,
     this.shiftHistoryWeek,
+    this.shiftCoaching,
   });
 
   final int periodDays;
@@ -71,6 +72,7 @@ class AiContextSnapshot {
   final List<PlatformScoreSnapshot> platformScores;
   final Map<String, dynamic>? activeShift;
   final Map<String, dynamic>? shiftHistoryWeek;
+  final Map<String, dynamic>? shiftCoaching;
 
   Map<String, dynamic> toJson() {
     return {
@@ -166,6 +168,7 @@ class AiContextSnapshot {
           .toList(growable: false),
       if (activeShift != null) 'activeShift': activeShift,
       if (shiftHistoryWeek != null) 'shiftHistoryWeek': shiftHistoryWeek,
+      if (shiftCoaching != null) 'shiftCoaching': shiftCoaching,
     };
   }
 
@@ -197,6 +200,7 @@ abstract final class AiContextBuilder {
     List<PlatformTripEntity> platformTrips = const [],
     Map<String, dynamic>? activeShift,
     Map<String, dynamic>? shiftHistoryWeek,
+    Map<String, dynamic>? shiftCoaching,
   }) {
     final anchor = DateTime.now();
     final todayRange = dateRangeForGoalPeriod(GoalPeriod.daily, anchor);
@@ -289,6 +293,7 @@ abstract final class AiContextBuilder {
       platformScores: PlatformScoreCalculator.calculate(periodTrips),
       activeShift: activeShift,
       shiftHistoryWeek: shiftHistoryWeek,
+      shiftCoaching: shiftCoaching,
     );
   }
 
@@ -359,6 +364,8 @@ abstract final class AiContextBuilder {
         'Turno ativo: ${snapshot.activeShift}',
       if (snapshot.shiftHistoryWeek != null)
         'Turnos 7d: ${snapshot.shiftHistoryWeek}',
+      if (snapshot.shiftCoaching != null)
+        'Coaching turno: ${snapshot.shiftCoaching}',
     ].join('\n');
   }
 }
