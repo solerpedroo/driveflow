@@ -1,3 +1,4 @@
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/constants/ride_platforms.dart';
 import '../entities/shift_history_entry.dart';
 import '../entities/shift_block_outcome.dart';
@@ -17,6 +18,9 @@ abstract final class ShiftHistoryArchiver {
     required int totalPlanBlocks,
     required Map<RidePlatform, double> revenueByPlatform,
     List<ShiftBlockOutcome> blockOutcomes = const [],
+    double expenses = 0,
+    double? netCash,
+    Map<ExpenseCategory, double> expensesByCategory = const {},
   }) {
     final endedAt = session.endedAt ?? DateTime.now();
     final elapsed = session.elapsedAt(endedAt);
@@ -33,6 +37,9 @@ abstract final class ShiftHistoryArchiver {
       revenue: revenue,
       rides: rides,
       revenuePerHour: revenuePerHour,
+      expenses: expenses,
+      netCash: netCash ?? revenue - expenses,
+      expensesByCategory: expensesByCategory,
       adherenceScore: adherenceScore,
       matchedPlanBlocks: matchedPlanBlocks,
       totalPlanBlocks: totalPlanBlocks,
