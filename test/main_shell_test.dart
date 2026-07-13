@@ -98,6 +98,33 @@ void main() {
     expect(find.byType(DriveFlowBottomNavBar), findsOneWidget);
   });
 
+  testWidgets('Active bottom nav label renders beneath the icon', (tester) async {
+    ignoreLayoutOverflow();
+    tester.view.physicalSize = const Size(800, 1200);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: shellProviderOverrides(),
+        child: MaterialApp(
+          theme: buildDriveFlowDarkTheme(),
+          home: const MainShellScreen(),
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(
+      find.descendant(
+        of: find.byKey(const ValueKey('driveflow_nav_inicio')),
+        matching: find.byKey(const ValueKey('driveflow_nav_label_container')),
+      ),
+      findsOneWidget,
+    );
+  });
+
   testWidgets('MainShellScreen opens profile tab when requested', (tester) async {
     ignoreLayoutOverflow();
     tester.view.physicalSize = const Size(800, 1200);
