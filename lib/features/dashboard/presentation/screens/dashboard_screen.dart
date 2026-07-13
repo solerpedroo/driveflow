@@ -38,6 +38,7 @@ import '../widgets/dashboard_editorial_header.dart';
 import '../widgets/dashboard_fuel_card.dart';
 import '../widgets/dashboard_maintenance_card.dart';
 import '../widgets/dashboard_quick_actions.dart';
+import '../../../earnings/presentation/widgets/quick_earning_sheet.dart';
 import '../widgets/dashboard_story_carousel.dart';
 import '../widgets/dashboard_upgrade_banner.dart';
 import '../widgets/dashboard_wealth_stage.dart';
@@ -243,9 +244,9 @@ class _DashboardBody extends StatelessWidget {
         DfQuickActions(
           actions: [
             DfQuickAction(
-              icon: Icons.add_rounded,
+              icon: Icons.bolt_rounded,
               label: 'Ganho',
-              onTap: () => context.push(AppRoutes.earningForm),
+              onTap: () => QuickEarningSheet.show(context),
             ),
             DfQuickAction(
               icon: Icons.receipt_long_rounded,
