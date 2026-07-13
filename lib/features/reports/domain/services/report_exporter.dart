@@ -15,6 +15,7 @@ import '../../../earnings/domain/entities/earning_entity.dart';
 import '../../../expenses/domain/entities/expense_entity.dart';
 import '../../../integrations/domain/services/platform_analytics_breakdown.dart';
 import '../../../analytics/domain/entities/period_comparison_result.dart';
+import '../entities/report_snapshot.dart';
 
 /// Exporta relatórios em PDF e CSV e compartilha via share sheet.
 abstract final class ReportExporter {
