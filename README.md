@@ -1,39 +1,179 @@
-# DriveFlow
+<div align="center">
 
-Gestão financeira, operacional e estratégica para motoristas de aplicativo — com IA contextual integrada aos seus dados reais.
+<h1>
+  <span style="color:#0064F5">Drive</span><span style="color:#34C759">Flow</span>
+</h1>
 
-**Stack:** Flutter · Riverpod · GoRouter · Supabase · Hive · Groq
+<p>
+  <strong>O cockpit financeiro do motorista de aplicativo.</strong><br/>
+  Ganhos, despesas, turno, integrações e IA — em um só lugar, offline-first.
+</p>
 
-Consulte [implementation-plan.md](implementation-plan.md) para o roadmap completo em ondas.
+<p>
+  <img src="https://img.shields.io/badge/Flutter-0064F5?style=for-the-badge&logo=flutter&logoColor=white" alt="Flutter"/>
+  <img src="https://img.shields.io/badge/Supabase-34C759?style=for-the-badge&logo=supabase&logoColor=white" alt="Supabase"/>
+  <img src="https://img.shields.io/badge/Riverpod-0A192F?style=for-the-badge&logo=flutter&logoColor=white" alt="Riverpod"/>
+  <img src="https://img.shields.io/badge/Onda_53-0064F5?style=flat-square" alt="Onda 53"/>
+</p>
+
+</div>
 
 ---
 
-## Pré-requisitos
+## A história
 
-- [Flutter SDK](https://docs.flutter.dev/get-started/install) (Dart ^3.11)
-- [Supabase CLI](https://supabase.com/docs/guides/cli) (opcional, para backend local)
-- Android Studio / Xcode para emuladores
+Você passa horas na rua. O dinheiro entra em três apps diferentes. O combustível sai do bolso. A manutenção vence sem aviso. No fim do dia, a pergunta é sempre a mesma: **valeu a pena?**
+
+A maioria dos motoristas responde no feeling — ou numa planilha que ninguém mantém.
+
+**DriveFlow nasce para fechar esse ciclo.** Não é só um app de gastos. É o painel de controle da sua operação: quanto você faturou, quanto sobrou de verdade, em qual app rende mais, qual horário compensa, e o que fazer no próximo turno.
+
+> Do primeiro ganho registrado ao PDF da retrospectiva — cada corrida vira dado. Cada dado vira decisão.
 
 ---
 
-## Setup rápido
+## O que o DriveFlow faz por você
 
-### 1. Dependências Flutter
+<table>
+<tr>
+<td width="33%" valign="top">
+
+<h3 style="color:#0064F5">Caixa real</h3>
+
+<p>
+Registre ganhos e despesas por veículo. Veja lucro bruto e <strong>líquido</strong> — descontando combustível, pedágio, lavagem e tudo mais que come sua margem.
+</p>
+
+<p>
+<strong>Dashboard</strong> · <strong>Relatórios PDF/CSV</strong> · <strong>OCR de comprovantes</strong>
+</p>
+
+</td>
+<td width="33%" valign="top">
+
+<h3 style="color:#34C759">Turno inteligente</h3>
+
+<p>
+Inicie um turno com plano adaptativo (heatmap + seu histórico). Acompanhe aderência, caixa líquido ao vivo, Live Activity e retrospectiva com insight de coaching.
+</p>
+
+<p>
+<strong>Modo turno</strong> · <strong>Analytics 7d/30d</strong> · <strong>Widget iOS</strong>
+</p>
+
+</td>
+<td width="33%" valign="top">
+
+<h3 style="color:#5AC8FA">Multi-app + IA</h3>
+
+<p>
+Conecte Uber, 99 e InDrive. Sincronize corridas, compare take rate, simule mix de plataformas e pergunte ao assistente com contexto dos seus últimos 90 dias.
+</p>
+
+<p>
+<strong>Cockpit</strong> · <strong>Repasses</strong> · <strong>Assistente Groq</strong>
+</p>
+
+</td>
+</tr>
+</table>
+
+---
+
+## Jornada do motorista
+
+```
+  Registrar          Entender            Operar              Decidir
+  ─────────          ────────            ──────              ───────
+  Ganhos             Dashboard           Modo turno          Plano adaptativo
+  Despesas      →    Analytics      →    Live Activity  →   Coaching + IA
+  Abastecimento      Insights            Caixa líquido       PDF retrospectiva
+  Manutenção         Comparativos        Atalhos rápidos     Metas por app
+```
+
+Cada etapa alimenta a próxima. Quanto mais você usa, mais preciso fica o conselho — sem depender de planilha externa.
+
+---
+
+## Destaques do produto
+
+| Área | O que você ganha |
+|------|------------------|
+| <span style="color:#0064F5">**Financeiro**</span> | Ganhos, despesas, combustível, manutenção, metas e múltiplos veículos com escopo por carro |
+| <span style="color:#34C759">**Turno**</span> | Sessão com timer, pausas, aderência ao plano, histórico, retrospectiva e exportação PDF |
+| <span style="color:#5AC8FA">**Integrações**</span> | OAuth Uber/99/InDrive, sync de corridas, rollup automático e cockpit multi-app |
+| <span style="color:#FF9500">**Inteligência**</span> | Heatmap 7×24, simulador de mix, previsão IA, OCR on-device e chat contextual |
+| <span style="color:#FF3B30">**Operação**</span> | Offline-first com Hive, fila de sync, notificações de manutenção e deep links `driveflow://` |
+| <span style="color:#B8D4FF">**Experiência**</span> | Design System v2, UI Apple Premium, liquid glass nav, acessibilidade e modo taxista |
+
+---
+
+## Stack
+
+<table>
+<tr>
+<td align="center" width="20%">
+
+**Frontend**  
+Flutter 3.11+  
+Riverpod · GoRouter  
+Hooks · fl_chart
+
+</td>
+<td align="center" width="20%">
+
+**Backend**  
+Supabase  
+Postgres + RLS  
+Edge Functions
+
+</td>
+<td align="center" width="20%">
+
+**Offline**  
+Hive  
+SyncWorker  
+Retry exponencial
+
+</td>
+<td align="center" width="20%">
+
+**IA**  
+Groq (Edge)  
+Contexto 90 dias  
+Rate limit server-side
+
+</td>
+<td align="center" width="20%">
+
+**Nativo**  
+WidgetKit  
+Live Activities  
+Quick Actions iOS/Android
+
+</td>
+</tr>
+</table>
+
+---
+
+## Começar em 4 passos
+
+### 1. Dependências
 
 ```bash
+git clone https://github.com/solerpedroo/driveflow.git
 cd driveflow
 flutter pub get
 ```
 
-### 2. Variáveis de ambiente
-
-Copie o exemplo e preencha com suas credenciais Supabase:
+### 2. Ambiente
 
 ```bash
 cp env.example.json env.json
 ```
 
-Edite `env.json`:
+Edite `env.json` com suas credenciais Supabase:
 
 ```json
 {
@@ -51,30 +191,62 @@ supabase start
 supabase db reset
 ```
 
-Após `supabase start`, copie a `anon key` exibida no terminal para `env.json`.
+Copie a `anon key` exibida no terminal para `env.json`.
 
-### 4. Executar o app
+### 4. Rodar
 
 ```bash
 flutter run --dart-define-from-file=env.json
+```
+
+### IA (produção)
+
+```bash
+supabase secrets set GROQ_API_KEY=sua_chave_groq
+supabase functions deploy ai-chat
+supabase functions deploy ai-forecast
 ```
 
 ---
 
 ## Arquitetura
 
+Clean Architecture feature-first — cada módulo com `presentation`, `domain` e `data`.
+
 ```
 lib/
-├── core/           # theme, router, constants, utils, errors
-├── features/       # Clean Architecture por feature
-│   └── <feature>/
+├── core/              # theme, router, constants, services, utils
+├── features/          # authentication, dashboard, earnings, expenses,
+│   └── <feature>/     # vehicle, shift, integrations, ai, reports...
 │       ├── presentation/
 │       ├── domain/
 │       └── data/
-└── shared/         # widgets e providers cross-feature
+└── shared/            # widgets cross-feature, deep links, bootstrap
 ```
 
-**Padrões:** schema + mapper explícitos, injeção para testes, GoRouter, Riverpod.
+**Padrões:** schema + mapper explícitos, injeção para testes, streams Supabase com cache Hive, guards no GoRouter.
+
+<details>
+<summary><strong>Estrutura interna de uma feature</strong></summary>
+
+```
+features/<feature>/
+├── presentation/
+│   ├── screens/
+│   ├── widgets/
+│   └── providers/
+├── domain/
+│   ├── entities/
+│   ├── repositories/
+│   └── usecases/
+└── data/
+    ├── datasources/
+    ├── mappers/
+    ├── schema/
+    └── repositories/
+```
+
+</details>
 
 ---
 
@@ -83,195 +255,73 @@ lib/
 ```bash
 flutter analyze
 flutter test
+flutter test --coverage
 dart run build_runner build --delete-conflicting-outputs
 ```
 
+Meta de cobertura: **≥ 70%** em `lib/features/*/domain` e `lib/features/*/data`.
+
 ---
 
-## Onda 0 — entregue
+## Documentação
 
-- [x] Projeto Flutter (`com.driveflow`)
-- [x] Design system (tema claro/escuro, tipografia, glass cards)
-- [x] GoRouter + tela foundation
-- [x] Supabase migration 001 (RLS + storage)
-- [x] Utils (BRL, datas, validators)
-- [x] Testes unitários e widget
+| Documento | Conteúdo |
+|-----------|----------|
+| [implementation-plan.md](implementation-plan.md) | Roadmap completo em 53+ ondas, critérios de conclusão e mapa de RFs |
+| [docs/SUPABASE_ER.md](docs/SUPABASE_ER.md) | Modelo de dados e relacionamentos |
+| [docs/RELEASE.md](docs/RELEASE.md) | Checklist de release e deploy |
+| [docs/INTEGRACOES-PLATAFORMAS.md](docs/INTEGRACOES-PLATAFORMAS.md) | OAuth e sync Uber/99/InDrive |
+| [docs/engineering-audit.md](docs/engineering-audit.md) | Auditoria técnica e débitos |
 
-## Onda 1 — entregue
+---
 
-- [x] Login e-mail/senha + cadastro
-- [x] Google OAuth (PKCE + deep link)
-- [x] Auth guards no GoRouter (splash → login → home)
-- [x] Sync automático de `profiles`
-- [x] Backup de refresh token (`flutter_secure_storage`)
-- [x] Testes: mapper, login screen, smoke app
+## Roadmap
 
-## Onda 2 — entregue
+O DriveFlow evolui em **ondas** — entregas incrementais com demo funcional e testes antes de avançar.
 
-- [x] Shell principal com 5 abas (Dashboard, Ganhos, Despesas, Relatórios, Perfil)
-- [x] CRUD de veículo + onboarding obrigatório sem veículo
-- [x] Perfil: editar nome, upload de avatar (`avatars` bucket)
-- [x] Redirect GoRouter: auth → onboarding veículo → shell
-- [x] Testes: `vehicle_mapper`, shell tab switching, validação odômetro
+| Fase | Ondas | Escopo |
+|------|-------|--------|
+| **MVP v1.0** | 0–9 | Auth, CRUD, dashboard, relatórios, IA, offline-first |
+| **Pós-MVP** | 10–14 | Múltiplos veículos, OCR, analytics, insights, importação |
+| **Premium UI** | 15–23 | Design System v2, glass, haptics, polish outlier |
+| **Integrações** | 24–33 | Uber/99/InDrive, cockpit, heatmap, caixa, Pro analytics |
+| **Turno completo** | 45–53 | Histórico, widget, Live Activity, coaching, automação, caixa líquido |
 
-## Onda 3 — entregue
+Consulte [implementation-plan.md](implementation-plan.md) para o detalhamento de cada onda.
 
-- [x] CRUD de ganhos (plataforma, valor, corridas, horas, data, observação)
-- [x] CRUD de despesas com categorias e upload de comprovante (`receipts`)
-- [x] Filtros por período (hoje/semana/mês) e plataforma nos ganhos
-- [x] Listagem de despesas agrupada por categoria
-- [x] Streams Supabase em tempo real + rotas de formulário
-- [x] Testes: mappers, filtros, validação BRL, formulário de ganho
+---
 
-## Onda 4 — entregue
+## Variáveis de ambiente
 
-- [x] CRUD de abastecimentos (`fuel_logs`) com cálculo automático km/L e custo/km
-- [x] Média rolling de consumo nos últimos abastecimentos
-- [x] Sync automático com `expenses` categoria Combustível
-- [x] Atualização do odômetro do veículo ao salvar
-- [x] Histórico + formulário acessíveis via Perfil e card no Dashboard
-- [x] Testes: fórmulas de métricas, mapper e linker de despesa
+```env
+# Flutter (--dart-define-from-file)
+SUPABASE_URL=
+SUPABASE_ANON_KEY=
 
-## Onda 5 — entregue
+# Supabase Edge Functions (secrets)
+GROQ_API_KEY=
+GROQ_MODEL=llama-3.3-70b-versatile
 
-- [x] CRUD de manutenções por veículo (tipo, custo, data, próximo km/data)
-- [x] `MaintenanceDueChecker` com status em dia / próximo / atrasado
-- [x] Lembretes locais via `flutter_local_notifications` na data de vencimento
-- [x] Badge de alerta no Dashboard quando há manutenção pendente
-- [x] Acesso via Perfil e rotas `/maintenance/form` e `/maintenance/history`
-- [x] Testes: lógica de vencimento e mapper
-
-## Onda 6 — entregue
-
-- [x] Metas diária, semanal, mensal e anual (upsert 1 row por usuário)
-- [x] `GoalProgressCalculator` compara lucro real (ganhos − despesas) vs meta
-- [x] Tela `/goals` com cards de progresso linear e formulário de configuração
-- [x] Chip "Meta diária" no Dashboard com dados reais e atalho para metas
-- [x] Testes: percentual, projeção "faltam R$ X" e meta não configurada
-
-## Onda 7 — entregue
-
-- [x] `ProfitCalculator` e `DashboardAggregator` consolidam ganhos, despesas e combustível
-- [x] Dashboard com card "Hoje", gráfico semanal de lucro e resumo do mês
-- [x] Aba Relatórios com filtros diário/semanal/mensal/anual e indicadores completos
-- [x] Exportação PDF e CSV branded via `share_plus`
-- [x] Testes: agregações, lucro/hora, lucro/km e widget do card "Hoje"
-
-## Onda 8 — entregue
-
-- [x] Edge Function `ai-chat` com Groq, contexto dos últimos 90 dias e rate limit
-- [x] JWT validado na função; `GROQ_API_KEY` apenas no servidor
-- [x] Chat UI com bolhas, sugestões rápidas e histórico via `ai_history`
-- [x] `AiContextBuilder` para preview local do contexto
-- [x] Acesso via Perfil → Assistente DriveFlow (`/ai/chat`)
-- [x] Testes: montagem de contexto e formatação de prompt
-
-### Configurar IA (Supabase)
-
-```bash
-supabase secrets set GROQ_API_KEY=sua_chave_groq
-supabase functions deploy ai-chat
+# Integrações (Onda 26+)
+UBER_CLIENT_ID=
+UBER_CLIENT_SECRET=
+NINETY_NINE_CLIENT_ID=
+NINETY_NINE_CLIENT_SECRET=
+INDRIVE_CLIENT_ID=
+INDRIVE_CLIENT_SECRET=
+PLATFORM_OAUTH_REDIRECT_URL=
 ```
 
-## Onda 9 — entregue
-
-- [x] Hive offline-first: boxes `earnings`, `expenses`, `fuel_logs`, `maintenance`, `goals`, `pending_sync_queue`
-- [x] Write-through + fila de sync com retry exponencial (`SyncWorker`)
-- [x] CRUD offline para ganhos e despesas; leitura cache para combustível, manutenção e metas
-- [x] Banner offline / sincronizando no shell principal
-- [x] Analytics (`earning_added`, `ai_question`, `report_exported`) + crash reporting (`runZonedGuarded`)
-- [x] Pull-to-refresh, empty states ilustrados e skeleton loaders nas listas
-- [x] Documentação: [docs/SUPABASE_ER.md](docs/SUPABASE_ER.md), [docs/RELEASE.md](docs/RELEASE.md)
-- [x] Testes: storage offline, mappers draft round-trip, shell com overrides de sync
-
-### Coverage
-
-```bash
-flutter test --coverage
-# Meta: ≥ 70% em lib/features/*/domain e lib/features/*/data
-```
-
-## Onda 10 — entregue
-
-- [x] Migration 002: `nickname`, `is_default`, `vehicle_id` em ganhos/despesas
-- [x] CRUD de N veículos com veículo padrão e exclusão segura
-- [x] Seletor de veículo (chip + bottom sheet) no Dashboard e Relatórios
-- [x] `scopedVehicleIdProvider` filtra ganhos/despesas por veículo
-- [x] Cache Hive + fila offline para veículos (`SyncWorker`)
-- [x] Lista de veículos no Perfil com adicionar/editar/excluir/tornar padrão
-- [x] Testes: mapper, `VehicleDefaultResolver`, `VehicleScopeFilter`
-
-## Onda 11 — entregue
-
-- [x] OCR on-device com `google_mlkit_text_recognition` (sem envio à nuvem)
-- [x] `ReceiptOcrParser` extrai valor BRL, data, estabelecimento e categoria sugerida
-- [x] Bottom sheet de revisão obrigatória antes de preencher o formulário
-- [x] Botão "Escanear comprovante" (câmera ou galeria) em `ExpenseFormScreen`
-- [x] Analytics: `receipt_ocr_scanned`, `receipt_ocr_confirmed`, `receipt_ocr_discarded`
-- [x] Testes: parser com fixtures de posto/cupom e sugestão de categoria
-
-## Onda 12 — entregue
-
-- [x] Feature `analytics`: tendência 30/90 dias, pizza de despesas, comparativo de períodos
-- [x] `PeriodComparisonCalculator` e `CategoryBreakdownCalculator`
-- [x] Tela `/analytics` com gráficos `fl_chart` e filtros de período/referência
-- [x] Dashboard: atalho "Ver análises avançadas"
-- [x] Relatórios: card comparativo + pizza por categoria
-- [x] Export PDF/CSV inclui seção de comparativo
-- [x] Testes: calculadoras analytics e widget `PeriodComparisonCard`
-
 ---
 
-## Onda 13 — entregue
+<div align="center">
 
-- [x] Feature `insights`: `MaintenancePredictor`, `EarningsHeatmapBuilder`, projeção semanal
-- [x] `AverageKmPerDayCalculator` e intervalos padrão de manutenção
-- [x] Notificações preditivas reagendadas após abastecimento
-- [x] Tela `/insights` com cards de melhor horário, manutenção e meta
-- [x] Dashboard: top 3 janelas + badge preditivo; atalhos Análises/Insights
-- [x] Perfil: atalho Insights; IA: sugestão "Qual meu melhor horário?"
-- [x] Testes: calculadoras insights e widget `BestTimeSlotsCard`
+<p>
+  <span style="color:#0064F5">DriveFlow</span> — transforme quilômetros em clareza financeira.
+</p>
 
----
+<p>
+  <sub>Projeto privado · todos os direitos reservados</sub>
+</p>
 
-## Onda 14 — entregue
-
-- [x] Feature `import`: parsers CSV (Nubank/Inter/genérico) e OFX básico
-- [x] `ImportDeduplicator` e preview com checkboxes em `/import/statement`
-- [x] Importação em lote via repositórios (fila offline)
-- [x] Edge Function `ai-forecast` + card Projeção em Analytics
-- [x] `ProfitForecastCalculator` local (fallback determinístico)
-- [x] IA: sugestão de previsão mensal; migration `ai_history.type`
-- [x] Testes: parsers, deduplicação e calculadora de previsão
-
----
-
-## Onda 15 — entregue
-
-- [x] Design tokens: `app_spacing`, `app_radius`, `app_motion`, `app_elevation`, `app_semantic_colors`
-- [x] Biblioteca `design_system/`: `DfButton`, `DfTextField`, `DfCard`, `DfChip`, `DfEmptyState`, `DfSkeleton`, `DfSectionHeader`, `DfBottomSheet`, `DfFormScaffold`, `DfBottomNavBar`
-- [x] Wrappers `driveflow_*` e `auth_*` delegam para componentes `Df*` (deprecated v2.1)
-- [x] Screens refatoradas: Dashboard, Ganhos, Despesas, Relatórios (< 200 linhas)
-- [x] Acessibilidade: `Semantics` em gráficos, touch targets ≥ 48dp, teste `textScaleFactor` 1.3
-- [x] Prep i18n: `lib/l10n/app_pt.arb` + `AppStrings`
-- [x] Testes: smoke design system e acessibilidade de chip
-
-### Componentes Design System v2
-
-| Componente | Uso |
-|---|---|
-| `DfButton` | Ações primárias, outlined e tonal |
-| `DfTextField` | Formulários e auth |
-| `DfCard` | Cartões glass / elevated / hero |
-| `DfChip` | Métricas e filtros |
-| `DfEmptyState` | Listas vazias |
-| `DfSkeleton` | Loading de listas |
-| `DfSectionHeader` / `DfScreenTitle` | Títulos de seção e tela |
-| `DfBottomSheet` | Sheets padronizados |
-| `DfFormScaffold` | Layout de formulários |
-
----
-
-## Licença
-
-Projeto privado — todos os direitos reservados.
+</div>
