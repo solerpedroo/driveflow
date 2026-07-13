@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import '../../../../core/constants/app_constants.dart';
+import '../../domain/entities/platform_cockpit_tab.dart';
+import '../platform_cockpit_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/currency_formatter.dart';
@@ -50,7 +51,9 @@ class PlatformShiftPlanCard extends ConsumerWidget {
                   block: block,
                   onTap: () {
                     DfHaptics.light();
-                    context.push(AppRoutes.platformIntegrations);
+                    context.push(PlatformCockpitRoutes.hub(
+                      tab: PlatformCockpitTab.shift,
+                    ));
                   },
                 ),
             ],

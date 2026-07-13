@@ -2,12 +2,15 @@ import '../../../../core/constants/ride_platforms.dart';
 import '../../../integrations/domain/entities/platform_consistency_snapshot.dart';
 import '../../../integrations/domain/entities/platform_heatmap_slot.dart';
 import '../../../integrations/domain/entities/platform_net_profit_slice.dart';
-import '../../../integrations/domain/entities/platform_revenue_trend_point.dart';
+import '../../../integrations/domain/entities/platform_score_snapshot.dart';
 import '../../../integrations/domain/services/platform_consistency_analyzer.dart';
 import '../../../integrations/domain/services/platform_heatmap_builder.dart';
 import '../../../integrations/domain/services/platform_net_profit_calculator.dart';
 import '../../../integrations/domain/services/platform_profit_per_km_analyzer.dart';
+import '../../../integrations/domain/services/platform_revenue_trend_calculator.dart';
+import '../../../integrations/domain/services/platform_score_calculator.dart';
 import '../../../integrations/domain/services/platform_analytics_breakdown.dart';
+import '../../../integrations/domain/entities/platform_revenue_trend_point.dart';
 import '../../../integrations/domain/entities/platform_trip_entity.dart';
 import '../../../earnings/domain/entities/earning_entity.dart';
 import '../../../expenses/domain/entities/expense_entity.dart';
@@ -41,6 +44,7 @@ class AiContextSnapshot {
     this.platformNetProfit = const [],
     this.platformProfitPerKm = const [],
     this.topHeatmapSlots = const [],
+    this.platformScores = const [],
   });
 
   final int periodDays;
@@ -62,6 +66,7 @@ class AiContextSnapshot {
   final List<PlatformNetProfitSlice> platformNetProfit;
   final List<PlatformProfitPerKmSnapshot> platformProfitPerKm;
   final List<PlatformHeatmapSlot> topHeatmapSlots;
+  final List<PlatformScoreSnapshot> platformScores;
 
   Map<String, dynamic> toJson() {
     return {
@@ -144,6 +149,14 @@ class AiContextSnapshot {
               'weekday': h.weekday,
               'hour': h.hour,
               'revenuePerHour': h.revenuePerHour,
+            },
+          )
+          .toList(growable: false),
+      'platformScores': platformScores
+          .map(
+            (s) => {
+              'platform': s.platform.label,
+              'score': s.score,
             },
           )
           .toList(growable: false),
@@ -265,6 +278,7 @@ abstract final class AiContextBuilder {
             )
           : const [],
       topHeatmapSlots: heatmap.take(5).toList(growable: false),
+      platformScores: PlatformScoreCalculator.calculate(periodTrips),
     );
   }
 
@@ -329,6 +343,8 @@ abstract final class AiContextBuilder {
         'Lucro/km por app: ${snapshot.platformProfitPerKm.map((p) => '${p.platform.label} ${p.profitPerKm.toStringAsFixed(2)}').join(', ')}',
       if (snapshot.topHeatmapSlots.isNotEmpty)
         'Heatmap top slots: ${snapshot.topHeatmapSlots.map((h) => '${h.platform.label} ${h.weekdayLabel} ${h.hour}h ${h.revenuePerHour.toStringAsFixed(0)}/h').join('; ')}',
+      if (snapshot.platformScores.isNotEmpty)
+        'Score por app: ${snapshot.platformScores.map((s) => '${s.platform.label} ${s.score.round()}').join(', ')}',
     ].join('\n');
   }
 }

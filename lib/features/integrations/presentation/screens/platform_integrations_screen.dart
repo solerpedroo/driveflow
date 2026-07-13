@@ -17,18 +17,41 @@ import '../../../../shared/widgets/design_system/df_subpage_scaffold.dart';
 import '../../domain/entities/platform_connection_entity.dart';
 import '../../domain/services/platform_catalog.dart';
 import '../providers/integrations_providers.dart';
+import '../../domain/entities/platform_cockpit_tab.dart';
+import '../providers/platform_cockpit_providers.dart';
+import '../widgets/platform_cockpit_panel.dart';
 import '../widgets/platform_connect_sheet.dart';
 import '../widgets/platform_connection_card.dart';
-import '../widgets/platform_insights_panel.dart';
 import '../widgets/platform_recent_trips_card.dart';
 import '../widgets/platform_sync_log_panel.dart';
 
-/// Hub de integrações — DNA Início / Perfil.
-class PlatformIntegrationsScreen extends ConsumerWidget {
-  const PlatformIntegrationsScreen({super.key});
+/// Hub de integrações e cockpit multi-app.
+class PlatformIntegrationsScreen extends ConsumerStatefulWidget {
+  const PlatformIntegrationsScreen({
+    super.key,
+    this.initialCockpitTab = PlatformCockpitTab.today,
+  });
+
+  final PlatformCockpitTab initialCockpitTab;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<PlatformIntegrationsScreen> createState() =>
+      _PlatformIntegrationsScreenState();
+}
+
+class _PlatformIntegrationsScreenState
+    extends ConsumerState<PlatformIntegrationsScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(platformCockpitTabProvider.notifier).state =
+          widget.initialCockpitTab;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
     final connections = ref.watch(platformConnectionsProvider).valueOrNull;
     final mutation = ref.watch(platformIntegrationControllerProvider);
@@ -115,7 +138,7 @@ class PlatformIntegrationsScreen extends ConsumerWidget {
     }
 
     return DfSubpageScaffold(
-      title: 'Apps conectados',
+      title: 'Cockpit',
       onRefresh: () async {
         await ref
             .read(platformIntegrationRepositoryProvider)
@@ -151,12 +174,12 @@ class PlatformIntegrationsScreen extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Integrações',
+                      'Cockpit multi-app',
                       style: AppTypography.labelCaps(brightness),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Seus apps, um só lucro',
+                      'Decisão inteligente de turno',
                       style: AppTypography.iosHeadline(brightness).copyWith(
                         fontWeight: FontWeight.w700,
                       ),
@@ -197,7 +220,7 @@ class PlatformIntegrationsScreen extends ConsumerWidget {
             ),
           ],
         ),
-        const PlatformInsightsPanel(),
+        const PlatformCockpitPanel(),
         const PlatformRecentTripsCard(),
         const PlatformSyncLogPanel(),
         DfExpandableListSection(
