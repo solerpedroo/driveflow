@@ -40,7 +40,7 @@ class DfBottomNavBar extends StatelessWidget {
   final double horizontalPadding;
   final double bottomPadding;
 
-  static const double _trackHeight = 60;
+  static const double _trackHeight = 78;
   static const double _glassRadius = 30;
 
   @override
@@ -73,7 +73,7 @@ class DfBottomNavBar extends StatelessWidget {
             ),
           ),
           child: SizedBox(
-            height: _trackHeight - 16,
+            height: _trackHeight,
             child: Row(
               children: [
                 for (var i = 0; i < items.length; i++)
@@ -121,6 +121,9 @@ class _DfBottomNavItemTile extends StatelessWidget {
     final contentColor = isActive
         ? AppColors.navActiveForeground(brightness)
         : inactiveColor;
+    final labelStateKey = ValueKey(
+      'nav-label-${label.toLowerCase()}-${isActive ? 'active' : 'inactive'}',
+    );
 
     return Semantics(
       label: label,
@@ -134,8 +137,8 @@ class _DfBottomNavItemTile extends StatelessWidget {
             duration: DriveFlowMotion.fast,
             curve: DriveFlowMotion.standard,
             constraints: BoxConstraints(
-              minWidth: isActive ? 72 : 44,
-              minHeight: 44,
+              minWidth: isActive ? 84 : 50,
+              minHeight: isActive ? 68 : 50,
             ),
             decoration: isActive
                 ? BoxDecoration(
@@ -145,25 +148,44 @@ class _DfBottomNavItemTile extends StatelessWidget {
                 : null,
             child: Padding(
               padding: EdgeInsets.symmetric(
-                horizontal: isActive ? 12 : 6,
+                horizontal: isActive ? 10 : 6,
                 vertical: 6,
               ),
-              child: Row(
+              child: Column(
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Icon(icon, size: 22, color: contentColor),
-                  AnimatedSize(
+                  AnimatedSwitcher(
                     duration: DriveFlowMotion.normal,
-                    curve: DriveFlowMotion.spring,
-                    alignment: Alignment.centerLeft,
+                    reverseDuration: DriveFlowMotion.fast,
+                    switchInCurve: DriveFlowMotion.enter,
+                    switchOutCurve: DriveFlowMotion.snap,
+                    transitionBuilder: (child, animation) {
+                      return FadeTransition(
+                        opacity: animation,
+                        child: SlideTransition(
+                          position: Tween<Offset>(
+                            begin: const Offset(0, 0.14),
+                            end: Offset.zero,
+                          ).animate(animation),
+                          child: child,
+                        ),
+                      );
+                    },
                     child: isActive
-                        ? _AnimatedNavLabel(
-                            label: label,
-                            color: contentColor,
-                            brightness: brightness,
+                        ? SizedBox(
+                            key: labelStateKey,
+                            child: _AnimatedNavLabel(
+                              label: label,
+                              color: contentColor,
+                              brightness: brightness,
+                            ),
                           )
-                        : const SizedBox(width: 0, height: 0),
+                        : const SizedBox.shrink(
+                            key: ValueKey('nav-label-empty'),
+                          ),
                   ),
                 ],
               ),
@@ -208,7 +230,7 @@ class _AnimatedNavLabelState extends State<_AnimatedNavLabel>
       curve: DriveFlowMotion.enter,
     );
     _slide = Tween<Offset>(
-      begin: const Offset(-0.35, 0),
+      begin: const Offset(0, 0.2),
       end: Offset.zero,
     ).animate(
       CurvedAnimation(
@@ -228,21 +250,29 @@ class _AnimatedNavLabelState extends State<_AnimatedNavLabel>
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 6),
+      key: const ValueKey('driveflow_nav_label_container'),
+      padding: const EdgeInsets.only(top: 4),
       child: FadeTransition(
         opacity: _fade,
         child: SlideTransition(
           position: _slide,
-          child: Text(
-            widget.label,
-            style: AppTypography.iosCaption(widget.brightness).copyWith(
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
-              color: widget.color,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 76),
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.center,
+              child: Text(
+                widget.label,
+                style: AppTypography.iosCaption(widget.brightness).copyWith(
+                  fontSize: 10.5,
+                  fontWeight: FontWeight.w700,
+                  color: widget.color,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.visible,
+                softWrap: false,
+              ),
             ),
-            maxLines: 1,
-            overflow: TextOverflow.fade,
-            softWrap: false,
           ),
         ),
       ),
