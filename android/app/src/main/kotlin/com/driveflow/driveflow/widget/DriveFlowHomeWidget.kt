@@ -14,6 +14,7 @@ import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.appwidget.provideContent
 import androidx.glance.background
+import androidx.glance.currentState
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Column
 import androidx.glance.layout.fillMaxSize
@@ -21,6 +22,7 @@ import androidx.glance.layout.padding
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
+import androidx.glance.unit.ColorProvider
 import com.driveflow.driveflow.MainActivity
 import es.antonborri.home_widget.HomeWidgetGlanceState
 import es.antonborri.home_widget.HomeWidgetGlanceStateDefinition
@@ -69,19 +71,25 @@ class DriveFlowHomeWidget : GlanceAppWidget() {
         ) {
             Text(
                 text = if (shiftActive) "Turno ativo" else "Lucro hoje",
-                style = TextStyle(color = Color.White, fontSize = 12.sp),
+                style = TextStyle(
+                    color = ColorProvider(Color.White),
+                    fontSize = 12.sp,
+                ),
             )
             Text(
                 text = if (shiftActive && shiftRevenue.isNotBlank()) shiftRevenue else profit,
                 style = TextStyle(
-                    color = Color.White,
+                    color = ColorProvider(Color.White),
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
                 ),
             )
             Text(
                 text = subtitle,
-                style = TextStyle(color = Color(0xCCFFFFFF), fontSize = 11.sp),
+                style = TextStyle(
+                    color = ColorProvider(Color(0xCCFFFFFF)),
+                    fontSize = 11.sp,
+                ),
             )
         }
     }
