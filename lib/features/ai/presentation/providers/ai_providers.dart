@@ -12,6 +12,7 @@ import '../../../insights/domain/services/earnings_heatmap_builder.dart';
 import '../../../maintenance/presentation/providers/maintenance_providers.dart';
 import '../../../integrations/presentation/providers/platform_trips_providers.dart';
 import '../../../vehicle/presentation/providers/vehicle_providers.dart';
+import '../../../shift/presentation/providers/shift_session_providers.dart';
 import '../../data/repositories/ai_repository_impl.dart';
 import '../../domain/entities/ai_message_entity.dart';
 import '../../domain/entities/ai_forecast_message.dart';
@@ -48,6 +49,22 @@ final aiContextPreviewProvider = Provider<AiContextSnapshot>((ref) {
   final odometer = ref.watch(activeVehicleProvider).valueOrNull?.odometerKm;
   final topSlots = EarningsHeatmapBuilder.topSlots(earnings: earnings);
   final trips = ref.watch(platformScopedTripsProvider);
+  final session = ref.watch(activeShiftSessionProvider).valueOrNull;
+  final shiftSummary = ref.watch(shiftSessionSummaryProvider);
+  final adherence = ref.watch(shiftPlanAdherenceProvider);
+
+  Map<String, dynamic>? activeShift;
+  if (session != null && shiftSummary != null) {
+    activeShift = {
+      'elapsedMinutes': shiftSummary.elapsed.inMinutes,
+      'revenue': shiftSummary.revenue,
+      'rides': shiftSummary.rides,
+      'revenuePerHour': shiftSummary.revenuePerHour,
+      'shouldSwitchApp': adherence.shouldSwitch,
+      'currentPlatform': adherence.currentBlock?.platform.label,
+      'recommendedPlatform': adherence.recommendedPlatform?.label,
+    };
+  }
 
   return AiContextBuilder.build(
     earnings: earnings,
@@ -58,6 +75,7 @@ final aiContextPreviewProvider = Provider<AiContextSnapshot>((ref) {
     currentOdometerKm: odometer,
     topEarningSlots: topSlots,
     platformTrips: trips,
+    activeShift: activeShift,
   );
 });
 
