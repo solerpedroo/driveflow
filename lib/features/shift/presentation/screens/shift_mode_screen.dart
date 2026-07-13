@@ -6,6 +6,8 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/deep_links/app_deep_link_action.dart';
+import '../../../../core/presentation/providers/app_deep_link_providers.dart';
 import '../../../../core/errors/failure_message.dart';
 import '../../../../core/services/shift_notification_service.dart';
 import '../../../../core/utils/currency_formatter.dart';
@@ -24,6 +26,7 @@ import '../providers/shift_session_providers.dart';
 import '../providers/shift_coaching_providers.dart';
 import '../widgets/shift_earnings_summary.dart';
 import '../widgets/shift_coaching_card.dart';
+import '../widgets/shift_shortcuts_card.dart';
 import '../widgets/shift_plan_progress_row.dart';
 import '../widgets/shift_timer_widget.dart';
 
@@ -63,6 +66,18 @@ class ShiftModeScreen extends HookConsumerWidget {
       }
     }
 
+    ref.listen(pendingAppDeepLinkProvider, (previous, next) async {
+      if (next == null || !context.mounted) return;
+      final pending = next;
+      ref.read(pendingAppDeepLinkProvider.notifier).clear();
+
+      if (pending.action == AppDeepLinkAction.shiftStart && session == null) {
+        await startShift();
+      } else if (pending.action == AppDeepLinkAction.quickEarning) {
+        await QuickEarningSheet.show(context);
+      }
+    });
+
     Future<void> endShift() async {
       final confirm = await DfConfirmDialog.show(
         context: context,
@@ -98,6 +113,8 @@ class ShiftModeScreen extends HookConsumerWidget {
         title: 'Modo turno',
         children: [
           if (!isTaxi) const ShiftCoachingCard(showStartAction: false),
+          if (!isTaxi) const SizedBox(height: AppSpacing.md),
+          if (!isTaxi) const ShiftShortcutsCard(),
           if (!isTaxi) const SizedBox(height: AppSpacing.md),
           DfCard(
             child: Column(
