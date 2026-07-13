@@ -1919,6 +1919,29 @@ Após as ondas 15–34 e refatorações por tela (Início, Ganhos, Despesas, etc
 
 ---
 
+## Onda 46 — Widget iOS e retrospectiva PDF
+
+**Objetivo:** Paridade do widget de home screen no iOS (WidgetKit) e exportação PDF da retrospectiva de turno.
+
+### Escopo
+
+| Área | Entrega |
+|---|---|
+| iOS | Widget Extension `DriveFlowHomeWidget` + App Group + entitlements |
+| Dart | `HomeWidgetService` sincroniza Android e iOS com mesmas chaves |
+| PDF | `ShiftRetrospectiveExporter` — resumo, insight, mix por app, plano vs realizado |
+| UI | Botão **Exportar PDF** na `ShiftRetrospectiveScreen` |
+| CocoaPods | `Podfile` com target da extensão + `home_widget` |
+
+### Critérios de conclusão
+
+- [x] Widget iOS exibe lucro hoje ou turno ativo (mesmo contrato do Android)
+- [x] `HomeWidget.setAppGroupId` em iOS e `updateWidget` com kind `DriveFlowHomeWidget`
+- [x] PDF da retrospectiva compartilhável via Share
+- [x] Teste `shift_retrospective_exporter`
+
+---
+
 ## Mapa de requisitos funcionais → ondas
 
 | RF | Descrição | Onda |
