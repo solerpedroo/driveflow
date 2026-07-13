@@ -2043,6 +2043,34 @@ Após as ondas 15–34 e refatorações por tela (Início, Ganhos, Despesas, etc
 
 ---
 
+## Onda 51 — Automação e atalhos de turno
+
+**Objetivo:** Deep links `driveflow://`, atalhos do sistema, lembretes automáticos de pré-turno e notificações acionáveis.
+
+### Escopo
+
+| Área | Entrega |
+|---|---|
+| Deep links | `AppDeepLinkParser`, `AppDeepLinkRoutes`, `AppDeepLinkListener` |
+| Handler | Navegação + ações pendentes (iniciar turno, ganho rápido) |
+| Automação | `ShiftAutomationScheduler` + lembrete 15 min antes do bloco |
+| Android | `shortcuts.xml` + intent-filter `driveflow://` |
+| Widget | Home widget abre `driveflow://earning/quick` ou turno ativo |
+| UI | `ShiftShortcutsCard` no modo turno e histórico |
+| Notificações | Payload com deep link em sugestões de turno |
+| Meta | `kCurrentWave = 51`, testes parser e scheduler |
+
+### Critérios de conclusão
+
+- [x] URIs `driveflow://shift/start`, `earning/quick`, `shift/history`, etc.
+- [x] Toque em notificação abre tela/ação correta
+- [x] Lembrete automático de pré-turno com plano adaptativo
+- [x] Atalhos Android no ícone do app
+- [x] Card de atalhos copia link e executa ação
+- [x] Testes `app_deep_link_parser`, `shift_automation_scheduler`
+
+---
+
 ## Mapa de requisitos funcionais → ondas
 
 | RF | Descrição | Onda |

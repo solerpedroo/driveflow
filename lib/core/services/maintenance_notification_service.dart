@@ -20,6 +20,8 @@ class MaintenanceNotificationService {
 
   bool _initialized = false;
 
+  static void Function(String? payload)? onNotificationTap;
+
   Future<void> initialize() async {
     if (_initialized) return;
 
@@ -30,6 +32,9 @@ class MaintenanceNotificationService {
     const ios = DarwinInitializationSettings();
     await _plugin.initialize(
       const InitializationSettings(android: android, iOS: ios),
+      onDidReceiveNotificationResponse: (response) {
+        onNotificationTap?.call(response.payload);
+      },
     );
 
     final androidPlugin = _plugin.resolvePlatformSpecificImplementation<

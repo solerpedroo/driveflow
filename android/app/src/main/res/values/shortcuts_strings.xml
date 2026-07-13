@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="shortcut_shift_start">Iniciar turno</string>
+    <string name="shortcut_shift_start_long">Iniciar turno com plano sugerido</string>
+    <string name="shortcut_quick_earning">Ganho rápido</string>
+    <string name="shortcut_quick_earning_long">Registrar ganho rápido</string>
+    <string name="shortcut_shift_mode">Turno ativo</string>
+    <string name="shortcut_shift_mode_long">Abrir modo turno</string>
+</resources>
