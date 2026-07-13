@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import '../providers/expenses_providers.dart';
-import '../providers/recurring_expense_providers.dart';
+import '../../features/expenses/presentation/providers/expenses_providers.dart';
+import '../../features/expenses/presentation/providers/recurring_expense_providers.dart';
 
 /// Executa templates recorrentes vencidos ao abrir o app.
 class RecurringExpenseBootstrap extends ConsumerStatefulWidget {
