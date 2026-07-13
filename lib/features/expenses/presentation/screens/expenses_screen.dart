@@ -19,7 +19,9 @@ import '../../../../shared/widgets/design_system/df_skeleton.dart';
 import '../../../../shared/widgets/design_system/df_tab_scroll_view.dart';
 import '../../../../shared/widgets/driveflow_period_filter.dart';
 import '../providers/expenses_providers.dart';
+import '../providers/recurring_expense_providers.dart';
 import '../widgets/expense_tile.dart';
+import '../widgets/recurring_expense_templates_card.dart';
 
 /// Despesas — mesmo DNA da Início / Ganhos.
 class ExpensesScreen extends ConsumerWidget {
@@ -66,11 +68,13 @@ class ExpensesScreen extends ConsumerWidget {
 
         return DfTabScrollView(
           onRefresh: () async {
+            await applyDueRecurringExpenses(ref);
             await ref.read(expensesRepositoryProvider).fetchExpenses();
           },
           children: [
             const DfHeaderRow(),
             const DfScreenTitleRow(title: 'Despesas'),
+            const RecurringExpenseTemplatesCard(),
             totalAsync.when(
               loading: () => const SizedBox(
                 height: 140,

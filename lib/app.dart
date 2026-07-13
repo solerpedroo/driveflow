@@ -7,6 +7,8 @@ import 'core/router/app_router.dart';
 import 'core/theme/app_cupertino_theme.dart';
 import 'core/theme/app_scroll_behavior.dart';
 import 'core/theme/app_theme.dart';
+import 'shared/widgets/home_widget_bootstrap.dart';
+import 'shared/widgets/recurring_expense_bootstrap.dart';
 import 'shared/widgets/shift_notification_bootstrap.dart';
 
 /// Raiz do app — Material + Cupertino unificados (HIG Apple).
@@ -19,25 +21,29 @@ class DriveFlowApp extends ConsumerWidget {
     final router = ref.watch(routerProvider);
 
     return ShiftNotificationBootstrap(
-      child: CupertinoTheme(
-        data: themeMode == ThemeMode.dark
-            ? buildDriveFlowCupertinoDarkTheme()
-            : buildDriveFlowCupertinoLightTheme(),
-        child: MaterialApp.router(
-          title: 'DriveFlow',
-          debugShowCheckedModeBanner: false,
-          scrollBehavior: const AppScrollBehavior(),
-          themeMode: themeMode,
-          theme: buildDriveFlowLightTheme(),
-          darkTheme: buildDriveFlowDarkTheme(),
-          routerConfig: router,
-          locale: const Locale('pt', 'BR'),
-          supportedLocales: const [Locale('pt', 'BR')],
-          localizationsDelegates: const [
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
+      child: RecurringExpenseBootstrap(
+        child: HomeWidgetBootstrap(
+          child: CupertinoTheme(
+            data: themeMode == ThemeMode.dark
+                ? buildDriveFlowCupertinoDarkTheme()
+                : buildDriveFlowCupertinoLightTheme(),
+            child: MaterialApp.router(
+              title: 'DriveFlow',
+              debugShowCheckedModeBanner: false,
+              scrollBehavior: const AppScrollBehavior(),
+              themeMode: themeMode,
+              theme: buildDriveFlowLightTheme(),
+              darkTheme: buildDriveFlowDarkTheme(),
+              routerConfig: router,
+              locale: const Locale('pt', 'BR'),
+              supportedLocales: const [Locale('pt', 'BR')],
+              localizationsDelegates: const [
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+            ),
+          ),
         ),
       ),
     );
