@@ -19,6 +19,7 @@ import 'platform_mix_simulator_card.dart';
 import 'platform_payout_calendar_card.dart';
 import 'platform_region_card.dart';
 import 'platform_consistency_card.dart';
+import 'platform_profit_per_km_card.dart';
 
 /// Painel de insights cross-platform — valor agregado para o motorista.
 class PlatformInsightsPanel extends ConsumerWidget {
@@ -45,6 +46,8 @@ class PlatformInsightsPanel extends ConsumerWidget {
         const PlatformGoldenHourCard(),
         const SizedBox(height: AppSpacing.md),
         const PlatformScoreCard(),
+        const SizedBox(height: AppSpacing.md),
+        const PlatformProfitPerKmCard(),
         const SizedBox(height: AppSpacing.md),
         const PlatformHeatmapWidget(),
         const SizedBox(height: AppSpacing.md),
