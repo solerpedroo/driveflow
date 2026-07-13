@@ -2098,6 +2098,30 @@ Após as ondas 15–34 e refatorações por tela (Início, Ganhos, Despesas, etc
 
 ---
 
+## Onda 53 — Polish pós-turno
+
+**Objetivo:** Fechar lacunas de polish após as ondas 45–52 — PDF, cockpit, discoverability e paridade iOS nos atalhos.
+
+### Escopo
+
+| Área | Entrega |
+|---|---|
+| PDF | Despesas, líquido, R\$/h líquido e breakdown por categoria na retrospectiva exportada |
+| Cockpit | `PlatformShiftPlanCard` usa `adaptiveShiftPlanProvider` com copy de plano adaptativo |
+| Dashboard | Card da semana abre analytics; exibe total líquido quando há despesas rastreadas |
+| iOS | `UIApplicationShortcutItems` + handler em `AppDelegate` para `driveflow://` (paridade Android) |
+| Meta | `kCurrentWave = 53`, teste `shift_retrospective_exporter` com caixa líquido |
+
+### Critérios de conclusão
+
+- [x] PDF exporta despesas, líquido e categorias quando o turno tem despesas
+- [x] Cockpit mostra plano adaptativo (histórico + heatmap), não só heatmap
+- [x] Dashboard da semana navega para analytics e mostra líquido quando aplicável
+- [x] Quick Actions iOS disparam os mesmos deep links do Android
+- [x] Teste `shift_retrospective_exporter` cobre entrada com despesas
+
+---
+
 ## Mapa de requisitos funcionais → ondas
 
 | RF | Descrição | Onda |
