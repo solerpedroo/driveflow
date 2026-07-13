@@ -97,5 +97,8 @@ struct DriveFlowHomeWidget: Widget {
 struct DriveFlowHomeWidgetBundle: WidgetBundle {
     var body: some Widget {
         DriveFlowHomeWidget()
+        if #available(iOS 16.1, *) {
+            DriveFlowShiftLiveActivityWidget()
+        }
     }
 }
