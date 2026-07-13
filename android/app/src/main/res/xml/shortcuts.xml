@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="shift_start"
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/shortcut_shift_start"
+        android:shortcutLongLabel="@string/shortcut_shift_start_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:data="driveflow://shift/start" />
+    </shortcut>
+    <shortcut
+        android:shortcutId="quick_earning"
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/shortcut_quick_earning"
+        android:shortcutLongLabel="@string/shortcut_quick_earning_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:data="driveflow://earning/quick" />
+    </shortcut>
+    <shortcut
+        android:shortcutId="shift_mode"
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/shortcut_shift_mode"
+        android:shortcutLongLabel="@string/shortcut_shift_mode_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:data="driveflow://shift" />
+    </shortcut>
+</shortcuts>
