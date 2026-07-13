@@ -1,5 +1,4 @@
-import '../../../expenses/domain/entities/expense_entity.dart';
-import '../entities/shift_session_entity.dart';
+import '../../../../core/constants/app_constants.dart';
 
 /// Caixa líquido do turno — ganhos menos despesas na janela da sessão.
 class ShiftNetCashSnapshot {
