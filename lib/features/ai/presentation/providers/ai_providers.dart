@@ -53,6 +53,8 @@ final aiContextPreviewProvider = Provider<AiContextSnapshot>((ref) {
   final shiftSummary = ref.watch(shiftSessionSummaryProvider);
   final adherence = ref.watch(shiftPlanAdherenceProvider);
 
+  final weekStats = ref.watch(shiftHistoryWeekStatsProvider);
+
   Map<String, dynamic>? activeShift;
   if (session != null && shiftSummary != null) {
     activeShift = {
@@ -76,6 +78,14 @@ final aiContextPreviewProvider = Provider<AiContextSnapshot>((ref) {
     topEarningSlots: topSlots,
     platformTrips: trips,
     activeShift: activeShift,
+    shiftHistoryWeek: weekStats.shiftCount == 0
+        ? null
+        : {
+            'shifts': weekStats.shiftCount,
+            'revenue': weekStats.revenue,
+            'rides': weekStats.rides,
+            'avgAdherence': weekStats.avgAdherence,
+          },
   );
 });
 
