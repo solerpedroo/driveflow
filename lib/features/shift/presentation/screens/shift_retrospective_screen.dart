@@ -83,7 +83,11 @@ class ShiftRetrospectiveScreen extends ConsumerWidget {
                   Text(
                     hidden
                         ? '•••'
-                        : CurrencyFormatter.format(entry.revenue),
+                        : CurrencyFormatter.formatSigned(
+                            entry.expenses > 0
+                                ? entry.netCash
+                                : entry.revenue,
+                          ),
                     style:
                         AppTypography.iosLargeTitle(theme.brightness).copyWith(
                       fontWeight: FontWeight.w700,
@@ -108,12 +112,33 @@ class ShiftRetrospectiveScreen extends ConsumerWidget {
                     Text(
                       hidden
                           ? '•••/h'
-                          : '${CurrencyFormatter.format(entry.revenuePerHour!)}/h',
+                          : '${CurrencyFormatter.format(entry.revenuePerHour!)}/h bruto',
                       style: theme.textTheme.labelLarge?.copyWith(
                         color: AppColors.brandBlue,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
+                  ],
+                  if (entry.expenses > 0) ...[
+                    const SizedBox(height: AppSpacing.sm),
+                    Text(
+                      hidden
+                          ? 'Despesas •••'
+                          : 'Despesas ${CurrencyFormatter.format(entry.expenses)}',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: AppColors.expenseCoral,
+                      ),
+                    ),
+                    if (entry.netPerHour != null)
+                      Text(
+                        hidden
+                            ? '•••/h líquido'
+                            : '${CurrencyFormatter.formatSigned(entry.netPerHour!)}/h líquido',
+                        style: theme.textTheme.labelMedium?.copyWith(
+                          color: AppColors.profitGreen,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
                   ],
                 ],
               ),
