@@ -5,8 +5,8 @@
 </h1>
 
 <p>
-  <strong>O cockpit financeiro do motorista de aplicativo.</strong><br/>
-  Ganhos, despesas, turno, integrações e IA — em um só lugar, offline-first.
+  <strong>The financial cockpit for rideshare drivers.</strong><br/>
+  Earnings, expenses, shifts, integrations, and AI — all in one offline-first platform.
 </p>
 
 <p>
@@ -20,58 +20,58 @@
 
 ---
 
-## A história
+## The Story
 
-Você passa horas na rua. O dinheiro entra em três apps diferentes. O combustível sai do bolso. A manutenção vence sem aviso. No fim do dia, a pergunta é sempre a mesma: **valeu a pena?**
+You spend hours on the road. Money flows in from three different apps. Fuel comes out of your pocket. Maintenance due dates sneak up without warning. At the end of the day, the question is always the same: **was it worth it?**
 
-A maioria dos motoristas responde no feeling — ou numa planilha que ninguém mantém.
+Most drivers answer based on gut feeling — or using a spreadsheet that nobody actually maintains.
 
-**DriveFlow nasce para fechar esse ciclo.** Não é só um app de gastos. É o painel de controle da sua operação: quanto você faturou, quanto sobrou de verdade, em qual app rende mais, qual horário compensa, e o que fazer no próximo turno.
+**DriveFlow was built to close this loop.** It is not just an expense tracker. It is the control panel of your operation: how much you earned, how much you actually took home, which app pays the best, which hours are most profitable, and what to focus on during your next shift.
 
-> Do primeiro ganho registrado ao PDF da retrospectiva — cada corrida vira dado. Cada dado vira decisão.
+> From the first logged ride to the monthly retrospective PDF — every mile becomes data. Every data point becomes a decision.
 
 ---
 
-## O que o DriveFlow faz por você
+## Core Features
 
 <table>
 <tr>
 <td width="33%" valign="top">
 
-<h3 style="color:#0064F5">Caixa real</h3>
+<h3 style="color:#0064F5">Real Net Income</h3>
 
 <p>
-Registre ganhos e despesas por veículo. Veja lucro bruto e <strong>líquido</strong> — descontando combustível, pedágio, lavagem e tudo mais que come sua margem.
+Log earnings and expenses categorized by vehicle. Track gross and <strong>net profit</strong> — factoring in fuel, tolls, car washes, and everything else that eats into your margins.
 </p>
 
 <p>
-<strong>Dashboard</strong> · <strong>Relatórios PDF/CSV</strong> · <strong>OCR de comprovantes</strong>
-</p>
-
-</td>
-<td width="33%" valign="top">
-
-<h3 style="color:#34C759">Turno inteligente</h3>
-
-<p>
-Inicie um turno com plano adaptativo (heatmap + seu histórico). Acompanhe aderência, caixa líquido ao vivo, Live Activity e retrospectiva com insight de coaching.
-</p>
-
-<p>
-<strong>Modo turno</strong> · <strong>Analytics 7d/30d</strong> · <strong>Widget iOS</strong>
+<strong>Dashboard</strong> &middot; <strong>PDF/CSV Reports</strong> &middot; <strong>Receipt OCR</strong>
 </p>
 
 </td>
 <td width="33%" valign="top">
 
-<h3 style="color:#5AC8FA">Multi-app + IA</h3>
+<h3 style="color:#34C759">Intelligent Shifts</h3>
 
 <p>
-Conecte Uber, 99 e InDrive. Sincronize corridas, compare take rate, simule mix de plataformas e pergunte ao assistente com contexto dos seus últimos 90 dias.
+Start your shift with an adaptive plan based on local heatmaps and your personal history. Track compliance, live net income, iOS Live Activities, and get coaching insights.
 </p>
 
 <p>
-<strong>Cockpit</strong> · <strong>Repasses</strong> · <strong>Assistente Groq</strong>
+<strong>Shift Mode</strong> &middot; <strong>7d/30d Analytics</strong> &middot; <strong>iOS Home Widgets</strong>
+</p>
+
+</td>
+<td width="33%" valign="top">
+
+<h3 style="color:#5AC8FA">Multi-App Sync &amp; AI</h3>
+
+<p>
+Connect Uber, 99, and InDrive. Sync trip histories, compare platform take rates, simulate platform mixes, and query an AI assistant with the context of your last 90 days.
+</p>
+
+<p>
+<strong>Multi-App Cockpit</strong> &middot; <strong>Payout Sync</strong> &middot; <strong>Groq AI Assistant</strong>
 </p>
 
 </td>
@@ -80,35 +80,35 @@ Conecte Uber, 99 e InDrive. Sincronize corridas, compare take rate, simule mix d
 
 ---
 
-## Jornada do motorista
+## Driver Workflow
 
 ```
-  Registrar          Entender            Operar              Decidir
-  ─────────          ────────            ──────              ───────
-  Ganhos             Dashboard           Modo turno          Plano adaptativo
-  Despesas      →    Analytics      →    Live Activity  →   Coaching + IA
-  Abastecimento      Insights            Caixa líquido       PDF retrospectiva
-  Manutenção         Comparativos        Atalhos rápidos     Metas por app
+   Log Metrics        Analyze Data         Run Shift            Decide & Adapt
+   ───────────        ────────────         ─────────            ──────────────
+   Earnings           Dashboard            Shift Mode           Adaptive Plans
+   Expenses     →     Analytics     →      Live Activities →    AI Coaching Insights
+   Fuel Log           Weekly Rollups       Real-time P&L        Retrospective PDFs
+   Maintenance        App Comparisons      Quick Actions        App-specific Goals
 ```
 
-Cada etapa alimenta a próxima. Quanto mais você usa, mais preciso fica o conselho — sem depender de planilha externa.
+Each stage feeds the next. The more you use it, the more precise the AI recommendations become — freeing you completely from external spreadsheets.
 
 ---
 
-## Destaques do produto
+## Product Highlights
 
-| Área | O que você ganha |
-|------|------------------|
-| <span style="color:#0064F5">**Financeiro**</span> | Ganhos, despesas, combustível, manutenção, metas e múltiplos veículos com escopo por carro |
-| <span style="color:#34C759">**Turno**</span> | Sessão com timer, pausas, aderência ao plano, histórico, retrospectiva e exportação PDF |
-| <span style="color:#5AC8FA">**Integrações**</span> | OAuth Uber/99/InDrive, sync de corridas, rollup automático e cockpit multi-app |
-| <span style="color:#FF9500">**Inteligência**</span> | Heatmap 7×24, simulador de mix, previsão IA, OCR on-device e chat contextual |
-| <span style="color:#FF3B30">**Operação**</span> | Offline-first com Hive, fila de sync, notificações de manutenção e deep links `driveflow://` |
-| <span style="color:#B8D4FF">**Experiência**</span> | Design System v2, UI Apple Premium, liquid glass nav, acessibilidade e modo taxista |
+| Area | Feature Details |
+|------|-----------------|
+| <span style="color:#0064F5">**Financials**</span> | Earnings, expenses, fuel logs, recurring maintenance, goals, and multi-vehicle tracking with dedicated car scopes |
+| <span style="color:#34C759">**Shifts**</span> | Active shift session with timers, pauses, plan compliance tracking, history logs, and PDF retrospectives |
+| <span style="color:#5AC8FA">**Integrations**</span> | OAuth integrations for Uber, 99, and InDrive, ride synchronization, automatic rollups, and multi-app cockpit |
+| <span style="color:#FF9500">**Intelligence**</span> | 7x24 heatmap visualization, mix simulator, AI predictions, on-device OCR, and context-aware chat assistant |
+| <span style="color:#FF3B30">**Reliability**</span> | Offline-first syncing via Hive, sync queue, maintenance notifications, and `driveflow://` deep links |
+| <span style="color:#B8D4FF">**UX/UI**</span> | Design System v2, premium Apple-style UI, liquid glass navigation, accessibility compliance, and taximeter mode |
 
 ---
 
-## Stack
+## Technical Stack
 
 <table>
 <tr>
@@ -116,8 +116,8 @@ Cada etapa alimenta a próxima. Quanto mais você usa, mais preciso fica o conse
 
 **Frontend**  
 Flutter 3.11+  
-Riverpod · GoRouter  
-Hooks · fl_chart
+Riverpod &middot; GoRouter  
+Flutter Hooks &middot; FL Chart
 
 </td>
 <td align="center" width="20%">
@@ -125,31 +125,31 @@ Hooks · fl_chart
 **Backend**  
 Supabase  
 Postgres + RLS  
-Edge Functions
+Edge Functions (Deno)
 
 </td>
 <td align="center" width="20%">
 
-**Offline**  
+**Offline Database**  
 Hive  
-SyncWorker  
-Retry exponencial
+Background SyncWorker  
+Exponential Retry
 
 </td>
 <td align="center" width="20%">
 
-**IA**  
-Groq (Edge)  
-Contexto 90 dias  
-Rate limit server-side
+**AI Layer**  
+Groq SDK (Edge)  
+90-day Context Vector  
+Server-side Rate Limiting
 
 </td>
 <td align="center" width="20%">
 
-**Nativo**  
-WidgetKit  
+**Native Modules**  
+iOS WidgetKit  
 Live Activities  
-Quick Actions iOS/Android
+Quick Actions (iOS/Android)
 
 </td>
 </tr>
@@ -157,9 +157,9 @@ Quick Actions iOS/Android
 
 ---
 
-## Começar em 4 passos
+## Getting Started
 
-### 1. Dependências
+### 1. Install Dependencies
 
 ```bash
 git clone https://github.com/solerpedroo/driveflow.git
@@ -167,67 +167,71 @@ cd driveflow
 flutter pub get
 ```
 
-### 2. Ambiente
+### 2. Environment Configuration
 
 ```bash
 cp env.example.json env.json
 ```
 
-Edite `env.json` com suas credenciais Supabase:
+Edit `env.json` with your Supabase credentials:
 
 ```json
 {
   "SUPABASE_URL": "http://127.0.0.1:54321",
-  "SUPABASE_ANON_KEY": "sua-anon-key"
+  "SUPABASE_ANON_KEY": "your-anon-key"
 }
 ```
 
-> **Android emulador:** use `http://10.0.2.2:54321` como URL.
+> **Android Emulator Note:** Use `http://10.0.2.2:54321` as the local URL.
 
-### 3. Supabase local (opcional)
+### 3. Local Supabase Setup (Optional)
 
 ```bash
 supabase start
 supabase db reset
 ```
 
-Copie a `anon key` exibida no terminal para `env.json`.
+Copy the generated `anon key` from your terminal into your `env.json` file.
 
-### 4. Rodar
+### 4. Run the Project
 
 ```bash
 flutter run --dart-define-from-file=env.json
 ```
 
-### IA (produção)
+### Deploying Edge Functions (Production)
 
 ```bash
-supabase secrets set GROQ_API_KEY=sua_chave_groq
+supabase secrets set GROQ_API_KEY=your_groq_api_key
 supabase functions deploy ai-chat
 supabase functions deploy ai-forecast
 ```
 
 ---
 
-## Arquitetura
+## Architecture
 
-Clean Architecture feature-first — cada módulo com `presentation`, `domain` e `data`.
+This project follows **Clean Architecture** with a **Feature-first** directory structure. Each feature module contains separate `presentation`, `domain`, and `data` layers.
 
 ```
 lib/
-├── core/              # theme, router, constants, services, utils
-├── features/          # authentication, dashboard, earnings, expenses,
-│   └── <feature>/     # vehicle, shift, integrations, ai, reports...
+├── core/              # Global themes, router, constants, services, and utils
+├── features/          # Feature modules (auth, dashboard, earnings, expenses,
+│   └── <feature>/     # vehicle, shift, integrations, ai, reports...)
 │       ├── presentation/
 │       ├── domain/
 │       └── data/
-└── shared/            # widgets cross-feature, deep links, bootstrap
+└── shared/            # Reusable widgets, deep link configurations, bootstrap logic
 ```
 
-**Padrões:** schema + mapper explícitos, injeção para testes, streams Supabase com cache Hive, guards no GoRouter.
+**Architectural Standards:**
+- Explicit schema-to-entity mappers
+- Full dependency injection for unit testing
+- Supabase reactive streams cached locally in Hive
+- Route guards and middleware in GoRouter
 
 <details>
-<summary><strong>Estrutura interna de uma feature</strong></summary>
+<summary><strong>Internal Feature Module Directory Structure</strong></summary>
 
 ```
 features/<feature>/
@@ -240,17 +244,17 @@ features/<feature>/
 │   ├── repositories/
 │   └── usecases/
 └── data/
-    ├── datasources/
-    ├── mappers/
-    ├── schema/
-    └── repositories/
+│   ├── datasources/
+│   ├── mappers/
+│   ├── schema/
+│   └── repositories/
 ```
 
 </details>
 
 ---
 
-## Scripts úteis
+## Developer Scripts
 
 ```bash
 flutter analyze
@@ -259,39 +263,39 @@ flutter test --coverage
 dart run build_runner build --delete-conflicting-outputs
 ```
 
-Meta de cobertura: **≥ 70%** em `lib/features/*/domain` e `lib/features/*/data`.
+Coverage target: **&ge; 70%** coverage across `lib/features/*/domain` and `lib/features/*/data`.
 
 ---
 
-## Documentação
+## Project Documentation
 
-| Documento | Conteúdo |
-|-----------|----------|
-| [implementation-plan.md](implementation-plan.md) | Roadmap completo em 53+ ondas, critérios de conclusão e mapa de RFs |
-| [docs/SUPABASE_ER.md](docs/SUPABASE_ER.md) | Modelo de dados e relacionamentos |
-| [docs/RELEASE.md](docs/RELEASE.md) | Checklist de release e deploy |
-| [docs/INTEGRACOES-PLATAFORMAS.md](docs/INTEGRACOES-PLATAFORMAS.md) | OAuth e sync Uber/99/InDrive |
-| [docs/engineering-audit.md](docs/engineering-audit.md) | Auditoria técnica e débitos |
+| Document | Content Description |
+|-----------|---------------------|
+| [implementation-plan.md](implementation-plan.md) | Full 53-wave development roadmap, completion criteria, and functional mapping |
+| [docs/SUPABASE_ER.md](docs/SUPABASE_ER.md) | Database schema entity-relationship model and relational constraints |
+| [docs/RELEASE.md](docs/RELEASE.md) | Deployment checklists and release workflows |
+| [docs/INTEGRACOES-PLATAFORMAS.md](docs/INTEGRACOES-PLATAFORMAS.md) | OAuth flow and data sync pipelines for Uber, 99, and InDrive |
+| [docs/engineering-audit.md](docs/engineering-audit.md) | Technical audit, technical debt tracker, and code smell logs |
 
 ---
 
 ## Roadmap
 
-O DriveFlow evolui em **ondas** — entregas incrementais com demo funcional e testes antes de avançar.
+DriveFlow is built incrementally in **waves** — ensuring a complete functional demo and unit tests are validated before starting the next wave.
 
-| Fase | Ondas | Escopo |
+| Phase | Waves | Scope |
 |------|-------|--------|
-| **MVP v1.0** | 0–9 | Auth, CRUD, dashboard, relatórios, IA, offline-first |
-| **Pós-MVP** | 10–14 | Múltiplos veículos, OCR, analytics, insights, importação |
-| **Premium UI** | 15–23 | Design System v2, glass, haptics, polish outlier |
-| **Integrações** | 24–33 | Uber/99/InDrive, cockpit, heatmap, caixa, Pro analytics |
-| **Turno completo** | 45–53 | Histórico, widget, Live Activity, coaching, automação, caixa líquido |
+| **MVP v1.0** | 0–9 | Auth, Core CRUD, Dashboard, PDF Reports, AI Chat, Offline Sync |
+| **Post-MVP** | 10–14 | Multi-vehicle tracking, OCR receipt scanner, analytics, data imports |
+| **Premium UI** | 15–23 | Design System v2, Glassmorphism, Haptics, visual polish |
+| **Integrations** | 24–33 | Platform OAuth (Uber/99/InDrive), Sync telemetry, heatmaps |
+| **Shifts Engine**| 45–53 | Shift tracking, widgets, Live Activities, AI coaching, real-time P&L |
 
-Consulte [implementation-plan.md](implementation-plan.md) para o detalhamento de cada onda.
+For the wave-by-wave checklist breakdown, check [implementation-plan.md](implementation-plan.md).
 
 ---
 
-## Variáveis de ambiente
+## Environment Variables
 
 ```env
 # Flutter (--dart-define-from-file)
@@ -302,7 +306,7 @@ SUPABASE_ANON_KEY=
 GROQ_API_KEY=
 GROQ_MODEL=llama-3.3-70b-versatile
 
-# Integrações (Onda 26+)
+# Integrations (Wave 26+)
 UBER_CLIENT_ID=
 UBER_CLIENT_SECRET=
 NINETY_NINE_CLIENT_ID=
@@ -317,11 +321,11 @@ PLATFORM_OAUTH_REDIRECT_URL=
 <div align="center">
 
 <p>
-  <span style="color:#0064F5">DriveFlow</span> — transforme quilômetros em clareza financeira.
+  <span style="color:#0064F5">DriveFlow</span> — transforming miles on the road into absolute financial clarity.
 </p>
 
 <p>
-  <sub>Projeto privado · todos os direitos reservados</sub>
+  <sub>Private Project &middot; All Rights Reserved</sub>
 </p>
 
 </div>
