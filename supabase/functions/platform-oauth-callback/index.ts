@@ -1,6 +1,11 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import { exchangeAuthorizationCode } from "../_shared/platform_oauth.ts";
+import {
+  opaqueOAuthErrorCode,
+  validateAppRedirectUri,
+} from "../_shared/security_utils.ts";
+import { storeConnectionOAuth } from "../_shared/platform_secrets.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": Deno.env.get("ALLOWED_ORIGIN") ?? "null",
@@ -44,12 +49,16 @@ Deno.serve(async (req) => {
   const platform = oauthState.platform as string;
   const expiresAt = new Date(oauthState.expires_at as string);
 
+  if (!validateAppRedirectUri(appRedirectUri)) {
+    return new Response("redirect_uri inválido", { status: 400 });
+  }
+
   if (Number.isNaN(expiresAt.getTime()) || expiresAt.getTime() < Date.now()) {
     await supabase.from("platform_oauth_states").delete().eq("id", oauthState.id);
     return redirectToApp(appRedirectUri, {
       status: "error",
       platform,
-      message: "Autorização expirada. Tente conectar novamente.",
+      error: "expired",
     });
   }
 
@@ -65,14 +74,18 @@ Deno.serve(async (req) => {
     return redirectToApp(appRedirectUri, {
       status: "error",
       platform,
-      message,
+      error: opaqueOAuthErrorCode(error, errorDescription),
     });
   }
 
   if (!code) return new Response("code ausente", { status: 400 });
 
   try {
-    const tokenPayload = await exchangeAuthorizationCode(platform, code);
+    const tokenPayload = await exchangeAuthorizationCode(
+      platform,
+      code,
+      oauthState.code_verifier as string | undefined,
+    );
 
     const { data: profile } = await supabase
       .from("platform_connections")
@@ -119,11 +132,12 @@ Deno.serve(async (req) => {
       throw new Error(upsertError?.message ?? "Falha ao salvar conexão.");
     }
 
-    await supabase.from("platform_connection_secrets").upsert({
-      connection_id: connectionRow.id,
-      user_id: oauthState.user_id,
+    await storeConnectionOAuth(supabase, {
+      connectionId: connectionRow.id,
+      userId: oauthState.user_id as string,
       oauth: tokenPayload,
-    }, { onConflict: "connection_id" });
+      metadata: baseMetadata,
+    });
 
     await supabase.from("platform_oauth_states").delete().eq("id", oauthState.id);
 
@@ -135,6 +149,7 @@ Deno.serve(async (req) => {
     const message = exchangeError instanceof Error
       ? exchangeError.message
       : "Falha ao concluir autorização.";
+    console.error("platform-oauth-callback exchange failed:", message);
 
     await supabase.from("platform_connections").update({
       status: "error",
@@ -146,7 +161,7 @@ Deno.serve(async (req) => {
     return redirectToApp(appRedirectUri, {
       status: "error",
       platform,
-      message,
+      error: "oauth_failed",
     });
   }
 });
