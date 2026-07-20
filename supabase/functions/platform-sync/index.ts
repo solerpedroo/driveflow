@@ -250,37 +250,38 @@ Deno.serve(async (req) => {
   const syncUserId = req.headers.get("x-sync-user-id");
 
   let userId: string;
-  let supabase: ReturnType<typeof createClient>;
 
   if (syncUserId && bearerToken === serviceRoleKey) {
     userId = syncUserId;
-    supabase = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      serviceRoleKey,
-    );
   } else {
-    supabase = createClient(
+    const authClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_ANON_KEY") ?? "",
       { global: { headers: { Authorization: authHeader } } },
     );
 
-    const { data: userData, error: userError } = await supabase.auth.getUser();
+    const { data: userData, error: userError } = await authClient.auth.getUser();
     if (userError || !userData.user) {
       return clientError("Sessão inválida.", 401);
     }
     userId = userData.user.id;
   }
 
+  const supabase = createClient(
+    Deno.env.get("SUPABASE_URL") ?? "",
+    serviceRoleKey,
+  );
+
   const { data: connection, error: connError } = await supabase
     .from("platform_connections")
-    .select("id, user_id, status, metadata")
+    .select("id, user_id, status, metadata, last_synced_at")
     .eq("user_id", userId)
     .eq("platform", platform)
     .maybeSingle();
 
   if (connError) {
-    return clientError(connError.message, 500);
+    console.error("platform-sync connection lookup failed:", connError.message);
+    return clientError("Erro interno.", 500);
   }
 
   if (!connection || connection.status === "disconnected") {
@@ -289,6 +290,13 @@ Deno.serve(async (req) => {
 
   if (connection.status === "token_expired") {
     return clientError("Token expirado. Reconecte o app.", 401);
+  }
+
+  if (triggerSource === "manual" && connection.last_synced_at) {
+    const lastSync = new Date(connection.last_synced_at as string).getTime();
+    if (!Number.isNaN(lastSync) && Date.now() - lastSync < 15 * 60 * 1000) {
+      return clientError("Aguarde 15 minutos entre sincronizações manuais.", 429);
+    }
   }
 
   let tripRows: SyncTripRow[] = [];
