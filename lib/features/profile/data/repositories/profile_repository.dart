@@ -8,6 +8,7 @@ import '../../../authentication/data/schema/profile_schema.dart';
 import '../../../authentication/domain/entities/user_entity.dart';
 import '../../../../core/constants/driver_type.dart';
 import '../../../../core/errors/failure.dart';
+import '../../../../core/errors/remote_data_source_errors.dart';
 import '../../../../core/storage/supabase_storage_urls.dart';
 
 /// Atualização de perfil e avatar.
@@ -58,6 +59,17 @@ class ProfileRepository {
     return UserMapper.fromProfileRow(row);
   }
 
+  Future<UserEntity> grantAiDataConsent({
+    required String userId,
+  }) async {
+    await _profiles.grantAiDataConsent(userId);
+    final row = await _profiles.fetchProfile(userId);
+    if (row == null) {
+      throw const ServerFailure(message: 'Perfil não encontrado.');
+    }
+    return UserMapper.fromProfileRow(row);
+  }
+
   Future<UserEntity> uploadAvatar({
     required String userId,
     required File imageFile,
@@ -92,9 +104,9 @@ class ProfileRepository {
       }
       return UserMapper.fromProfileRow(row);
     } on StorageException catch (e) {
-      throw ServerFailure(message: e.message, cause: e);
+      RemoteDataSourceErrors.rethrowStorage(e);
     } on PostgrestException catch (e) {
-      throw ServerFailure(message: e.message, cause: e);
+      RemoteDataSourceErrors.rethrowPostgrest(e);
     }
   }
 }
