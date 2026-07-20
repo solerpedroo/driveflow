@@ -1,6 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../core/errors/failure.dart';
+import '../../../../core/errors/remote_data_source_errors.dart';
 import '../../domain/entities/shift_history_entry.dart';
 import '../mappers/shift_sessions_mapper.dart';
 import '../schema/shift_sessions_schema.dart';
@@ -52,7 +53,7 @@ class ShiftSessionsRemoteDataSource {
           .select()
           .single();
     } on PostgrestException catch (e) {
-      throw ServerFailure(message: e.message, cause: e);
+      RemoteDataSourceErrors.rethrowPostgrest(e);
     }
   }
 }
