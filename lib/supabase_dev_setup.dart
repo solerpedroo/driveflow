@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'core/network/supabase_certificate_pinning.dart';
+
 /// URL e chave anon via `--dart-define-from-file=env.json`.
 abstract final class SupabaseConfig {
   static const url = String.fromEnvironment(
@@ -11,6 +13,11 @@ abstract final class SupabaseConfig {
 
   static const publishableKey = String.fromEnvironment(
     'SUPABASE_ANON_KEY',
+    defaultValue: '',
+  );
+
+  static const certSha256 = String.fromEnvironment(
+    'SUPABASE_CERT_SHA256',
     defaultValue: '',
   );
 
@@ -47,6 +54,7 @@ abstract final class SupabaseConfig {
 /// Inicializa Supabase; em dev usa emulador local por padrão.
 Future<void> initializeSupabase() async {
   SupabaseConfig.assertProductionSafe();
+  SupabaseCertificatePinning.installIfConfigured();
 
   if (!SupabaseConfig.isConfigured && kDebugMode) {
     debugPrint(
