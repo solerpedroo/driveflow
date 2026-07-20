@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../../../core/errors/failure_message.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/design_system/df_skeleton.dart';
 import '../../../../shared/widgets/design_system/df_subpage_scaffold.dart';
@@ -9,6 +10,7 @@ import '../providers/ai_providers.dart';
 import '../widgets/ai_chat_composer.dart';
 import '../widgets/ai_chat_story_hero.dart';
 import '../widgets/ai_message_bubble.dart';
+import '../services/ai_consent_gate.dart';
 import '../widgets/ai_suggestion_chips.dart';
 
 /// Chat contextual com assistente DriveFlow — DfSubpageScaffold + composer fixo.
@@ -27,6 +29,17 @@ class AiChatScreen extends HookConsumerWidget {
       final question = (text ?? controller.text).trim();
       if (question.isEmpty || mutation.isLoading) return;
 
+      if (!await ensureAiDataConsent(context, ref)) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Consentimento necessário para usar o assistente.'),
+            ),
+          );
+        }
+        return;
+      }
+
       controller.clear();
       FocusScope.of(context).unfocus();
 
@@ -35,7 +48,7 @@ class AiChatScreen extends HookConsumerWidget {
         final error = ref.read(aiChatControllerProvider).error;
         if (error != null) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(error.toString())),
+            SnackBar(content: Text(FailureMessage.forObject(error))),
           );
         }
       }
