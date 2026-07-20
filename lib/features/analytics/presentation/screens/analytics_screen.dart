@@ -4,6 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../../vehicle/presentation/widgets/vehicle_scope_chip.dart';
 import '../../domain/entities/analytics_enums.dart';
 import '../../../ai/presentation/providers/ai_providers.dart';
+import '../../../ai/presentation/services/ai_consent_gate.dart';
 import '../../../dashboard/presentation/providers/dashboard_providers.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -166,8 +167,11 @@ class AnalyticsScreen extends ConsumerWidget {
             forecast: forecast,
             aiSummary: aiForecastAsync.valueOrNull?.summary,
             isLoadingAi: aiForecastAsync.isLoading,
-            onRequestAi: () =>
-                ref.read(aiForecastControllerProvider.notifier).generate(),
+            onRequestAi: () async {
+              if (!await ensureAiDataConsent(context, ref)) return;
+              if (!context.mounted) return;
+              await ref.read(aiForecastControllerProvider.notifier).generate();
+            },
           ),
         ),
         DfCard(
