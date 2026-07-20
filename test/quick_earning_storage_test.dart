@@ -1,25 +1,21 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:hive/hive.dart';
 
 import 'package:driveflow/core/constants/ride_platforms.dart';
-import 'package:driveflow/core/storage/hive_boxes.dart';
 import 'package:driveflow/features/earnings/data/datasources/quick_earning_storage.dart';
+import 'support/hive_test_helper.dart';
 
 void main() {
   late Directory tempDir;
 
   setUp(() async {
     tempDir = await Directory.systemTemp.createTemp('driveflow_quick_earning_');
-    Hive.init(tempDir.path);
-    for (final name in HiveBoxes.all) {
-      await Hive.openBox<dynamic>(name);
-    }
+    await openHiveBoxesForTests(path: tempDir.path);
   });
 
   tearDown(() async {
-    await Hive.close();
+    await closeHiveBoxesForTests();
     if (tempDir.existsSync()) {
       await tempDir.delete(recursive: true);
     }
@@ -29,7 +25,7 @@ void main() {
     for (var i = 0; i < 8; i++) {
       await QuickEarningStorage.remember(
         platform: RidePlatform.uber,
-        amount: 10 + i,
+        amount: 10.0 + i,
       );
     }
 
