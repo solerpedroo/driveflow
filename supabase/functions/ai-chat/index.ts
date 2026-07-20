@@ -172,6 +172,20 @@ Deno.serve(async (req) => {
     }
 
     const userId = authData.user.id;
+
+    const { data: profile, error: profileError } = await adminClient
+      .from("profiles")
+      .select("ai_data_consent_at")
+      .eq("id", userId)
+      .maybeSingle();
+
+    if (profileError || !profile?.ai_data_consent_at) {
+      return clientError(
+        "Consentimento para processamento de dados de IA necessário.",
+        403,
+      );
+    }
+
     const body = await req.json();
     const question = typeof body?.question === "string" ? body.question.trim() : "";
 
@@ -212,7 +226,7 @@ Deno.serve(async (req) => {
           .gte("date", since),
         adminClient
           .from("expenses")
-          .select("amount, category, date, description")
+          .select("amount, category, date")
           .eq("user_id", userId)
           .gte("date", since),
         adminClient
