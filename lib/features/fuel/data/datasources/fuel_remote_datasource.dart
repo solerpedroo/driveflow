@@ -1,6 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../core/errors/failure.dart';
+import '../../../../core/errors/remote_data_source_errors.dart';
 import '../../domain/entities/fuel_log_entity.dart';
 import '../mappers/fuel_log_mapper.dart';
 import '../schema/fuel_log_schema.dart';
@@ -67,7 +68,7 @@ class FuelRemoteDataSource {
           .select()
           .single();
     } on PostgrestException catch (e) {
-      throw ServerFailure(message: e.message, cause: e);
+      RemoteDataSourceErrors.rethrowPostgrest(e);
     }
   }
 
@@ -83,7 +84,7 @@ class FuelRemoteDataSource {
           .select()
           .single();
     } on PostgrestException catch (e) {
-      throw ServerFailure(message: e.message, cause: e);
+      RemoteDataSourceErrors.rethrowPostgrest(e);
     }
   }
 
@@ -91,7 +92,7 @@ class FuelRemoteDataSource {
     try {
       await _client.from(FuelLogSchema.table).delete().eq(FuelLogSchema.id, id);
     } on PostgrestException catch (e) {
-      throw ServerFailure(message: e.message, cause: e);
+      RemoteDataSourceErrors.rethrowPostgrest(e);
     }
   }
 }
