@@ -1,6 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../core/errors/failure.dart';
+import '../../../../core/errors/remote_data_source_errors.dart';
 import '../schema/ai_history_schema.dart';
 
 class AiRemoteDataSource {
@@ -30,11 +31,7 @@ class AiRemoteDataSource {
       );
 
       if (response.status != 200) {
-        final data = response.data;
-        if (data is Map && data['error'] != null) {
-          throw ServerFailure(message: data['error'].toString());
-        }
-        throw ServerFailure(
+        throw const ServerFailure(
           message: 'Assistente indisponível no momento.',
         );
       }
@@ -45,13 +42,9 @@ class AiRemoteDataSource {
       }
       return data;
     } on FunctionException catch (e) {
-      final details = e.details;
-      if (details is Map && details['error'] != null) {
-        throw ServerFailure(message: details['error'].toString(), cause: e);
-      }
-      throw ServerFailure(message: e.reasonPhrase ?? e.toString(), cause: e);
+      RemoteDataSourceErrors.rethrowFunction(e);
     } on PostgrestException catch (e) {
-      throw ServerFailure(message: e.message, cause: e);
+      RemoteDataSourceErrors.rethrowPostgrest(e);
     }
   }
 
@@ -63,12 +56,8 @@ class AiRemoteDataSource {
       );
 
       if (response.status != 200) {
-        final data = response.data;
-        if (data is Map && data['error'] != null) {
-          throw ServerFailure(message: data['error'].toString());
-        }
-        throw ServerFailure(
-          message: 'Previsão indisponível (${response.status})',
+        throw const ServerFailure(
+          message: 'Previsão indisponível no momento.',
         );
       }
 
@@ -78,13 +67,9 @@ class AiRemoteDataSource {
       }
       return data;
     } on FunctionException catch (e) {
-      final details = e.details;
-      if (details is Map && details['error'] != null) {
-        throw ServerFailure(message: details['error'].toString(), cause: e);
-      }
-      throw ServerFailure(message: e.reasonPhrase ?? e.toString(), cause: e);
+      RemoteDataSourceErrors.rethrowFunction(e);
     } on PostgrestException catch (e) {
-      throw ServerFailure(message: e.message, cause: e);
+      RemoteDataSourceErrors.rethrowPostgrest(e);
     }
   }
 }
