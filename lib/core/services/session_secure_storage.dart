@@ -6,6 +6,10 @@ class SessionSecureStorage {
       : _storage = storage ??
             const FlutterSecureStorage(
               aOptions: AndroidOptions(encryptedSharedPreferences: true),
+              iOptions: IOSOptions(
+                accessibility: KeychainAccessibility.first_unlock_this_device,
+                synchronizable: false,
+              ),
             );
 
   static const _refreshTokenKey = 'driveflow_supabase_refresh_token';
