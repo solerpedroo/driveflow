@@ -275,7 +275,7 @@ Coverage target: **&ge; 70%** coverage across `lib/features/*/domain` and `lib/f
 | [docs/SUPABASE_ER.md](docs/SUPABASE_ER.md) | Database schema entity-relationship model and relational constraints |
 | [docs/RELEASE.md](docs/RELEASE.md) | Deployment checklists and release workflows |
 | [docs/INTEGRACOES-PLATAFORMAS.md](docs/INTEGRACOES-PLATAFORMAS.md) | OAuth flow and data sync pipelines for Uber, 99, and InDrive |
-| [docs/engineering-audit.md](docs/engineering-audit.md) | Technical audit, technical debt tracker, and code smell logs |
+| [docs/PRIVACY.md](docs/PRIVACY.md) | LGPD, consentimento IA e processamento Groq |
 
 ---
 
@@ -301,10 +301,16 @@ For the wave-by-wave checklist breakdown, check [implementation-plan.md](impleme
 # Flutter (--dart-define-from-file)
 SUPABASE_URL=
 SUPABASE_ANON_KEY=
+SENTRY_DSN=
+SUPABASE_CERT_SHA256=
 
 # Supabase Edge Functions (secrets)
 GROQ_API_KEY=
 GROQ_MODEL=llama-3.3-70b-versatile
+PLATFORM_TOKEN_ENCRYPTION_KEY=   # 32 bytes base64 — criptografia de tokens OAuth
+PLATFORM_OAUTH_APP_REDIRECT_URIS=io.supabase.driveflow://platform-oauth/
+PLATFORM_WEBHOOK_SECRET=
+PLATFORM_CRON_SECRET=
 
 # Integrations (Wave 26+)
 UBER_CLIENT_ID=
