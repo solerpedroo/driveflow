@@ -9,6 +9,7 @@ class UserEntity {
     this.photoUrl,
     this.driverType,
     this.onboardingCompletedAt,
+    this.aiDataConsentAt,
   });
 
   final String id;
@@ -17,6 +18,7 @@ class UserEntity {
   final String? photoUrl;
   final DriverType? driverType;
   final DateTime? onboardingCompletedAt;
+  final DateTime? aiDataConsentAt;
 
   String get displayName {
     if (name != null && name!.trim().isNotEmpty) return name!.trim();
@@ -30,6 +32,8 @@ class UserEntity {
 
   bool get hasCompletedWelcomeOnboarding => onboardingCompletedAt != null;
 
+  bool get hasAiDataConsent => aiDataConsentAt != null;
+
   UserEntity copyWith({
     String? id,
     String? email,
@@ -37,8 +41,10 @@ class UserEntity {
     String? photoUrl,
     DriverType? driverType,
     DateTime? onboardingCompletedAt,
+    DateTime? aiDataConsentAt,
     bool clearDriverType = false,
     bool clearOnboardingCompletedAt = false,
+    bool clearAiDataConsentAt = false,
   }) {
     return UserEntity(
       id: id ?? this.id,
@@ -49,6 +55,9 @@ class UserEntity {
       onboardingCompletedAt: clearOnboardingCompletedAt
           ? null
           : (onboardingCompletedAt ?? this.onboardingCompletedAt),
+      aiDataConsentAt: clearAiDataConsentAt
+          ? null
+          : (aiDataConsentAt ?? this.aiDataConsentAt),
     );
   }
 
@@ -61,7 +70,8 @@ class UserEntity {
           name == other.name &&
           photoUrl == other.photoUrl &&
           driverType == other.driverType &&
-          onboardingCompletedAt == other.onboardingCompletedAt;
+          onboardingCompletedAt == other.onboardingCompletedAt &&
+          aiDataConsentAt == other.aiDataConsentAt;
 
   @override
   int get hashCode => Object.hash(
@@ -71,5 +81,6 @@ class UserEntity {
         photoUrl,
         driverType,
         onboardingCompletedAt,
+        aiDataConsentAt,
       );
 }
