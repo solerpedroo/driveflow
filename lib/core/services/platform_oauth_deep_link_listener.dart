@@ -52,13 +52,13 @@ class _PlatformOAuthDeepLinkListenerState
     if (uri.host != PlatformOAuthService.redirectPath) return;
 
     final fingerprint =
-        '${uri.host}|${uri.queryParameters['status']}|${uri.queryParameters['platform']}|${uri.queryParameters['message']}';
+        '${uri.host}|${uri.queryParameters['status']}|${uri.queryParameters['platform']}|${uri.queryParameters['error']}';
     if (_handled.contains(fingerprint)) return;
     _handled.add(fingerprint);
 
     final status = uri.queryParameters['status'];
     final platformValue = uri.queryParameters['platform'];
-    final message = uri.queryParameters['message'];
+    final errorCode = uri.queryParameters['error'];
     final platform = _parseIntegratablePlatform(platformValue);
 
     if (!mounted) return;
@@ -103,12 +103,19 @@ class _PlatformOAuthDeepLinkListenerState
       router.go(AppRoutes.platformIntegrations);
       messenger?.showSnackBar(
         SnackBar(
-          content: Text(
-            message ?? 'Não foi possível conectar ${platform?.label ?? 'o app'}.',
-          ),
+          content: Text(_oauthErrorMessage(errorCode, platform?.label)),
         ),
       );
     }
+  }
+
+  String _oauthErrorMessage(String? errorCode, String? platformLabel) {
+    final label = platformLabel ?? 'o app';
+    return switch (errorCode) {
+      'access_denied' => 'Autorização cancelada para $label.',
+      'expired' => 'Autorização expirada. Tente conectar $label novamente.',
+      _ => 'Não foi possível conectar $label.',
+    };
   }
 
   RidePlatform? _parseIntegratablePlatform(String? value) {
