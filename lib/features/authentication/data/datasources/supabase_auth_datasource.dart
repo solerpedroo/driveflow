@@ -134,6 +134,13 @@ class ProfileRemoteDataSource {
           DateTime.now().toUtc().toIso8601String(),
     }).eq(ProfileSchema.id, userId);
   }
+
+  Future<void> grantAiDataConsent(String userId) async {
+    await _client.from(ProfileSchema.table).update({
+      ProfileSchema.aiDataConsentAt:
+          DateTime.now().toUtc().toIso8601String(),
+    }).eq(ProfileSchema.id, userId);
+  }
 }
 
 UserEntity? mapAuthUserToEntity(User? user) {
