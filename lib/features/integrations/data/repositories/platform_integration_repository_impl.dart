@@ -1,4 +1,5 @@
 import '../../../../core/constants/ride_platforms.dart';
+import '../../../../core/errors/failure.dart';
 import '../../domain/entities/integration_status.dart';
 import '../../domain/entities/platform_connection_entity.dart';
 import '../../domain/entities/platform_oauth_session.dart';
@@ -66,46 +67,25 @@ class PlatformIntegrationRepositoryImpl implements PlatformIntegrationRepository
 
   @override
   Future<PlatformSyncResult> syncPlatform(RidePlatform platform) async {
-    try {
-      final data = await _sync.syncPlatform(platform: platform);
-      final tripsImported = (data['trips_imported'] as num?)?.toInt() ??
-          (data['imported_count'] as num?)?.toInt() ??
-          0;
-      final earningsImported =
-          (data['earnings_imported'] as num?)?.toInt() ?? 0;
-      final skipped = (data['skipped_count'] as num?)?.toInt() ?? 0;
-      final syncedAt = DateTime.tryParse(data['synced_at'] as String? ?? '') ??
-          DateTime.now();
+    final data = await _sync.syncPlatform(platform: platform);
+    final tripsImported = (data['trips_imported'] as num?)?.toInt() ??
+        (data['imported_count'] as num?)?.toInt() ??
+        0;
+    final earningsImported =
+        (data['earnings_imported'] as num?)?.toInt() ?? 0;
+    final skipped = (data['skipped_count'] as num?)?.toInt() ?? 0;
+    final syncedAt = DateTime.tryParse(data['synced_at'] as String? ?? '') ??
+        DateTime.now();
 
-      await _connections.updateConnection(
-        platform: platform,
-        status: IntegrationStatus.connected,
-        lastSyncedAt: syncedAt,
-        lastSyncError: null,
-      );
-
-      return PlatformSyncResult(
-        platform: platform,
-        importedCount: tripsImported + earningsImported,
-        skippedCount: skipped,
-        syncedAt: syncedAt,
-        tripsImported: tripsImported,
-        earningsImported: earningsImported,
-        message: data['message'] as String?,
-      );
-    } catch (e) {
-      final errorMessage = e.toString();
-      try {
-        await _connections.updateConnection(
-          platform: platform,
-          status: IntegrationStatus.error,
-          lastSyncError: errorMessage,
-        );
-      } catch (_) {
-        // Mantém erro original se falhar ao persistir status.
-      }
-      rethrow;
-    }
+    return PlatformSyncResult(
+      platform: platform,
+      importedCount: tripsImported + earningsImported,
+      skippedCount: skipped,
+      syncedAt: syncedAt,
+      tripsImported: tripsImported,
+      earningsImported: earningsImported,
+      message: data['message'] as String?,
+    );
   }
 
   @override
