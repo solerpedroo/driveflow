@@ -6,6 +6,11 @@ import {
   oauthCallbackUri,
   platformNotConfiguredMessage,
 } from "../_shared/platform_config.ts";
+import { validateAppRedirectUri } from "../_shared/security_utils.ts";
+import {
+  generateCodeChallenge,
+  generateCodeVerifier,
+} from "../_shared/pkce.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": Deno.env.get("ALLOWED_ORIGIN") ?? "null",
@@ -51,7 +56,9 @@ Deno.serve(async (req) => {
   if (!platform || !PLATFORMS.has(platform)) {
     return json({ error: "Plataforma inválida" }, 400);
   }
-  if (!appRedirectUri) return json({ error: "redirect_uri obrigatório" }, 400);
+  if (!appRedirectUri || !validateAppRedirectUri(appRedirectUri)) {
+    return json({ error: "redirect_uri inválido" }, 400);
+  }
 
   const definition = getPlatformDefinition(platform);
   if (!definition) {
@@ -64,6 +71,8 @@ Deno.serve(async (req) => {
   }
 
   const stateToken = crypto.randomUUID();
+  const codeVerifier = generateCodeVerifier();
+  const codeChallenge = await generateCodeChallenge(codeVerifier);
   const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
 
   const { error: stateError } = await supabase.from("platform_oauth_states").insert({
@@ -71,10 +80,14 @@ Deno.serve(async (req) => {
     platform,
     state_token: stateToken,
     redirect_uri: appRedirectUri,
+    code_verifier: codeVerifier,
     expires_at: expiresAt,
   });
 
-  if (stateError) return json({ error: stateError.message }, 500);
+  if (stateError) {
+    console.error("platform-oauth-start state insert failed:", stateError.message);
+    return json({ error: "Não foi possível iniciar a autorização." }, 500);
+  }
 
   const authUrl = new URL(definition.authorizeUrl);
   authUrl.searchParams.set("client_id", credentials.clientId);
@@ -82,6 +95,8 @@ Deno.serve(async (req) => {
   authUrl.searchParams.set("redirect_uri", oauthCallbackUri());
   authUrl.searchParams.set("state", stateToken);
   authUrl.searchParams.set("scope", definition.scopes.join(" "));
+  authUrl.searchParams.set("code_challenge", codeChallenge);
+  authUrl.searchParams.set("code_challenge_method", "S256");
 
   await supabase.from("platform_connections").upsert({
     user_id: userData.user.id,
