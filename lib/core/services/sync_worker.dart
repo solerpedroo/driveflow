@@ -109,7 +109,8 @@ class SyncWorker {
             _setStatus(SyncStatus.failed);
           } else {
             await _queue.replace(operation.copyWith(attempts: nextAttempts));
-            await Future<void>.delayed(operation.backoffDelay);
+            // Sai do loop — próxima tentativa no próximo processQueue / reconnect.
+            break;
           }
         }
       }
