@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/constants/ride_platforms.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/errors/failure.dart';
+import '../../../../core/security/oauth_url_validator.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -78,6 +79,16 @@ class _PlatformIntegrationsScreenState
                   : 'Não foi possível iniciar a conexão.';
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text(message)),
+              );
+            }
+            return;
+          }
+          if (!OAuthUrlValidator.isSafeAuthorizationUrl(session.authorizationUrl)) {
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Link de autorização inválido. Tente novamente.'),
+                ),
               );
             }
             return;
