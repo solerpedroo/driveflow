@@ -1,5 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import { timingSafeEqual } from "../_shared/security_utils.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": Deno.env.get("ALLOWED_ORIGIN") ?? "null",
@@ -12,7 +13,7 @@ Deno.serve(async (req) => {
 
   const cronSecret = Deno.env.get("PLATFORM_CRON_SECRET");
   const headerSecret = req.headers.get("x-cron-secret");
-  if (!cronSecret || headerSecret !== cronSecret) {
+  if (!cronSecret || !headerSecret || !timingSafeEqual(headerSecret, cronSecret)) {
     return new Response("Unauthorized", { status: 401 });
   }
 
