@@ -1,5 +1,10 @@
 import type { SupabaseClient } from "jsr:@supabase/supabase-js@2";
 import type { StoredOAuthTokens } from "./platform_oauth.ts";
+import {
+  decryptOAuthPayload,
+  encryptOAuthPayload,
+  shouldEncryptOAuth,
+} from "./token_crypto.ts";
 
 type ConnectionRow = {
   id: string;
@@ -16,16 +21,22 @@ export async function loadConnectionOAuth(
     .eq("connection_id", connection.id)
     .maybeSingle();
 
-  const secretOAuth = secretRow?.oauth as StoredOAuthTokens | undefined;
+  const secretOAuth = await decryptOAuthPayload<StoredOAuthTokens>(
+    secretRow?.oauth,
+  );
   if (secretOAuth?.access_token) return secretOAuth;
 
   const legacyOAuth = connection.metadata?.oauth as StoredOAuthTokens | undefined;
   if (!legacyOAuth?.access_token) return undefined;
 
+  const legacyStored = shouldEncryptOAuth()
+    ? await encryptOAuthPayload(legacyOAuth)
+    : legacyOAuth;
+
   await supabase.from("platform_connection_secrets").upsert({
     connection_id: connection.id,
     user_id: connection.user_id,
-    oauth: legacyOAuth,
+    oauth: legacyStored,
   }, { onConflict: "connection_id" });
 
   const metadata = { ...(connection.metadata ?? {}) };
@@ -47,10 +58,14 @@ export async function storeConnectionOAuth(
     metadata?: Record<string, unknown> | null;
   },
 ): Promise<Record<string, unknown>> {
+  const storedOAuth = shouldEncryptOAuth()
+    ? await encryptOAuthPayload(params.oauth)
+    : params.oauth;
+
   await supabase.from("platform_connection_secrets").upsert({
     connection_id: params.connectionId,
     user_id: params.userId,
-    oauth: params.oauth,
+    oauth: storedOAuth,
   }, { onConflict: "connection_id" });
 
   const nextMetadata = { ...(params.metadata ?? {}) };
