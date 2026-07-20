@@ -68,6 +68,22 @@ class ProfileController extends Notifier<AsyncValue<void>> {
     return updated;
   }
 
+  Future<UserEntity?> grantAiDataConsent() async {
+    final user = ref.read(authStateProvider).valueOrNull;
+    if (user == null) return null;
+
+    state = const AsyncLoading();
+    UserEntity? updated;
+    state = await AsyncValue.guard(() async {
+      updated = await ref.read(profileRepositoryProvider).grantAiDataConsent(
+            userId: user.id,
+          );
+    });
+    if (state.hasError) return null;
+    ref.invalidate(userProfileProvider);
+    return updated;
+  }
+
   Future<UserEntity?> uploadAvatar(File file) async {
     final user = ref.read(authStateProvider).valueOrNull;
     if (user == null) return null;
