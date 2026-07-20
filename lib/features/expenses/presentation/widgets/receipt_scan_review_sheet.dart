@@ -134,18 +134,7 @@ class ReceiptScanReviewSheet extends HookConsumerWidget {
               const SizedBox(height: 16),
               ClipRRect(
                 borderRadius: BorderRadius.circular(12),
-                child: Image.file(
-                  imageFile,
-                  height: 160,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                  cacheWidth: (MediaQuery.devicePixelRatioOf(context) *
-                          MediaQuery.sizeOf(context).width)
-                      .round()
-                      .clamp(320, 1280),
-                  cacheHeight:
-                      (MediaQuery.devicePixelRatioOf(context) * 160).round(),
-                ),
+                child: _ReceiptImagePreview(imageFile: imageFile),
               ),
               const SizedBox(height: 16),
               DfTextField(
@@ -216,6 +205,47 @@ class ReceiptScanReviewSheet extends HookConsumerWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _ReceiptImagePreview extends StatelessWidget {
+  const _ReceiptImagePreview({required this.imageFile});
+
+  final File imageFile;
+
+  static bool _looksLikeImage(String path) {
+    final lower = path.toLowerCase();
+    return lower.endsWith('.jpg') ||
+        lower.endsWith('.jpeg') ||
+        lower.endsWith('.png') ||
+        lower.endsWith('.webp') ||
+        lower.endsWith('.heic');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_looksLikeImage(imageFile.path)) {
+      return const SizedBox(
+        height: 160,
+        child: Center(child: Icon(Icons.receipt_long_outlined)),
+      );
+    }
+
+    return Image.file(
+      imageFile,
+      height: 160,
+      width: double.infinity,
+      fit: BoxFit.cover,
+      errorBuilder: (_, __, ___) => const SizedBox(
+        height: 160,
+        child: Center(child: Icon(Icons.receipt_long_outlined)),
+      ),
+      cacheWidth: (MediaQuery.devicePixelRatioOf(context) *
+              MediaQuery.sizeOf(context).width)
+          .round()
+          .clamp(320, 1280),
+      cacheHeight: (MediaQuery.devicePixelRatioOf(context) * 160).round(),
     );
   }
 }
