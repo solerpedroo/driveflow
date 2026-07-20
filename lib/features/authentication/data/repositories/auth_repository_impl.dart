@@ -123,9 +123,12 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<void> signOut() async {
-    await _auth.signOut();
-    await _sessionStorage.clear();
-    await HiveStorage.clearUserData();
+    try {
+      await _auth.signOut();
+    } finally {
+      await _sessionStorage.clear();
+      await HiveStorage.clearUserData();
+    }
   }
 
   @override
