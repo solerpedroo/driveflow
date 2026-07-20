@@ -127,6 +127,19 @@ Deno.serve(async (req) => {
 
     const userId = authData.user.id;
 
+    const { data: profile, error: profileError } = await adminClient
+      .from("profiles")
+      .select("ai_data_consent_at")
+      .eq("id", userId)
+      .maybeSingle();
+
+    if (profileError || !profile?.ai_data_consent_at) {
+      return clientError(
+        "Consentimento para processamento de dados de IA necessário.",
+        403,
+      );
+    }
+
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
     const { count: recentCount, error: rateError } = await adminClient
       .from("ai_history")
