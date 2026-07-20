@@ -1,6 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../core/errors/failure.dart';
+import '../../../../core/errors/remote_data_source_errors.dart';
 import '../../domain/entities/vehicle_entity.dart';
 import '../mappers/vehicle_mapper.dart';
 import '../schema/vehicle_schema.dart';
@@ -62,7 +63,7 @@ class VehicleRemoteDataSource {
           .single();
       return row;
     } on PostgrestException catch (e) {
-      throw ServerFailure(message: e.message, cause: e);
+      RemoteDataSourceErrors.rethrowPostgrest(e);
     }
   }
 
@@ -89,7 +90,7 @@ class VehicleRemoteDataSource {
           .single();
       return row;
     } on PostgrestException catch (e) {
-      throw ServerFailure(message: e.message, cause: e);
+      RemoteDataSourceErrors.rethrowPostgrest(e);
     }
   }
 
@@ -106,7 +107,7 @@ class VehicleRemoteDataSource {
           .eq(VehicleSchema.id, id)
           .eq(VehicleSchema.userId, userId);
     } on PostgrestException catch (e) {
-      throw ServerFailure(message: e.message, cause: e);
+      RemoteDataSourceErrors.rethrowPostgrest(e);
     }
   }
 
@@ -124,7 +125,7 @@ class VehicleRemoteDataSource {
           .eq(VehicleSchema.id, id)
           .eq(VehicleSchema.userId, userId);
     } on PostgrestException catch (e) {
-      throw ServerFailure(message: e.message, cause: e);
+      RemoteDataSourceErrors.rethrowPostgrest(e);
     }
   }
 
@@ -144,7 +145,7 @@ class VehicleRemoteDataSource {
           .eq(VehicleSchema.id, id)
           .eq(VehicleSchema.userId, userId);
     } on PostgrestException catch (e) {
-      throw ServerFailure(message: e.message, cause: e);
+      RemoteDataSourceErrors.rethrowPostgrest(e);
     }
   }
 
