@@ -18,7 +18,7 @@ void main() {
         startHour: 18,
         endHour: 20,
         platform: RidePlatform.uber,
-        reason: 'Melhor R$/h',
+        reason: r'Melhor R$/h',
         expectedRevenuePerHour: 45,
       ),
       ShiftSessionPlanBlock(
