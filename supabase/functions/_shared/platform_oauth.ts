@@ -77,17 +77,23 @@ async function requestTokens(
 export async function exchangeAuthorizationCode(
   platform: string,
   code: string,
+  codeVerifier?: string,
 ): Promise<StoredOAuthTokens> {
   const def = getPlatformDefinition(platform);
   if (!def) {
     throw new Error(`Plataforma OAuth não configurada: ${platform}`);
   }
 
-  return requestTokens(def, {
+  const body: Record<string, string> = {
     grant_type: "authorization_code",
     code,
     redirect_uri: oauthCallbackUri(),
-  });
+  };
+  if (codeVerifier) {
+    body.code_verifier = codeVerifier;
+  }
+
+  return requestTokens(def, body);
 }
 
 export async function refreshAccessToken(
