@@ -2,6 +2,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../core/constants/ride_platforms.dart';
 import '../../../../core/errors/failure.dart';
+import '../../../../core/errors/remote_data_source_errors.dart';
 import '../../domain/entities/integration_status.dart';
 import '../mappers/platform_connection_mapper.dart';
 import '../schema/platform_connections_schema.dart';
@@ -65,7 +66,7 @@ class PlatformConnectionsRemoteDataSource {
           .select()
           .single();
     } on PostgrestException catch (e) {
-      throw ServerFailure(message: e.message, cause: e);
+      RemoteDataSourceErrors.rethrowPostgrest(e);
     }
   }
 
@@ -86,7 +87,7 @@ class PlatformConnectionsRemoteDataSource {
           .select()
           .single();
     } on PostgrestException catch (e) {
-      throw ServerFailure(message: e.message, cause: e);
+      RemoteDataSourceErrors.rethrowPostgrest(e);
     }
   }
 
@@ -118,7 +119,7 @@ class PlatformConnectionsRemoteDataSource {
           .select()
           .single();
     } on PostgrestException catch (e) {
-      throw ServerFailure(message: e.message, cause: e);
+      RemoteDataSourceErrors.rethrowPostgrest(e);
     }
   }
 }
