@@ -2,32 +2,62 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
-/// Captura erros fatais e do framework (preparado para Crashlytics).
+/// Captura erros fatais e do framework — Sentry em release quando configurado.
 abstract final class DriveFlowCrashReporting {
-  static Future<void> bootstrap(Future<void> Function() runApp) async {
+  static const _sentryDsn = String.fromEnvironment('SENTRY_DSN');
+
+  static Future<void> bootstrap(Future<void> Function() appRunner) async {
+    if (_sentryDsn.isNotEmpty && !kDebugMode) {
+      await SentryFlutter.init(
+        (options) {
+          options.dsn = _sentryDsn;
+          options.tracesSampleRate = 0.2;
+          options.beforeSend = (event, hint) => _scrubEvent(event);
+        },
+        appRunner: () async {
+          _installFrameworkHandlers();
+          await appRunner();
+        },
+      );
+      return;
+    }
+
     await runZonedGuarded(
       () async {
-        WidgetsFlutterBinding.ensureInitialized();
-
-        FlutterError.onError = (details) {
-          FlutterError.presentError(details);
-          _recordError(
-            details.exception,
-            details.stack ?? StackTrace.current,
-            reason: details.context?.toString(),
-          );
-        };
-
-        PlatformDispatcher.instance.onError = (error, stack) {
-          _recordError(error, stack);
-          return true;
-        };
-
-        await runApp();
+        _installFrameworkHandlers();
+        await appRunner();
       },
-      (error, stack) => _recordError(error, stack),
+      _recordError,
     );
+  }
+
+  static void _installFrameworkHandlers() {
+    WidgetsFlutterBinding.ensureInitialized();
+
+    FlutterError.onError = (details) {
+      FlutterError.presentError(details);
+      _recordError(
+        details.exception,
+        details.stack ?? StackTrace.current,
+        reason: details.context?.toString(),
+      );
+    };
+
+    PlatformDispatcher.instance.onError = (error, stack) {
+      _recordError(error, stack);
+      return true;
+    };
+  }
+
+  static SentryEvent? _scrubEvent(SentryEvent event) {
+    final message = event.message?.formatted;
+    if (message != null &&
+        (message.contains('Bearer ') || message.contains('refresh_token'))) {
+      return null;
+    }
+    return event;
   }
 
   static void _recordError(
@@ -39,6 +69,11 @@ abstract final class DriveFlowCrashReporting {
       debugPrint('[Crash] $error');
       if (reason != null) debugPrint('[Crash] context: $reason');
       debugPrintStack(stackTrace: stack);
+      return;
+    }
+
+    if (_sentryDsn.isNotEmpty) {
+      unawaited(Sentry.captureException(error, stackTrace: stack));
     }
   }
 }
