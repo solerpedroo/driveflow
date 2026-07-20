@@ -11,6 +11,7 @@ abstract final class UserMapper {
     String? photoUrl,
     DriverType? driverType,
     DateTime? onboardingCompletedAt,
+    DateTime? aiDataConsentAt,
   }) {
     return UserEntity(
       id: id,
@@ -19,11 +20,13 @@ abstract final class UserMapper {
       photoUrl: photoUrl,
       driverType: driverType,
       onboardingCompletedAt: onboardingCompletedAt,
+      aiDataConsentAt: aiDataConsentAt,
     );
   }
 
   static UserEntity fromProfileRow(Map<String, dynamic> row) {
     final onboardingRaw = row[ProfileSchema.onboardingCompletedAt];
+    final consentRaw = row[ProfileSchema.aiDataConsentAt];
     return UserEntity(
       id: row[ProfileSchema.id] as String,
       email: row[ProfileSchema.email] as String?,
@@ -33,6 +36,9 @@ abstract final class UserMapper {
       onboardingCompletedAt: onboardingRaw == null
           ? null
           : DateTime.parse(onboardingRaw as String).toUtc(),
+      aiDataConsentAt: consentRaw == null
+          ? null
+          : DateTime.parse(consentRaw as String).toUtc(),
     );
   }
 
