@@ -43,6 +43,8 @@ dependencies:
   live_activities: ^2.4.9
   url_launcher: ^6.3.1
   file_picker: ^8.1.7
+  crypto: ^3.0.6
+  sentry_flutter: ^8.14.1
 
 dev_dependencies:
   build_runner: ^2.4.15
