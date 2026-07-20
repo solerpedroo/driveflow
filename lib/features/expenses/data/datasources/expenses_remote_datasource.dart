@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../core/errors/failure.dart';
+import '../../../../core/errors/remote_data_source_errors.dart';
 import '../../../../core/storage/supabase_storage_urls.dart';
 import '../../domain/entities/expense_entity.dart';
 import '../mappers/expenses_mapper.dart';
@@ -79,7 +80,7 @@ class ExpensesRemoteDataSource {
 
       return objectPath;
     } on StorageException catch (e) {
-      throw ServerFailure(message: e.message, cause: e);
+      RemoteDataSourceErrors.rethrowStorage(e);
     }
   }
 
@@ -99,7 +100,7 @@ class ExpensesRemoteDataSource {
           .single();
       return _resolveReceiptRow(row);
     } on PostgrestException catch (e) {
-      throw ServerFailure(message: e.message, cause: e);
+      RemoteDataSourceErrors.rethrowPostgrest(e);
     }
   }
 
@@ -122,7 +123,7 @@ class ExpensesRemoteDataSource {
           .single();
       return _resolveReceiptRow(row);
     } on PostgrestException catch (e) {
-      throw ServerFailure(message: e.message, cause: e);
+      RemoteDataSourceErrors.rethrowPostgrest(e);
     }
   }
 
@@ -139,7 +140,7 @@ class ExpensesRemoteDataSource {
           .eq(ExpensesSchema.id, id)
           .eq(ExpensesSchema.userId, userId);
     } on PostgrestException catch (e) {
-      throw ServerFailure(message: e.message, cause: e);
+      RemoteDataSourceErrors.rethrowPostgrest(e);
     }
   }
 
@@ -168,12 +169,16 @@ class ExpensesRemoteDataSource {
     String needle, {
     required Map<String, dynamic> values,
   }) async {
+    final userId = _userId;
+    if (userId == null) return;
+
     final row = await findByDescriptionContains(needle);
     if (row == null) return;
 
     await _client
         .from(ExpensesSchema.table)
         .update(values)
-        .eq(ExpensesSchema.id, row[ExpensesSchema.id] as String);
+        .eq(ExpensesSchema.id, row[ExpensesSchema.id] as String)
+        .eq(ExpensesSchema.userId, userId);
   }
 }
