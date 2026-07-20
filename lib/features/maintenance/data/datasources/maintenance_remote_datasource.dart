@@ -1,6 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../core/errors/failure.dart';
+import '../../../../core/errors/remote_data_source_errors.dart';
 import '../../domain/entities/maintenance_entity.dart';
 import '../mappers/maintenance_mapper.dart';
 import '../schema/maintenance_schema.dart';
@@ -67,7 +68,7 @@ class MaintenanceRemoteDataSource {
           .select()
           .single();
     } on PostgrestException catch (e) {
-      throw ServerFailure(message: e.message, cause: e);
+      RemoteDataSourceErrors.rethrowPostgrest(e);
     }
   }
 
@@ -83,7 +84,7 @@ class MaintenanceRemoteDataSource {
           .select()
           .single();
     } on PostgrestException catch (e) {
-      throw ServerFailure(message: e.message, cause: e);
+      RemoteDataSourceErrors.rethrowPostgrest(e);
     }
   }
 
@@ -94,7 +95,7 @@ class MaintenanceRemoteDataSource {
           .delete()
           .eq(MaintenanceSchema.id, id);
     } on PostgrestException catch (e) {
-      throw ServerFailure(message: e.message, cause: e);
+      RemoteDataSourceErrors.rethrowPostgrest(e);
     }
   }
 }
