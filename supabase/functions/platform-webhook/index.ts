@@ -1,26 +1,45 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import {
+  timingSafeEqual,
+  verifyWebhookHmac,
+} from "../_shared/security_utils.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": Deno.env.get("ALLOWED_ORIGIN") ?? "null",
   "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type, x-webhook-secret",
+    "authorization, x-client-info, apikey, content-type, x-webhook-secret, x-webhook-signature, x-hub-signature-256",
 };
 
 const PLATFORMS = new Set(["uber", "99", "indrive"]);
+
+async function isAuthorized(req: Request, rawBody: string): Promise<boolean> {
+  const secret = Deno.env.get("PLATFORM_WEBHOOK_SECRET");
+  if (!secret) return false;
+
+  const signature = req.headers.get("x-webhook-signature") ??
+    req.headers.get("x-hub-signature-256");
+
+  if (signature && await verifyWebhookHmac(rawBody, signature, secret)) {
+    return true;
+  }
+
+  const headerSecret = req.headers.get("x-webhook-secret") ?? "";
+  return timingSafeEqual(headerSecret, secret);
+}
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (req.method !== "POST") return new Response("Method not allowed", { status: 405 });
 
-  const secret = Deno.env.get("PLATFORM_WEBHOOK_SECRET");
-  if (!secret || req.headers.get("x-webhook-secret") !== secret) {
+  const rawBody = await req.text();
+  if (!await isAuthorized(req, rawBody)) {
     return new Response("Unauthorized", { status: 401 });
   }
 
   let body: Record<string, unknown>;
   try {
-    body = await req.json();
+    body = JSON.parse(rawBody) as Record<string, unknown>;
   } catch {
     return new Response(JSON.stringify({ error: "JSON inválido" }), {
       status: 400,
@@ -49,10 +68,11 @@ Deno.serve(async (req) => {
     .maybeSingle();
 
   if (!connection) {
-    return new Response(JSON.stringify({ error: "Conexão não encontrada" }), { status: 404 });
+    return new Response(JSON.stringify({ ok: true }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 
-  // Dispara sync sob demanda para payout/trip events
   if (eventType === "trip.completed" || eventType === "payout.credited") {
     await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/platform-sync`, {
       method: "POST",
