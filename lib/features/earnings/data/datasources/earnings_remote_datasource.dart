@@ -1,6 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../core/errors/failure.dart';
+import '../../../../core/errors/remote_data_source_errors.dart';
 import '../../domain/entities/earning_entity.dart';
 import '../mappers/earnings_mapper.dart';
 import '../schema/earnings_schema.dart';
@@ -54,7 +55,7 @@ class EarningsRemoteDataSource {
           .select()
           .single();
     } on PostgrestException catch (e) {
-      throw ServerFailure(message: e.message, cause: e);
+      throw RemoteDataSourceErrors.rethrowPostgrest(e);
     }
   }
 
@@ -76,7 +77,7 @@ class EarningsRemoteDataSource {
           .select()
           .single();
     } on PostgrestException catch (e) {
-      throw ServerFailure(message: e.message, cause: e);
+      throw RemoteDataSourceErrors.rethrowPostgrest(e);
     }
   }
 
@@ -93,7 +94,7 @@ class EarningsRemoteDataSource {
           .eq(EarningsSchema.id, id)
           .eq(EarningsSchema.userId, userId);
     } on PostgrestException catch (e) {
-      throw ServerFailure(message: e.message, cause: e);
+      throw RemoteDataSourceErrors.rethrowPostgrest(e);
     }
   }
 }
