@@ -275,3 +275,55 @@ O DriveFlow apresenta **engenharia de produto madura** (design system, Clean Arc
 ---
 
 *Última atualização: Onda 41 — branch `cursor/sprint4-coverage-9e66`*
+
+---
+
+## Auditoria Production-Ready — 20 jul 2026
+
+Revisão completa pré-code review (Meta). Correções aplicadas na migration `017_production_security_hardening.sql` e patches em Flutter/Edge Functions.
+
+### Veredito
+
+| Área | Status |
+|------|--------|
+| SQL Injection | ✅ Sem vetores (queries parametrizadas) |
+| HTML/XSS Injection | ✅ Sem WebView; AI usa `Text` puro |
+| RLS / Data tampering | ✅ Corrigido (triggers + policies) |
+| OAuth open redirect | ✅ Allowlist de `redirect_uri` |
+| Token storage | ✅ AES-GCM quando `PLATFORM_TOKEN_ENCRYPTION_KEY` configurada |
+| Error disclosure | ✅ Mensagens genéricas via `RemoteDataSourceErrors` |
+| Sync forgery | ✅ `platform_trips` read-only; `api_sync` earnings protegidos |
+
+### Correções aplicadas (HIGH)
+
+| ID | Problema | Correção |
+|----|----------|----------|
+| S1 | Open redirect OAuth | `validateAppRedirectUri()` em start/callback |
+| S2 | Erros OAuth vazados na URL | Códigos opacos (`error=oauth_failed`) |
+| S3 | Tokens OAuth plaintext | `token_crypto.ts` + `platform_secrets.ts` |
+| S4 | Cliente forja `platform_connections` | Trigger `enforce_platform_connections_client_writes` |
+| S5 | Cliente forja earnings `api_sync` | Trigger `enforce_earnings_client_writes` |
+| S6 | Cliente altera `platform_trips` | Policies INSERT/UPDATE/DELETE removidas |
+| S7 | Sync logs forjáveis | Policy INSERT removida para authenticated |
+| S8 | `PostgrestException.message` na UI | `RemoteDataSourceErrors` em todos datasources |
+| S9 | signOut não limpa sessão em falha | `try/finally` em `AuthRepositoryImpl` |
+| S10 | URLs remotas arbitrárias em imagens | `SupabaseStorageUrls.isAllowedRemoteUrl()` |
+| S11 | OAuth URL maliciosa no browser | `OAuthUrlValidator.isSafeAuthorizationUrl()` |
+| S12 | platform-sync via JWT do usuário | Service role após validação JWT |
+| S13 | Rate limit sync manual | 15 min entre syncs manuais |
+
+### Pendências MEDIUM — resolvidas (20 jul 2026)
+
+| ID | Item | Status |
+|----|------|--------|
+| M1 | Hive sem criptografia | ✅ `HiveEncryptionKey` + AES-256 |
+| M2 | Email confirmation desabilitada | ✅ `enable_confirmations = true` |
+| M3 | Crash reporting no-op | ✅ Sentry opcional via `SENTRY_DSN` |
+| M4 | PKCE no OAuth de plataformas | ✅ S256 + `code_verifier` |
+| M5 | Webhook HMAC por plataforma | ✅ `verifyWebhookHmac` + header |
+| M6 | Certificate pinning | ✅ `SupabaseCertificatePinning` |
+| M7 | Dados financeiros → Groq | ✅ Consentimento LGPD + `docs/PRIVACY.md` |
+
+**Extras nesta rodada:** SyncWorker não bloqueia em backoff infinito; testes de Hive/sync/widget estabilizados; migration `018_medium_pendencies.sql`.
+
+*Auditoria executada em 20/07/2026 — correções S1–S13 + M1–M7 implementadas.*
